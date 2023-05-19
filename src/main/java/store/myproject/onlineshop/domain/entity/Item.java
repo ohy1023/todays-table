@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -19,4 +20,19 @@ public class Item extends BaseEntity {
     private Long id;
 
     private String itemName;
+
+    private int price;
+
+    private int stock;
+
+    private String itemPhotoUrl;
+
+    @Builder
+    public Item(Long id, String itemName, int price, int stock, String itemPhotoUrl) {
+        this.id = id;
+        this.itemName = itemName;
+        this.price = price;
+        this.stock = stock;
+        this.itemPhotoUrl = itemPhotoUrl;
+    }
 }

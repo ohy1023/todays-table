@@ -12,9 +12,7 @@ import static store.myproject.onlineshop.domain.enums.Role.*;
 
 @Entity
 @Getter
-@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Where(clause = "deleted_date IS NULL")
 @SQLDelete(sql = "UPDATE customer SET deleted_date = CURRENT_TIMESTAMP WHERE customer_id = ?")
 public class Customer extends BaseEntity {
@@ -27,7 +25,7 @@ public class Customer extends BaseEntity {
     @Column(unique = true)
     private String email;
 
-    private String name;
+    private String userName;
 
     private String password;
 
@@ -50,5 +48,18 @@ public class Customer extends BaseEntity {
     @PrePersist
     public void prePersist() {
         this.role = this.role == null ? CUSTOMER : this.role;
+    }
+
+    @Builder
+    public Customer(Long id, String email, String userName, String password, String tel, Address address, Role role, Gender gender, MemberShip memberShip) {
+        this.id = id;
+        this.email = email;
+        this.userName = userName;
+        this.password = password;
+        this.tel = tel;
+        this.address = address;
+        this.role = role;
+        this.gender = gender;
+        this.memberShip = memberShip;
     }
 }

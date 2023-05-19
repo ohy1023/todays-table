@@ -9,22 +9,24 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ReviewPhoto {
+public class WishItem extends BaseEntity {
     @Id
     @GeneratedValue
-    @Column(name = "review_photo_id")
+    @Column(name = "wish_item_id")
     private Long id;
 
-    private String photoUrl;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "review_id")
-    private Review review;
+    @JoinColumn(name = "item_id")
+    private Item item;
 
     @Builder
-    public ReviewPhoto(Long id, String photoUrl, Review review) {
+    public WishItem(Long id, Customer customer, Item item) {
         this.id = id;
-        this.photoUrl = photoUrl;
-        this.review = review;
+        this.customer = customer;
+        this.item = item;
     }
 }
