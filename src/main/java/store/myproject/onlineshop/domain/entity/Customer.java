@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import store.myproject.onlineshop.domain.dto.customer.CustomerModifyRequest;
 import store.myproject.onlineshop.domain.enums.Gender;
 import store.myproject.onlineshop.domain.enums.Role;
 
@@ -12,18 +13,22 @@ import static store.myproject.onlineshop.domain.enums.Role.*;
 
 @Entity
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Where(clause = "deleted_date IS NULL")
 @SQLDelete(sql = "UPDATE customer SET deleted_date = CURRENT_TIMESTAMP WHERE customer_id = ?")
 public class Customer extends BaseEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "customer_id")
     private Long id;
 
     @Column(unique = true)
     private String email;
+
+    private String nickName;
 
     private String userName;
 
@@ -50,16 +55,18 @@ public class Customer extends BaseEntity {
         this.role = this.role == null ? CUSTOMER : this.role;
     }
 
-    @Builder
-    public Customer(Long id, String email, String userName, String password, String tel, Address address, Role role, Gender gender, MemberShip memberShip) {
-        this.id = id;
-        this.email = email;
-        this.userName = userName;
-        this.password = password;
-        this.tel = tel;
-        this.address = address;
-        this.role = role;
-        this.gender = gender;
-        this.memberShip = memberShip;
+    public void updateInfo(CustomerModifyRequest request) {
+        this.userName = request.getUserName();
+        this.nickName = request.getNickName();
+        this.gender = request.getGender();
+        this.tel = request.getTel();
+        this.address = Address.builder()
+                .city(request.getCity())
+                .street(request.getStreet())
+                .detail(request.getDetail())
+                .zipcode(request.getZipcode())
+                .build();
+
     }
+
 }
