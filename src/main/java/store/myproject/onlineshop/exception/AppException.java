@@ -5,15 +5,13 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class AppException extends RuntimeException{
+public class AppException extends RuntimeException {
 
     private ErrorCode errorCode;
     private String message;
 
-    @Override
-    public String toString() {
-        if (message == null) return errorCode.getMessage();
-        return message;
+    public AppException(ErrorCode errorCode) {
+        this.errorCode = errorCode;
+        this.message = errorCode.getMessage();
     }
 }
-
