@@ -2,14 +2,20 @@ package store.myproject.onlineshop.domain.entity;
 
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Where(clause = "deleted_date IS NULL")
+@SQLDelete(sql = "UPDATE item SET deleted_date = CURRENT_TIMESTAMP WHERE item_id = ?")
 public class Item extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,12 +30,6 @@ public class Item extends BaseEntity {
 
     private String itemPhotoUrl;
 
-    @Builder
-    public Item(Long id, String itemName, int price, int stock, String itemPhotoUrl) {
-        this.id = id;
-        this.itemName = itemName;
-        this.price = price;
-        this.stock = stock;
-        this.itemPhotoUrl = itemPhotoUrl;
-    }
+    @OneToMany(mappedBy = "item")
+    private List<OrderItem> orderItemList = new ArrayList<>();
 }

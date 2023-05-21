@@ -8,6 +8,9 @@ import store.myproject.onlineshop.domain.dto.customer.CustomerModifyRequest;
 import store.myproject.onlineshop.domain.enums.Gender;
 import store.myproject.onlineshop.domain.enums.Role;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static jakarta.persistence.FetchType.*;
 import static store.myproject.onlineshop.domain.enums.Role.*;
 
@@ -49,6 +52,9 @@ public class Customer extends BaseEntity {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "member_ship_id")
     private MemberShip memberShip;
+
+    @OneToMany(mappedBy = "customer")
+    private List<Order> orderList = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {
