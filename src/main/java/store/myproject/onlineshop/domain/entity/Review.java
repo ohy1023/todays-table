@@ -10,7 +10,9 @@ import java.util.List;
 
 @Entity
 @Getter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @Where(clause = "deleted_date is null")
 @SQLDelete(sql = "UPDATE review SET deleted_date = CURRENT_TIME WHERE review_id = ?")
 public class Review extends BaseEntity {
@@ -28,6 +30,7 @@ public class Review extends BaseEntity {
     @JoinColumn(name = "item_id")
     private Item item;
 
+    @Builder.Default
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL)
     private List<ReviewPhoto> reviewPhotoList = new ArrayList<>();
 
@@ -37,12 +40,5 @@ public class Review extends BaseEntity {
         this.content = content;
     }
 
-    @Builder
-    public Review(Long reviewId, Customer customer, Item item, List<ReviewPhoto> reviewPhotoList, String content) {
-        this.reviewId = reviewId;
-        this.customer = customer;
-        this.item = item;
-        this.reviewPhotoList = reviewPhotoList;
-        this.content = content;
-    }
+
 }

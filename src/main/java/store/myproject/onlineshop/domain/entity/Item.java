@@ -30,6 +30,7 @@ public class Item extends BaseEntity {
 
     private String itemPhotoUrl;
 
+    @Builder.Default
     @OneToMany(mappedBy = "item")
     private List<OrderItem> orderItemList = new ArrayList<>();
 }

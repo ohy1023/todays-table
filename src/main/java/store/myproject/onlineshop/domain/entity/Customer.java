@@ -53,6 +53,7 @@ public class Customer extends BaseEntity {
     @JoinColumn(name = "member_ship_id")
     private MemberShip memberShip;
 
+    @Builder.Default
     @OneToMany(mappedBy = "customer")
     private List<Order> orderList = new ArrayList<>();
 

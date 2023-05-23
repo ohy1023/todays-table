@@ -1,14 +1,13 @@
 package store.myproject.onlineshop.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class WishItem extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,10 +22,5 @@ public class WishItem extends BaseEntity {
     @JoinColumn(name = "item_id")
     private Item item;
 
-    @Builder
-    public WishItem(Long id, Customer customer, Item item) {
-        this.id = id;
-        this.customer = customer;
-        this.item = item;
-    }
+
 }

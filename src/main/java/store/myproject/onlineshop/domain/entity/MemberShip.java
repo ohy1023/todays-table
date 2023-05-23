@@ -6,7 +6,9 @@ import store.myproject.onlineshop.domain.enums.Level;
 
 @Entity
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class MemberShip {
 
     @Id
@@ -20,11 +22,5 @@ public class MemberShip {
 
     private float accumulation_rate;
 
-    @Builder
-    public MemberShip(Long id, Level level, float discount_rate, float accumulation_rate) {
-        this.id = id;
-        this.level = level;
-        this.discount_rate = discount_rate;
-        this.accumulation_rate = accumulation_rate;
-    }
+
 }
