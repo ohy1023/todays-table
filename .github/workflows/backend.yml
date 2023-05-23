@@ -21,6 +21,31 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+        ## create application-database.yml
+      - name: make application-database.yml
+        run: |
+          # create application-database.yml
+          cd ./src/main/resources
+          
+          # application-database.yaml 파일 생성
+          touch ./application-database.yml
+          
+          # GitHub-Actions 에서 설정한 값을 application-database.yaml 파일에 쓰기
+          echo "${{ secrets.DATABASE }}" >> ./application-database.yml
+        shell: bash
+
+      - name: make application-redis.yml
+        run: |
+          # create application-redis.yml
+          cd ./src/main/resources
+
+          # application-redis.yaml 파일 생성
+          touch ./application-redis.yml
+
+          # GitHub-Actions 에서 설정한 값을 application-redis.yaml 파일에 쓰기
+          echo "${{ secrets.REDIS }}" >> ./application-redis.yml
+        shell: bash
+
 
       - name: Build with Gradle
         run: |
