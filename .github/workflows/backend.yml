@@ -40,7 +40,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.KEY }}
           script: |
-            sudo docker rm -f $(docker ps -qa)
+            sudo docker rm -f web
             sudo docker pull ${{ secrets.DOCKER_REPO }}/shopping-mall
             docker-compose up -d
-            docker image prune -f
+            sudo docker image prune -f
