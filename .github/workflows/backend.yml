@@ -53,19 +53,20 @@ jobs:
           ./gradlew build
 #          ./gradlew bootJar
       ## 웹 이미지 빌드 및 도커허브에 push
-      - name: web docker build and push
+      - name: docker build and push
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ${{ secrets.DOCKER_REPO }}/shopping-mall . 
-          docker push ${{ secrets.DOCKER_REPO }}/shopping-mall
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }} . 
+          docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
       ## docker compose up
-      - name: executing remote ssh commands using password
+      - name: docker compose up
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ubuntu
           key: ${{ secrets.KEY }}
           script: |
-            sudo docker pull ${{ secrets.DOCKER_REPO }}/shopping-mall
+            sudo docker rm $(sudo docker ps -a)
+            sudo docker pull ${{ secrets.DOCKER_REPO }}/${{ secrets.DOCKER_REPO }}
             docker-compose up -d
             sudo docker image prune -f
