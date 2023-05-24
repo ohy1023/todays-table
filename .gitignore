@@ -11,6 +11,7 @@ src/main/generated
 ### .yml ###
 src/main/resources/application-database.yml
 src/main/resources/application-redis.yml
+.github/docker-compose.yml
 
 ### STS ###
 .apt_generated
@@ -44,4 +45,3 @@ out/
 .vscode/
 
 
-.github/docker-compose.yml
