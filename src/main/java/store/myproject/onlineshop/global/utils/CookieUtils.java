@@ -133,10 +133,10 @@ public class CookieUtils {
     }
 
     // 역직렬화
-    public static <T> T deserialize(Cookie cookie, Class<T> cls) {
-        return cls.cast(
-            SerializationUtils.deserialize(Base64.getUrlDecoder()
-                                               .decode(cookie.getValue())));
-    }
+//    public static <T> T deserialize(Cookie cookie, Class<T> cls) {
+//        return cls.cast(
+//            SerializationUtils.deserialize(Base64.getUrlDecoder()
+//                                               .decode(cookie.getValue())));
+//    }
 
 }
