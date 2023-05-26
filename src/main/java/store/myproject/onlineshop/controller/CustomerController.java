@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -84,7 +85,7 @@ public class CustomerController {
 
     @Operation(summary = "이메일 중복 체크")
     @PostMapping("/check")
-    public Response<String> check(@RequestBody CustomerCheckRequest customerCheckRequest) {
+    public Response<String> check(@Valid @RequestBody CustomerCheckRequest customerCheckRequest) {
         String msg = customerService.userNameCheck(customerCheckRequest);
         return Response.success(msg);
     }

@@ -2,6 +2,7 @@ package store.myproject.onlineshop.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import store.myproject.onlineshop.domain.dto.ErrorResponse;
@@ -20,5 +21,19 @@ public class ExceptionManager {
     public ResponseEntity<?> appExceptionHandler(AppException e) {
         return ResponseEntity.status(e.getErrorCode().getHttpStatus())
                 .body(Response.error(new ErrorResponse(e.getErrorCode().toString(), e.getMessage())));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        String errorCode = e.getBindingResult()
+                .getAllErrors()
+                .get(0)
+                .getCode();
+        String errorMessage = e.getBindingResult()
+                .getAllErrors()
+                .get(0)
+                .getDefaultMessage();
+
+        return ResponseEntity.status(e.getStatusCode()).body(Response.error(new ErrorResponse(errorCode, errorMessage)));
     }
 }

@@ -144,7 +144,7 @@ public class CustomerService {
     }
 
     public String userNameCheck(CustomerCheckRequest request) {
-        customerRepository.findByUserName(request.getNickName())
+        customerRepository.findByNickName(request.getNickName())
                 .ifPresent(user -> {
                     throw new AppException(ErrorCode.DUPLICATE_NICKNAME,
                             String.format("%s는 중복 된 닉네임입니다.", request.getNickName()));
