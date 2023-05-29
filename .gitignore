@@ -11,6 +11,7 @@ src/main/generated
 ### .yml ###
 src/main/resources/application-database.yml
 src/main/resources/application-redis.yml
+/src/main/resources/application-s3.yml
 .github/docker-compose.yml
 
 ### STS ###
