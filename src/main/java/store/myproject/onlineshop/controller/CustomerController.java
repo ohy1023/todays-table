@@ -1,7 +1,6 @@
 package store.myproject.onlineshop.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -91,5 +90,16 @@ public class CustomerController {
     public Response<CustomerLoginResponse> reissue(@RequestBody CustomerTokenRequest userTokenRequest, Authentication authentication) {
         CustomerLoginResponse customerLoginResponse = customerService.reissue(userTokenRequest, authentication.getName());
         return Response.success(customerLoginResponse);
+    }
+
+    @Operation(summary = "회원 정보 조회")
+    @GetMapping
+    public Response<CustomerInfoResponse> getInfo(Authentication authentication) {
+        String email = authentication.getName();
+        log.info("userEmail : {}", email);
+
+        CustomerInfoResponse customerInfoResponse = customerService.getInfo(email);
+
+        return Response.success(customerInfoResponse);
     }
 }

@@ -40,11 +40,6 @@ public class CustomerService {
     @Value("${refresh-token-maxage}")
     public int refreshTokenMaxAge;
 
-    @Transactional(readOnly = true)
-    public Customer findCustomerByEmail(String email) {
-        return customerRepository.findByEmail(email).orElseThrow(() ->
-                new AppException(EMAIL_NOT_FOUND, EMAIL_NOT_FOUND.getMessage()));
-    }
 
     @Transactional
     public String join(CustomerJoinRequest request) {
@@ -63,11 +58,11 @@ public class CustomerService {
         Customer customer = request.toEntity(encoder.encode(request.getPassword()));
         Customer savedCustomer = customerRepository.save(customer);
 
-        CustomerDto customerDto = CustomerDto.toDto(savedCustomer);
+        CustomerInfoResponse customerInfoResponse = CustomerInfoResponse.toDto(savedCustomer);
         log.info("회원가입 완료!");
         log.info("email: {}, nickName: {}, userName: {}", savedCustomer.getEmail(), savedCustomer.getNickName(), savedCustomer.getUserName());
 
-        return customerDto.getEmail();
+        return customerInfoResponse.getEmail();
     }
 
     @Transactional
@@ -177,5 +172,17 @@ public class CustomerService {
         customerRepository.delete(findCustomer);
 
         return findCustomer.getId();
+    }
+
+    public CustomerInfoResponse getInfo(String email) {
+        Customer customer = findCustomerByEmail(email);
+
+        return CustomerInfoResponse.toDto(customer);
+    }
+
+    @Transactional(readOnly = true)
+    public Customer findCustomerByEmail(String email) {
+        return customerRepository.findByEmail(email).orElseThrow(() ->
+                new AppException(EMAIL_NOT_FOUND, EMAIL_NOT_FOUND.getMessage()));
     }
 }
