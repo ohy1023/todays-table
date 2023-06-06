@@ -30,14 +30,14 @@ public class CustomerController {
 
     @Operation(summary = "회원 가입")
     @PostMapping("/join")
-    public Response<String> join(@RequestBody CustomerJoinRequest reqeust) {
+    public Response<String> join(@Valid @RequestBody CustomerJoinRequest reqeust) {
         String email = customerService.join(reqeust);
         return Response.success("회원가입 성공");
     }
 
     @Operation(summary = "로그인")
     @PostMapping("/login")
-    public Response<CustomerLoginResponse> login(@RequestBody CustomerLoginRequest customerLoginRequest, HttpServletRequest request,
+    public Response<CustomerLoginResponse> login(@Valid @RequestBody CustomerLoginRequest customerLoginRequest, HttpServletRequest request,
                                                  HttpServletResponse response) {
 
         CustomerLoginResponse customerLoginResponse = customerService.login(customerLoginRequest);
@@ -46,17 +46,13 @@ public class CustomerController {
         String refreshToken = customerLoginResponse.getRefreshToken();
 
 
-        if (customerLoginResponse.getRefreshToken() != null) {
-            log.info("쿠키에 저장된 AccessToken :");
-            log.info("Authorization = {};", accessToken);
-            CookieUtils.addAccessTokenAtCookie(response, accessToken);
-        }
+        log.info("쿠키에 저장된 AccessToken :");
+        log.info("Authorization = {};", accessToken);
+        CookieUtils.addAccessTokenAtCookie(response, accessToken);
 
-        if (customerLoginResponse.getRefreshToken() != null) {
-            log.info("쿠키에 저장된 RefreshToken :");
-            log.info("Authorization-refresh= {}; Path=/; Secure; HttpOnly; Expires=DOW, DAY MONTH YEAR HH:MM:SS GMT;", refreshToken);
-            CookieUtils.addRefreshTokenAtCookie(response, refreshToken);
-        }
+        log.info("쿠키에 저장된 RefreshToken :");
+        log.info("Authorization-refresh= {}; Path=/; Secure; HttpOnly; Expires=DOW, DAY MONTH YEAR HH:MM:SS GMT;", refreshToken);
+        CookieUtils.addRefreshTokenAtCookie(response, refreshToken);
 
         return Response.success(customerLoginResponse);
     }

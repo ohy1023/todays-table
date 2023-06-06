@@ -1,5 +1,7 @@
 package store.myproject.onlineshop.domain.dto.customer;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -12,34 +14,34 @@ import store.myproject.onlineshop.domain.enums.Gender;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomerJoinRequest {
-    @NotNull
+    @Email
     private String email;
 
-    @NotNull
+    @NotBlank
     private String password;
 
-    @NotNull
+    @NotBlank
     private String nickName;
 
-    @NotNull
+    @NotBlank
     private String userName;
 
-    @NotNull
+    @NotBlank
     private String tel;
 
     @NotNull
     private Gender gender;
 
-    @NotNull
+    @NotBlank
     private String city;
 
-    @NotNull
+    @NotBlank
     private String street;
 
-    @NotNull
+    @NotBlank
     private String detail;
 
-    @NotNull
+    @NotBlank
     private String zipcode;
 
     public Customer toEntity(String encodedPassword) {

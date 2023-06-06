@@ -29,13 +29,7 @@ public enum ErrorCode {
     INVALID_MAIL(HttpStatus.UNAUTHORIZED, "invalid email"),
     NOT_FOUND(HttpStatus.NOT_FOUND, "Role Not Found"),
 
-    // Post
-    NOT_FOUND_POST(HttpStatus.NOT_FOUND, "Post Not Found"),
-    EXHIBITION_NOT_FOUND(HttpStatus.NOT_FOUND, "Exhibition not found"),
-    GATHERING_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "Gathering post not found"),
-    CONTENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Review Contents not Found"),
-    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "Review is Not Found"),
-    PARTICIPANT_NOT_FOUND(HttpStatus.NOT_FOUND, "Participant not found"),
+
     ;
     private HttpStatus httpStatus;
     private String message;

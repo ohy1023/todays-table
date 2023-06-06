@@ -10,12 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 import store.myproject.onlineshop.domain.dto.customer.*;
 import store.myproject.onlineshop.domain.entity.Customer;
 import store.myproject.onlineshop.exception.AppException;
-import store.myproject.onlineshop.exception.ErrorCode;
 import store.myproject.onlineshop.global.redis.RedisDao;
 import store.myproject.onlineshop.global.utils.JwtUtils;
 import store.myproject.onlineshop.repository.CustomerRepository;
 
 import java.util.concurrent.TimeUnit;
+
+import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 
 @Slf4j
@@ -42,8 +43,7 @@ public class CustomerService {
     @Transactional(readOnly = true)
     public Customer findCustomerByEmail(String email) {
         return customerRepository.findByEmail(email).orElseThrow(() ->
-                new AppException(ErrorCode.EMAIL_NOT_FOUND,
-                        String.format("%s님은 존재하지 않습니다.", email)));
+                new AppException(EMAIL_NOT_FOUND, EMAIL_NOT_FOUND.getMessage()));
     }
 
     @Transactional
@@ -52,13 +52,12 @@ public class CustomerService {
 
         customerRepository.findByNickName(request.getNickName())
                 .ifPresent(user -> {
-                    throw new AppException(ErrorCode.DUPLICATE_NICKNAME,
-                            String.format("%s는 중복 된 닉네임입니다.", request.getNickName()));
+                    throw new AppException(DUPLICATE_NICKNAME, DUPLICATE_NICKNAME.getMessage());
                 });
 
         customerRepository.findByEmail(request.getEmail())
                 .ifPresent(user -> {
-                    throw new AppException(ErrorCode.DUPLICATE_EMAIL, String.format("%s는 중복 된 이메일입니다.", request.getEmail()));
+                    throw new AppException(DUPLICATE_EMAIL, DUPLICATE_EMAIL.getMessage());
                 });
 
         Customer customer = request.toEntity(encoder.encode(request.getPassword()));
@@ -77,11 +76,15 @@ public class CustomerService {
         Customer findCustomer = findCustomerByEmail(request.getEmail());
 
         if (!encoder.matches(request.getPassword(), findCustomer.getPassword())) {
-            throw new AppException(ErrorCode.INVALID_PASSWORD, "잘못된 비밀번호 입니다.");
+            throw new AppException(INVALID_PASSWORD, INVALID_PASSWORD.getMessage());
         }
 
         String accessToken = jwtUtils.createAccessToken(request.getEmail());
         String refreshToken = jwtUtils.createRefreshToken(request.getEmail());
+
+        if (accessToken == null || refreshToken == null) {
+            throw new AppException(INVALID_TOKEN, INVALID_TOKEN.getMessage());
+        }
 
         // 저장 형태 {"RT:test@test.com" , "refreshToken"}
         redisDao.setValues("RT:" + findCustomer.getEmail(), refreshToken, refreshTokenMaxAge, TimeUnit.SECONDS);
@@ -95,16 +98,16 @@ public class CustomerService {
         Customer findCustomer = findCustomerByEmail(email);
 
         if (jwtUtils.isExpired(request.getRefreshToken())) {
-            throw new AppException(ErrorCode.INVALID_TOKEN, "만료된 토큰입니다.");
+            throw new AppException(INVALID_TOKEN, INVALID_TOKEN.getMessage());
         }
 
         String refreshToken = redisDao.getValues("RT:" + email);
 
         if (ObjectUtils.isEmpty(refreshToken)) {
-            throw new AppException(ErrorCode.INVALID_REQUEST, "잘못된 요청입니다");
+            throw new AppException(INVALID_REQUEST, INVALID_REQUEST.getMessage());
         }
         if (!refreshToken.equals(request.getRefreshToken())) {
-            throw new AppException(ErrorCode.INVALID_TOKEN, "잘못된 토큰입니다.");
+            throw new AppException(INVALID_TOKEN, INVALID_TOKEN.getMessage());
         }
 
         String newAccessToken = jwtUtils.createAccessToken(findCustomer.getEmail());
@@ -124,11 +127,11 @@ public class CustomerService {
         String accessToken = request.getAccessToken();
 
         if (jwtUtils.isExpired(accessToken)) {
-            throw new AppException(ErrorCode.INVALID_TOKEN, "만료된 토큰입니다.");
+            throw new AppException(INVALID_TOKEN, INVALID_TOKEN.getMessage());
         }
 
         if (jwtUtils.isValid(accessToken)) {
-            throw new AppException(ErrorCode.INVALID_TOKEN, "잘못된 토큰입니다.");
+            throw new AppException(INVALID_TOKEN, INVALID_TOKEN.getMessage());
         }
 
         // Token 삭제
@@ -146,8 +149,7 @@ public class CustomerService {
     public String userNameCheck(CustomerCheckRequest request) {
         customerRepository.findByNickName(request.getNickName())
                 .ifPresent(user -> {
-                    throw new AppException(ErrorCode.DUPLICATE_NICKNAME,
-                            String.format("%s는 중복 된 닉네임입니다.", request.getNickName()));
+                    throw new AppException(DUPLICATE_NICKNAME, DUPLICATE_NICKNAME.getMessage());
                 });
 
         return "사용 가능한 닉네임 입니다.";
@@ -156,10 +158,9 @@ public class CustomerService {
     @Transactional
     public Long modifyUser(CustomerModifyRequest request, String email) {
 
-        customerRepository.findByUserName(request.getNickName())
+        customerRepository.findByNickName(request.getNickName())
                 .ifPresent(user -> {
-                    throw new AppException(ErrorCode.DUPLICATE_NICKNAME,
-                            String.format("%s는 중복 된 닉네임입니다.", request.getNickName()));
+                    throw new AppException(DUPLICATE_NICKNAME, DUPLICATE_NICKNAME.getMessage());
                 });
 
         Customer findCustomer = findCustomerByEmail(email);
