@@ -9,15 +9,16 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import store.myproject.onlineshop.domain.dto.customer.CustomerJoinRequest;
-import store.myproject.onlineshop.domain.dto.customer.CustomerLoginRequest;
-import store.myproject.onlineshop.domain.dto.customer.CustomerLoginResponse;
+import store.myproject.onlineshop.domain.dto.customer.*;
+import store.myproject.onlineshop.domain.entity.Address;
+import store.myproject.onlineshop.domain.enums.Gender;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.service.CustomerService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -195,8 +196,8 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
                 .andExpect(jsonPath("$.result.accessToken").value("accessToken"))
                 .andExpect(jsonPath("$.result.refreshToken").value("refreshToken"))
-                .andExpect(cookie().value("Authorization","accessToken"))
-                .andExpect(cookie().value("Authorization-refresh","refreshToken"))
+                .andExpect(cookie().value("Authorization", "accessToken"))
+                .andExpect(cookie().value("Authorization-refresh", "refreshToken"))
                 .andDo(print());
 
     }
@@ -213,7 +214,7 @@ class CustomerControllerTest {
 
 
         given(customerService.login(any(CustomerLoginRequest.class)))
-                .willThrow(new AppException(INVALID_TOKEN,INVALID_TOKEN.getMessage()));
+                .willThrow(new AppException(INVALID_TOKEN, INVALID_TOKEN.getMessage()));
 
         // when & then
         mockMvc.perform(post("/api/v1/customers/login")
@@ -238,9 +239,8 @@ class CustomerControllerTest {
                 .build();
 
 
-
         given(customerService.login(any(CustomerLoginRequest.class)))
-                .willThrow(new AppException(INVALID_PASSWORD,INVALID_PASSWORD.getMessage()));
+                .willThrow(new AppException(INVALID_PASSWORD, INVALID_PASSWORD.getMessage()));
 
         // when & then
         mockMvc.perform(post("/api/v1/customers/login")
@@ -255,7 +255,263 @@ class CustomerControllerTest {
 
     }
 
+    @Test
+    @DisplayName("로그아웃 성공")
+    public void logout_success() throws Exception {
 
+        // given
+        CustomerTokenRequest request = CustomerTokenRequest.builder()
+                .accessToken("accessToken")
+                .build();
+
+        given(customerService.logout(any(CustomerTokenRequest.class), any(String.class)))
+                .willReturn("로그아웃 되셨습니다.");
+
+
+        // when & then
+        mockMvc.perform(post("/api/v1/customers/logout")
+                        .with(csrf())
+                        .content(objectMapper.writeValueAsBytes(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
+                .andExpect(jsonPath("$.result").value("로그아웃 되셨습니다."))
+                .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("로그아웃 실패 - 만료된 토큰")
+    public void logout_fail_tokenExpire() throws Exception {
+
+        // given
+        CustomerTokenRequest request = CustomerTokenRequest.builder()
+                .accessToken("accessToken")
+                .build();
+
+        given(customerService.logout(any(CustomerTokenRequest.class), any(String.class)))
+                .willThrow(new AppException(EXPIRED_TOKEN, EXPIRED_TOKEN.getMessage()));
+
+
+        // when & then
+        mockMvc.perform(post("/api/v1/customers/logout")
+                        .with(csrf())
+                        .content(objectMapper.writeValueAsBytes(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.result.errorCode").value("EXPIRED_TOKEN"))
+                .andExpect(jsonPath("$.result.message").value("Token expired"))
+                .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("로그아웃 실패 - 잘못된 토큰")
+    public void logout_fail_tokenInvalid() throws Exception {
+
+        // given
+        CustomerTokenRequest request = CustomerTokenRequest.builder()
+                .accessToken("accessToken")
+                .refreshToken("refreshToken")
+                .build();
+
+        given(customerService.logout(any(CustomerTokenRequest.class), any(String.class)))
+                .willThrow(new AppException(INVALID_TOKEN, INVALID_TOKEN.getMessage()));
+
+
+        // when & then
+        mockMvc.perform(post("/api/v1/customers/logout")
+                        .with(csrf())
+                        .content(objectMapper.writeValueAsBytes(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.result.errorCode").value("INVALID_TOKEN"))
+                .andExpect(jsonPath("$.result.message").value("Token invalid"))
+                .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("토큰 재발급")
+    public void reissue_success() throws Exception {
+
+        // given
+        CustomerTokenRequest request = CustomerTokenRequest.builder()
+                .accessToken("accessToken")
+                .refreshToken("refreshToken")
+                .build();
+
+        CustomerLoginResponse response = CustomerLoginResponse.builder()
+                .accessToken("accessToken")
+                .refreshToken("refreshToken")
+                .build();
+
+
+        given(customerService.reissue(any(CustomerTokenRequest.class), any(String.class)))
+                .willReturn(response);
+
+
+        // when & then
+        mockMvc.perform(post("/api/v1/customers/reissue")
+                        .with(csrf())
+                        .content(objectMapper.writeValueAsBytes(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
+                .andExpect(jsonPath("$.result.accessToken").value("accessToken"))
+                .andExpect(jsonPath("$.result.refreshToken").value("refreshToken"))
+                .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("토큰 재발급 실패 - 잘못된 리프레쉬 토큰")
+    public void reissue_fail_tokenInvalid() throws Exception {
+
+        // given
+        CustomerTokenRequest request = CustomerTokenRequest.builder()
+                .accessToken("accessToken")
+                .refreshToken("refreshToken")
+                .build();
+
+        given(customerService.reissue(any(CustomerTokenRequest.class), any(String.class)))
+                .willThrow(new AppException(EXPIRED_TOKEN, EXPIRED_TOKEN.getMessage()));
+
+
+        // when & then
+        mockMvc.perform(post("/api/v1/customers/reissue")
+                        .with(csrf())
+                        .content(objectMapper.writeValueAsBytes(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.result.errorCode").value("EXPIRED_TOKEN"))
+                .andExpect(jsonPath("$.result.message").value("Token expired"))
+                .andDo(print());
+
+    }
+
+
+    @Test
+    @DisplayName("토큰 재발급 실패 - 만료된 리프레쉬 토큰")
+    public void reissue_fail_tokenExpire() throws Exception {
+
+        // given
+        CustomerTokenRequest request = CustomerTokenRequest.builder()
+                .accessToken("accessToken")
+                .refreshToken("refreshToken")
+                .build();
+
+        given(customerService.reissue(any(CustomerTokenRequest.class), any(String.class)))
+                .willThrow(new AppException(INVALID_TOKEN, INVALID_TOKEN.getMessage()));
+
+
+        // when & then
+        mockMvc.perform(post("/api/v1/customers/reissue")
+                        .with(csrf())
+                        .content(objectMapper.writeValueAsBytes(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.result.errorCode").value("INVALID_TOKEN"))
+                .andExpect(jsonPath("$.result.message").value("Token invalid"))
+                .andDo(print());
+
+    }
+
+
+    @Test
+    @DisplayName("토큰 재발급 실패 - 리프레쉬 토큰이 없는 경우")
+    public void reissue_fail_tokenEmpty() throws Exception {
+
+        // given
+        CustomerTokenRequest request = CustomerTokenRequest.builder()
+                .accessToken("accessToken")
+                .build();
+
+        given(customerService.reissue(any(CustomerTokenRequest.class), any(String.class)))
+                .willThrow(new AppException(INVALID_REQUEST, INVALID_REQUEST.getMessage()));
+
+
+        // when & then
+        mockMvc.perform(post("/api/v1/customers/reissue")
+                        .with(csrf())
+                        .content(objectMapper.writeValueAsBytes(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.result.errorCode").value("INVALID_REQUEST"))
+                .andExpect(jsonPath("$.result.message").value("invalid quest"))
+                .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("회원 정보 조회 성공")
+    public void info_success() throws Exception {
+
+        // given
+        CustomerInfoResponse response = CustomerInfoResponse.builder()
+                .createdDate("2023-06-07")
+                .email("test@naver.com")
+                .userName("test")
+                .nickName("test")
+                .gender(MALE)
+                .tel("010-1234-5678")
+                .address(Address.builder()
+                        .city("서울특별시")
+                        .street("시흥대로 589-8")
+                        .detail("1601호")
+                        .zipcode("07445")
+                        .build())
+                .build();
+
+
+        given(customerService.getInfo(any(String.class)))
+                .willReturn(response);
+
+        // when & then
+
+        mockMvc.perform(get("/api/v1/customers")
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
+                .andExpect(jsonPath("$.result.email").value("test@naver.com"))
+                .andExpect(jsonPath("$.result.nickName").value("test"))
+                .andExpect(jsonPath("$.result.userName").value("test"))
+                .andExpect(jsonPath("$.result.tel").value("010-1234-5678"))
+                .andExpect(jsonPath("$.result.address.city").value("서울특별시"))
+                .andExpect(jsonPath("$.result.address.street").value("시흥대로 589-8"))
+                .andExpect(jsonPath("$.result.address.detail").value("1601호"))
+                .andExpect(jsonPath("$.result.address.zipcode").value("07445"))
+                .andExpect(jsonPath("$.result.gender").value("MALE"))
+                .andExpect(jsonPath("$.result.createdDate").value("2023-06-07"))
+                .andDo(print());
+
+    }
+
+
+    @Test
+    @DisplayName("회원 정보 조회 실패 - 이메일을 찾을 수 없는 경우")
+    public void info_fail_notFoundEmail() throws Exception {
+
+        // given
+        given(customerService.getInfo(any(String.class)))
+                .willThrow(new AppException(EMAIL_NOT_FOUND, EMAIL_NOT_FOUND.getMessage()));
+
+
+        // when & then
+        mockMvc.perform(get("/api/v1/customers")
+                        .with(csrf()))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.result.errorCode").value("EMAIL_NOT_FOUND"))
+                .andExpect(jsonPath("$.result.message").value("email not found"))
+                .andDo(print());
+
+    }
 
 
 }

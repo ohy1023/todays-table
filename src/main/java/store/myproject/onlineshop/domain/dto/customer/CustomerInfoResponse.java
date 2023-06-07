@@ -3,6 +3,7 @@ package store.myproject.onlineshop.domain.dto.customer;
 import lombok.*;
 import store.myproject.onlineshop.domain.entity.Address;
 import store.myproject.onlineshop.domain.entity.Customer;
+import store.myproject.onlineshop.domain.enums.Gender;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -18,7 +19,7 @@ public class CustomerInfoResponse {
     private String userName;
     private String tel;
     private Address address;
-
+    private Gender gender;
     private String createdDate;
 
     public static CustomerInfoResponse toDto(Customer savedCustomer) {
@@ -29,6 +30,7 @@ public class CustomerInfoResponse {
                 .nickName(savedCustomer.getNickName())
                 .userName(savedCustomer.getUserName())
                 .tel(savedCustomer.getTel())
+                .gender(savedCustomer.getGender())
                 .address(Address.builder()
                         .city(savedCustomer.getAddress().getCity())
                         .street(savedCustomer.getAddress().getStreet())
