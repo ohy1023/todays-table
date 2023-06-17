@@ -15,16 +15,13 @@ import store.myproject.onlineshop.domain.enums.Gender;
 public class CustomerModifyRequest {
 
     @NotNull
-    private String tel;
-
-    @NotNull
     private String nickName;
 
     @NotNull
     private String userName;
 
     @NotNull
-    private Gender gender;
+    private String tel;
 
     @NotNull
     private String city;

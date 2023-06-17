@@ -65,7 +65,6 @@ public class Customer extends BaseEntity {
     public void updateInfo(CustomerModifyRequest request) {
         this.userName = request.getUserName();
         this.nickName = request.getNickName();
-        this.gender = request.getGender();
         this.tel = request.getTel();
         this.address = Address.builder()
                 .city(request.getCity())

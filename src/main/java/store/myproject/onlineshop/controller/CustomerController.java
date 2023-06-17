@@ -67,21 +67,28 @@ public class CustomerController {
     @Operation(summary = "회원 정보 수정")
     @PutMapping
     public Response<Long> modify(@RequestBody CustomerModifyRequest customerModifyRequest, Authentication authentication) {
-        Long customerId = customerService.modifyUser(customerModifyRequest, authentication.getName());
+        Long customerId = customerService.modify(customerModifyRequest, authentication.getName());
         return Response.success(customerId);
     }
 
     @Operation(summary = "회원 탈퇴")
     @DeleteMapping
     public Response<Long> delete(Authentication authentication) {
-        Long customerId = customerService.deleteUser(authentication.getName());
+        Long customerId = customerService.delete(authentication.getName());
         return Response.success(customerId);
     }
 
     @Operation(summary = "이메일 중복 체크")
-    @PostMapping("/check")
-    public Response<String> check(@Valid @RequestBody CustomerCheckRequest customerCheckRequest) {
-        String msg = customerService.userNameCheck(customerCheckRequest);
+    @PostMapping("/email")
+    public Response<String> emailCheck(@Valid @RequestBody CustomerEmailCheckRequest request) {
+        String msg = customerService.emailCheck(request);
+        return Response.success(msg);
+    }
+
+    @Operation(summary = "닉네임 중복 체크")
+    @PostMapping("/nickName")
+    public Response<String> nickNameCheck(@Valid @RequestBody CustomerNickNameCheckRequest request) {
+        String msg = customerService.nickNameCheck(request);
         return Response.success(msg);
     }
 

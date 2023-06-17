@@ -46,12 +46,12 @@ public class CustomerService {
         log.info("회원가입 요청 : {}", request);
 
         customerRepository.findByNickName(request.getNickName())
-                .ifPresent(user -> {
+                .ifPresent(customer -> {
                     throw new AppException(DUPLICATE_NICKNAME, DUPLICATE_NICKNAME.getMessage());
                 });
 
         customerRepository.findByEmail(request.getEmail())
-                .ifPresent(user -> {
+                .ifPresent(customer -> {
                     throw new AppException(DUPLICATE_EMAIL, DUPLICATE_EMAIL.getMessage());
                 });
 
@@ -141,9 +141,20 @@ public class CustomerService {
         return "로그아웃 되었습니다.";
     }
 
-    public String userNameCheck(CustomerCheckRequest request) {
+    public String emailCheck(CustomerEmailCheckRequest request) {
+
+        customerRepository.findByEmail(request.getEmail())
+                .ifPresent(customer -> {
+                    throw new AppException(DUPLICATE_EMAIL, DUPLICATE_EMAIL.getMessage());
+                });
+
+        return "사용 가능한 이메일 입니다.";
+    }
+
+    public String nickNameCheck(CustomerNickNameCheckRequest request) {
+
         customerRepository.findByNickName(request.getNickName())
-                .ifPresent(user -> {
+                .ifPresent(customer -> {
                     throw new AppException(DUPLICATE_NICKNAME, DUPLICATE_NICKNAME.getMessage());
                 });
 
@@ -151,12 +162,7 @@ public class CustomerService {
     }
 
     @Transactional
-    public Long modifyUser(CustomerModifyRequest request, String email) {
-
-        customerRepository.findByNickName(request.getNickName())
-                .ifPresent(user -> {
-                    throw new AppException(DUPLICATE_NICKNAME, DUPLICATE_NICKNAME.getMessage());
-                });
+    public Long modify(CustomerModifyRequest request, String email) {
 
         Customer findCustomer = findCustomerByEmail(email);
 
@@ -165,7 +171,7 @@ public class CustomerService {
         return findCustomer.getId();
     }
 
-    public Long deleteUser(String email) {
+    public Long delete(String email) {
 
         Customer findCustomer = findCustomerByEmail(email);
 
