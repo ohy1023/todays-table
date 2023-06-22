@@ -111,10 +111,11 @@ public class CustomerService {
         // 저장 형태 {"RT:test@test.com" , "refreshToken"}
         redisDao.setValues("RT:" + findCustomer.getEmail(), newRefreshToken, refreshTokenMaxAge, TimeUnit.SECONDS);
 
-        return new CustomerLoginResponse(newAccessToken, refreshToken);
+        return new CustomerLoginResponse(newAccessToken, newRefreshToken);
 
     }
 
+    @Transactional
     public String logout(CustomerTokenRequest request, String email) {
 
         Customer findCustomer = findCustomerByEmail(email);
@@ -141,6 +142,7 @@ public class CustomerService {
         return "로그아웃 되었습니다.";
     }
 
+    @Transactional
     public String emailCheck(CustomerEmailCheckRequest request) {
 
         customerRepository.findByEmail(request.getEmail())
@@ -151,6 +153,7 @@ public class CustomerService {
         return "사용 가능한 이메일 입니다.";
     }
 
+    @Transactional
     public String nickNameCheck(CustomerNickNameCheckRequest request) {
 
         customerRepository.findByNickName(request.getNickName())
@@ -171,6 +174,7 @@ public class CustomerService {
         return findCustomer.getId();
     }
 
+    @Transactional
     public Long delete(String email) {
 
         Customer findCustomer = findCustomerByEmail(email);
@@ -180,6 +184,7 @@ public class CustomerService {
         return findCustomer.getId();
     }
 
+    @Transactional(readOnly = true)
     public CustomerInfoResponse getInfo(String email) {
         Customer customer = findCustomerByEmail(email);
 

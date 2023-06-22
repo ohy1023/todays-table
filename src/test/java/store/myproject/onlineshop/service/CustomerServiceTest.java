@@ -1,6 +1,5 @@
 package store.myproject.onlineshop.service;
 
-import org.assertj.core.api.AbstractThrowableAssert;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,6 +8,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import store.myproject.onlineshop.domain.dto.customer.CustomerJoinRequest;
+import store.myproject.onlineshop.domain.dto.customer.CustomerLoginRequest;
+import store.myproject.onlineshop.domain.dto.customer.CustomerLoginResponse;
+import store.myproject.onlineshop.domain.dto.customer.CustomerTokenRequest;
 import store.myproject.onlineshop.domain.entity.Customer;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.fixture.CustomerInfoFixture;
@@ -44,6 +46,8 @@ class CustomerServiceTest {
     private CustomerService customerService;
 
     Customer customer1 = CustomerInfoFixture.get("test@naver.com", "customer1", "test");
+    String accessToken = "accessToken";
+    String refreshToken = "refreshToken";
 
     @Test
     @DisplayName("회원가입 성공")
@@ -102,9 +106,10 @@ class CustomerServiceTest {
                 .build();
 
         given(customerRepository.findByNickName(customer1.getNickName()))
-                .willThrow(new AppException(DUPLICATE_NICKNAME, DUPLICATE_NICKNAME.getMessage()));
+                .willReturn(Optional.of(customer1));
 
-        AbstractThrowableAssert<?, ? extends Throwable> o = assertThatThrownBy(() -> customerService.join(request))
+        // when & then
+        assertThatThrownBy(() -> customerService.join(request))
                 .isInstanceOf(AppException.class)
                 .hasMessage(DUPLICATE_NICKNAME.getMessage());
 
@@ -132,11 +137,351 @@ class CustomerServiceTest {
                 .willReturn(Optional.empty());
 
         given(customerRepository.findByEmail(customer1.getEmail()))
-                .willThrow(new AppException(DUPLICATE_EMAIL, DUPLICATE_EMAIL.getMessage()));
+                .willReturn(Optional.of(customer1));
 
+        // when & then
         assertThatThrownBy(() -> customerService.join(request))
                 .isInstanceOf(AppException.class)
                 .hasMessage(DUPLICATE_EMAIL.getMessage());
+    }
+
+    @Test
+    @DisplayName("로그인 성공")
+    public void login_success() {
+
+        // given
+        CustomerLoginRequest request = CustomerLoginRequest.builder()
+                .email("test@naver.com")
+                .password("test")
+                .build();
+
+        given(customerRepository.findByEmail(request.getEmail()))
+                .willReturn(Optional.of(customer1));
+
+        given(encoder.matches(request.getPassword(), customer1.getPassword()))
+                .willReturn(true);
+
+        given(jwtUtils.createAccessToken(request.getEmail()))
+                .willReturn(accessToken);
+
+        given(jwtUtils.createRefreshToken(request.getEmail()))
+                .willReturn(refreshToken);
+
+        // when
+        CustomerLoginResponse response = customerService.login(request);
+
+        // then
+        assertThat(response.getAccessToken()).isEqualTo(accessToken);
+        assertThat(response.getRefreshToken()).isEqualTo(refreshToken);
+
+    }
+
+    @Test
+    @DisplayName("로그인 실패 - 존재하지 않는 이메일")
+    public void login_fail_notFoundEmail() {
+
+        // given
+        CustomerLoginRequest request = CustomerLoginRequest.builder()
+                .email("test@naver.com")
+                .password("test")
+                .build();
+
+        given(customerRepository.findByEmail(request.getEmail()))
+                .willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> customerService.login(request))
+                .isInstanceOf(AppException.class)
+                .hasMessage(EMAIL_NOT_FOUND.getMessage());
+
+    }
+
+    @Test
+    @DisplayName("로그인 실패 - 비밀번호 불일치")
+    public void login_fail_invalidPassword() {
+
+        // given
+        CustomerLoginRequest request = CustomerLoginRequest.builder()
+                .email("test@naver.com")
+                .password("test")
+                .build();
+
+        given(customerRepository.findByEmail(request.getEmail()))
+                .willReturn(Optional.of(customer1));
+
+        given(encoder.matches(request.getPassword(), customer1.getPassword()))
+                .willReturn(false);
+
+
+        // then
+        assertThatThrownBy(() -> customerService.login(request))
+                .isInstanceOf(AppException.class)
+                .hasMessage(INVALID_PASSWORD.getMessage());
+    }
+
+    @Test
+    @DisplayName("로그인 실패 - accessToken이 null인 경우")
+    public void login_fail_accessTokenNull() {
+
+        // given
+        CustomerLoginRequest request = CustomerLoginRequest.builder()
+                .email("test@naver.com")
+                .password("test")
+                .build();
+
+        given(customerRepository.findByEmail(request.getEmail()))
+                .willReturn(Optional.of(customer1));
+
+        given(encoder.matches(request.getPassword(), customer1.getPassword()))
+                .willReturn(true);
+
+        given(jwtUtils.createAccessToken(request.getEmail()))
+                .willReturn(null);
+
+        given(jwtUtils.createRefreshToken(request.getEmail()))
+                .willReturn(refreshToken);
+
+        // when & then
+        assertThatThrownBy(() -> customerService.login(request))
+                .isInstanceOf(AppException.class)
+                .hasMessage(INVALID_TOKEN.getMessage());
+    }
+
+    @Test
+    @DisplayName("로그인 실패 - refresh token이 null인 경우")
+    public void login_fail_refreshTokenNull() {
+
+        // given
+        CustomerLoginRequest request = CustomerLoginRequest.builder()
+                .email("test@naver.com")
+                .password("test")
+                .build();
+
+        given(customerRepository.findByEmail(request.getEmail()))
+                .willReturn(Optional.of(customer1));
+
+        given(encoder.matches(request.getPassword(), customer1.getPassword()))
+                .willReturn(true);
+
+
+        given(jwtUtils.createAccessToken(request.getEmail()))
+                .willReturn(accessToken);
+
+        given(jwtUtils.createRefreshToken(request.getEmail()))
+                .willReturn(null);
+
+        // when & then
+        assertThatThrownBy(() -> customerService.login(request))
+                .isInstanceOf(AppException.class)
+                .hasMessage(INVALID_TOKEN.getMessage());
+    }
+
+    @Test
+    @DisplayName("로그아웃 성공")
+    public void logout_success() {
+
+        // given
+        CustomerTokenRequest request = CustomerTokenRequest.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+
+        given(customerRepository.findByEmail(customer1.getEmail()))
+                .willReturn(Optional.of(customer1));
+
+        given(jwtUtils.getExpiration(request.getAccessToken()))
+                .willReturn(12000L);
+
+        // when
+        String msg = customerService.logout(request, customer1.getEmail());
+
+        // then
+        assertThat(msg).isEqualTo("로그아웃 되었습니다.");
+
+    }
+
+    @Test
+    @DisplayName("로그아웃 실패 - 존재하지 않는 이메일")
+    public void logout_fail_notFoundEmail() {
+
+        // given
+        CustomerTokenRequest request = CustomerTokenRequest.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+
+        given(customerRepository.findByEmail(customer1.getEmail()))
+                .willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> customerService.logout(request, customer1.getEmail()))
+                .isInstanceOf(AppException.class)
+                .hasMessage(EMAIL_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("로그아웃 실패 - 만료된 토큰")
+    public void logout_fail_expiredToken() {
+
+        // given
+        CustomerTokenRequest request = CustomerTokenRequest.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+
+        given(customerRepository.findByEmail(customer1.getEmail()))
+                .willReturn(Optional.of(customer1));
+
+        given(jwtUtils.isExpired(request.getAccessToken()))
+                .willReturn(true);
+
+        // when & then
+        assertThatThrownBy(() -> customerService.logout(request, customer1.getEmail()))
+                .isInstanceOf(AppException.class)
+                .hasMessage(INVALID_TOKEN.getMessage());
+    }
+
+    @Test
+    @DisplayName("로그아웃 실패 - 유효하지 않은 토큰")
+    public void logout_fail_invalidToken() {
+
+        // given
+        CustomerTokenRequest request = CustomerTokenRequest.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+
+        given(customerRepository.findByEmail(customer1.getEmail()))
+                .willReturn(Optional.of(customer1));
+
+        given(jwtUtils.isExpired(request.getAccessToken()))
+                .willReturn(false);
+
+        given(jwtUtils.isValid(request.getAccessToken()))
+                .willReturn(true);
+
+        // when & then
+        assertThatThrownBy(() -> customerService.logout(request, customer1.getEmail()))
+                .isInstanceOf(AppException.class)
+                .hasMessage(INVALID_TOKEN.getMessage());
+    }
+
+    @Test
+    @DisplayName("토큰 재발급 성공")
+    public void reissue_success() {
+
+        // given
+        CustomerTokenRequest request = CustomerTokenRequest.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+
+        given(customerRepository.findByEmail(customer1.getEmail()))
+                .willReturn(Optional.of(customer1));
+
+        given(redisDao.getValues("RT:" + customer1.getEmail()))
+                .willReturn(refreshToken);
+
+        given(jwtUtils.createAccessToken(customer1.getEmail()))
+                .willReturn("newAccessToken");
+
+        given(jwtUtils.createRefreshToken(customer1.getEmail()))
+                .willReturn("newRefreshToken");
+
+        // when
+        CustomerLoginResponse response = customerService.reissue(request, customer1.getEmail());
+
+        // then
+        assertThat(response.getAccessToken()).isEqualTo("newAccessToken");
+        assertThat(response.getRefreshToken()).isEqualTo("newRefreshToken");
+
+    }
+
+
+    @Test
+    @DisplayName("토큰 재발급 실패 - 존재하지 않는 이메일")
+    public void reissue_fail_notFoundEmail() {
+
+        // given
+        CustomerTokenRequest request = CustomerTokenRequest.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+
+        given(customerRepository.findByEmail(customer1.getEmail()))
+                .willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> customerService.reissue(request, customer1.getEmail()))
+                .isInstanceOf(AppException.class)
+                .hasMessage(EMAIL_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("토큰 재발급 실패 - 만료된 토큰")
+    public void reissue_fail_expiredToken() {
+
+        // given
+        CustomerTokenRequest request = CustomerTokenRequest.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+
+        given(customerRepository.findByEmail(customer1.getEmail()))
+                .willReturn(Optional.of(customer1));
+
+        given(jwtUtils.isExpired(request.getRefreshToken()))
+                .willReturn(true);
+
+        // when & then
+        assertThatThrownBy(() -> customerService.reissue(request, customer1.getEmail()))
+                .isInstanceOf(AppException.class)
+                .hasMessage(INVALID_TOKEN.getMessage());
+    }
+
+    @Test
+    @DisplayName("토큰 재발급 실패 - 존재하지 않는 토큰")
+    public void reissue_fail_tokenNull() {
+
+        // given
+        CustomerTokenRequest request = CustomerTokenRequest.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+
+        given(customerRepository.findByEmail(customer1.getEmail()))
+                .willReturn(Optional.of(customer1));
+
+        given(redisDao.getValues("RT:" + customer1.getEmail()))
+                .willReturn(null);
+
+        // when & then
+        assertThatThrownBy(() -> customerService.reissue(request, customer1.getEmail()))
+                .isInstanceOf(AppException.class)
+                .hasMessage(INVALID_REQUEST.getMessage());
+    }
+
+
+    @Test
+    @DisplayName("토큰 재발급 실패 - 토큰 불일치")
+    public void reissue_fail_mismatchedToken() {
+
+        // given
+        CustomerTokenRequest request = CustomerTokenRequest.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+
+        given(customerRepository.findByEmail(customer1.getEmail()))
+                .willReturn(Optional.of(customer1));
+
+        given(redisDao.getValues("RT:" + customer1.getEmail()))
+                .willReturn("mismatchToken");
+
+        // when & then
+        assertThatThrownBy(() -> customerService.reissue(request, customer1.getEmail()))
+                .isInstanceOf(AppException.class)
+                .hasMessage(INVALID_TOKEN.getMessage());
     }
 
 
