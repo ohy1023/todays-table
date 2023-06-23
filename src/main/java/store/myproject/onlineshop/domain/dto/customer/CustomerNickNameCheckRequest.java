@@ -3,10 +3,10 @@ package store.myproject.onlineshop.domain.dto.customer;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomerNickNameCheckRequest {

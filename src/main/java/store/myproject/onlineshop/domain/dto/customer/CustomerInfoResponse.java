@@ -5,7 +5,6 @@ import store.myproject.onlineshop.domain.entity.Address;
 import store.myproject.onlineshop.domain.entity.Customer;
 import store.myproject.onlineshop.domain.enums.Gender;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Data
