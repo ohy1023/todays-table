@@ -131,7 +131,7 @@ class CustomerControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.resultCode").value("ERROR"))
                 .andExpect(jsonPath("$.result.errorCode").value("DUPLICATE_EMAIL"))
-                .andExpect(jsonPath("$.result.message").value("email conflict"))
+                .andExpect(jsonPath("$.result.message").value(DUPLICATE_EMAIL.getMessage()))
                 .andDo(print());
     }
 
@@ -162,7 +162,7 @@ class CustomerControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.resultCode").value("ERROR"))
                 .andExpect(jsonPath("$.result.errorCode").value("DUPLICATE_NICKNAME"))
-                .andExpect(jsonPath("$.result.message").value("Nick name conflict"))
+                .andExpect(jsonPath("$.result.message").value(DUPLICATE_NICKNAME.getMessage()))
                 .andDo(print());
     }
 
@@ -222,7 +222,7 @@ class CustomerControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.resultCode").value("ERROR"))
                 .andExpect(jsonPath("$.result.errorCode").value("INVALID_TOKEN"))
-                .andExpect(jsonPath("$.result.message").value("Token invalid"))
+                .andExpect(jsonPath("$.result.message").value(INVALID_TOKEN.getMessage()))
                 .andDo(print());
     }
 
@@ -248,7 +248,7 @@ class CustomerControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.resultCode").value("ERROR"))
                 .andExpect(jsonPath("$.result.errorCode").value("INVALID_PASSWORD"))
-                .andExpect(jsonPath("$.result.message").value("invalid password"))
+                .andExpect(jsonPath("$.result.message").value(INVALID_PASSWORD.getMessage()))
                 .andDo(print());
 
     }
@@ -299,7 +299,7 @@ class CustomerControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.resultCode").value("ERROR"))
                 .andExpect(jsonPath("$.result.errorCode").value("EXPIRED_TOKEN"))
-                .andExpect(jsonPath("$.result.message").value("Token expired"))
+                .andExpect(jsonPath("$.result.message").value(EXPIRED_TOKEN.getMessage()))
                 .andDo(print());
 
     }
@@ -326,7 +326,7 @@ class CustomerControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.resultCode").value("ERROR"))
                 .andExpect(jsonPath("$.result.errorCode").value("INVALID_TOKEN"))
-                .andExpect(jsonPath("$.result.message").value("Token invalid"))
+                .andExpect(jsonPath("$.result.message").value(INVALID_TOKEN.getMessage()))
                 .andDo(print());
 
     }
@@ -386,7 +386,7 @@ class CustomerControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.resultCode").value("ERROR"))
                 .andExpect(jsonPath("$.result.errorCode").value("EXPIRED_TOKEN"))
-                .andExpect(jsonPath("$.result.message").value("Token expired"))
+                .andExpect(jsonPath("$.result.message").value(EXPIRED_TOKEN.getMessage()))
                 .andDo(print());
 
     }
@@ -414,7 +414,7 @@ class CustomerControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.resultCode").value("ERROR"))
                 .andExpect(jsonPath("$.result.errorCode").value("INVALID_TOKEN"))
-                .andExpect(jsonPath("$.result.message").value("Token invalid"))
+                .andExpect(jsonPath("$.result.message").value(INVALID_TOKEN.getMessage()))
                 .andDo(print());
 
     }
@@ -441,7 +441,7 @@ class CustomerControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.resultCode").value("ERROR"))
                 .andExpect(jsonPath("$.result.errorCode").value("INVALID_REQUEST"))
-                .andExpect(jsonPath("$.result.message").value("invalid quest"))
+                .andExpect(jsonPath("$.result.message").value(INVALID_REQUEST.getMessage()))
                 .andDo(print());
 
     }
@@ -506,7 +506,7 @@ class CustomerControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.resultCode").value("ERROR"))
                 .andExpect(jsonPath("$.result.errorCode").value("EMAIL_NOT_FOUND"))
-                .andExpect(jsonPath("$.result.message").value("email not found"))
+                .andExpect(jsonPath("$.result.message").value(EMAIL_NOT_FOUND.getMessage()))
                 .andDo(print());
 
     }
@@ -567,7 +567,7 @@ class CustomerControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.resultCode").value("ERROR"))
                 .andExpect(jsonPath("$.result.errorCode").value("EMAIL_NOT_FOUND"))
-                .andExpect(jsonPath("$.result.message").value("email not found"))
+                .andExpect(jsonPath("$.result.message").value(EMAIL_NOT_FOUND.getMessage()))
                 .andDo(print());
 
     }
@@ -605,7 +605,7 @@ class CustomerControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.resultCode").value("ERROR"))
                 .andExpect(jsonPath("$.result.errorCode").value("EMAIL_NOT_FOUND"))
-                .andExpect(jsonPath("$.result.message").value("email not found"))
+                .andExpect(jsonPath("$.result.message").value(EMAIL_NOT_FOUND.getMessage()))
                 .andDo(print());
 
     }
@@ -650,7 +650,7 @@ class CustomerControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.resultCode").value("ERROR"))
                 .andExpect(jsonPath("$.result.errorCode").value("DUPLICATE_EMAIL"))
-                .andExpect(jsonPath("$.result.message").value("email conflict"))
+                .andExpect(jsonPath("$.result.message").value(DUPLICATE_EMAIL.getMessage()))
                 .andDo(print());
 
     }
@@ -694,7 +694,7 @@ class CustomerControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.resultCode").value("ERROR"))
                 .andExpect(jsonPath("$.result.errorCode").value("DUPLICATE_NICKNAME"))
-                .andExpect(jsonPath("$.result.message").value("Nick name conflict"))
+                .andExpect(jsonPath("$.result.message").value(DUPLICATE_NICKNAME.getMessage()))
                 .andDo(print());
 
     }
