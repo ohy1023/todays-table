@@ -7,10 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import store.myproject.onlineshop.domain.dto.customer.CustomerJoinRequest;
-import store.myproject.onlineshop.domain.dto.customer.CustomerLoginRequest;
-import store.myproject.onlineshop.domain.dto.customer.CustomerLoginResponse;
-import store.myproject.onlineshop.domain.dto.customer.CustomerTokenRequest;
+import store.myproject.onlineshop.domain.dto.customer.*;
 import store.myproject.onlineshop.domain.entity.Customer;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.fixture.CustomerInfoFixture;
@@ -482,6 +479,199 @@ class CustomerServiceTest {
         assertThatThrownBy(() -> customerService.reissue(request, customer1.getEmail()))
                 .isInstanceOf(AppException.class)
                 .hasMessage(INVALID_TOKEN.getMessage());
+    }
+
+    @Test
+    @DisplayName("회원 정보 조회 성공")
+    public void info_success() {
+
+        // given
+        String request = "test@naver.com";
+
+        given(customerRepository.findByEmail(request))
+                .willReturn(Optional.of(customer1));
+
+        // when
+        CustomerInfoResponse response = customerService.getInfo(request);
+
+        // then
+        assertThat(response.getEmail()).isEqualTo(customer1.getEmail());
+        assertThat(response.getUserName()).isEqualTo(customer1.getUserName());
+        assertThat(response.getNickName()).isEqualTo(customer1.getNickName());
+
+    }
+
+    @Test
+    @DisplayName("회원 정보 조회 실패 - 존재하지 않는 이메일")
+    public void info_fail_notFoundEmail() {
+
+        // given
+        String request = "test@naver.com";
+
+        given(customerRepository.findByEmail(request))
+                .willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> customerService.getInfo(request))
+                .isInstanceOf(AppException.class)
+                .hasMessage(EMAIL_NOT_FOUND.getMessage());
+
+    }
+
+    @Test
+    @DisplayName("회원 정보 수정 성공")
+    public void modify_success() {
+
+        // given
+        CustomerModifyRequest request = CustomerModifyRequest.builder()
+                .userName("newTest")
+                .tel("010-5678-1234")
+                .nickName("newTest")
+                .street("test")
+                .city("test")
+                .zipcode("test")
+                .detail("test")
+                .build();
+
+        given(customerRepository.findByEmail(customer1.getEmail()))
+                .willReturn(Optional.of(customer1));
+
+        // when
+        Long modifyCustomerId = customerService.modify(request, customer1.getEmail());
+
+        // then
+        assertThat(modifyCustomerId).isEqualTo(customer1.getId());
+
+    }
+
+    @Test
+    @DisplayName("회원 정보 수정 실패 - 존재하지 않는 이메일")
+    public void modify_fail_notFoundEmail() {
+
+        // given
+        CustomerModifyRequest request = CustomerModifyRequest.builder()
+                .userName("newTest")
+                .tel("010-5678-1234")
+                .nickName("newTest")
+                .street("test")
+                .city("test")
+                .zipcode("test")
+                .detail("test")
+                .build();
+
+        given(customerRepository.findByEmail(customer1.getEmail()))
+                .willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> customerService.modify(request, customer1.getEmail()))
+                .isInstanceOf(AppException.class)
+                .hasMessage(EMAIL_NOT_FOUND.getMessage());
+
+    }
+
+    @Test
+    @DisplayName("회원 탈퇴 성공")
+    public void delete_success() {
+
+        // given
+        String request = "test@naver.com";
+
+        given(customerRepository.findByEmail(customer1.getEmail()))
+                .willReturn(Optional.of(customer1));
+
+        // when
+        Long deleteCustomerId = customerService.delete(request);
+
+        // then
+        assertThat(deleteCustomerId).isEqualTo(customer1.getId());
+
+    }
+
+    @Test
+    @DisplayName("회원 탈퇴 실패 - 존재하지 않는 이메일")
+    public void delete_fail_notFoundEmail() {
+
+        // given
+        String request = "test@naver.com";
+
+        given(customerRepository.findByEmail(request))
+                .willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> customerService.delete(request))
+                .isInstanceOf(AppException.class)
+                .hasMessage(EMAIL_NOT_FOUND.getMessage());
+
+    }
+
+    @Test
+    @DisplayName("이메일 중복 체크 성공")
+    public void email_check_success() {
+
+        // given
+        CustomerEmailCheckRequest request = new CustomerEmailCheckRequest("test@naver.com");
+
+        given(customerRepository.findByEmail(request.getEmail()))
+                .willReturn(Optional.empty());
+
+        // when
+        String msg = customerService.emailCheck(request);
+
+        // then
+        assertThat(msg).isEqualTo("사용 가능한 이메일 입니다.");
+
+    }
+
+    @Test
+    @DisplayName("이메일 중복 체크 실패")
+    public void email_check_fail_duplicate_nickname() {
+
+        // given
+        CustomerEmailCheckRequest request = new CustomerEmailCheckRequest("test@naver.com");
+
+        given(customerRepository.findByEmail(request.getEmail()))
+                .willReturn(Optional.of(customer1));
+
+        // when & then
+        assertThatThrownBy(() -> customerService.emailCheck(request))
+                .isInstanceOf(AppException.class)
+                .hasMessage(DUPLICATE_EMAIL.getMessage());
+
+    }
+
+    @Test
+    @DisplayName("닉네임 중복 체크 성공")
+    public void nickName_check_success() {
+
+        // given
+        CustomerNickNameCheckRequest request = new CustomerNickNameCheckRequest("test");
+
+        given(customerRepository.findByNickName(request.getNickName()))
+                .willReturn(Optional.empty());
+
+        // when
+        String msg = customerService.nickNameCheck(request);
+
+        // then
+        assertThat(msg).isEqualTo("사용 가능한 닉네임 입니다.");
+
+    }
+
+    @Test
+    @DisplayName("닉네임 중복 체크 실패")
+    public void nickName_check_fail_duplicate_nickname() {
+
+        // given
+        CustomerNickNameCheckRequest request = new CustomerNickNameCheckRequest("test");
+
+        given(customerRepository.findByNickName(request.getNickName()))
+                .willReturn(Optional.of(customer1));
+
+        // when & then
+        assertThatThrownBy(() -> customerService.nickNameCheck(request))
+                .isInstanceOf(AppException.class)
+                .hasMessage(DUPLICATE_NICKNAME.getMessage());
+
     }
 
 
