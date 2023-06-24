@@ -5,6 +5,7 @@ spring:
       - springdoc
       - jwt
       - redis
+      - s3
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -16,3 +17,4 @@ spring:
 
 logging.level:
   org.hibernate.SQL: debug
+  org.springframework.core.LocalVariableTableParameterNameDiscoverer : error
