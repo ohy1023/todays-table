@@ -9,6 +9,8 @@ import org.hibernate.annotations.Where;
 import java.util.ArrayList;
 import java.util.List;
 
+import static jakarta.persistence.FetchType.*;
+
 @Entity
 @Getter
 @Builder
@@ -29,6 +31,10 @@ public class Item extends BaseEntity {
     private int stock;
 
     private String itemPhotoUrl;
+
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "brand_id")
+    private Brand brand;
 
     @Builder.Default
     @OneToMany(mappedBy = "item")
