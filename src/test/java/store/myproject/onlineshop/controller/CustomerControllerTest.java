@@ -665,7 +665,7 @@ class CustomerControllerTest {
                 .willReturn("사용 가능한 닉네임 입니다.");
 
         // when & then
-        mockMvc.perform(post("/api/v1/customers/nickName")
+        mockMvc.perform(post("/api/v1/customers/nickname")
                         .with(csrf())
                         .content(objectMapper.writeValueAsBytes(request))
                         .contentType(MediaType.APPLICATION_JSON))
@@ -687,7 +687,7 @@ class CustomerControllerTest {
                 .willThrow(new AppException(DUPLICATE_NICKNAME, DUPLICATE_NICKNAME.getMessage()));
 
         // when & then
-        mockMvc.perform(post("/api/v1/customers/nickName")
+        mockMvc.perform(post("/api/v1/customers/nickname")
                         .with(csrf())
                         .content(objectMapper.writeValueAsBytes(request))
                         .contentType(MediaType.APPLICATION_JSON))

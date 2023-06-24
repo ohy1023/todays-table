@@ -94,7 +94,7 @@ public class CustomerController {
 
     @Tag(name = "Customer", description = "회원 API")
     @Operation(summary = "닉네임 중복 체크")
-    @PostMapping("/nickName")
+    @PostMapping("/nickname")
     public Response<String> nickNameCheck(@Valid @RequestBody CustomerNickNameCheckRequest request) {
         String msg = customerService.nickNameCheck(request);
         return Response.success(msg);
