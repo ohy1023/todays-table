@@ -70,7 +70,7 @@ public class CustomerController {
 
     @Tag(name = "Customer", description = "회원 API")
     @Operation(summary = "회원 정보 수정")
-    @PutMapping
+    @PatchMapping
     public Response<Long> modify(@RequestBody CustomerModifyRequest customerModifyRequest, Authentication authentication) {
         Long customerId = customerService.modify(customerModifyRequest, authentication.getName());
         return Response.success(customerId);

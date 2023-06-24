@@ -530,7 +530,7 @@ class CustomerControllerTest {
                 .willReturn(1L);
 
         // when & then
-        mockMvc.perform(put("/api/v1/customers")
+        mockMvc.perform(patch("/api/v1/customers")
                         .with(csrf())
                         .content(objectMapper.writeValueAsBytes(request))
                         .contentType(MediaType.APPLICATION_JSON))
@@ -560,7 +560,7 @@ class CustomerControllerTest {
                 .willThrow(new AppException(EMAIL_NOT_FOUND, EMAIL_NOT_FOUND.getMessage()));
 
         // when & then
-        mockMvc.perform(put("/api/v1/customers")
+        mockMvc.perform(patch("/api/v1/customers")
                         .with(csrf())
                         .content(objectMapper.writeValueAsBytes(request))
                         .contentType(MediaType.APPLICATION_JSON))
