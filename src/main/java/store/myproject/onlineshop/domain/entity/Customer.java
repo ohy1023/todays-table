@@ -40,6 +40,11 @@ public class Customer extends BaseEntity {
     private String tel;
 
     @Embedded
+    private Account account;
+
+    private Long point;
+
+    @Embedded
     private Address address;
 
     @Enumerated(EnumType.STRING)
@@ -61,6 +66,7 @@ public class Customer extends BaseEntity {
     public void prePersist() {
         this.role = this.role == null ? CUSTOMER : this.role;
     }
+
 
     public void updateInfo(CustomerModifyRequest request) {
         this.userName = request.getUserName();
