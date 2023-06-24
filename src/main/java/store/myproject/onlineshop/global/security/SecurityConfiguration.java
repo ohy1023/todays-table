@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import store.myproject.onlineshop.domain.enums.Role;
 import store.myproject.onlineshop.global.redis.RedisDao;
 import store.myproject.onlineshop.global.token.JwtExceptionFilter;
 import store.myproject.onlineshop.global.token.JwtFilter;
@@ -21,9 +22,7 @@ import store.myproject.onlineshop.repository.CustomerRepository;
 public class SecurityConfiguration {
 
     private final CustomerRepository customerRepository;
-    private final RedisDao redisDao;
     private final JwtUtils jwtUtils;
-
 
     private static final String[] SWAGGER_AUTH = {
             "/api-docs/swagger-config/**",
@@ -34,11 +33,18 @@ public class SecurityConfiguration {
             "/webjars/**",
     };
     private static final String[] GET_AUTH_USER = {
-
+            "/api/v1/brands/{id}",
+            "/api/v1/brands",
     };
+
+    private static final String[] ADMIN = {
+            "/api/v1/brands",
+    };
+
     private static final String[] POST_AUTH_USER = {
             "/api/v1/customers/reissue",
             "/api/v1/customers/logout",
+
     };
     private static final String[] PUT_AUTH_USER = {
             "/api/v1/customers/modify",
@@ -51,7 +57,8 @@ public class SecurityConfiguration {
     private static final String[] PERMIT_ALL = {
             "/api/v1/customers/join",
             "/api/v1/customers/login",
-            "/api/v1/customers/check",
+            "/api/v1/customers/email",
+            "/api/v1/customers/nickName",
     };
 
     @Bean
@@ -66,6 +73,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(SWAGGER_AUTH).permitAll()
                         .requestMatchers(PERMIT_ALL).permitAll()
+                        .requestMatchers(ADMIN).hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.GET, GET_AUTH_USER).authenticated()
                         .requestMatchers(HttpMethod.POST, POST_AUTH_USER).authenticated()
                         .requestMatchers(HttpMethod.PUT, PUT_AUTH_USER).authenticated()
