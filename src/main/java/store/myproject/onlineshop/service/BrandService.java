@@ -2,19 +2,19 @@ package store.myproject.onlineshop.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import store.myproject.onlineshop.domain.dto.brand.*;
 import store.myproject.onlineshop.domain.entity.Brand;
 import store.myproject.onlineshop.exception.AppException;
-import store.myproject.onlineshop.exception.ErrorCode;
 import store.myproject.onlineshop.global.s3.service.AwsS3Service;
 import store.myproject.onlineshop.global.utils.FileUtils;
 import store.myproject.onlineshop.repository.BrandRepository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
@@ -29,11 +29,15 @@ public class BrandService {
     private final AwsS3Service awsS3Service;
 
     // 브랜드 단건 조회
+    @Transactional(readOnly = true)
+    @Cacheable(value = "brands", key = "#id")
     public BrandInfo getBrandInfo(Long id) {
         return getBrandOrElseThrow(id).toBrandInfo();
     }
 
     // 브랜드 전체 조회
+    @Transactional(readOnly = true)
+    @Cacheable(value = "brands")
     public List<BrandInfo> getBrandInfos() {
         return brandRepository.findAll().stream()
                 .map((Brand::toBrandInfo))
@@ -58,6 +62,7 @@ public class BrandService {
     }
 
     // 브랜드 수정
+    @CacheEvict(value = "brands", allEntries = true)
     public BrandUpdateResponse updateBrand(Long id, BrandUpdateRequest request, MultipartFile multipartFile) {
 
         Brand brand = getBrandOrElseThrow(id);
@@ -82,6 +87,7 @@ public class BrandService {
     }
 
     // 브랜드 삭제
+    @CacheEvict(value = "brands", allEntries = true)
     public BrandDeleteResponse deleteBrand(Long id) {
 
         Brand brand = getBrandOrElseThrow(id);
