@@ -9,8 +9,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import store.myproject.onlineshop.domain.enums.Role;
-import store.myproject.onlineshop.global.redis.RedisDao;
 import store.myproject.onlineshop.global.token.JwtExceptionFilter;
 import store.myproject.onlineshop.global.token.JwtFilter;
 import store.myproject.onlineshop.global.utils.JwtUtils;
@@ -32,13 +30,24 @@ public class SecurityConfiguration {
             "/swagger-resources/**",
             "/webjars/**",
     };
-    private static final String[] GET_AUTH_USER = {
-            "/api/v1/brands/{id}",
+
+    private static final String[] GET_AUTH_ADMIN = {
+    };
+
+    private static final String[] POST_AUTH_ADMIN = {
             "/api/v1/brands",
     };
 
-    private static final String[] ADMIN = {
-            "/api/v1/brands",
+    private static final String[] PATCH_AUTH_ADMIN = {
+            "/api/v1/brands/{id}",
+    };
+
+    private static final String[] DELETE_AUTH_ADMIN = {
+            "/api/v1/brands/{id}",
+    };
+
+    private static final String[] GET_AUTH_USER = {
+//            "/api/v1/customers"
     };
 
     private static final String[] POST_AUTH_USER = {
@@ -46,12 +55,11 @@ public class SecurityConfiguration {
             "/api/v1/customers/logout",
 
     };
-    private static final String[] PUT_AUTH_USER = {
-            "/api/v1/customers/modify",
+    private static final String[] PATCH_AUTH_USER = {
+            "/api/v1/customers",
     };
     private static final String[] DELETE_AUTH_USER = {
-            "/customers/delete",
-
+            "api/v1/customers",
     };
 
     private static final String[] PERMIT_ALL = {
@@ -59,6 +67,7 @@ public class SecurityConfiguration {
             "/api/v1/customers/login",
             "/api/v1/customers/email",
             "/api/v1/customers/nickName",
+            "/api/v1/brands/search",
     };
 
     @Bean
@@ -73,10 +82,13 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(SWAGGER_AUTH).permitAll()
                         .requestMatchers(PERMIT_ALL).permitAll()
-                        .requestMatchers(ADMIN).hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, GET_AUTH_ADMIN).hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.POST, POST_AUTH_ADMIN).hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, PATCH_AUTH_ADMIN).hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, DELETE_AUTH_ADMIN).hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.GET, GET_AUTH_USER).authenticated()
                         .requestMatchers(HttpMethod.POST, POST_AUTH_USER).authenticated()
-                        .requestMatchers(HttpMethod.PUT, PUT_AUTH_USER).authenticated()
+                        .requestMatchers(HttpMethod.PUT, PATCH_AUTH_USER).authenticated()
                         .requestMatchers(HttpMethod.DELETE, DELETE_AUTH_USER).authenticated()
                         .anyRequest().permitAll()
                 )
