@@ -34,7 +34,7 @@ public class BrandController {
 
     @Tag(name = "Brand", description = "브랜드 API")
     @Operation(summary = "브랜드 전체 조회")
-    @GetMapping
+    @GetMapping("/search")
     public Response<List<BrandInfo>> getBrands() {
 
         List<BrandInfo> brands = brandService.getBrandInfos();
