@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import store.myproject.onlineshop.domain.dto.account.*;
 import store.myproject.onlineshop.domain.dto.customer.CustomerModifyRequest;
 import store.myproject.onlineshop.domain.enums.CustomerRole;
 import store.myproject.onlineshop.domain.enums.Gender;
@@ -79,5 +80,55 @@ public class Customer extends BaseEntity {
                 .build();
 
     }
+
+    public void registerAccount(AccountCreateRequest request) {
+        this.account = request.toEntity();
+    }
+
+    public void updateAccount(AccountUpdateRequest request) {
+        this.account = request.toEntity();
+    }
+
+    public void deleteAccount() {
+        this.account = Account
+                .builder()
+                .bankName(null)
+                .accountNumber(null)
+                .depositor(null)
+                .build();
+    }
+
+    public AccountCreateResponse toAccountCreateResponse() {
+        return AccountCreateResponse.builder()
+                .bankName(this.account.getBankName())
+                .accountNumber(this.account.getAccountNumber())
+                .depositor(this.account.getDepositor())
+                .build();
+    }
+
+    public AccountUpdateResponse toAccountUpdateResponse() {
+        return AccountUpdateResponse.builder()
+                .bankName(this.account.getBankName())
+                .accountNumber(this.account.getAccountNumber())
+                .depositor(this.account.getDepositor())
+                .build();
+    }
+
+    public AccountDeleteResponse toAccountDeleteResponse() {
+        return AccountDeleteResponse.builder()
+                .bankName(this.account.getBankName())
+                .accountNumber(this.account.getAccountNumber())
+                .depositor(this.account.getDepositor())
+                .build();
+    }
+
+    public AccountInfo toAccountInfo() {
+        return AccountInfo.builder()
+                .bankName(this.account.getBankName())
+                .accountNumber(this.account.getAccountNumber())
+                .depositor(this.account.getDepositor())
+                .build();
+    }
+
 
 }
