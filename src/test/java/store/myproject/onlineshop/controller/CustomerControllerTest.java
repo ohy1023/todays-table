@@ -9,6 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import store.myproject.onlineshop.custom.WithMockCustomUser;
 import store.myproject.onlineshop.domain.dto.customer.*;
 import store.myproject.onlineshop.domain.entity.Address;
 import store.myproject.onlineshop.exception.AppException;
@@ -24,7 +25,7 @@ import static store.myproject.onlineshop.domain.enums.Gender.*;
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 @WebMvcTest(CustomerController.class)
-@WithMockUser
+@WithMockCustomUser
 class CustomerControllerTest {
 
     @MockBean

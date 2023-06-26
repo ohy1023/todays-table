@@ -5,14 +5,14 @@ import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import store.myproject.onlineshop.domain.dto.customer.CustomerModifyRequest;
+import store.myproject.onlineshop.domain.enums.CustomerRole;
 import store.myproject.onlineshop.domain.enums.Gender;
-import store.myproject.onlineshop.domain.enums.Role;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static jakarta.persistence.FetchType.*;
-import static store.myproject.onlineshop.domain.enums.Role.*;
+import static store.myproject.onlineshop.domain.enums.CustomerRole.*;
 
 @Entity
 @Getter
@@ -48,8 +48,7 @@ public class Customer extends BaseEntity {
     private Address address;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 10, columnDefinition = "varchar(10) default 'CUSTOMER'")
-    private Role role;
+    private CustomerRole customerRole;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
@@ -64,7 +63,7 @@ public class Customer extends BaseEntity {
 
     @PrePersist
     public void prePersist() {
-        this.role = this.role == null ? CUSTOMER : this.role;
+        this.customerRole = this.customerRole == null ? ROLE_CUSTOMER : this.customerRole;
     }
 
 
