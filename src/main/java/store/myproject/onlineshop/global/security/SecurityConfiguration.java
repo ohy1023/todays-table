@@ -36,30 +36,38 @@ public class SecurityConfiguration {
 
     private static final String[] POST_AUTH_ADMIN = {
             "/api/v1/brands",
+            "/api/v1/memberships",
     };
 
     private static final String[] PATCH_AUTH_ADMIN = {
             "/api/v1/brands/{id}",
+            "/api/v1/memberships/{id}",
     };
 
     private static final String[] DELETE_AUTH_ADMIN = {
             "/api/v1/brands/{id}",
+            "/api/v1/memberships/{id}",
     };
 
     private static final String[] GET_AUTH_USER = {
-//            "/api/v1/customers"
+            "/api/v1/accounts",
+            "/api/v1/memberships",
+            "/api/v1/memberships/{id}",
     };
 
     private static final String[] POST_AUTH_USER = {
             "/api/v1/customers/reissue",
             "/api/v1/customers/logout",
+            "/api/v1/accounts",
 
     };
     private static final String[] PATCH_AUTH_USER = {
             "/api/v1/customers",
+            "/api/v1/accounts",
     };
     private static final String[] DELETE_AUTH_USER = {
             "api/v1/customers",
+            "/api/v1/accounts",
     };
 
     private static final String[] PERMIT_ALL = {

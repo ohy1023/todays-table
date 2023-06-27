@@ -44,7 +44,7 @@ public class Customer extends BaseEntity {
     @Embedded
     private Account account;
 
-    private Long point;
+    private Long totalPurchaseAmount;
 
     @Embedded
     private Address address;

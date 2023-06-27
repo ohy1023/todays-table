@@ -3,6 +3,8 @@ package store.myproject.onlineshop.domain.membership;
 import jakarta.persistence.*;
 import lombok.*;
 import store.myproject.onlineshop.domain.customer.Level;
+import store.myproject.onlineshop.domain.membership.dto.MemberShipDto;
+import store.myproject.onlineshop.domain.membership.dto.MemberShipUpdateRequest;
 
 @Entity
 @Getter
@@ -18,9 +20,23 @@ public class MemberShip {
 
     private Level level;
 
-    private float discount_rate;
+    private Float discountRate;
 
-    private float accumulation_rate;
+    private Long baseline;
+
+    public void updateMemberShip(MemberShipUpdateRequest updateRequest) {
+        this.level = updateRequest.getLevel();
+        this.baseline = updateRequest.getBaseline();
+        this.discountRate = updateRequest.getDiscountRate();
+    }
+
+    public MemberShipDto toDto() {
+        return MemberShipDto.builder()
+                .level(this.level)
+                .baseline(this.baseline)
+                .discountRate(this.discountRate)
+                .build();
+    }
 
 
 }
