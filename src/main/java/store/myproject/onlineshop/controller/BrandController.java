@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import store.myproject.onlineshop.domain.Response;
@@ -33,11 +35,11 @@ public class BrandController {
     }
 
     @Tag(name = "Brand", description = "브랜드 API")
-    @Operation(summary = "브랜드 전체 조회")
+    @Operation(summary = "브랜드 조회")
     @GetMapping("/search")
-    public Response<List<BrandInfo>> getBrands() {
+    public Response<Page<BrandInfo>> getBrands(@RequestParam(required = false) String brandName, Pageable pageable) {
 
-        List<BrandInfo> brands = brandService.getBrandInfos();
+        Page<BrandInfo> brands = brandService.getBrandInfos(brandName,pageable);
 
         return Response.success(brands);
     }

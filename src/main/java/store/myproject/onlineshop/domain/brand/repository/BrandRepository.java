@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 import store.myproject.onlineshop.domain.brand.Brand;
 
 @Repository
-public interface BrandRepository extends JpaRepository<Brand, Long> {
+public interface BrandRepository extends JpaRepository<Brand, Long>, BrandCustomRepository {
 
     boolean existsByName(String brandName);
 }

@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,17 +32,15 @@ public class BrandService {
 
     // 브랜드 단건 조회
     @Transactional(readOnly = true)
+    @Cacheable(value = "brands",key = "#id")
     public BrandInfo getBrandInfo(Long id) {
         return getBrandOrElseThrow(id).toBrandInfo();
     }
 
     // 브랜드 전체 조회
     @Transactional(readOnly = true)
-    @Cacheable(value = "brands")
-    public List<BrandInfo> getBrandInfos() {
-        return brandRepository.findAll().stream()
-                .map((Brand::toBrandInfo))
-                .toList();
+    public Page<BrandInfo> getBrandInfos(String brandName, Pageable pageable) {
+        return brandRepository.search(brandName, pageable);
     }
 
     // 브랜드 추가
