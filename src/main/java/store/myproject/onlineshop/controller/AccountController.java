@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import store.myproject.onlineshop.domain.dto.Response;
-import store.myproject.onlineshop.domain.dto.account.*;
+import store.myproject.onlineshop.domain.Response;
+import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.service.AccountService;
 
 @Slf4j

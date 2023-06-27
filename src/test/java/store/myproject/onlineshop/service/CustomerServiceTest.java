@@ -7,13 +7,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import store.myproject.onlineshop.domain.dto.customer.*;
-import store.myproject.onlineshop.domain.entity.Customer;
+import store.myproject.onlineshop.domain.customer.dto.*;
+import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.fixture.CustomerInfoFixture;
 import store.myproject.onlineshop.global.redis.RedisDao;
 import store.myproject.onlineshop.global.utils.JwtUtils;
-import store.myproject.onlineshop.repository.CustomerRepository;
+import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
 
 import java.util.Optional;
 
@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static store.myproject.onlineshop.domain.enums.Gender.MALE;
+import static store.myproject.onlineshop.domain.customer.Gender.MALE;
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 @ExtendWith(MockitoExtension.class)

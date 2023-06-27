@@ -7,12 +7,12 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import store.myproject.onlineshop.domain.dto.brand.*;
-import store.myproject.onlineshop.domain.entity.Brand;
+import store.myproject.onlineshop.domain.brand.dto.*;
+import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.s3.service.AwsS3Service;
 import store.myproject.onlineshop.global.utils.FileUtils;
-import store.myproject.onlineshop.repository.BrandRepository;
+import store.myproject.onlineshop.domain.brand.repository.BrandRepository;
 
 import java.util.List;
 

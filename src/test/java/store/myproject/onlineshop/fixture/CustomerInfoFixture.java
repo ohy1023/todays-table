@@ -1,12 +1,12 @@
 package store.myproject.onlineshop.fixture;
 
-import store.myproject.onlineshop.domain.entity.Address;
-import store.myproject.onlineshop.domain.entity.Customer;
+import store.myproject.onlineshop.domain.customer.Address;
+import store.myproject.onlineshop.domain.customer.Customer;
 
 
 import java.time.LocalDateTime;
 
-import static store.myproject.onlineshop.domain.enums.Gender.MALE;
+import static store.myproject.onlineshop.domain.customer.Gender.MALE;
 
 public class CustomerInfoFixture {
 

@@ -10,8 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import store.myproject.onlineshop.domain.dto.Response;
-import store.myproject.onlineshop.domain.dto.customer.*;
+import store.myproject.onlineshop.domain.Response;
+import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.global.utils.CookieUtils;
 import store.myproject.onlineshop.service.CustomerService;
 

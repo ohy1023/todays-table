@@ -12,7 +12,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import store.myproject.onlineshop.global.token.JwtExceptionFilter;
 import store.myproject.onlineshop.global.token.JwtFilter;
 import store.myproject.onlineshop.global.utils.JwtUtils;
-import store.myproject.onlineshop.repository.CustomerRepository;
+import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
 
 @EnableWebSecurity
 @Configuration

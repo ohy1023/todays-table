@@ -1,7 +1,7 @@
 package store.myproject.onlineshop.custom;
 
 import org.springframework.security.test.context.support.WithSecurityContext;
-import store.myproject.onlineshop.domain.enums.CustomerRole;
+import store.myproject.onlineshop.domain.customer.CustomerRole;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

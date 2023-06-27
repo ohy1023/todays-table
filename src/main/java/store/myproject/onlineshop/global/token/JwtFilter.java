@@ -15,12 +15,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
-import store.myproject.onlineshop.domain.entity.Customer;
+import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.exception.ErrorCode;
 import store.myproject.onlineshop.global.utils.CookieUtils;
 import store.myproject.onlineshop.global.utils.JwtUtils;
-import store.myproject.onlineshop.repository.CustomerRepository;
+import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
 
 import java.io.IOException;
 import java.util.List;

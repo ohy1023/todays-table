@@ -7,12 +7,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import store.myproject.onlineshop.domain.dto.customer.*;
-import store.myproject.onlineshop.domain.entity.Customer;
+import store.myproject.onlineshop.domain.customer.dto.*;
+import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.redis.RedisDao;
 import store.myproject.onlineshop.global.utils.JwtUtils;
-import store.myproject.onlineshop.repository.CustomerRepository;
+import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
 
 import java.util.concurrent.TimeUnit;
 

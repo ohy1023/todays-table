@@ -7,8 +7,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import store.myproject.onlineshop.domain.dto.ErrorResponse;
-import store.myproject.onlineshop.domain.dto.Response;
+import store.myproject.onlineshop.domain.ErrorResponse;
+import store.myproject.onlineshop.domain.Response;
 import store.myproject.onlineshop.exception.ErrorCode;
 
 import java.io.IOException;

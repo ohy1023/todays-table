@@ -5,8 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import store.myproject.onlineshop.domain.dto.ErrorResponse;
-import store.myproject.onlineshop.domain.dto.Response;
+import store.myproject.onlineshop.domain.ErrorResponse;
+import store.myproject.onlineshop.domain.Response;
 
 @RestControllerAdvice
 public class ExceptionManager {

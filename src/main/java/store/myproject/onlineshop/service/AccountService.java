@@ -6,10 +6,10 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import store.myproject.onlineshop.domain.dto.account.*;
-import store.myproject.onlineshop.domain.entity.Customer;
+import store.myproject.onlineshop.domain.customer.dto.*;
+import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.exception.AppException;
-import store.myproject.onlineshop.repository.CustomerRepository;
+import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
 
 import static store.myproject.onlineshop.exception.ErrorCode.EMAIL_NOT_FOUND;
 

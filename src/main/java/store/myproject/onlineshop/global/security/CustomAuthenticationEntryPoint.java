@@ -8,8 +8,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
-import store.myproject.onlineshop.domain.dto.ErrorResponse;
-import store.myproject.onlineshop.domain.dto.Response;
+import store.myproject.onlineshop.domain.ErrorResponse;
+import store.myproject.onlineshop.domain.Response;
 import store.myproject.onlineshop.exception.ErrorCode;
 
 import java.io.IOException;

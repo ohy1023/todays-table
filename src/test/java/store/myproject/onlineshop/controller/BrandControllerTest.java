@@ -1,7 +1,6 @@
 package store.myproject.onlineshop.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -9,20 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MockMvcBuilder;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import store.myproject.onlineshop.custom.WithMockCustomUser;
-import store.myproject.onlineshop.domain.dto.brand.BrandCreateRequest;
-import store.myproject.onlineshop.domain.dto.brand.BrandCreateResponse;
-import store.myproject.onlineshop.domain.dto.brand.BrandInfo;
-import store.myproject.onlineshop.domain.enums.CustomerRole;
+import store.myproject.onlineshop.domain.brand.dto.BrandCreateRequest;
+import store.myproject.onlineshop.domain.brand.dto.BrandCreateResponse;
+import store.myproject.onlineshop.domain.brand.dto.BrandInfo;
+import store.myproject.onlineshop.domain.customer.CustomerRole;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.service.BrandService;
 

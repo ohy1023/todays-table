@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import store.myproject.onlineshop.domain.dto.Response;
-import store.myproject.onlineshop.domain.dto.brand.*;
+import store.myproject.onlineshop.domain.Response;
+import store.myproject.onlineshop.domain.brand.dto.*;
 import store.myproject.onlineshop.service.BrandService;
 
 import java.util.List;
