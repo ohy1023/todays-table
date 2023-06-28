@@ -7,6 +7,9 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.brand.Brand;
+import store.myproject.onlineshop.domain.item.dto.ItemCreateRequest;
+import store.myproject.onlineshop.domain.item.dto.ItemDto;
+import store.myproject.onlineshop.domain.item.dto.ItemUpdateRequest;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
 
 import java.util.ArrayList;
@@ -42,4 +45,24 @@ public class Item extends BaseEntity {
     @Builder.Default
     @OneToMany(mappedBy = "item")
     private List<OrderItem> orderItemList = new ArrayList<>();
+
+    public void updateItem(ItemUpdateRequest updateRequest, Brand findBrand) {
+        this.itemName = updateRequest.getItemName();
+        this.price = updateRequest.getPrice();
+        this.stock = updateRequest.getStock();
+        this.brand = findBrand;
+        this.itemPhotoUrl = updateRequest.getItemPhotoUrl();
+    }
+
+
+    public ItemDto toItemDto() {
+        return ItemDto.builder()
+                .itemName(this.itemName)
+                .price(this.price)
+                .stock(this.stock)
+                .itemPhotoUrl(this.itemPhotoUrl)
+                .brand(this.brand)
+                .build();
+    }
+
 }

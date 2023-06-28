@@ -26,8 +26,12 @@ public enum ErrorCode {
     BRAND_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 브랜드 이름입니다."),
 
     // MemberShip
-    DUPLICATE_MEMBERSHIP(HttpStatus.CONFLICT, "중복된 멤버십 이름입니다." ),
+    DUPLICATE_MEMBERSHIP(HttpStatus.CONFLICT, "중복된 멤버십 이름입니다."),
     MEMBERSHIP_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 멤버쉽 이름입니다."),
+
+    // Item
+    DUPLICATE_ITEM(HttpStatus.CONFLICT, "중복된 품목 이름입니다."),
+    ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 품목 이름입니다."),
 
     // S3
     WRONG_FILE_FORMAT(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일입니다"),
