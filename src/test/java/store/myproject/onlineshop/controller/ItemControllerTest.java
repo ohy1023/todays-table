@@ -46,7 +46,7 @@ class ItemControllerTest {
 
     @Test
     @DisplayName("브랜드 등록 성공")
-    @WithMockCustomUser(role = CustomerRole.ROLE_CUSTOMER)
+    @WithMockCustomUser(role = CustomerRole.ROLE_ADMIN)
     public void create_brand_success() throws Exception {
 
         // given
