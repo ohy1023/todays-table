@@ -42,10 +42,10 @@ public class ItemService {
         return getItem(id).toItemDto();
     }
 
-//    @Transactional(readOnly = true)
-//    public Page<ItemDto> searchItem(ItemSearchCond itemSearchCond, Pageable pageable) {
-//        return brandRepository.search(itemSearchCond, pageable);
-//    }
+    @Transactional(readOnly = true)
+    public Page<ItemDto> searchItem(ItemSearchCond itemSearchCond, Pageable pageable) {
+        return itemRepository.search(itemSearchCond, pageable);
+    }
 
     public ItemDto saveItem(ItemCreateRequest request, MultipartFile multipartFile) {
 

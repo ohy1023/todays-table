@@ -34,15 +34,15 @@ public class ItemController {
         return Response.success(response);
     }
 
-//    @Tag(name = "Item", description = "품목 API")
-//    @Operation(summary = "품목 검색")
-//    @PostMapping
-//    public Response<Page<ItemDto>> createItem(ItemSearchCond itemSearchCond, Pageable pageable) {
-//
-//        Page<ItemDto> response = itemService.searchItem(itemSearchCond, pageable);
-//
-//        return Response.success(response);
-//    }
+    @Tag(name = "Item", description = "품목 API")
+    @Operation(summary = "품목 검색")
+    @GetMapping
+    public Response<Page<ItemDto>> createItem(ItemSearchCond itemSearchCond, Pageable pageable) {
+
+        Page<ItemDto> response = itemService.searchItem(itemSearchCond, pageable);
+
+        return Response.success(response);
+    }
 
     @Tag(name = "Item", description = "품목 API")
     @Operation(summary = "품목 추가")
