@@ -13,6 +13,7 @@ import store.myproject.onlineshop.domain.item.dto.ItemDto;
 import store.myproject.onlineshop.domain.item.dto.ItemSearchCond;
 import store.myproject.onlineshop.domain.item.dto.QItemDto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static store.myproject.onlineshop.domain.brand.QBrand.brand;
@@ -35,7 +36,8 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
                         priceGoe(itemSearchCond.getPriceGoe()),
                         priceLoe(itemSearchCond.getStockLoe()),
                         stockGoe(itemSearchCond.getStockGoe()),
-                        stockLoe(itemSearchCond.getStockLoe())
+                        stockLoe(itemSearchCond.getStockLoe()),
+                        betweenCreatedDate(itemSearchCond.getStartDate(),itemSearchCond.getEndDate())
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -50,7 +52,8 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
                         priceGoe(itemSearchCond.getPriceGoe()),
                         priceLoe(itemSearchCond.getStockLoe()),
                         stockGoe(itemSearchCond.getStockGoe()),
-                        stockLoe(itemSearchCond.getStockLoe())
+                        stockLoe(itemSearchCond.getStockLoe()),
+                        betweenCreatedDate(itemSearchCond.getStartDate(),itemSearchCond.getEndDate())
                 );
 
         return PageableExecutionUtils.getPage(itemDtoList, pageable, countQuery::fetchOne);
@@ -78,5 +81,13 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
 
     private BooleanExpression stockLoe(Integer stockLoe) {
         return stockLoe == null ? null : item.stock.loe(stockLoe);
+    }
+
+    private BooleanExpression betweenCreatedDate(LocalDateTime start, LocalDateTime end) {
+
+        if (start == null || end == null) {
+            return null;
+        }
+        return item.createdDate.between(start, end);
     }
 }

@@ -2,6 +2,8 @@ package store.myproject.onlineshop.domain.item.dto;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class ItemSearchCond {
 
@@ -16,4 +18,8 @@ public class ItemSearchCond {
     private Integer stockGoe;
 
     private Integer stockLoe;
+
+    private LocalDateTime startDate;
+
+    private LocalDateTime endDate;
 }
