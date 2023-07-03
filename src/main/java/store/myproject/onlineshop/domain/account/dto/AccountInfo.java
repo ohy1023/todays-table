@@ -1,4 +1,4 @@
-package store.myproject.onlineshop.domain.customer.dto;
+package store.myproject.onlineshop.domain.account.dto;
 
 import lombok.*;
 

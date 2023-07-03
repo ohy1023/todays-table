@@ -1,4 +1,4 @@
-package store.myproject.onlineshop.domain.customer.dto;
+package store.myproject.onlineshop.domain.account.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -8,7 +8,8 @@ import store.myproject.onlineshop.domain.account.Account;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AccountUpdateRequest {
+public class AccountCreateRequest {
+
     @NotNull
     private String bankName;
 
@@ -25,4 +26,5 @@ public class AccountUpdateRequest {
                 .depositor(this.depositor)
                 .build();
     }
+
 }

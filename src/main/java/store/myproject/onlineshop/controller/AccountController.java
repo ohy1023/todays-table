@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import store.myproject.onlineshop.domain.Response;
-import store.myproject.onlineshop.domain.customer.dto.*;
+import store.myproject.onlineshop.domain.account.dto.*;
 import store.myproject.onlineshop.service.AccountService;
 
 @Slf4j
@@ -22,12 +22,12 @@ public class AccountController {
     @Tag(name = "Account", description = "계좌 API")
     @Operation(summary = "계좌 조회")
     @GetMapping
-    public Response<AccountInfo> getAccount(Authentication authentication) {
+    public Response<AccountDto> getAccount(Authentication authentication) {
 
         String email = authentication.getName();
         log.info("email:{}", email);
 
-        AccountInfo response = accountService.findAccount(email);
+        AccountDto response = accountService.findAccount(email);
 
         return Response.success(response);
     }
@@ -70,5 +70,32 @@ public class AccountController {
 
         return Response.success(response);
     }
+
+    @Tag(name = "Account", description = "계좌 API")
+    @Operation(summary = "입금")
+    @PostMapping("/deposit")
+    public Response<AccountDto> deposit(@Valid @RequestBody AccountDepositRequest request, Authentication authentication) {
+
+        String email = authentication.getName();
+        log.info("email:{}", email);
+
+        AccountDto response = accountService.plus(request, email);
+
+        return Response.success(response);
+    }
+
+    @Tag(name = "Account", description = "계좌 API")
+    @Operation(summary = "출급")
+    @PostMapping("/withdraw")
+    public Response<AccountDto> withdraw(@Valid @RequestBody AccountWithdrawRequest request, Authentication authentication) {
+
+        String email = authentication.getName();
+        log.info("email:{}", email);
+
+        AccountDto response = accountService.minus(request, email);
+
+        return Response.success(response);
+    }
+
 
 }

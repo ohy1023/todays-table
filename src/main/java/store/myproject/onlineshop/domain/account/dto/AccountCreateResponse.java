@@ -1,4 +1,4 @@
-package store.myproject.onlineshop.domain.customer.dto;
+package store.myproject.onlineshop.domain.account.dto;
 
 import lombok.*;
 
@@ -6,7 +6,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AccountUpdateResponse {
+public class AccountCreateResponse {
 
     private String bankName;
 
