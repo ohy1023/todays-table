@@ -43,64 +43,48 @@ class BrandControllerTest {
     private MockMvc mockMvc;
 
 
-    @Nested
-    @DisplayName("브랜드 단건 조회")
-    class find_brand {
+    @Test
+    @DisplayName("브랜드 단건 조회 성공")
+    @WithMockCustomUser
+    public void findOne_success() throws Exception {
 
-        @Nested
-        @DisplayName("성공")
-        class success {
+        // given
+        BrandInfo response = BrandInfo.builder()
+                .id(1L)
+                .name("test")
+                .originImagePath("testImage")
+                .build();
 
-            @Test
-            @DisplayName("성공")
-            @WithMockCustomUser
-            public void findOne_success() throws Exception {
+        given(brandService.getBrandInfo(any(Long.class)))
+                .willReturn(response);
 
-                // given
-                BrandInfo response = BrandInfo.builder()
-                        .id(1L)
-                        .name("test")
-                        .originImagePath("testImage")
-                        .build();
+        // when & then
+        mockMvc.perform(get("/api/v1/brands/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
+                .andExpect(jsonPath("$.result.id").value(1L))
+                .andExpect(jsonPath("$.result.name").value("test"))
+                .andExpect(jsonPath("$.result.originImagePath").value("testImage"))
+                .andDo(print());
 
-                given(brandService.getBrandInfo(any(Long.class)))
-                        .willReturn(response);
+    }
 
-                // when & then
-                mockMvc.perform(get("/api/v1/brands/1"))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
-                        .andExpect(jsonPath("$.result.id").value(1L))
-                        .andExpect(jsonPath("$.result.name").value("test"))
-                        .andExpect(jsonPath("$.result.originImagePath").value("testImage"))
-                        .andDo(print());
+    @Test
+    @DisplayName("브랜드 단건 조회 실패 - 존재하지 않는 브랜드")
+    @WithMockCustomUser
+    public void findOne_fail_not_found_brand() throws Exception {
 
-            }
-        }
+        // given
+        given(brandService.getBrandInfo(any(Long.class)))
+                .willThrow(new AppException(BRAND_NOT_FOUND, BRAND_NOT_FOUND.getMessage()));
 
-        @Nested
-        @DisplayName("실패")
-        class fail {
-
-            @Test
-            @DisplayName("존재하지 않는 브랜드")
-            @WithMockCustomUser
-            public void findOne_fail_not_found_brand() throws Exception {
-
-                // given
-                given(brandService.getBrandInfo(any(Long.class)))
-                        .willThrow(new AppException(BRAND_NOT_FOUND, BRAND_NOT_FOUND.getMessage()));
-
-                // when & then
-                mockMvc.perform(get("/api/v1/brands/1"))
-                        .andExpect(status().isNotFound())
-                        .andExpect(jsonPath("$.resultCode").value("ERROR"))
-                        .andExpect(jsonPath("$.result.errorCode").value(BRAND_NOT_FOUND.name()))
-                        .andExpect(jsonPath("$.result.message").value(BRAND_NOT_FOUND.getMessage()))
-                        .andDo(print());
-
-            }
-        }
+        // when & then
+        mockMvc.perform(get("/api/v1/brands/1"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.result.errorCode").value(BRAND_NOT_FOUND.name()))
+                .andExpect(jsonPath("$.result.message").value(BRAND_NOT_FOUND.getMessage()))
+                .andDo(print());
 
     }
 
@@ -141,7 +125,6 @@ class BrandControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
     }
-
 
     private MockMultipartFile setMockMultipartFile(String fileName, String contentType) {
         return new MockMultipartFile("multipartFile", fileName + "." + contentType, contentType, "<<data>>".getBytes());
