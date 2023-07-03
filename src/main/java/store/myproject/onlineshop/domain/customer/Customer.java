@@ -6,6 +6,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.account.Account;
+import store.myproject.onlineshop.domain.account.dto.*;
 import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.domain.membership.MemberShip;
 import store.myproject.onlineshop.domain.order.Order;

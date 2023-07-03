@@ -33,6 +33,12 @@ public enum ErrorCode {
     DUPLICATE_ITEM(HttpStatus.CONFLICT, "중복된 품목 이름입니다."),
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 품목 이름입니다."),
 
+    // Account
+    WITHDRAW_BAD_REQUEST(HttpStatus.BAD_REQUEST, "출금액이 보유자산을 초과합니다."),
+
+    // Order
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND,"존재하지 않는 주문 내역입니다."),
+
     // S3
     WRONG_FILE_FORMAT(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일입니다"),
     FILE_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다."),

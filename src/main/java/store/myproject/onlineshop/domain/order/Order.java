@@ -5,11 +5,11 @@ import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import store.myproject.onlineshop.domain.BaseEntity;
-import store.myproject.onlineshop.domain.customer.Address;
 import store.myproject.onlineshop.domain.customer.Customer;
+import store.myproject.onlineshop.domain.delivery.Delivery;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
-import store.myproject.onlineshop.domain.delivery.DeliveryStatus;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,20 +32,17 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @Embedded
-    private Address receiverAddress;
-
-    private String receiverName;
-
-    private String receiverTel;
+    private LocalDateTime orderDate; //주문시간
 
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
-    @Enumerated(EnumType.STRING)
-    private DeliveryStatus deliveryStatus;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "delivery_id")
+    private Delivery delivery; //배송정보
 
     @Builder.Default
     @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItemList = new ArrayList<>();
+
 }
