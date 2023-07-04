@@ -67,6 +67,7 @@ public class Customer extends BaseEntity {
     @PrePersist
     public void prePersist() {
         this.customerRole = this.customerRole == null ? ROLE_CUSTOMER : this.customerRole;
+        this.totalPurchaseAmount = this.totalPurchaseAmount == null ? 0 : this.totalPurchaseAmount;
     }
 
 
@@ -100,6 +101,10 @@ public class Customer extends BaseEntity {
                 .build();
     }
 
+    public void setTempPassword(String tempPassword) {
+        this.password = tempPassword;
+    }
+
     public AccountCreateResponse toAccountCreateResponse() {
         return AccountCreateResponse.builder()
                 .bankName(this.account.getBankName())
@@ -129,6 +134,14 @@ public class Customer extends BaseEntity {
                 .bankName(this.account.getBankName())
                 .accountNumber(this.account.getAccountNumber())
                 .depositor(this.account.getDepositor())
+                .build();
+    }
+
+    public CustomerTempPasswordResponse toCustomerTempPasswordResponse(String tempPassword) {
+        return CustomerTempPasswordResponse
+                .builder()
+                .email(this.email)
+                .tempPassword(tempPassword)
                 .build();
     }
 

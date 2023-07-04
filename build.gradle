@@ -99,10 +99,6 @@ dependencies {
     // MYSQL
     runtimeOnly 'com.mysql:mysql-connector-j'
 
-    // Thymeleaf
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
-
     // 쿼리 파라미터 로그 남기기
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
 
@@ -125,6 +121,13 @@ dependencies {
 
     // AWS S3
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+    // aop 사용
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: '3.0.5'
+    testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: '3.0.5'
+
+    // 메일 발송
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 
 }
 

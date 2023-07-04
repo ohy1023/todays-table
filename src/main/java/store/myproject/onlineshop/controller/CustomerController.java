@@ -119,4 +119,12 @@ public class CustomerController {
 
         return Response.success(customerInfoResponse);
     }
+
+    @Tag(name = "Customer", description = "회원 API")
+    @Operation(summary = "임시 비밀번호 발급")
+    @PutMapping("/password")
+    public Response<String> findPassword(@Valid @RequestBody CustomerTempPasswordRequest request){
+        customerService.setTempPassword(request);
+        return Response.success("ok");
+    }
 }

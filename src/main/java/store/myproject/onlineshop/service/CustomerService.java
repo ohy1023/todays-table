@@ -7,13 +7,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.exception.AppException;
+import store.myproject.onlineshop.global.annotation.SendMail;
 import store.myproject.onlineshop.global.redis.RedisDao;
 import store.myproject.onlineshop.global.utils.JwtUtils;
 import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static store.myproject.onlineshop.exception.ErrorCode.*;
@@ -184,6 +187,20 @@ public class CustomerService {
         return findCustomer.getId();
     }
 
+    @Transactional
+    @SendMail(classInfo = CustomerTempPasswordResponse.class)
+    public CustomerTempPasswordResponse setTempPassword(CustomerTempPasswordRequest request) {
+
+        Customer findCustomer = customerRepository.findByEmailAndTel(request.getEmail(), request.getTel())
+                .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
+
+        String tempPassword = "SHOPPING_MALL "+ UUID.randomUUID();
+
+        findCustomer.setTempPassword(encoder.encode(tempPassword));
+
+        return findCustomer.toCustomerTempPasswordResponse(tempPassword);
+    }
+
     @Transactional(readOnly = true)
     public CustomerInfoResponse getInfo(String email) {
         Customer customer = findCustomerByEmail(email);
@@ -194,6 +211,6 @@ public class CustomerService {
     @Transactional(readOnly = true)
     public Customer findCustomerByEmail(String email) {
         return customerRepository.findByEmail(email).orElseThrow(() ->
-                new AppException(EMAIL_NOT_FOUND, EMAIL_NOT_FOUND.getMessage()));
+                new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
     }
 }
