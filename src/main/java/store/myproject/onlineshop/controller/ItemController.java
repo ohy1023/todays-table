@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import store.myproject.onlineshop.domain.MessageResponse;
@@ -47,7 +48,7 @@ public class ItemController {
     @Tag(name = "Item", description = "품목 API")
     @Operation(summary = "품목 추가")
     @PostMapping
-    public Response<ItemDto> createItem(@RequestPart ItemCreateRequest request, @RequestPart MultipartFile multipartFile) {
+    public Response<ItemDto> createItem(@RequestPart ItemCreateRequest request, @RequestPart MultipartFile multipartFile, Authentication authentication) {
         ItemDto response = itemService.saveItem(request, multipartFile);
 
         return Response.success(response);
@@ -56,8 +57,7 @@ public class ItemController {
     @Tag(name = "Item", description = "품목 API")
     @Operation(summary = "품목 수정")
     @PatchMapping("/{itemId}")
-    public Response<ItemDto> changeItem(@PathVariable Long itemId, @RequestPart ItemUpdateRequest request, @RequestPart MultipartFile multipartFile) {
-
+    public Response<ItemDto> changeItem(@PathVariable Long itemId, @RequestPart ItemUpdateRequest request, @RequestPart MultipartFile multipartFile, Authentication authentication) {
         ItemDto response = itemService.updateItem(itemId, request, multipartFile);
 
         return Response.success(response);
@@ -66,8 +66,7 @@ public class ItemController {
     @Tag(name = "Item", description = "품목 API")
     @Operation(summary = "품목 삭제")
     @DeleteMapping("/{itemId}")
-    public Response<MessageResponse> removeItem(@PathVariable Long itemId) {
-
+    public Response<MessageResponse> removeItem(@PathVariable Long itemId, Authentication authentication) {
         MessageResponse response = itemService.deleteItem(itemId);
 
         return Response.success(response);

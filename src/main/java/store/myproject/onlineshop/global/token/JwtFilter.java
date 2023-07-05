@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import static store.myproject.onlineshop.exception.ErrorCode.*;
+
 @Slf4j
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
@@ -101,9 +103,9 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String email = jwtUtils.getEmail(accessToken);
 
-        Customer customer =
-                customerRepository.findByEmail(email)
-                        .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND));
+//        Customer customer =
+//                customerRepository.findByEmail(email)
+//                        .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND));
 
         // refresh Token 존재 여부 확인
         if (refreshTokenAtCookie.isEmpty()) {
@@ -131,8 +133,8 @@ public class JwtFilter extends OncePerRequestFilter {
         log.info("newRefreshToken : {}", newRefreshToken);
 
 
-        customer = customerRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND, "유저 정보를 찾을 수 없습니다."));
+        Customer customer = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
 
         // 발급된 accessToken을 response cookie 에 저장
         CookieUtils.addAccessTokenAtCookie(response, newAccessToken);

@@ -16,7 +16,7 @@ import static store.myproject.onlineshop.exception.ErrorCode.*;
 @Aspect
 @Component
 @RequiredArgsConstructor
-public class UserCheck {
+public class CustomerCheck {
 
     private final CustomerRepository customerRepository;
 
