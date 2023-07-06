@@ -15,9 +15,9 @@ import static store.myproject.onlineshop.domain.brand.QBrand.brand;
 public class ItemUpdateRequest {
     private String itemName;
 
-    private int price;
+    private Long price;
 
-    private int stock;
+    private Long stock;
 
     private String itemPhotoUrl;
 

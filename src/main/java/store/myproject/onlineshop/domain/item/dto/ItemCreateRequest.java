@@ -12,9 +12,9 @@ public class ItemCreateRequest {
 
     private String itemName;
 
-    private int price;
+    private Long price;
 
-    private int stock;
+    private Long stock;
 
     private String itemPhotoUrl;
 

@@ -6,6 +6,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import store.myproject.onlineshop.domain.customer.Address;
 import store.myproject.onlineshop.domain.order.Order;
+import store.myproject.onlineshop.domain.order.dto.OrderInfoRequest;
 
 @Entity
 @Getter
@@ -23,9 +24,32 @@ public class Delivery {
     @OneToOne(mappedBy = "delivery", fetch = FetchType.LAZY)
     private Order order;
 
+    private String recipientName;
+
+    private String recipientTel;
+
     @Embedded
     private Address address;
 
     @Enumerated(EnumType.STRING)
     private DeliveryStatus status; //ENUM [READY(준비), COMP(배송)]
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
+
+    public static Delivery setDeliveryInfo(OrderInfoRequest request) {
+        return Delivery.builder()
+                .recipientName(request.getRecipientName())
+                .recipientTel(request.getRecipientTel())
+                .address(Address.builder()
+                        .city(request.getRecipientCity())
+                        .zipcode(request.getRecipientZipcode())
+                        .detail(request.getRecipientDetail())
+                        .street(request.getRecipientStreet())
+                        .build())
+                .status(DeliveryStatus.READY)
+                .build();
+    }
+
 }

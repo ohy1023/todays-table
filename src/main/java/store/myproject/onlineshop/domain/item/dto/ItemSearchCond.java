@@ -11,13 +11,13 @@ public class ItemSearchCond {
 
     private String brandName;
 
-    private Integer priceGoe;
+    private Long priceGoe;
 
-    private Integer priceLoe;
+    private Long priceLoe;
 
-    private Integer stockGoe;
+    private Long stockGoe;
 
-    private Integer stockLoe;
+    private Long stockLoe;
 
     private LocalDateTime startDate;
 

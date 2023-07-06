@@ -67,19 +67,19 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
         return StringUtils.hasText(itemName) ? brand.name.eq(itemName) : null;
     }
 
-    private BooleanExpression priceGoe(Integer priceGoe) {
+    private BooleanExpression priceGoe(Long priceGoe) {
         return priceGoe == null ? null : item.price.goe(priceGoe);
     }
 
-    private BooleanExpression priceLoe(Integer priceLoe) {
+    private BooleanExpression priceLoe(Long priceLoe) {
         return priceLoe == null ? null : item.price.loe(priceLoe);
     }
 
-    private BooleanExpression stockGoe(Integer stockGoe) {
+    private BooleanExpression stockGoe(Long stockGoe) {
         return stockGoe == null ? null : item.stock.goe(stockGoe);
     }
 
-    private BooleanExpression stockLoe(Integer stockLoe) {
+    private BooleanExpression stockLoe(Long stockLoe) {
         return stockLoe == null ? null : item.stock.loe(stockLoe);
     }
 

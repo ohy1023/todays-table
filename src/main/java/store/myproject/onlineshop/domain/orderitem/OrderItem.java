@@ -36,9 +36,31 @@ public class OrderItem {
     @JoinColumn(name = "order_id")
     private Order order; //주문
 
-    private int orderPrice; //주문 가격
+    private Long orderPrice; //주문 가격
 
-    private int count; //주문 수량
+    private Long count; //주문 수량
+
+    public static OrderItem createOrderItem(Item item, Long orderPrice, Long count) {
+
+        OrderItem orderItem = OrderItem.builder()
+                .item(item)
+                .orderPrice(orderPrice)
+                .count(count)
+                .build();
+
+        item.removeStock(count);
+
+        return orderItem;
+
+    }
+
+    public void cancel() {
+        getItem().addStock(count);
+    }
+
+    public Long getTotalPrice() {
+        return getOrderPrice() * getCount();
+    }
 
 
 }

@@ -105,6 +105,14 @@ public class Customer extends BaseEntity {
         this.password = tempPassword;
     }
 
+    public void addPurchaseAmount(Long price) {
+        this.totalPurchaseAmount += price;
+    }
+
+    public void purchase(Long price) {
+        this.account.minusMyAssets(price);
+    }
+
     public AccountCreateResponse toAccountCreateResponse() {
         return AccountCreateResponse.builder()
                 .bankName(this.account.getBankName())

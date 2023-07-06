@@ -17,7 +17,7 @@ public enum ErrorCode {
     FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, "해당 접근은 금지되었습니다."),
 
     // Customer
-    CUSTOMER_NOT_FOUND(HttpStatus.NOT_FOUND,"해당 회원은 존재하지 않습니다."),
+    CUSTOMER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회원은 존재하지 않습니다."),
     EMAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이메일이 존재하지 않습니다."),
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "중복된 닉네임입니다."),
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "중복된 이메일입니다."),
@@ -34,11 +34,15 @@ public enum ErrorCode {
     DUPLICATE_ITEM(HttpStatus.CONFLICT, "중복된 품목 이름입니다."),
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 품목 이름입니다."),
 
+    NOT_ENOUGH_STOCK(HttpStatus.CONFLICT, "재고가 부족합니다."),
+
     // Account
     WITHDRAW_BAD_REQUEST(HttpStatus.BAD_REQUEST, "출금액이 보유자산을 초과합니다."),
 
     // Order
-    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND,"존재하지 않는 주문 내역입니다."),
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문 내역입니다."),
+
+    NOT_ENOUGH_MONEY(HttpStatus.CONFLICT, "보유금액이 부족합니다."),
 
     // S3
     WRONG_FILE_FORMAT(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일입니다"),

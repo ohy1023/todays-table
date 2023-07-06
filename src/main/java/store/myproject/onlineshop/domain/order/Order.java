@@ -7,6 +7,7 @@ import org.hibernate.annotations.Where;
 import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.delivery.Delivery;
+import store.myproject.onlineshop.domain.order.dto.OrderInfo;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
 
 import java.time.LocalDateTime;
@@ -44,5 +45,50 @@ public class Order extends BaseEntity {
     @Builder.Default
     @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItemList = new ArrayList<>();
+
+    public OrderInfo toOrderInfo() {
+
+        Long totalPrice = 0L;
+
+        for (OrderItem orderItem : orderItemList) {
+            totalPrice += orderItem.getTotalPrice();
+        }
+
+        return OrderInfo.builder()
+                .orderCustomerName(this.customer.getUserName())
+                .orderCustomerTel(this.customer.getTel())
+                .orderStatus(this.orderStatus.name())
+                .deliveryStatus(this.delivery.getStatus().name())
+                .recipientName(this.customer.getUserName())
+                .recipientTel(this.delivery.getRecipientTel())
+                .recipientAddress(this.delivery.getAddress().getCity() + this.delivery.getAddress().getStreet() + this.delivery.getAddress().getDetail())
+                .zipcode(this.delivery.getAddress().getZipcode())
+                .purchasedItem(this.orderItemList)
+                .totalPrice(totalPrice)
+                .build();
+    }
+
+    public void setDelivery(Delivery delivery) {
+        this.delivery = delivery;
+        delivery.setOrder(this);
+    }
+
+    public static Order createOrder(Customer customer, Delivery delivery, OrderItem... orderItems) {
+
+        Order order = Order.builder()
+                .customer(customer)
+                .delivery(delivery)
+                .orderDate(LocalDateTime.now())
+                .orderStatus(OrderStatus.ORDER)
+                .build();
+
+        order.setDelivery(delivery);
+
+        for (OrderItem orderItem : orderItems) {
+            order.orderItemList.add(orderItem);
+        }
+        return order;
+    }
+
 
 }
