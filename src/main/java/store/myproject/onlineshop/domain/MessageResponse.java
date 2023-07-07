@@ -9,8 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MessageResponse {
-
-    private Long id;
-
     private String msg;
 }

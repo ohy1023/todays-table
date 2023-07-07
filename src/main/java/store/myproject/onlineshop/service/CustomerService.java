@@ -216,7 +216,7 @@ public class CustomerService {
             findCustomer.setAdmin();
         }
 
-        return new MessageResponse(findCustomer.getId(), "해당 회원의 권한을 Admin으로 설정하였습니다.");
+        return new MessageResponse("회원의 권한을 Admin으로 설정하였습니다.");
     }
 
     @Transactional(readOnly = true)

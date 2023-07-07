@@ -70,7 +70,7 @@ public class MemberShipService {
 
         memberShipRepository.deleteById(findMemberShip.getId());
 
-        return new MessageResponse(findMemberShip.getId(), "해당 멤버십 삭제가 완료되었습니다.");
+        return new MessageResponse("해당 멤버십 삭제가 완료되었습니다.");
 
     }
 

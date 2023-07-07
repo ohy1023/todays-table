@@ -102,7 +102,7 @@ public class ItemService {
 
         itemRepository.deleteById(findItem.getId());
 
-        return new MessageResponse(findItem.getId(), "해당 품목이 삭제되었습니다.");
+        return new MessageResponse("해당 품목이 삭제되었습니다.");
     }
 
     private Item getItem(Long id) {
