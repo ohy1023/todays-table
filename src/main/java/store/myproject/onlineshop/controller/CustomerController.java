@@ -130,5 +130,15 @@ public class CustomerController {
         return Response.success(response);
     }
 
+    @Operation(summary = "멤버쉽 등급 변경")
+    @PutMapping("/membership")
+    public Response<MessageResponse> changeGrade(Authentication authentication) {
+
+        MessageResponse response = customerService.changeMemberShip(authentication);
+
+        return Response.success(response);
+    }
+
+
 
 }

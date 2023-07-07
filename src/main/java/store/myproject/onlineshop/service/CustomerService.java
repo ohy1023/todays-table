@@ -9,7 +9,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.customer.CustomerRole;
 import store.myproject.onlineshop.domain.customer.Level;
 import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.domain.customer.Customer;
@@ -21,6 +20,8 @@ import store.myproject.onlineshop.global.redis.RedisDao;
 import store.myproject.onlineshop.global.utils.JwtUtils;
 import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -225,6 +226,21 @@ public class CustomerService {
         }
 
         return new MessageResponse("회원의 권한을 Admin으로 설정하였습니다.");
+    }
+
+    @Transactional
+    public MessageResponse changeMemberShip(Authentication authentication) {
+        String email = authentication.getName();
+
+        Customer findCustomer = findCustomerByEmail(email);
+
+        MemberShip memberShip = memberShipRepository.findFirstByBaselineGreaterThanEqual(findCustomer.getTotalPurchaseAmount())
+                .orElseThrow(() -> new AppException(MEMBERSHIP_ACCESS_LIMIT, MEMBERSHIP_ACCESS_LIMIT.getMessage()));
+
+        findCustomer.setMemberShip(memberShip);
+
+        return new MessageResponse(String.format("멤버쉽이 %s 등급으로 변경 되었습니다.", memberShip.getLevel()));
+
     }
 
     @Transactional(readOnly = true)

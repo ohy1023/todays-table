@@ -30,7 +30,7 @@ public class MemberShip extends BaseEntity {
 
     private Float discountRate;
 
-    private Long baseline;
+    private BigDecimal baseline;
 
     public void updateMemberShip(MemberShipUpdateRequest updateRequest) {
         this.level = updateRequest.getLevel();

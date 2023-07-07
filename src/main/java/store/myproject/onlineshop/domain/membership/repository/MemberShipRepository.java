@@ -4,9 +4,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import store.myproject.onlineshop.domain.customer.Level;
 import store.myproject.onlineshop.domain.membership.MemberShip;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 public interface MemberShipRepository extends JpaRepository<MemberShip, Long> {
 
     Optional<MemberShip> findMemberShipByLevel(Level level);
+
+    Optional<MemberShip> findFirstByBaselineGreaterThanEqual(BigDecimal usedMoney);
 }

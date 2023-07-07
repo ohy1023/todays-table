@@ -10,6 +10,8 @@ import store.myproject.onlineshop.domain.account.dto.*;
 import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.domain.membership.MemberShip;
 import store.myproject.onlineshop.domain.order.Order;
+import store.myproject.onlineshop.exception.AppException;
+import store.myproject.onlineshop.exception.ErrorCode;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import java.util.List;
 
 import static jakarta.persistence.FetchType.*;
 import static store.myproject.onlineshop.domain.customer.CustomerRole.*;
+import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 @Entity
 @Getter
@@ -116,6 +119,14 @@ public class Customer extends BaseEntity {
 
     public void purchase(BigDecimal price) {
         this.account.minusMyAssets(price);
+    }
+
+    public void setMemberShip(MemberShip memberShip) {
+        if (this.totalPurchaseAmount.compareTo(memberShip.getBaseline()) >= 0) {
+            this.memberShip = memberShip;
+        } else {
+            throw new AppException(NOT_ENOUGH_MEMBERSHIP, NOT_ENOUGH_MEMBERSHIP.getMessage());
+        }
     }
 
     public AccountCreateResponse toAccountCreateResponse() {

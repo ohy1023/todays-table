@@ -5,6 +5,8 @@ import lombok.*;
 import store.myproject.onlineshop.domain.customer.Level;
 import store.myproject.onlineshop.domain.membership.MemberShip;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -16,7 +18,7 @@ public class MemberShipCreateRequest {
     private Level level;
 
     @NotNull
-    private Long baseline;
+    private BigDecimal baseline;
 
     @NotNull
     private Float discountRate;

@@ -31,6 +31,9 @@ public enum ErrorCode {
     // MemberShip
     DUPLICATE_MEMBERSHIP(HttpStatus.CONFLICT, "중복된 멤버십 이름입니다."),
     MEMBERSHIP_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 멤버쉽 이름입니다."),
+    MEMBERSHIP_ACCESS_LIMIT(HttpStatus.CONFLICT, "더 이상 올라갈 멤버쉽이 존재하지 않습니다."),
+    NOT_ENOUGH_MEMBERSHIP(HttpStatus.CONFLICT, "멤버쉽 업그레이드 자격이 부족합니다."),
+
 
     // Item
     DUPLICATE_ITEM(HttpStatus.CONFLICT, "중복된 품목 이름입니다."),
