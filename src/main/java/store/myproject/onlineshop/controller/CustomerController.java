@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.Response;
 import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.global.utils.CookieUtils;
@@ -17,8 +18,9 @@ import store.myproject.onlineshop.service.CustomerService;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/customers")
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/customers")
+@Tag(name = "Customer", description = "회원 API")
 public class CustomerController {
 
     private final CustomerService customerService;
@@ -28,7 +30,6 @@ public class CustomerController {
     @Value("${refresh-token-maxage}")
     public int refreshTokenMaxAge;
 
-    @Tag(name = "Customer", description = "회원 API")
     @Operation(summary = "회원 가입")
     @PostMapping("/join")
     public Response<String> join(@Valid @RequestBody CustomerJoinRequest reqeust) {
@@ -36,7 +37,6 @@ public class CustomerController {
         return Response.success("회원가입 성공");
     }
 
-    @Tag(name = "Customer", description = "회원 API")
     @Operation(summary = "로그인")
     @PostMapping("/login")
     public Response<CustomerLoginResponse> login(@Valid @RequestBody CustomerLoginRequest customerLoginRequest, HttpServletRequest request,
@@ -59,7 +59,6 @@ public class CustomerController {
         return Response.success(customerLoginResponse);
     }
 
-    @Tag(name = "Customer", description = "회원 API")
     @Operation(summary = "로그아웃")
     @PostMapping("/logout")
     public Response<String> logout(@RequestBody CustomerTokenRequest customerTokenRequest, Authentication authentication) {
@@ -68,7 +67,6 @@ public class CustomerController {
     }
 
 
-    @Tag(name = "Customer", description = "회원 API")
     @Operation(summary = "회원 정보 수정")
     @PatchMapping
     public Response<Long> modify(@RequestBody CustomerModifyRequest customerModifyRequest, Authentication authentication) {
@@ -76,7 +74,6 @@ public class CustomerController {
         return Response.success(customerId);
     }
 
-    @Tag(name = "Customer", description = "회원 API")
     @Operation(summary = "회원 탈퇴")
     @DeleteMapping
     public Response<Long> delete(Authentication authentication) {
@@ -84,7 +81,6 @@ public class CustomerController {
         return Response.success(customerId);
     }
 
-    @Tag(name = "Customer", description = "회원 API")
     @Operation(summary = "이메일 중복 체크")
     @PostMapping("/email")
     public Response<String> emailCheck(@Valid @RequestBody CustomerEmailCheckRequest request) {
@@ -92,7 +88,6 @@ public class CustomerController {
         return Response.success(msg);
     }
 
-    @Tag(name = "Customer", description = "회원 API")
     @Operation(summary = "닉네임 중복 체크")
     @PostMapping("/nickname")
     public Response<String> nickNameCheck(@Valid @RequestBody CustomerNickNameCheckRequest request) {
@@ -100,7 +95,6 @@ public class CustomerController {
         return Response.success(msg);
     }
 
-    @Tag(name = "Customer", description = "회원 API")
     @Operation(summary = "토큰 재발급")
     @PostMapping("/reissue")
     public Response<CustomerLoginResponse> reissue(@RequestBody CustomerTokenRequest userTokenRequest, Authentication authentication) {
@@ -108,7 +102,6 @@ public class CustomerController {
         return Response.success(customerLoginResponse);
     }
 
-    @Tag(name = "Customer", description = "회원 API")
     @Operation(summary = "회원 정보 조회")
     @GetMapping
     public Response<CustomerInfoResponse> getInfo(Authentication authentication) {
@@ -120,11 +113,22 @@ public class CustomerController {
         return Response.success(customerInfoResponse);
     }
 
-    @Tag(name = "Customer", description = "회원 API")
+
     @Operation(summary = "임시 비밀번호 발급")
     @PutMapping("/password")
     public Response<String> findPassword(@Valid @RequestBody CustomerTempPasswordRequest request){
         customerService.setTempPassword(request);
         return Response.success("ok");
     }
+
+    @Operation(summary = "관리자 권한 부여")
+    @PutMapping("/admin")
+    public Response<MessageResponse> changeRole(Authentication authentication) {
+
+        MessageResponse response = customerService.settingAdmin(authentication);
+
+        return Response.success(response);
+    }
+
+
 }

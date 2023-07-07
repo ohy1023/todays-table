@@ -22,6 +22,8 @@ public enum ErrorCode {
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "중복된 닉네임입니다."),
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "중복된 이메일입니다."),
 
+    ALREADY_ADMIN(HttpStatus.CONFLICT, "이미 Admin 입니다."),
+
     // Brand
     DUPLICATE_BRAND(HttpStatus.CONFLICT, "중복된 브랜드 이름입니다."),
     BRAND_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 브랜드 이름입니다."),

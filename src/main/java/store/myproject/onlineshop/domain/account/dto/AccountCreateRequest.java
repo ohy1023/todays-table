@@ -24,6 +24,7 @@ public class AccountCreateRequest {
                 .bankName(this.bankName)
                 .accountNumber(this.accountNumber)
                 .depositor(this.depositor)
+                .myAssets(0L)
                 .build();
     }
 

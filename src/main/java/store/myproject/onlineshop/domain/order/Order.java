@@ -11,6 +11,7 @@ import store.myproject.onlineshop.domain.order.dto.OrderInfo;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,28 +47,6 @@ public class Order extends BaseEntity {
     @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItemList = new ArrayList<>();
 
-    public OrderInfo toOrderInfo() {
-
-        Long totalPrice = 0L;
-
-        for (OrderItem orderItem : orderItemList) {
-            totalPrice += orderItem.getTotalPrice();
-        }
-
-        return OrderInfo.builder()
-                .orderCustomerName(this.customer.getUserName())
-                .orderCustomerTel(this.customer.getTel())
-                .orderStatus(this.orderStatus.name())
-                .deliveryStatus(this.delivery.getStatus().name())
-                .recipientName(this.customer.getUserName())
-                .recipientTel(this.delivery.getRecipientTel())
-                .recipientAddress(this.delivery.getAddress().getCity() + this.delivery.getAddress().getStreet() + this.delivery.getAddress().getDetail())
-                .zipcode(this.delivery.getAddress().getZipcode())
-                .purchasedItem(this.orderItemList)
-                .totalPrice(totalPrice)
-                .build();
-    }
-
     public void setDelivery(Delivery delivery) {
         this.delivery = delivery;
         delivery.setOrder(this);
@@ -88,6 +67,30 @@ public class Order extends BaseEntity {
             order.orderItemList.add(orderItem);
         }
         return order;
+    }
+
+    public OrderInfo toOrderInfo() {
+
+        Long totalPrice = 0L;
+
+        for (OrderItem orderItem : orderItemList) {
+            totalPrice += orderItem.getTotalPrice();
+        }
+
+        String address = this.delivery.getAddress().getCity() + " " + this.delivery.getAddress().getStreet() + " " + this.delivery.getAddress().getDetail();
+
+        return OrderInfo.builder()
+                .orderDate(this.orderDate.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분 ss초")))
+                .orderCustomerName(this.customer.getUserName())
+                .orderCustomerTel(this.customer.getTel())
+                .orderStatus(this.orderStatus.name())
+                .deliveryStatus(this.delivery.getStatus().name())
+                .recipientName(this.customer.getUserName())
+                .recipientTel(this.delivery.getRecipientTel())
+                .recipientAddress(address)
+                .zipcode(this.delivery.getAddress().getZipcode())
+                .totalPrice(totalPrice)
+                .build();
     }
 
 

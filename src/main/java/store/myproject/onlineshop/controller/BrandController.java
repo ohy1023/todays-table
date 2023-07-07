@@ -20,11 +20,11 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/brands")
+@Tag(name = "Brand", description = "브랜드 API")
 public class BrandController {
 
     private final BrandService brandService;
 
-    @Tag(name = "Brand", description = "브랜드 API")
     @Operation(summary = "브랜드 단건 조회")
     @GetMapping("/{brandId}")
     public Response<BrandInfo> getBrand(@PathVariable Long brandId) {
@@ -34,7 +34,6 @@ public class BrandController {
         return Response.success(brandInfo);
     }
 
-    @Tag(name = "Brand", description = "브랜드 API")
     @Operation(summary = "브랜드 조회")
     @GetMapping("/search")
     public Response<Page<BrandInfo>> getBrands(@RequestParam(required = false) String brandName, Pageable pageable) {
@@ -44,7 +43,7 @@ public class BrandController {
         return Response.success(brands);
     }
 
-    @Tag(name = "Brand", description = "브랜드 API")
+
     @Operation(summary = "브랜드 등록")
     @PostMapping
     public Response<BrandCreateResponse> createBrand(@Valid @RequestPart BrandCreateRequest request, @RequestPart MultipartFile multipartFile) {
@@ -54,7 +53,6 @@ public class BrandController {
         return Response.success(response);
     }
 
-    @Tag(name = "Brand", description = "브랜드 API")
     @Operation(summary = "브랜드 수정")
     @PatchMapping("/{brandId}")
     public Response<BrandUpdateResponse> changeBrand(@PathVariable Long brandId, @RequestPart BrandUpdateRequest request, @RequestParam(required = false) MultipartFile multipartFile) {
@@ -63,7 +61,6 @@ public class BrandController {
         return Response.success(response);
     }
 
-    @Tag(name = "Brand", description = "브랜드 API")
     @Operation(summary = "브랜드 삭제")
     @DeleteMapping("/{brandId}")
     public Response<BrandDeleteResponse> removeBrand(@PathVariable Long brandId) {

@@ -3,7 +3,6 @@ package store.myproject.onlineshop.domain.order.dto;
 import lombok.*;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -29,8 +28,6 @@ public class OrderInfo {
     private String zipcode;
 
     private String deliveryStatus;
-
-    private List<OrderItem> purchasedItem;
 
     private Long totalPrice;
 

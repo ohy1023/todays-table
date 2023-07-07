@@ -25,11 +25,6 @@ public class Account {
 
     private Long myAssets;
 
-    @PrePersist
-    public void prePersist() {
-        this.myAssets = this.myAssets == null ? 0L : this.myAssets;
-    }
-
     public void plusMyAssets(Long money) {
         this.myAssets += money;
     }

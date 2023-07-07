@@ -24,7 +24,7 @@ import static lombok.AccessLevel.PROTECTED;
 public class OrderItem {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_item_id")
     private Long id;
 
@@ -52,6 +52,10 @@ public class OrderItem {
 
         return orderItem;
 
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
     }
 
     public void cancel() {

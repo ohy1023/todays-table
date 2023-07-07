@@ -15,6 +15,7 @@ import store.myproject.onlineshop.domain.order.dto.OrderInfo;
 import store.myproject.onlineshop.domain.order.dto.OrderInfoRequest;
 import store.myproject.onlineshop.domain.order.repository.OrderRepository;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
+import store.myproject.onlineshop.domain.orderitem.repository.OrderItemRepository;
 import store.myproject.onlineshop.exception.AppException;
 
 import static store.myproject.onlineshop.exception.ErrorCode.*;
@@ -28,6 +29,8 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     private final CustomerRepository customerRepository;
+
+    private final OrderItemRepository orderItemRepository;
 
     private final ItemRepository itemRepository;
 
@@ -46,6 +49,7 @@ public class OrderService {
 
         OrderItem orderItem = OrderItem.createOrderItem(findItem, findItem.getPrice(), request.getItemCnt());
 
+
         Order order = Order.createOrder(findCustomer, delivery, orderItem);
 
         Order savedOrder = orderRepository.save(order);
@@ -55,6 +59,10 @@ public class OrderService {
         findCustomer.purchase(orderItem.getTotalPrice());
 
         findCustomer.addPurchaseAmount(orderItem.getTotalPrice());
+
+        orderItem.setOrder(savedOrder);
+
+        orderItemRepository.save(orderItem);
 
         return savedOrder.toOrderInfo();
 

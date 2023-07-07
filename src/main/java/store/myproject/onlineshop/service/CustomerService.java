@@ -4,10 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import store.myproject.onlineshop.domain.MessageResponse;
+import store.myproject.onlineshop.domain.customer.CustomerRole;
 import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.exception.AppException;
@@ -19,6 +21,7 @@ import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static store.myproject.onlineshop.domain.customer.CustomerRole.*;
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 
@@ -194,11 +197,26 @@ public class CustomerService {
         Customer findCustomer = customerRepository.findByEmailAndTel(request.getEmail(), request.getTel())
                 .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
 
-        String tempPassword = "SHOPPING_MALL "+ UUID.randomUUID();
+        String tempPassword = "SHOPPING_MALL " + UUID.randomUUID();
 
         findCustomer.setTempPassword(encoder.encode(tempPassword));
 
         return findCustomer.toCustomerTempPasswordResponse(tempPassword);
+    }
+
+    @Transactional
+    public MessageResponse settingAdmin(Authentication authentication) {
+        String email = authentication.getName();
+
+        Customer findCustomer = findCustomerByEmail(email);
+
+        if (findCustomer.getCustomerRole() == ROLE_ADMIN) {
+            throw new AppException(ALREADY_ADMIN, ALREADY_ADMIN.getMessage());
+        } else {
+            findCustomer.setAdmin();
+        }
+
+        return new MessageResponse(findCustomer.getId(), "해당 회원의 권한을 Admin으로 설정하였습니다.");
     }
 
     @Transactional(readOnly = true)

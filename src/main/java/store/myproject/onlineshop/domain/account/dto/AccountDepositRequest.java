@@ -1,5 +1,6 @@
 package store.myproject.onlineshop.domain.account.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Data
@@ -8,5 +9,6 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AccountDepositRequest {
 
+    @NotNull
     private Long depositPrice;
 }

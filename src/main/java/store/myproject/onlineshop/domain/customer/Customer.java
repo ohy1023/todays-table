@@ -105,6 +105,10 @@ public class Customer extends BaseEntity {
         this.password = tempPassword;
     }
 
+    public void setAdmin() {
+        this.customerRole = ROLE_ADMIN;
+    }
+
     public void addPurchaseAmount(Long price) {
         this.totalPurchaseAmount += price;
     }
