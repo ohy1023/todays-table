@@ -21,11 +21,12 @@ import store.myproject.onlineshop.service.ItemService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/items")
+@Tag(name = "Item", description = "품목 API")
 public class ItemController {
 
     private final ItemService itemService;
 
-    @Tag(name = "Item", description = "품목 API")
+
     @Operation(summary = "품목 단건 조회")
     @GetMapping("/{itemId}")
     public Response<ItemDto> findItem(@PathVariable Long itemId) {
@@ -35,7 +36,6 @@ public class ItemController {
         return Response.success(response);
     }
 
-    @Tag(name = "Item", description = "품목 API")
     @Operation(summary = "품목 검색")
     @GetMapping
     public Response<Page<ItemDto>> createItem(ItemSearchCond itemSearchCond, Pageable pageable) {
@@ -45,7 +45,6 @@ public class ItemController {
         return Response.success(response);
     }
 
-    @Tag(name = "Item", description = "품목 API")
     @Operation(summary = "품목 추가")
     @PostMapping
     public Response<ItemDto> createItem(@RequestPart ItemCreateRequest request, @RequestPart MultipartFile multipartFile, Authentication authentication) {
@@ -54,7 +53,6 @@ public class ItemController {
         return Response.success(response);
     }
 
-    @Tag(name = "Item", description = "품목 API")
     @Operation(summary = "품목 수정")
     @PatchMapping("/{itemId}")
     public Response<ItemDto> changeItem(@PathVariable Long itemId, @RequestPart ItemUpdateRequest request, @RequestPart MultipartFile multipartFile, Authentication authentication) {
@@ -63,7 +61,6 @@ public class ItemController {
         return Response.success(response);
     }
 
-    @Tag(name = "Item", description = "품목 API")
     @Operation(summary = "품목 삭제")
     @DeleteMapping("/{itemId}")
     public Response<MessageResponse> removeItem(@PathVariable Long itemId, Authentication authentication) {

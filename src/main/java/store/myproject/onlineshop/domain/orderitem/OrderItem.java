@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.order.Order;
 
@@ -21,7 +22,7 @@ import static lombok.AccessLevel.PROTECTED;
 @AllArgsConstructor
 @Where(clause = "deleted_date IS NULL")
 @SQLDelete(sql = "UPDATE order_item SET deleted_date = CURRENT_TIMESTAMP WHERE order_item_id = ?")
-public class OrderItem {
+public class OrderItem extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

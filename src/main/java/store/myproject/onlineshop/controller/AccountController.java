@@ -15,11 +15,11 @@ import store.myproject.onlineshop.service.AccountService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/accounts")
+@Tag(name = "Account", description = "계좌 API")
 public class AccountController {
 
     private final AccountService accountService;
 
-    @Tag(name = "Account", description = "계좌 API")
     @Operation(summary = "계좌 조회")
     @GetMapping
     public Response<AccountDto> getAccount(Authentication authentication) {
@@ -32,7 +32,6 @@ public class AccountController {
         return Response.success(response);
     }
 
-    @Tag(name = "Account", description = "계좌 API")
     @Operation(summary = "계좌 등록")
     @PostMapping
     public Response<AccountCreateResponse> createAccount(@Valid @RequestBody AccountCreateRequest request, Authentication authentication) {
@@ -45,7 +44,6 @@ public class AccountController {
         return Response.success(response);
     }
 
-    @Tag(name = "Account", description = "계좌 API")
     @Operation(summary = "계좌 수정")
     @PatchMapping
     public Response<AccountUpdateResponse> modifyAccount(@Valid @RequestBody AccountUpdateRequest request, Authentication authentication) {
@@ -58,8 +56,7 @@ public class AccountController {
         return Response.success(response);
     }
 
-    @Tag(name = "Account", description = "계좌 API")
-    @Operation(summary = "계좌 삭제")
+
     @DeleteMapping
     public Response<AccountDeleteResponse> removeAccount(Authentication authentication) {
 
@@ -71,7 +68,6 @@ public class AccountController {
         return Response.success(response);
     }
 
-    @Tag(name = "Account", description = "계좌 API")
     @Operation(summary = "입금")
     @PostMapping("/deposit")
     public Response<AccountDto> deposit(@Valid @RequestBody AccountDepositRequest request, Authentication authentication) {
@@ -84,7 +80,6 @@ public class AccountController {
         return Response.success(response);
     }
 
-    @Tag(name = "Account", description = "계좌 API")
     @Operation(summary = "출급")
     @PostMapping("/withdraw")
     public Response<AccountDto> withdraw(@Valid @RequestBody AccountWithdrawRequest request, Authentication authentication) {

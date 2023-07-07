@@ -2,14 +2,18 @@ package store.myproject.onlineshop.domain.brand;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.brand.dto.*;
 
 @Entity
 @Getter
 @Builder
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Where(clause = "deleted_date IS NULL")
+@SQLDelete(sql = "UPDATE brand SET deleted_date = CURRENT_TIMESTAMP WHERE brand_id = ?")
 public class Brand extends BaseEntity {
 
     @Id

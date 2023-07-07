@@ -17,11 +17,11 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/memberships")
+@Tag(name = "MemberShip", description = "멤버쉽 API")
 public class MemberShipController {
 
     private final MemberShipService memberShipService;
 
-    @Tag(name = "MemberShip", description = "멤버쉽 API")
     @Operation(summary = "단건 조회")
     @GetMapping("/{id}")
     public Response<MemberShipDto> findOneMemberShip(@PathVariable Long id) {
@@ -30,7 +30,6 @@ public class MemberShipController {
         return Response.success(memberShipDto);
     }
 
-    @Tag(name = "MemberShip", description = "멤버쉽 API")
     @Operation(summary = "전체 조회")
     @GetMapping
     public Response<List<MemberShipDto>> findAllMemberShip() {
@@ -41,7 +40,6 @@ public class MemberShipController {
     }
 
 
-    @Tag(name = "MemberShip", description = "멤버쉽 API")
     @Operation(summary = "멤버쉽 추가")
     @PostMapping
     public Response<MemberShipDto> createMemberShip(@Valid @RequestBody MemberShipCreateRequest request) {
@@ -51,7 +49,6 @@ public class MemberShipController {
         return Response.success(response);
     }
 
-    @Tag(name = "MemberShip", description = "멤버쉽 API")
     @Operation(summary = "멤버쉽 수정")
     @PatchMapping("/{id}")
     public Response<MemberShipDto> changeMemberShip(@PathVariable Long id, @Valid @RequestBody MemberShipUpdateRequest request) {
@@ -61,7 +58,6 @@ public class MemberShipController {
         return Response.success(response);
     }
 
-    @Tag(name = "MemberShip", description = "멤버쉽 API")
     @Operation(summary = "멤버쉽 삭제")
     @DeleteMapping("/{id}")
     public Response<MessageResponse> removeMemberShip(@PathVariable Long id) {

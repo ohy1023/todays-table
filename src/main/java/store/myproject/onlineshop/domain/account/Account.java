@@ -13,9 +13,9 @@ import static store.myproject.onlineshop.exception.ErrorCode.*;
 @Embeddable
 @Getter
 @Builder
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class Account {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Account{
 
     private String bankName;
 
