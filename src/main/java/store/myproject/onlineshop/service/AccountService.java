@@ -12,8 +12,7 @@ import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
 
-import static store.myproject.onlineshop.exception.ErrorCode.EMAIL_NOT_FOUND;
-import static store.myproject.onlineshop.exception.ErrorCode.WITHDRAW_BAD_REQUEST;
+import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -64,6 +63,10 @@ public class AccountService {
 
         Account account = customer.getAccount();
 
+        if (account == null) {
+            throw new AppException(ACCOUNT_NOT_FOUND, ACCOUNT_NOT_FOUND.getMessage());
+        }
+
         account.plusMyAssets(request.getDepositPrice());
 
         return account.toAccountDto();
@@ -75,11 +78,15 @@ public class AccountService {
 
         Account account = customer.getAccount();
 
+        if (account == null) {
+            throw new AppException(ACCOUNT_NOT_FOUND, ACCOUNT_NOT_FOUND.getMessage());
+        }
+
         if (account.getMyAssets() < request.getWithdrawPrice()) {
             throw new AppException(WITHDRAW_BAD_REQUEST, WITHDRAW_BAD_REQUEST.getMessage());
-        } else {
-            account.minusMyAssets(request.getWithdrawPrice());
         }
+
+        account.minusMyAssets(request.getWithdrawPrice());
 
         return account.toAccountDto();
 

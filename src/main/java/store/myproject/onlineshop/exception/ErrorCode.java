@@ -41,6 +41,8 @@ public enum ErrorCode {
     // Account
     WITHDRAW_BAD_REQUEST(HttpStatus.BAD_REQUEST, "출금액이 보유자산을 초과합니다."),
 
+    ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "계좌가 등록되어 있지 않습니다. \n 계좌를 등록해주세요. "),
+
     // Order
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문 내역입니다."),
 
