@@ -7,6 +7,7 @@ import lombok.*;
 import store.myproject.onlineshop.domain.customer.Address;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.customer.Gender;
+import store.myproject.onlineshop.domain.membership.MemberShip;
 
 @Data
 @Builder
@@ -43,7 +44,7 @@ public class CustomerJoinRequest {
     @NotBlank
     private String zipcode;
 
-    public Customer toEntity(String encodedPassword) {
+    public Customer toEntity(String encodedPassword, MemberShip memberShip) {
         return Customer.builder()
                 .email(this.email)
                 .nickName(this.nickName)
@@ -58,6 +59,7 @@ public class CustomerJoinRequest {
                         .zipcode(this.zipcode)
                         .build()
                 )
+                .memberShip(memberShip)
                 .build();
     }
 

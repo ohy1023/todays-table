@@ -23,6 +23,7 @@ public class MemberShip extends BaseEntity {
     @Column(name = "member_ship_id")
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     private Level level;
 
     private Float discountRate;

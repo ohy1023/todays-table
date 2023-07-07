@@ -10,8 +10,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.customer.CustomerRole;
+import store.myproject.onlineshop.domain.customer.Level;
 import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.domain.customer.Customer;
+import store.myproject.onlineshop.domain.membership.MemberShip;
+import store.myproject.onlineshop.domain.membership.repository.MemberShipRepository;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.annotation.SendMail;
 import store.myproject.onlineshop.global.redis.RedisDao;
@@ -31,6 +34,8 @@ import static store.myproject.onlineshop.exception.ErrorCode.*;
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
+
+    private final MemberShipRepository memberShipRepository;
     private final BCryptPasswordEncoder encoder;
     private final RedisDao redisDao;
     private final JwtUtils jwtUtils;
@@ -61,7 +66,10 @@ public class CustomerService {
                     throw new AppException(DUPLICATE_EMAIL, DUPLICATE_EMAIL.getMessage());
                 });
 
-        Customer customer = request.toEntity(encoder.encode(request.getPassword()));
+        MemberShip memberShipBronze = memberShipRepository.findMemberShipByLevel(Level.BRONZE)
+                .orElseThrow(() -> new AppException(MEMBERSHIP_NOT_FOUND, MEMBERSHIP_NOT_FOUND.getMessage()));
+
+        Customer customer = request.toEntity(encoder.encode(request.getPassword()), memberShipBronze);
         Customer savedCustomer = customerRepository.save(customer);
 
         CustomerInfoResponse customerInfoResponse = CustomerInfoResponse.toDto(savedCustomer);
