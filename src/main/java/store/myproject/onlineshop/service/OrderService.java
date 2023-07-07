@@ -54,15 +54,15 @@ public class OrderService {
 
         Order savedOrder = orderRepository.save(order);
 
-        log.info("tp:{}",orderItem.getTotalPrice());
+        orderItem.setOrder(savedOrder);
+
+        orderItemRepository.save(orderItem);
+
+        log.info("tp:{}", orderItem.getTotalPrice());
 
         findCustomer.purchase(orderItem.getTotalPrice());
 
         findCustomer.addPurchaseAmount(orderItem.getTotalPrice());
-
-        orderItem.setOrder(savedOrder);
-
-        orderItemRepository.save(orderItem);
 
         return savedOrder.toOrderInfo();
 
