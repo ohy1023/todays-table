@@ -121,7 +121,7 @@ public class Customer extends BaseEntity {
         this.account.minusMyAssets(price);
     }
 
-    public void setMemberShip(MemberShip memberShip) {
+    public void upgradeMemberShip(MemberShip memberShip) {
         if (this.totalPurchaseAmount.compareTo(memberShip.getBaseline()) >= 0) {
             this.memberShip = memberShip;
         } else {

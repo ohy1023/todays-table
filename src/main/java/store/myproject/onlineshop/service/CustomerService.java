@@ -237,7 +237,7 @@ public class CustomerService {
         MemberShip memberShip = memberShipRepository.findFirstByBaselineGreaterThanEqual(findCustomer.getTotalPurchaseAmount())
                 .orElseThrow(() -> new AppException(MEMBERSHIP_ACCESS_LIMIT, MEMBERSHIP_ACCESS_LIMIT.getMessage()));
 
-        findCustomer.setMemberShip(memberShip);
+        findCustomer.upgradeMemberShip(memberShip);
 
         return new MessageResponse(String.format("멤버쉽이 %s 등급으로 변경 되었습니다.", memberShip.getLevel()));
 
