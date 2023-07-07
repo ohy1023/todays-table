@@ -10,6 +10,7 @@ import store.myproject.onlineshop.domain.delivery.Delivery;
 import store.myproject.onlineshop.domain.order.dto.OrderInfo;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -71,10 +72,10 @@ public class Order extends BaseEntity {
 
     public OrderInfo toOrderInfo() {
 
-        Long totalPrice = 0L;
+        BigDecimal totalPrice = new BigDecimal(0);
 
         for (OrderItem orderItem : orderItemList) {
-            totalPrice += orderItem.getTotalPrice();
+            totalPrice = totalPrice.add(orderItem.getTotalPrice());
         }
 
         String address = this.delivery.getAddress().getCity() + " " + this.delivery.getAddress().getStreet() + " " + this.delivery.getAddress().getDetail();

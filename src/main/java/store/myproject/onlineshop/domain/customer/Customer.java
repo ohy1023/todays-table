@@ -11,6 +11,7 @@ import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.domain.membership.MemberShip;
 import store.myproject.onlineshop.domain.order.Order;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class Customer extends BaseEntity {
     @Embedded
     private Account account;
 
-    private Long totalPurchaseAmount;
+    private BigDecimal totalPurchaseAmount;
 
     @Embedded
     private Address address;
@@ -67,7 +68,7 @@ public class Customer extends BaseEntity {
     @PrePersist
     public void prePersist() {
         this.customerRole = this.customerRole == null ? ROLE_CUSTOMER : this.customerRole;
-        this.totalPurchaseAmount = this.totalPurchaseAmount == null ? 0 : this.totalPurchaseAmount;
+        this.totalPurchaseAmount = this.totalPurchaseAmount == null ? new BigDecimal(0) : this.totalPurchaseAmount;
     }
 
 
@@ -109,11 +110,11 @@ public class Customer extends BaseEntity {
         this.customerRole = ROLE_ADMIN;
     }
 
-    public void addPurchaseAmount(Long price) {
-        this.totalPurchaseAmount += price;
+    public void addPurchaseAmount(BigDecimal price) {
+        this.totalPurchaseAmount = this.totalPurchaseAmount.add(price);
     }
 
-    public void purchase(Long price) {
+    public void purchase(BigDecimal price) {
         this.account.minusMyAssets(price);
     }
 

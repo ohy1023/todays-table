@@ -10,6 +10,7 @@ import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
 import store.myproject.onlineshop.domain.delivery.Delivery;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.item.repository.ItemRepository;
+import store.myproject.onlineshop.domain.membership.MemberShip;
 import store.myproject.onlineshop.domain.order.Order;
 import store.myproject.onlineshop.domain.order.dto.OrderInfo;
 import store.myproject.onlineshop.domain.order.dto.OrderInfoRequest;
@@ -17,6 +18,8 @@ import store.myproject.onlineshop.domain.order.repository.OrderRepository;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
 import store.myproject.onlineshop.domain.orderitem.repository.OrderItemRepository;
 import store.myproject.onlineshop.exception.AppException;
+
+import java.math.BigDecimal;
 
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
@@ -41,14 +44,18 @@ public class OrderService {
         Customer findCustomer = customerRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
 
+        MemberShip memberShip = findCustomer.getMemberShip();
+
         Item findItem = itemRepository.findById(request.getItemId())
                 .orElseThrow(() -> new AppException(ITEM_NOT_FOUND, ITEM_NOT_FOUND.getMessage()));
 
-
         Delivery delivery = Delivery.setDeliveryInfo(request);
 
-        OrderItem orderItem = OrderItem.createOrderItem(findItem, findItem.getPrice(), request.getItemCnt());
+        BigDecimal price = memberShip.applyDiscount(findItem.getPrice());
 
+        log.info("할인된 가격 : {}", price);
+
+        OrderItem orderItem = OrderItem.createOrderItem(findItem, price, request.getItemCnt());
 
         Order order = Order.createOrder(findCustomer, delivery, orderItem);
 

@@ -82,7 +82,7 @@ public class AccountService {
             throw new AppException(ACCOUNT_NOT_FOUND, ACCOUNT_NOT_FOUND.getMessage());
         }
 
-        if (account.getMyAssets() < request.getWithdrawPrice()) {
+        if (account.getMyAssets().compareTo(request.getWithdrawPrice()) < 0) {
             throw new AppException(WITHDRAW_BAD_REQUEST, WITHDRAW_BAD_REQUEST.getMessage());
         }
 

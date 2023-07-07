@@ -3,6 +3,7 @@ package store.myproject.onlineshop.domain.order.dto;
 import lombok.*;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -29,7 +30,7 @@ public class OrderInfo {
 
     private String deliveryStatus;
 
-    private Long totalPrice;
+    private BigDecimal totalPrice;
 
 
 

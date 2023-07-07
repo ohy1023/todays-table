@@ -2,6 +2,8 @@ package store.myproject.onlineshop.domain.account.dto;
 
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -14,5 +16,5 @@ public class AccountDto {
 
     private String depositor;
 
-    private Long myAssets;
+    private BigDecimal myAssets;
 }

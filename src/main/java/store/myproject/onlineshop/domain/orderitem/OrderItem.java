@@ -11,6 +11,8 @@ import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.order.Order;
 
+import java.math.BigDecimal;
+
 import static jakarta.persistence.FetchType.LAZY;
 import static lombok.AccessLevel.PROTECTED;
 
@@ -37,11 +39,11 @@ public class OrderItem extends BaseEntity {
     @JoinColumn(name = "order_id")
     private Order order; //주문
 
-    private Long orderPrice; //주문 가격
+    private BigDecimal orderPrice; //주문 가격
 
     private Long count; //주문 수량
 
-    public static OrderItem createOrderItem(Item item, Long orderPrice, Long count) {
+    public static OrderItem createOrderItem(Item item, BigDecimal orderPrice, Long count) {
 
         OrderItem orderItem = OrderItem.builder()
                 .item(item)
@@ -63,8 +65,8 @@ public class OrderItem extends BaseEntity {
         getItem().addStock(count);
     }
 
-    public Long getTotalPrice() {
-        return getOrderPrice() * getCount();
+    public BigDecimal getTotalPrice() {
+        return getOrderPrice().multiply(new BigDecimal(getCount()));
     }
 
 

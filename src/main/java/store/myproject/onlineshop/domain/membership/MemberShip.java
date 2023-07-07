@@ -9,6 +9,8 @@ import store.myproject.onlineshop.domain.customer.Level;
 import store.myproject.onlineshop.domain.membership.dto.MemberShipDto;
 import store.myproject.onlineshop.domain.membership.dto.MemberShipUpdateRequest;
 
+import java.math.BigDecimal;
+
 @Entity
 @Getter
 @Builder
@@ -34,6 +36,10 @@ public class MemberShip extends BaseEntity {
         this.level = updateRequest.getLevel();
         this.baseline = updateRequest.getBaseline();
         this.discountRate = updateRequest.getDiscountRate();
+    }
+
+    public BigDecimal applyDiscount(Long itemPrice) {
+        return new BigDecimal(itemPrice * (1 - this.discountRate));
     }
 
     public MemberShipDto toDto() {

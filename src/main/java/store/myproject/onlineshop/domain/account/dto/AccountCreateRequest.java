@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import store.myproject.onlineshop.domain.account.Account;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -24,7 +26,7 @@ public class AccountCreateRequest {
                 .bankName(this.bankName)
                 .accountNumber(this.accountNumber)
                 .depositor(this.depositor)
-                .myAssets(0L)
+                .myAssets(new BigDecimal(0))
                 .build();
     }
 
