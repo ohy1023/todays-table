@@ -13,8 +13,6 @@ import store.myproject.onlineshop.domain.item.Item;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Where(clause = "deleted_date IS NULL")
-@SQLDelete(sql = "UPDATE cart_item SET deleted_date = CURRENT_TIMESTAMP WHERE cart_item_id = ?")
 public class CartItem extends BaseEntity {
 
     @Id
