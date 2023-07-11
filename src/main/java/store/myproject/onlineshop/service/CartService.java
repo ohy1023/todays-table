@@ -16,6 +16,7 @@ import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.item.repository.ItemRepository;
 import store.myproject.onlineshop.exception.AppException;
+import store.myproject.onlineshop.exception.ErrorCode;
 
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
@@ -50,5 +51,18 @@ public class CartService {
         cartItemRepository.save(cartItem);
 
         return new MessageResponse("해당 아이템이 장바구니에 추가되었습니다.");
+    }
+
+    public MessageResponse deleteCarts(Authentication authentication) {
+        String email = authentication.getName();
+
+        Customer findCustomer = customerRepository.findByEmail(email).get();
+
+        Cart findCart = cartRepository.findByCustomer(findCustomer)
+                .orElseThrow(() -> new AppException(CART_NOT_FOUND, CART_NOT_FOUND.getMessage()));
+
+        cartItemRepository.deleteCartItemsByCart(findCart);
+
+        return new MessageResponse("장바구니를 비웠습니다.");
     }
 }

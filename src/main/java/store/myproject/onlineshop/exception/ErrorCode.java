@@ -51,6 +51,9 @@ public enum ErrorCode {
 
     NOT_ENOUGH_MONEY(HttpStatus.CONFLICT, "보유금액이 부족합니다."),
 
+    // Cart
+    CART_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회원은 장바구니에 아무것도 없습니다."),
+
     // S3
     WRONG_FILE_FORMAT(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일입니다"),
     FILE_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다."),
