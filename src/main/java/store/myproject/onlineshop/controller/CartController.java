@@ -28,7 +28,7 @@ public class CartController {
         return Response.success(response);
     }
 
-    @Operation(summary = "장바구니에 무슨 품목 삭제")
+    @Operation(summary = "장바구니에 무슨 품목 삭제2")
     @DeleteMapping
     public Response<MessageResponse> removeAllCart(Authentication authentication) {
         MessageResponse response = cartService.deleteCarts(authentication);
