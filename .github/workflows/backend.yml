@@ -92,7 +92,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.KEY }}
           script: |
-            sudo docker rm $(sudo docker ps -a)
+            ## sudo docker rm $(sudo docker ps -a)
             sudo docker pull ${{ secrets.DOCKER_REPO }}/${{ secrets.DOCKER_REPO }}
             docker-compose up -d
             sudo docker image prune -f
