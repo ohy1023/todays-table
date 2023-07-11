@@ -52,8 +52,8 @@ class ItemControllerTest {
         // given
         ItemCreateRequest request = ItemCreateRequest.builder()
                 .itemName("testItem")
-                .price(21000)
-                .stock(1000)
+                .price(21000L)
+                .stock(1000L)
                 .brandName("testBrand")
                 .itemPhotoUrl("test")
                 .build();
@@ -75,8 +75,8 @@ class ItemControllerTest {
 
         ItemDto response = ItemDto.builder()
                 .itemName("testItem")
-                .stock(1000)
-                .price(21000)
+                .stock(1000L)
+                .price(21000L)
                 .itemPhotoUrl("s3/item/url")
                 .brand(findBrand)
                 .build();

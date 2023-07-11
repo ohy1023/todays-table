@@ -7,14 +7,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import store.myproject.onlineshop.domain.customer.Level;
 import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.domain.customer.Customer;
+import store.myproject.onlineshop.domain.membership.MemberShip;
+import store.myproject.onlineshop.domain.membership.repository.MemberShipRepository;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.fixture.CustomerInfoFixture;
 import store.myproject.onlineshop.global.redis.RedisDao;
 import store.myproject.onlineshop.global.utils.JwtUtils;
 import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -29,6 +33,9 @@ class CustomerServiceTest {
 
     @Mock
     private CustomerRepository customerRepository;
+
+    @Mock
+    private MemberShipRepository memberShipRepository;
 
     @Mock
     private BCryptPasswordEncoder encoder;
@@ -64,6 +71,13 @@ class CustomerServiceTest {
                 .zipcode("07445")
                 .build();
 
+        MemberShip bronze = MemberShip.builder()
+                .id(1L)
+                .baseline(new BigDecimal(0))
+                .discountRate(0F)
+                .level(Level.BRONZE)
+                .build();
+
 
         given(customerRepository.findByNickName(customer1.getNickName()))
                 .willReturn(Optional.empty());
@@ -71,8 +85,13 @@ class CustomerServiceTest {
         given(customerRepository.findByEmail(customer1.getEmail()))
                 .willReturn(Optional.empty());
 
+        given(memberShipRepository.findMemberShipByLevel(any()))
+                .willReturn(Optional.of(bronze));
+
         given(customerRepository.save(any(Customer.class)))
                 .willReturn(customer1);
+
+
 
 
         // when
@@ -189,7 +208,7 @@ class CustomerServiceTest {
         // when & then
         assertThatThrownBy(() -> customerService.login(request))
                 .isInstanceOf(AppException.class)
-                .hasMessage(EMAIL_NOT_FOUND.getMessage());
+                .hasMessage(CUSTOMER_NOT_FOUND.getMessage());
 
     }
 
@@ -313,7 +332,7 @@ class CustomerServiceTest {
         // when & then
         assertThatThrownBy(() -> customerService.logout(request, customer1.getEmail()))
                 .isInstanceOf(AppException.class)
-                .hasMessage(EMAIL_NOT_FOUND.getMessage());
+                .hasMessage(CUSTOMER_NOT_FOUND.getMessage());
     }
 
     @Test
@@ -411,7 +430,7 @@ class CustomerServiceTest {
         // when & then
         assertThatThrownBy(() -> customerService.reissue(request, customer1.getEmail()))
                 .isInstanceOf(AppException.class)
-                .hasMessage(EMAIL_NOT_FOUND.getMessage());
+                .hasMessage(CUSTOMER_NOT_FOUND.getMessage());
     }
 
     @Test
@@ -514,7 +533,7 @@ class CustomerServiceTest {
         // when & then
         assertThatThrownBy(() -> customerService.getInfo(request))
                 .isInstanceOf(AppException.class)
-                .hasMessage(EMAIL_NOT_FOUND.getMessage());
+                .hasMessage(CUSTOMER_NOT_FOUND.getMessage());
 
     }
 
@@ -565,7 +584,7 @@ class CustomerServiceTest {
         // when & then
         assertThatThrownBy(() -> customerService.modify(request, customer1.getEmail()))
                 .isInstanceOf(AppException.class)
-                .hasMessage(EMAIL_NOT_FOUND.getMessage());
+                .hasMessage(CUSTOMER_NOT_FOUND.getMessage());
 
     }
 
@@ -600,7 +619,7 @@ class CustomerServiceTest {
         // when & then
         assertThatThrownBy(() -> customerService.delete(request))
                 .isInstanceOf(AppException.class)
-                .hasMessage(EMAIL_NOT_FOUND.getMessage());
+                .hasMessage(CUSTOMER_NOT_FOUND.getMessage());
 
     }
 
