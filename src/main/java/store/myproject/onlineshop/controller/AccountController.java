@@ -57,6 +57,7 @@ public class AccountController {
     }
 
 
+    @Operation(summary = "계좌 삭제")
     @DeleteMapping
     public Response<AccountDeleteResponse> removeAccount(Authentication authentication) {
 

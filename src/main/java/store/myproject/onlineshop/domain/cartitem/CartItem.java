@@ -2,10 +2,9 @@ package store.myproject.onlineshop.domain.cartitem;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.cart.Cart;
+import store.myproject.onlineshop.domain.cartitem.dto.CartItemResponse;
 import store.myproject.onlineshop.domain.item.Item;
 
 @Entity
@@ -33,12 +32,28 @@ public class CartItem extends BaseEntity {
     @Column(name = "order_bool")
     private boolean isChecked;
 
+    public void plusItemCnt(Long cnt) {
+        this.cartItemCnt += cnt;
+    }
+
     public static CartItem createCartItem(Item findItem, Long itemCnt, Cart cart) {
         return CartItem.builder()
                 .item(findItem)
                 .isChecked(true)
                 .cartItemCnt(itemCnt)
                 .cart(cart)
+                .build();
+    }
+
+    public CartItemResponse toCartItemResponse() {
+        return CartItemResponse
+                .builder()
+                .itemId(this.item.getId())
+                .itemName(this.item.getItemName())
+                .imagePath(this.item.getItemPhotoUrl())
+                .price(this.item.getPrice())
+                .stock(this.item.getStock())
+                .itemCnt(this.cartItemCnt)
                 .build();
     }
 
