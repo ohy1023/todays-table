@@ -115,7 +115,7 @@ public class CustomerController {
 
 
     @Operation(summary = "임시 비밀번호 발급")
-    @PutMapping("/password")
+    @PutMapping("/temp-password")
     public Response<String> findPassword(@Valid @RequestBody CustomerTempPasswordRequest request){
         customerService.setTempPassword(request);
         return Response.success("ok");
@@ -135,6 +135,15 @@ public class CustomerController {
     public Response<MessageResponse> changeGrade(Authentication authentication) {
 
         MessageResponse response = customerService.changeMemberShip(authentication);
+
+        return Response.success(response);
+    }
+
+    @Operation(summary = "비밀번호 변경")
+    @PutMapping("/password")
+    public Response<MessageResponse> changePassword(CustomerChangePasswordRequest request, Authentication authentication) {
+
+        MessageResponse response = customerService.setNewPassword(request,authentication);
 
         return Response.success(response);
     }

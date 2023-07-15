@@ -20,8 +20,6 @@ import store.myproject.onlineshop.global.redis.RedisDao;
 import store.myproject.onlineshop.global.utils.JwtUtils;
 import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
 
-import java.math.BigDecimal;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +29,7 @@ import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class CustomerService {
 
@@ -53,7 +52,6 @@ public class CustomerService {
     public int refreshTokenMaxAge;
 
 
-    @Transactional
     public String join(CustomerJoinRequest request) {
         log.info("회원가입 요청 : {}", request);
 
@@ -80,12 +78,11 @@ public class CustomerService {
         return customerInfoResponse.getEmail();
     }
 
-    @Transactional
     public CustomerLoginResponse login(CustomerLoginRequest request) {
 
         Customer findCustomer = findCustomerByEmail(request.getEmail());
 
-        if (!encoder.matches(request.getPassword(), findCustomer.getPassword())) {
+        if (mismatchPassword(request.getPassword(), findCustomer.getPassword())) {
             throw new AppException(INVALID_PASSWORD, INVALID_PASSWORD.getMessage());
         }
 
@@ -102,7 +99,6 @@ public class CustomerService {
         return new CustomerLoginResponse(accessToken, refreshToken);
     }
 
-    @Transactional
     public CustomerLoginResponse reissue(CustomerTokenRequest request, String email) {
 
         Customer findCustomer = findCustomerByEmail(email);
@@ -130,7 +126,6 @@ public class CustomerService {
 
     }
 
-    @Transactional
     public String logout(CustomerTokenRequest request, String email) {
 
         Customer findCustomer = findCustomerByEmail(email);
@@ -157,7 +152,6 @@ public class CustomerService {
         return "로그아웃 되었습니다.";
     }
 
-    @Transactional
     public String emailCheck(CustomerEmailCheckRequest request) {
 
         customerRepository.findByEmail(request.getEmail())
@@ -168,7 +162,6 @@ public class CustomerService {
         return "사용 가능한 이메일 입니다.";
     }
 
-    @Transactional
     public String nickNameCheck(CustomerNickNameCheckRequest request) {
 
         customerRepository.findByNickName(request.getNickName())
@@ -179,7 +172,6 @@ public class CustomerService {
         return "사용 가능한 닉네임 입니다.";
     }
 
-    @Transactional
     public Long modify(CustomerModifyRequest request, String email) {
 
         Customer findCustomer = findCustomerByEmail(email);
@@ -189,7 +181,6 @@ public class CustomerService {
         return findCustomer.getId();
     }
 
-    @Transactional
     public Long delete(String email) {
 
         Customer findCustomer = findCustomerByEmail(email);
@@ -199,7 +190,6 @@ public class CustomerService {
         return findCustomer.getId();
     }
 
-    @Transactional
     @SendMail(classInfo = CustomerTempPasswordResponse.class)
     public CustomerTempPasswordResponse setTempPassword(CustomerTempPasswordRequest request) {
 
@@ -213,7 +203,16 @@ public class CustomerService {
         return findCustomer.toCustomerTempPasswordResponse(tempPassword);
     }
 
-    @Transactional
+    public MessageResponse setNewPassword(CustomerChangePasswordRequest request, Authentication authentication) {
+        String email = authentication.getName();
+        Customer findCustomer = findCustomerByEmail(email);
+        if (mismatchPassword(request.getCurrentPassword(), findCustomer.getPassword())) {
+            throw new AppException(INVALID_TOKEN, INVALID_TOKEN.getMessage());
+        }
+        findCustomer.setPassword(encoder.encode(request.getNewPassword()));
+        return new MessageResponse("비밀번호가 변경되었습니다.");
+    }
+
     public MessageResponse settingAdmin(Authentication authentication) {
         String email = authentication.getName();
 
@@ -228,7 +227,7 @@ public class CustomerService {
         return new MessageResponse("회원의 권한을 Admin으로 설정하였습니다.");
     }
 
-    @Transactional
+
     public MessageResponse changeMemberShip(Authentication authentication) {
         String email = authentication.getName();
 
@@ -254,5 +253,9 @@ public class CustomerService {
     public Customer findCustomerByEmail(String email) {
         return customerRepository.findByEmail(email).orElseThrow(() ->
                 new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
+    }
+
+    private boolean mismatchPassword(String rawPassword, String encodedPassword) {
+        return !encoder.matches(rawPassword, encodedPassword);
     }
 }

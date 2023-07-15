@@ -105,6 +105,10 @@ public class Customer extends BaseEntity {
                 .build();
     }
 
+    public void setPassword(String newPassword) {
+        this.password = newPassword;
+    }
+
     public void setTempPassword(String tempPassword) {
         this.password = tempPassword;
     }
