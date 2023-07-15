@@ -41,6 +41,13 @@ public class CartController {
         return Response.success(response);
     }
 
+    @Operation(summary = "장바구니에 해당 품목 삭제")
+    @DeleteMapping("/{itemId}")
+    public Response<MessageResponse> removeItem(@PathVariable Long itemId, Authentication authentication) {
+        MessageResponse response = cartService.deleteItem(itemId, authentication);
+        return Response.success(response);
+    }
+
     @Operation(summary = "장바구니 품목 전체 조회")
     @GetMapping
     public Response<Page<CartItemResponse>> lookupCartItems(Authentication authentication, Pageable pageable) {

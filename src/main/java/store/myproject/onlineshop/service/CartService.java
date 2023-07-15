@@ -99,4 +99,22 @@ public class CartService {
         return cartItemRepository.findByCartPage(myCart, pageable);
 
     }
+
+    public MessageResponse deleteItem(Long itemId, Authentication authentication) {
+
+        String email = authentication.getName();
+
+        Customer findCustomer = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
+
+        cartRepository.findByCustomer(findCustomer)
+                .orElseThrow(() -> new AppException(CART_NOT_FOUND, CART_NOT_FOUND.getMessage()));
+
+        Item findItem = itemRepository.findById(itemId)
+                .orElseThrow(() -> new AppException(ITEM_NOT_FOUND, ITEM_NOT_FOUND.getMessage()));
+
+        cartItemRepository.deleteByItem(findItem);
+
+        return new MessageResponse("장바구니에서 해당 품목을 삭제하였습니다.");
+    }
 }
