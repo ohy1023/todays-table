@@ -128,8 +128,6 @@ public class Customer extends BaseEntity {
     public void upgradeMemberShip(MemberShip memberShip) {
         if (this.totalPurchaseAmount.compareTo(memberShip.getBaseline()) >= 0) {
             this.memberShip = memberShip;
-        } else {
-            throw new AppException(NOT_ENOUGH_MEMBERSHIP, NOT_ENOUGH_MEMBERSHIP.getMessage());
         }
     }
 

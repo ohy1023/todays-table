@@ -233,8 +233,14 @@ public class CustomerService {
 
         Customer findCustomer = findCustomerByEmail(email);
 
+        log.info("회원이 구매한 총 금액 : {}원", findCustomer.getTotalPurchaseAmount().intValue());
+
         MemberShip memberShip = memberShipRepository.findFirstByBaselineGreaterThanEqual(findCustomer.getTotalPurchaseAmount())
                 .orElseThrow(() -> new AppException(MEMBERSHIP_ACCESS_LIMIT, MEMBERSHIP_ACCESS_LIMIT.getMessage()));
+
+        if (findCustomer.getMemberShip().equals(memberShip)) {
+            throw new AppException(NOT_ENOUGH_MEMBERSHIP, NOT_ENOUGH_MEMBERSHIP.getMessage());
+        }
 
         findCustomer.upgradeMemberShip(memberShip);
 
