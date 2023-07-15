@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import store.myproject.onlineshop.domain.Response;
@@ -46,7 +47,7 @@ public class BrandController {
 
     @Operation(summary = "브랜드 등록")
     @PostMapping
-    public Response<BrandCreateResponse> createBrand(@Valid @RequestPart BrandCreateRequest request, @RequestPart MultipartFile multipartFile) {
+    public Response<BrandCreateResponse> createBrand(@Valid @RequestPart BrandCreateRequest request, @RequestPart MultipartFile multipartFile, Authentication authentication) {
 
         BrandCreateResponse response = brandService.saveBrand(request, multipartFile);
 
@@ -55,7 +56,7 @@ public class BrandController {
 
     @Operation(summary = "브랜드 수정")
     @PatchMapping("/{brandId}")
-    public Response<BrandUpdateResponse> changeBrand(@PathVariable Long brandId, @RequestPart BrandUpdateRequest request, @RequestParam(required = false) MultipartFile multipartFile) {
+    public Response<BrandUpdateResponse> changeBrand(@PathVariable Long brandId, @RequestPart BrandUpdateRequest request, @RequestParam(required = false) MultipartFile multipartFile, Authentication authentication) {
         BrandUpdateResponse response = brandService.updateBrand(brandId, request, multipartFile);
 
         return Response.success(response);
@@ -63,7 +64,7 @@ public class BrandController {
 
     @Operation(summary = "브랜드 삭제")
     @DeleteMapping("/{brandId}")
-    public Response<BrandDeleteResponse> removeBrand(@PathVariable Long brandId) {
+    public Response<BrandDeleteResponse> removeBrand(@PathVariable Long brandId, Authentication authentication) {
         BrandDeleteResponse response = brandService.deleteBrand(brandId);
 
         return Response.success(response);

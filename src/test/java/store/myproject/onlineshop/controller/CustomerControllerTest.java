@@ -9,6 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import store.myproject.onlineshop.custom.WithMockCustomUser;
+import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.domain.customer.Address;
 import store.myproject.onlineshop.exception.AppException;
@@ -56,7 +57,7 @@ class CustomerControllerTest {
                 .build();
 
         given(customerService.join(any(CustomerJoinRequest.class)))
-                .willReturn("test");
+                .willReturn(new MessageResponse("회원 가입 성공"));
 
         // when & then
         mockMvc.perform(post("/api/v1/customers/join")
@@ -65,7 +66,7 @@ class CustomerControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
-                .andExpect(jsonPath("$.result").value("회원가입 성공"))
+                .andExpect(jsonPath("$.result.msg").value("회원 가입 성공"))
                 .andDo(print());
 
     }
@@ -89,7 +90,7 @@ class CustomerControllerTest {
                 .build();
 
         given(customerService.join(any(CustomerJoinRequest.class)))
-                .willReturn("test");
+                .willReturn(new MessageResponse("회원 가입 성공"));
 
         // when & then
         mockMvc.perform(post("/api/v1/customers/join")
@@ -263,7 +264,7 @@ class CustomerControllerTest {
                 .build();
 
         given(customerService.logout(any(CustomerTokenRequest.class), any(String.class)))
-                .willReturn("로그아웃 되셨습니다.");
+                .willReturn(new MessageResponse("로그아웃 되셨습니다."));
 
 
         // when & then
@@ -273,7 +274,7 @@ class CustomerControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
-                .andExpect(jsonPath("$.result").value("로그아웃 되셨습니다."))
+                .andExpect(jsonPath("$.result.msg").value("로그아웃 되셨습니다."))
                 .andDo(print());
 
     }

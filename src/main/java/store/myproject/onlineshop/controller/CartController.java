@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.Response;
 import store.myproject.onlineshop.domain.cart.dto.CartAddRequest;
-import store.myproject.onlineshop.domain.cartitem.CartItem;
 import store.myproject.onlineshop.domain.cartitem.dto.CartItemResponse;
 import store.myproject.onlineshop.service.CartService;
 
@@ -29,7 +28,9 @@ public class CartController {
     @PostMapping
     public Response<MessageResponse> appendItemByCart(@Valid @RequestBody CartAddRequest request, Authentication authentication) {
 
-        MessageResponse response = cartService.addCart(request, authentication);
+        String email = authentication.getName();
+
+        MessageResponse response = cartService.addCart(request, email);
 
         return Response.success(response);
     }
@@ -37,22 +38,36 @@ public class CartController {
     @Operation(summary = "장바구니에 모든 품목 삭제")
     @DeleteMapping
     public Response<MessageResponse> removeAllCart(Authentication authentication) {
-        MessageResponse response = cartService.deleteCarts(authentication);
+        String email = authentication.getName();
+        MessageResponse response = cartService.deleteCarts(email);
         return Response.success(response);
     }
 
     @Operation(summary = "장바구니에 해당 품목 삭제")
     @DeleteMapping("/{itemId}")
     public Response<MessageResponse> removeItem(@PathVariable Long itemId, Authentication authentication) {
-        MessageResponse response = cartService.deleteItem(itemId, authentication);
+        String email = authentication.getName();
+        MessageResponse response = cartService.deleteItem(itemId, email);
         return Response.success(response);
     }
 
     @Operation(summary = "장바구니 품목 전체 조회")
     @GetMapping
     public Response<Page<CartItemResponse>> lookupCartItems(Authentication authentication, Pageable pageable) {
-        Page<CartItemResponse> response = cartService.selectAllCartItem(authentication, pageable);
+        String email = authentication.getName();
+        Page<CartItemResponse> response = cartService.selectAllCartItem(email, pageable);
         return Response.success(response);
     }
+
+//    @Operation(summary = "장바구니에 있는 품목 구매")
+//    @PostMapping
+//    public Response<MessageResponse> buyCart(Authentication authentication) {
+//        String email = authentication.getName();
+//
+//        MessageResponse response = cartService.buy(email);
+//
+//        return Response.success(response);
+//    }
+
 
 }

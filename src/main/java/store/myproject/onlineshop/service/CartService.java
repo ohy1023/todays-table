@@ -38,9 +38,7 @@ public class CartService {
 
     private final ItemRepository itemRepository;
 
-    public MessageResponse addCart(CartAddRequest request, Authentication authentication) {
-
-        String email = authentication.getName();
+    public MessageResponse addCart(CartAddRequest request, String email) {
 
         Customer findCustomer = customerRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
@@ -73,8 +71,7 @@ public class CartService {
         return new MessageResponse("해당 아이템이 장바구니에 추가되었습니다.");
     }
 
-    public MessageResponse deleteCarts(Authentication authentication) {
-        String email = authentication.getName();
+    public MessageResponse deleteCarts(String email) {
 
         Customer findCustomer = customerRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
@@ -87,8 +84,7 @@ public class CartService {
         return new MessageResponse("장바구니를 비웠습니다.");
     }
 
-    public Page<CartItemResponse> selectAllCartItem(Authentication authentication, Pageable pageable) {
-        String email = authentication.getName();
+    public Page<CartItemResponse> selectAllCartItem(String email, Pageable pageable) {
 
         Customer findCustomer = customerRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
@@ -100,9 +96,7 @@ public class CartService {
 
     }
 
-    public MessageResponse deleteItem(Long itemId, Authentication authentication) {
-
-        String email = authentication.getName();
+    public MessageResponse deleteItem(Long itemId, String email) {
 
         Customer findCustomer = customerRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));

@@ -52,7 +52,7 @@ public class CustomerService {
     public int refreshTokenMaxAge;
 
 
-    public String join(CustomerJoinRequest request) {
+    public MessageResponse join(CustomerJoinRequest request) {
         log.info("회원가입 요청 : {}", request);
 
         customerRepository.findByNickName(request.getNickName())
@@ -75,7 +75,7 @@ public class CustomerService {
         log.info("회원가입 완료!");
         log.info("email: {}, nickName: {}, userName: {}", savedCustomer.getEmail(), savedCustomer.getNickName(), savedCustomer.getUserName());
 
-        return customerInfoResponse.getEmail();
+        return new MessageResponse("회원가입 성공");
     }
 
     public CustomerLoginResponse login(CustomerLoginRequest request) {
@@ -126,7 +126,7 @@ public class CustomerService {
 
     }
 
-    public String logout(CustomerTokenRequest request, String email) {
+    public MessageResponse logout(CustomerTokenRequest request, String email) {
 
         Customer findCustomer = findCustomerByEmail(email);
 
@@ -149,7 +149,7 @@ public class CustomerService {
 
         redisDao.setValues(request.getAccessToken(), "logout", expiration, TimeUnit.SECONDS);
 
-        return "로그아웃 되었습니다.";
+        return new MessageResponse("로그아웃 되었습니다.");
     }
 
     public String emailCheck(CustomerEmailCheckRequest request) {
@@ -203,8 +203,7 @@ public class CustomerService {
         return findCustomer.toCustomerTempPasswordResponse(tempPassword);
     }
 
-    public MessageResponse setNewPassword(CustomerChangePasswordRequest request, Authentication authentication) {
-        String email = authentication.getName();
+    public MessageResponse setNewPassword(CustomerChangePasswordRequest request, String email) {
         Customer findCustomer = findCustomerByEmail(email);
         if (mismatchPassword(request.getCurrentPassword(), findCustomer.getPassword())) {
             throw new AppException(INVALID_TOKEN, INVALID_TOKEN.getMessage());
@@ -213,8 +212,7 @@ public class CustomerService {
         return new MessageResponse("비밀번호가 변경되었습니다.");
     }
 
-    public MessageResponse settingAdmin(Authentication authentication) {
-        String email = authentication.getName();
+    public MessageResponse settingAdmin(String email) {
 
         Customer findCustomer = findCustomerByEmail(email);
 
@@ -228,8 +226,7 @@ public class CustomerService {
     }
 
 
-    public MessageResponse changeMemberShip(Authentication authentication) {
-        String email = authentication.getName();
+    public MessageResponse changeMemberShip(String email) {
 
         Customer findCustomer = findCustomerByEmail(email);
 

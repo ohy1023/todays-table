@@ -28,7 +28,9 @@ public class OrderController {
     @PostMapping
     public Response<OrderInfo> order(@RequestBody OrderInfoRequest request, Authentication authentication) {
 
-        OrderInfo response = orderService.orderByOne(request, authentication);
+        String email = authentication.getName();
+
+        OrderInfo response = orderService.orderByOne(request, email);
 
         return Response.success(response);
     }

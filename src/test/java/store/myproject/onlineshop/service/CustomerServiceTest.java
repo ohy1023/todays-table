@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.customer.Level;
 import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.domain.customer.Customer;
@@ -95,10 +96,10 @@ class CustomerServiceTest {
 
 
         // when
-        String email = customerService.join(request);
+        MessageResponse response = customerService.join(request);
 
         // then
-        assertThat(email).isEqualTo(customer1.getEmail());
+        assertThat(response.getMsg()).isEqualTo("회원가입 성공");
 
 
     }
@@ -309,10 +310,10 @@ class CustomerServiceTest {
                 .willReturn(12000L);
 
         // when
-        String msg = customerService.logout(request, customer1.getEmail());
+        MessageResponse response = customerService.logout(request, customer1.getEmail());
 
         // then
-        assertThat(msg).isEqualTo("로그아웃 되었습니다.");
+        assertThat(response.getMsg()).isEqualTo("로그아웃 되었습니다.");
 
     }
 

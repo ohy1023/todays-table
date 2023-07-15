@@ -32,9 +32,9 @@ public class CustomerController {
 
     @Operation(summary = "회원 가입")
     @PostMapping("/join")
-    public Response<String> join(@Valid @RequestBody CustomerJoinRequest reqeust) {
-        String email = customerService.join(reqeust);
-        return Response.success("회원가입 성공");
+    public Response<MessageResponse> join(@Valid @RequestBody CustomerJoinRequest reqeust) {
+        MessageResponse response = customerService.join(reqeust);
+        return Response.success(response);
     }
 
     @Operation(summary = "로그인")
@@ -61,23 +61,32 @@ public class CustomerController {
 
     @Operation(summary = "로그아웃")
     @PostMapping("/logout")
-    public Response<String> logout(@RequestBody CustomerTokenRequest customerTokenRequest, Authentication authentication) {
-        String msg = customerService.logout(customerTokenRequest, authentication.getName());
-        return Response.success(msg);
+    public Response<MessageResponse> logout(@RequestBody CustomerTokenRequest customerTokenRequest, Authentication authentication) {
+
+        String email = authentication.getName();
+
+        MessageResponse response = customerService.logout(customerTokenRequest, email);
+        return Response.success(response);
     }
 
 
     @Operation(summary = "회원 정보 수정")
     @PatchMapping
     public Response<Long> modify(@RequestBody CustomerModifyRequest customerModifyRequest, Authentication authentication) {
-        Long customerId = customerService.modify(customerModifyRequest, authentication.getName());
+
+        String email = authentication.getName();
+
+        Long customerId = customerService.modify(customerModifyRequest, email);
         return Response.success(customerId);
     }
 
     @Operation(summary = "회원 탈퇴")
     @DeleteMapping
     public Response<Long> delete(Authentication authentication) {
-        Long customerId = customerService.delete(authentication.getName());
+
+        String email = authentication.getName();
+
+        Long customerId = customerService.delete(email);
         return Response.success(customerId);
     }
 
@@ -98,7 +107,10 @@ public class CustomerController {
     @Operation(summary = "토큰 재발급")
     @PostMapping("/reissue")
     public Response<CustomerLoginResponse> reissue(@RequestBody CustomerTokenRequest userTokenRequest, Authentication authentication) {
-        CustomerLoginResponse customerLoginResponse = customerService.reissue(userTokenRequest, authentication.getName());
+
+        String email = authentication.getName();
+
+        CustomerLoginResponse customerLoginResponse = customerService.reissue(userTokenRequest, email);
         return Response.success(customerLoginResponse);
     }
 
@@ -116,7 +128,7 @@ public class CustomerController {
 
     @Operation(summary = "임시 비밀번호 발급")
     @PutMapping("/temp-password")
-    public Response<String> findPassword(@Valid @RequestBody CustomerTempPasswordRequest request){
+    public Response<String> findPassword(@Valid @RequestBody CustomerTempPasswordRequest request) {
         customerService.setTempPassword(request);
         return Response.success("ok");
     }
@@ -125,7 +137,9 @@ public class CustomerController {
     @PutMapping("/admin")
     public Response<MessageResponse> changeRole(Authentication authentication) {
 
-        MessageResponse response = customerService.settingAdmin(authentication);
+        String email = authentication.getName();
+
+        MessageResponse response = customerService.settingAdmin(email);
 
         return Response.success(response);
     }
@@ -134,7 +148,9 @@ public class CustomerController {
     @PutMapping("/membership")
     public Response<MessageResponse> changeGrade(Authentication authentication) {
 
-        MessageResponse response = customerService.changeMemberShip(authentication);
+        String email = authentication.getName();
+
+        MessageResponse response = customerService.changeMemberShip(email);
 
         return Response.success(response);
     }
@@ -143,11 +159,12 @@ public class CustomerController {
     @PutMapping("/password")
     public Response<MessageResponse> changePassword(CustomerChangePasswordRequest request, Authentication authentication) {
 
-        MessageResponse response = customerService.setNewPassword(request,authentication);
+        String email = authentication.getName();
+
+        MessageResponse response = customerService.setNewPassword(request, email);
 
         return Response.success(response);
     }
-
 
 
 }

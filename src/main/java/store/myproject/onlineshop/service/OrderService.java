@@ -38,8 +38,7 @@ public class OrderService {
     private final ItemRepository itemRepository;
 
 
-    public OrderInfo orderByOne(OrderInfoRequest request, Authentication authentication) {
-        String email = authentication.getName();
+    public OrderInfo orderByOne(OrderInfoRequest request, String email) {
 
         Customer findCustomer = customerRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
