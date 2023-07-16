@@ -51,6 +51,8 @@ public enum ErrorCode {
 
     NOT_ENOUGH_MONEY(HttpStatus.CONFLICT, "보유금액이 부족합니다."),
 
+    ALREADY_ARRIVED(HttpStatus.CONFLICT, "배송 완료된 상품입니다."),
+
     // Cart
     CART_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회원은 장바구니에 아무것도 없습니다."),
 

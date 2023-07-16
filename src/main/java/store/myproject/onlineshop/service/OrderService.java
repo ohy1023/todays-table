@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
 import store.myproject.onlineshop.domain.delivery.Delivery;
@@ -62,8 +63,6 @@ public class OrderService {
 
         orderItem.setOrder(savedOrder);
 
-        orderItemRepository.save(orderItem);
-
         log.info("tp:{}", orderItem.getTotalPrice());
 
         findCustomer.purchase(orderItem.getTotalPrice());
@@ -75,4 +74,13 @@ public class OrderService {
     }
 
 
+    public MessageResponse cancelForOrder(Long orderId) {
+
+        Order findOrder = orderRepository.findById(orderId)
+                .orElseThrow(() -> new AppException(ORDER_NOT_FOUND, ORDER_NOT_FOUND.getMessage()));
+
+        findOrder.cancel();
+
+        return new MessageResponse("해당 주문이 취소 되었습니다.");
+    }
 }

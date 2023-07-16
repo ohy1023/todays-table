@@ -7,14 +7,19 @@ import org.hibernate.annotations.Where;
 import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.delivery.Delivery;
+import store.myproject.onlineshop.domain.delivery.DeliveryStatus;
 import store.myproject.onlineshop.domain.order.dto.OrderInfo;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
+import store.myproject.onlineshop.exception.AppException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
+import static store.myproject.onlineshop.domain.order.OrderStatus.*;
+import static store.myproject.onlineshop.exception.ErrorCode.ALREADY_ARRIVED;
 
 @Entity
 @Table(name = "orders")
@@ -53,13 +58,23 @@ public class Order extends BaseEntity {
         delivery.setOrder(this);
     }
 
+    public void cancel() {
+        if (delivery.getStatus().equals(DeliveryStatus.COMP)) {
+            throw new AppException(ALREADY_ARRIVED, ALREADY_ARRIVED.getMessage());
+        }
+        this.orderStatus = CANCEL;
+        for (OrderItem orderItem : orderItemList) {
+            orderItem.cancel();
+        }
+    }
+
     public static Order createOrder(Customer customer, Delivery delivery, OrderItem... orderItems) {
 
         Order order = Order.builder()
                 .customer(customer)
                 .delivery(delivery)
                 .orderDate(LocalDateTime.now())
-                .orderStatus(OrderStatus.ORDER)
+                .orderStatus(ORDER)
                 .build();
 
         order.setDelivery(delivery);
