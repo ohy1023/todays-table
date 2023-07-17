@@ -12,6 +12,10 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderInfo {
 
+    private String brandName;
+
+    private String itemName;
+
     private String orderDate;
 
     private String orderStatus;
@@ -31,7 +35,5 @@ public class OrderInfo {
     private String deliveryStatus;
 
     private BigDecimal totalPrice;
-
-
 
 }

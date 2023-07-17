@@ -27,8 +27,6 @@ import static store.myproject.onlineshop.exception.ErrorCode.ALREADY_ARRIVED;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Where(clause = "deleted_date IS NULL")
-@SQLDelete(sql = "UPDATE orders SET deleted_date = CURRENT_TIMESTAMP WHERE orders_id = ?")
 public class Order extends BaseEntity {
 
     @Id
@@ -50,7 +48,7 @@ public class Order extends BaseEntity {
     private Delivery delivery; //배송정보
 
     @Builder.Default
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItemList = new ArrayList<>();
 
     public void setDelivery(Delivery delivery) {
@@ -96,6 +94,8 @@ public class Order extends BaseEntity {
         String address = this.delivery.getAddress().getCity() + " " + this.delivery.getAddress().getStreet() + " " + this.delivery.getAddress().getDetail();
 
         return OrderInfo.builder()
+                .brandName(this.orderItemList.get(0).getItem().getBrand().getName())
+                .itemName(this.orderItemList.get(0).getItem().getItemName())
                 .orderDate(this.orderDate.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분 ss초")))
                 .orderCustomerName(this.customer.getUserName())
                 .orderCustomerTel(this.customer.getTel())

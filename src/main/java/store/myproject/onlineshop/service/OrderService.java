@@ -2,6 +2,8 @@ package store.myproject.onlineshop.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,7 @@ import store.myproject.onlineshop.domain.membership.MemberShip;
 import store.myproject.onlineshop.domain.order.Order;
 import store.myproject.onlineshop.domain.order.dto.OrderInfo;
 import store.myproject.onlineshop.domain.order.dto.OrderInfoRequest;
+import store.myproject.onlineshop.domain.order.dto.OrderSearchCond;
 import store.myproject.onlineshop.domain.order.repository.OrderRepository;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
 import store.myproject.onlineshop.domain.orderitem.repository.OrderItemRepository;
@@ -38,6 +41,28 @@ public class OrderService {
 
     private final ItemRepository itemRepository;
 
+    @Transactional(readOnly = true)
+    public OrderInfo findOrder(Long orderId, String email) {
+
+        Customer findCustomer = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
+
+        Order findOrder = orderRepository.findMyOrder(orderId, findCustomer)
+                .orElseThrow(() -> new AppException(ORDER_NOT_FOUND, ORDER_NOT_FOUND.getMessage()));
+
+        return findOrder.toOrderInfo();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<OrderInfo> searchMyOrders(OrderSearchCond orderSearchCond, String email, Pageable pageable) {
+
+        Customer findCustomer = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
+
+        return orderRepository.search(orderSearchCond, findCustomer, pageable)
+                .map(Order::toOrderInfo);
+
+    }
 
     public OrderInfo orderByOne(OrderInfoRequest request, String email) {
 
@@ -84,11 +109,4 @@ public class OrderService {
         return new MessageResponse("해당 주문이 취소 되었습니다.");
     }
 
-    public OrderInfo findOrder(Long orderId) {
-
-        Order findOrder = orderRepository.findById(orderId)
-                .orElseThrow(() -> new AppException(ORDER_NOT_FOUND, ORDER_NOT_FOUND.getMessage()));
-
-        return findOrder.toOrderInfo();
-    }
 }

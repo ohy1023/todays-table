@@ -22,8 +22,6 @@ import static lombok.AccessLevel.PROTECTED;
 @Table(name = "order_item")
 @NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor
-@Where(clause = "deleted_date IS NULL")
-@SQLDelete(sql = "UPDATE order_item SET deleted_date = CURRENT_TIMESTAMP WHERE order_item_id = ?")
 public class OrderItem extends BaseEntity {
 
     @Id
