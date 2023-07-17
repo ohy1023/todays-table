@@ -26,8 +26,6 @@ public class OrderController {
     @GetMapping("{orderId}")
     public Response<OrderInfo> order(@PathVariable Long orderId, Authentication authentication) {
 
-        String email = authentication.getName();
-
         OrderInfo response = orderService.findOrder(orderId);
 
         return Response.success(response);
@@ -47,8 +45,6 @@ public class OrderController {
     @Operation(summary = "주문 취소")
     @DeleteMapping("/{orderId}")
     public Response<MessageResponse> cancel(@PathVariable Long orderId, Authentication authentication) {
-
-        String email = authentication.getName();
 
         MessageResponse response = orderService.cancelForOrder(orderId);
 
