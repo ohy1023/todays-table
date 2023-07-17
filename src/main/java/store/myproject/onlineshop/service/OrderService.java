@@ -83,4 +83,12 @@ public class OrderService {
 
         return new MessageResponse("해당 주문이 취소 되었습니다.");
     }
+
+    public OrderInfo findOrder(Long orderId) {
+
+        Order findOrder = orderRepository.findById(orderId)
+                .orElseThrow(() -> new AppException(ORDER_NOT_FOUND, ORDER_NOT_FOUND.getMessage()));
+
+        return findOrder.toOrderInfo();
+    }
 }

@@ -22,6 +22,17 @@ public class OrderController {
     private final OrderService orderService;
 
 
+    @Operation(summary = "단건 주문 조회")
+    @GetMapping("{orderId}")
+    public Response<OrderInfo> order(@PathVariable Long orderId, Authentication authentication) {
+
+        String email = authentication.getName();
+
+        OrderInfo response = orderService.findOrder(orderId);
+
+        return Response.success(response);
+    }
+
     @Operation(summary = "단건 주문")
     @PostMapping
     public Response<OrderInfo> order(@RequestBody OrderInfoRequest request, Authentication authentication) {
@@ -43,4 +54,5 @@ public class OrderController {
 
         return Response.success(response);
     }
+
 }
