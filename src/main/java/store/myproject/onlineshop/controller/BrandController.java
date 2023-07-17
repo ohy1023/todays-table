@@ -55,7 +55,7 @@ public class BrandController {
     }
 
     @Operation(summary = "브랜드 수정")
-    @PatchMapping("/{brandId}")
+    @PutMapping("/{brandId}")
     public Response<BrandUpdateResponse> changeBrand(@PathVariable Long brandId, @RequestPart BrandUpdateRequest request, @RequestParam(required = false) MultipartFile multipartFile, Authentication authentication) {
         BrandUpdateResponse response = brandService.updateBrand(brandId, request, multipartFile);
 

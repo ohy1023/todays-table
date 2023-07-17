@@ -6,6 +6,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Address;
+import store.myproject.onlineshop.domain.delivery.dto.DeliveryUpdateRequest;
 import store.myproject.onlineshop.domain.order.Order;
 import store.myproject.onlineshop.domain.order.dto.OrderInfoRequest;
 
@@ -33,10 +34,25 @@ public class Delivery extends BaseEntity {
     private Address address;
 
     @Enumerated(EnumType.STRING)
-    private DeliveryStatus status; //ENUM [READY(준비), COMP(배송)]
+    private DeliveryStatus status; //ENUM [CANCEL(취소), READY(준비), COMP(배송)]
+
+    public void setInfo(DeliveryUpdateRequest request) {
+        this.recipientName = request.getRecipientName();
+        this.recipientTel = request.getRecipientTel();
+        this.address = Address.builder()
+                .city(request.getCity())
+                .street(request.getStreet())
+                .detail(request.getDetail())
+                .zipcode(request.getZipcode())
+                .build();
+    }
 
     public void setOrder(Order order) {
         this.order = order;
+    }
+
+    public void cancel() {
+        this.status = DeliveryStatus.CANCEL;
     }
 
     public static Delivery setDeliveryInfo(OrderInfoRequest request) {

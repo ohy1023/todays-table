@@ -45,7 +45,7 @@ public class AccountController {
     }
 
     @Operation(summary = "계좌 수정")
-    @PatchMapping
+    @PutMapping
     public Response<AccountUpdateResponse> modifyAccount(@Valid @RequestBody AccountUpdateRequest request, Authentication authentication) {
 
         String email = authentication.getName();

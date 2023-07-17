@@ -51,7 +51,7 @@ public class MemberShipController {
     }
 
     @Operation(summary = "멤버쉽 수정")
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     public Response<MemberShipDto> changeMemberShip(@PathVariable Long id, @Valid @RequestBody MemberShipUpdateRequest request, Authentication authentication) {
 
         MemberShipDto response = memberShipService.updateMemberShip(id, request);

@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static store.myproject.onlineshop.domain.order.OrderStatus.*;
@@ -60,6 +61,7 @@ public class Order extends BaseEntity {
         if (delivery.getStatus().equals(DeliveryStatus.COMP)) {
             throw new AppException(ALREADY_ARRIVED, ALREADY_ARRIVED.getMessage());
         }
+        this.delivery.cancel();
         this.orderStatus = CANCEL;
         for (OrderItem orderItem : orderItemList) {
             orderItem.cancel();
@@ -77,9 +79,8 @@ public class Order extends BaseEntity {
 
         order.setDelivery(delivery);
 
-        for (OrderItem orderItem : orderItems) {
-            order.orderItemList.add(orderItem);
-        }
+        order.orderItemList.addAll(Arrays.asList(orderItems));
+
         return order;
     }
 
@@ -101,7 +102,7 @@ public class Order extends BaseEntity {
                 .orderCustomerTel(this.customer.getTel())
                 .orderStatus(this.orderStatus.name())
                 .deliveryStatus(this.delivery.getStatus().name())
-                .recipientName(this.customer.getUserName())
+                .recipientName(this.delivery.getRecipientName())
                 .recipientTel(this.delivery.getRecipientTel())
                 .recipientAddress(address)
                 .zipcode(this.delivery.getAddress().getZipcode())

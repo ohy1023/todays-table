@@ -1,5 +1,5 @@
 package store.myproject.onlineshop.domain.delivery;
 
 public enum DeliveryStatus {
-    READY, COMP
+    CANCEL, READY, COMP
 }
