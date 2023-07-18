@@ -84,6 +84,7 @@ public class CartService {
         return new MessageResponse("장바구니를 비웠습니다.");
     }
 
+    @Transactional(readOnly = true)
     public Page<CartItemResponse> selectAllCartItem(String email, Pageable pageable) {
 
         Customer findCustomer = customerRepository.findByEmail(email)
@@ -110,5 +111,20 @@ public class CartService {
         cartItemRepository.deleteByItem(findItem);
 
         return new MessageResponse("장바구니에서 해당 품목을 삭제하였습니다.");
+    }
+
+    public MessageResponse updateCheck(Long cartItemId, String email) {
+        Customer findCustomer = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
+
+        cartRepository.findByCustomer(findCustomer)
+                .orElseThrow(() -> new AppException(CART_NOT_FOUND, CART_NOT_FOUND.getMessage()));
+
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new AppException(CART_ITEM_NOT_FOUND, CART_ITEM_NOT_FOUND.getMessage()));
+
+        cartItem.setCheck();
+
+        return new MessageResponse(String.format("%b로 변경되었습니다.", cartItem.isChecked()));
     }
 }

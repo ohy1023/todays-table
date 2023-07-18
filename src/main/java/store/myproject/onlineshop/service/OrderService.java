@@ -44,13 +44,8 @@ import static store.myproject.onlineshop.exception.ErrorCode.*;
 public class OrderService {
     private final CartItemRepository cartItemRepository;
     private final CartRepository cartRepository;
-
     private final OrderRepository orderRepository;
-
     private final CustomerRepository customerRepository;
-
-    private final OrderItemRepository orderItemRepository;
-
     private final ItemRepository itemRepository;
 
     @Transactional(readOnly = true)

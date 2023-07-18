@@ -59,15 +59,15 @@ public class CartController {
         return Response.success(response);
     }
 
-//    @Operation(summary = "장바구니에 있는 품목 구매")
-//    @PostMapping
-//    public Response<MessageResponse> buyCart(Authentication authentication) {
-//        String email = authentication.getName();
-//
-//        MessageResponse response = cartService.buy(email);
-//
-//        return Response.success(response);
-//    }
+    @Operation(summary = "장바구니에서 구매할 물건 체크 변경")
+    @PutMapping("/{cartItemId}")
+    public Response<MessageResponse> changeCheck(@PathVariable Long cartItemId, Authentication authentication) {
+        String email = authentication.getName();
+
+        MessageResponse response = cartService.updateCheck(cartItemId, email);
+
+        return Response.success(response);
+    }
 
 
 }

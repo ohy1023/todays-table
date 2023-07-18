@@ -57,4 +57,7 @@ public class CartItem extends BaseEntity {
                 .build();
     }
 
+    public void setCheck() {
+        this.isChecked = !this.isChecked;
+    }
 }
