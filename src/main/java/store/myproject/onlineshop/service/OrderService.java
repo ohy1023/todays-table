@@ -71,6 +71,7 @@ public class OrderService {
 
     }
 
+    // 단건 주문
     public OrderInfo orderByOne(OrderInfoRequest request, String email) {
 
         Customer findCustomer = customerRepository.findByEmail(email)
@@ -81,9 +82,9 @@ public class OrderService {
         Item findItem = itemRepository.findById(request.getItemId())
                 .orElseThrow(() -> new AppException(ITEM_NOT_FOUND, ITEM_NOT_FOUND.getMessage()));
 
-        Delivery delivery = Delivery.setDeliveryInfo(request.toDeliveryInfoRequest());
+        Delivery delivery = Delivery.createWithInfo(request.toDeliveryInfoRequest());
 
-        delivery.setDeliveryStatus(DeliveryStatus.READY);
+        delivery.createDeliveryStatus(DeliveryStatus.READY);
 
         BigDecimal price = memberShip.applyDiscount(findItem.getPrice());
 
@@ -97,7 +98,7 @@ public class OrderService {
 
         orderItem.setOrder(savedOrder);
 
-        log.info("tp:{}", orderItem.getTotalPrice());
+        log.info("Total Price : {}", orderItem.getTotalPrice());
 
         findCustomer.purchase(orderItem.getTotalPrice());
 
@@ -108,6 +109,7 @@ public class OrderService {
     }
 
 
+    // 단건 주문 취소
     public MessageResponse cancelForOrder(Long orderId) {
 
         Order findOrder = orderRepository.findById(orderId)
@@ -118,49 +120,70 @@ public class OrderService {
         return new MessageResponse("해당 주문이 취소 되었습니다.");
     }
 
+    // 장바구니 내 품목 주문
     public OrderInfo orderByCart(DeliveryInfoRequest request, String email) {
-
-        List<OrderItem> orderItemList = new ArrayList<>();
-
         Customer findCustomer = customerRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
 
         Cart findCart = cartRepository.findByCustomer(findCustomer)
                 .orElseThrow(() -> new AppException(CART_NOT_FOUND, CART_NOT_FOUND.getMessage()));
 
+        // 장바구니에 품목 유무 & 체크 되어 있는지 체크
+        validateCartItems(findCart.getCartItems());
+
         MemberShip memberShip = findCustomer.getMemberShip();
 
-        Delivery delivery = Delivery.setDeliveryInfo(request);
+        // Delivery 정보 생성
+        Delivery delivery = Delivery.createWithInfo(request);
+        delivery.createDeliveryStatus(DeliveryStatus.READY);
 
-        delivery.setDeliveryStatus(DeliveryStatus.READY);
+        // 주문 정보 생성
+        List<OrderItem> orderItemList = createOrderItems(findCart.getCartItems(), memberShip, findCustomer);
 
+        // 주문 생성
+        Order order = Order.createOrder(findCustomer, delivery, orderItemList);
+        orderRepository.save(order);
 
-        for (CartItem cartItem : findCart.getCartItems()) {
+        // 주문 후 장바구니 비우기
+        clearCartItems(findCart, orderItemList);
 
+        return order.toOrderInfo();
+    }
+
+    private void validateCartItems(List<CartItem> cartItems) {
+        if (cartItems.isEmpty()) {
+            throw new AppException(CART_ITEM_NOT_EXIST_IN_CART, CART_ITEM_NOT_EXIST_IN_CART.getMessage());
+        }
+
+        boolean checkedItemsExist = cartItems.stream()
+                .anyMatch(CartItem::isChecked);
+
+        if (!checkedItemsExist) {
+            throw new AppException(CHECK_NOT_EXIST_IN_CART, CHECK_NOT_EXIST_IN_CART.getMessage());
+        }
+    }
+
+    private List<OrderItem> createOrderItems(List<CartItem> cartItems, MemberShip memberShip, Customer customer) {
+        List<OrderItem> orderItemList = new ArrayList<>();
+
+        for (CartItem cartItem : cartItems) {
             if (cartItem.isChecked()) {
                 BigDecimal price = memberShip.applyDiscount(cartItem.getItem().getPrice());
 
                 OrderItem orderItem = OrderItem.createOrderItem(cartItem.getItem(), price, cartItem.getCartItemCnt());
-
                 orderItemList.add(orderItem);
 
-                findCustomer.purchase(orderItem.getTotalPrice());
-
-                findCustomer.addPurchaseAmount(orderItem.getTotalPrice());
-
+                customer.purchase(orderItem.getTotalPrice());
+                customer.addPurchaseAmount(orderItem.getTotalPrice());
             }
-
         }
 
-        Order order = Order.createOrder(findCustomer, delivery, orderItemList);
+        return orderItemList;
+    }
 
-        orderRepository.save(order);
-
-        // 장바구니 비우기
-        for (OrderItem orderItem : orderItemList) {
-            cartItemRepository.deleteCartItem(findCart, orderItem.getItem());
+    private void clearCartItems(Cart cart, List<OrderItem> orderItems) {
+        for (OrderItem orderItem : orderItems) {
+            cartItemRepository.deleteCartItem(cart, orderItem.getItem());
         }
-
-        return order.toOrderInfo();
     }
 }

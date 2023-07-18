@@ -50,7 +50,7 @@ public class Delivery extends BaseEntity {
                 .build();
     }
 
-    public void setDeliveryStatus(DeliveryStatus status) {
+    public void createDeliveryStatus(DeliveryStatus status) {
         this.status = status;
     }
 
@@ -62,7 +62,7 @@ public class Delivery extends BaseEntity {
         this.status = DeliveryStatus.CANCEL;
     }
 
-    public static Delivery setDeliveryInfo(DeliveryInfoRequest request) {
+    public static Delivery createWithInfo(DeliveryInfoRequest request) {
         return Delivery.builder()
                 .recipientName(request.getRecipientName())
                 .recipientTel(request.getRecipientTel())
@@ -73,6 +73,7 @@ public class Delivery extends BaseEntity {
                         .street(request.getRecipientStreet())
                         .build())
                 .build();
+
     }
 
 }

@@ -21,7 +21,6 @@ public enum ErrorCode {
     EMAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이메일이 존재하지 않습니다."),
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "중복된 닉네임입니다."),
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "중복된 이메일입니다."),
-
     ALREADY_ADMIN(HttpStatus.CONFLICT, "이미 Admin 입니다."),
 
     // Brand
@@ -38,19 +37,15 @@ public enum ErrorCode {
     // Item
     DUPLICATE_ITEM(HttpStatus.CONFLICT, "중복된 품목 이름입니다."),
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 품목 이름입니다."),
-
     NOT_ENOUGH_STOCK(HttpStatus.CONFLICT, "재고가 부족합니다."),
 
     // Account
     WITHDRAW_BAD_REQUEST(HttpStatus.BAD_REQUEST, "출금액이 보유자산을 초과합니다."),
-
     ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "계좌가 등록되어 있지 않습니다. \n 계좌를 등록해주세요. "),
 
     // Order
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문 내역입니다."),
-
     NOT_ENOUGH_MONEY(HttpStatus.CONFLICT, "보유금액이 부족합니다."),
-
     ALREADY_ARRIVED(HttpStatus.CONFLICT, "배송 완료된 상품입니다."),
 
     // Cart
@@ -58,6 +53,8 @@ public enum ErrorCode {
 
     // CartItem
     CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니에 해당 아이템이 없습니다."),
+    CART_ITEM_NOT_EXIST_IN_CART(HttpStatus.NOT_FOUND, "장바구니가 비었습니다."),
+    CHECK_NOT_EXIST_IN_CART(HttpStatus.NOT_FOUND, "구매할려는 품목을 체크해주세요"),
 
     // S3
     WRONG_FILE_FORMAT(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일입니다"),
