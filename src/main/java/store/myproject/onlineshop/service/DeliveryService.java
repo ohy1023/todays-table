@@ -21,7 +21,7 @@ public class DeliveryService {
 
     private final OrderRepository orderRepository;
 
-    public OrderInfo patchInfo(Long orderId, DeliveryUpdateRequest request) {
+    public OrderInfo updateDeliveryInfo(Long orderId, DeliveryUpdateRequest request) {
         Order findOrder = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ORDER_NOT_FOUND, ORDER_NOT_FOUND.getMessage()));
 

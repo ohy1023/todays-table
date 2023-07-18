@@ -31,13 +31,13 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
         List<ItemDto> itemDtoList = queryFactory.select(new QItemDto(item.itemName, item.price, item.stock, item.itemPhotoUrl, item.brand))
                 .from(item)
                 .where(
-                        itemNameEq(itemSearchCond.getItemName()),
-                        brandNameEq(itemSearchCond.getBrandName()),
-                        priceGoe(itemSearchCond.getPriceGoe()),
+                        itemNameContains(itemSearchCond.getItemName()),
+                        brandNameContains(itemSearchCond.getBrandName()),
                         priceLoe(itemSearchCond.getStockLoe()),
-                        stockGoe(itemSearchCond.getStockGoe()),
+                        priceGoe(itemSearchCond.getPriceGoe()),
                         stockLoe(itemSearchCond.getStockLoe()),
-                        betweenCreatedDate(itemSearchCond.getStartDate(),itemSearchCond.getEndDate())
+                        stockGoe(itemSearchCond.getStockGoe()),
+                        betweenCreatedDate(itemSearchCond.getStartDate(), itemSearchCond.getEndDate())
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -47,24 +47,24 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
                 .select(item.count())
                 .from(item)
                 .where(
-                        itemNameEq(itemSearchCond.getItemName()),
-                        brandNameEq(itemSearchCond.getBrandName()),
-                        priceGoe(itemSearchCond.getPriceGoe()),
+                        itemNameContains(itemSearchCond.getItemName()),
+                        brandNameContains(itemSearchCond.getBrandName()),
                         priceLoe(itemSearchCond.getStockLoe()),
-                        stockGoe(itemSearchCond.getStockGoe()),
+                        priceGoe(itemSearchCond.getPriceGoe()),
                         stockLoe(itemSearchCond.getStockLoe()),
-                        betweenCreatedDate(itemSearchCond.getStartDate(),itemSearchCond.getEndDate())
+                        stockGoe(itemSearchCond.getStockGoe()),
+                        betweenCreatedDate(itemSearchCond.getStartDate(), itemSearchCond.getEndDate())
                 );
 
         return PageableExecutionUtils.getPage(itemDtoList, pageable, countQuery::fetchOne);
     }
 
-    private BooleanExpression brandNameEq(String brandName) {
-        return StringUtils.hasText(brandName) ? brand.name.eq(brandName) : null;
+    private BooleanExpression brandNameContains(String brandName) {
+        return StringUtils.hasText(brandName) ? brand.name.contains(brandName) : null;
     }
 
-    private BooleanExpression itemNameEq(String itemName) {
-        return StringUtils.hasText(itemName) ? brand.name.eq(itemName) : null;
+    private BooleanExpression itemNameContains(String itemName) {
+        return StringUtils.hasText(itemName) ? item.itemName.contains(itemName) : null;
     }
 
     private BooleanExpression priceGoe(Long priceGoe) {

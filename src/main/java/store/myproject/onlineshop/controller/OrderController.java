@@ -12,10 +12,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.Response;
+import store.myproject.onlineshop.domain.delivery.dto.DeliveryInfoRequest;
 import store.myproject.onlineshop.domain.order.dto.OrderInfo;
 import store.myproject.onlineshop.domain.order.dto.OrderInfoRequest;
 import store.myproject.onlineshop.domain.order.dto.OrderSearchCond;
 import store.myproject.onlineshop.service.OrderService;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -56,6 +59,17 @@ public class OrderController {
         String email = authentication.getName();
 
         OrderInfo response = orderService.orderByOne(request, email);
+
+        return Response.success(response);
+    }
+
+    @Operation(summary = "장바구니 내 품목 구매")
+    @PostMapping("/cart")
+    public Response<OrderInfo> order(@RequestBody DeliveryInfoRequest request, Authentication authentication) {
+
+        String email = authentication.getName();
+
+        OrderInfo response = orderService.orderByCart(request, email);
 
         return Response.success(response);
     }

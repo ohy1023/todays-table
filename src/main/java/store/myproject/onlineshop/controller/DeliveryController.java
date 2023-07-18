@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import store.myproject.onlineshop.domain.Response;
+import store.myproject.onlineshop.domain.delivery.dto.DeliveryInfoRequest;
 import store.myproject.onlineshop.domain.delivery.dto.DeliveryUpdateRequest;
 import store.myproject.onlineshop.domain.order.dto.OrderInfo;
 import store.myproject.onlineshop.service.DeliveryService;
@@ -22,7 +23,7 @@ public class DeliveryController {
     @PutMapping("/{orderId}")
     public Response<OrderInfo> changeDeliveryInfo(@PathVariable Long orderId, @RequestBody DeliveryUpdateRequest request, Authentication authentication) {
 
-        OrderInfo response = deliveryService.patchInfo(orderId, request);
+        OrderInfo response = deliveryService.updateDeliveryInfo(orderId, request);
 
         return Response.success(response);
     }

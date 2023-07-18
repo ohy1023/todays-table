@@ -57,6 +57,12 @@ public class Order extends BaseEntity {
         delivery.setOrder(this);
     }
 
+    public void addOrderItem(OrderItem orderItem) {
+        orderItemList.add(orderItem);
+        orderItem.addOrder(this);
+    }
+
+
     public void cancel() {
         if (delivery.getStatus().equals(DeliveryStatus.COMP)) {
             throw new AppException(ALREADY_ARRIVED, ALREADY_ARRIVED.getMessage());
@@ -68,7 +74,7 @@ public class Order extends BaseEntity {
         }
     }
 
-    public static Order createOrder(Customer customer, Delivery delivery, OrderItem... orderItems) {
+    public static Order createOrder(Customer customer, Delivery delivery, List<OrderItem> orderItemList) {
 
         Order order = Order.builder()
                 .customer(customer)
@@ -79,7 +85,9 @@ public class Order extends BaseEntity {
 
         order.setDelivery(delivery);
 
-        order.orderItemList.addAll(Arrays.asList(orderItems));
+        for (OrderItem orderItem : orderItemList) {
+            order.addOrderItem(orderItem);
+        }
 
         return order;
     }

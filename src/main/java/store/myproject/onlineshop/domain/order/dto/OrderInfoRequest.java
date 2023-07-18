@@ -1,7 +1,7 @@
 package store.myproject.onlineshop.domain.order.dto;
 
 import lombok.*;
-import store.myproject.onlineshop.domain.customer.Address;
+import store.myproject.onlineshop.domain.delivery.dto.DeliveryInfoRequest;
 
 @Data
 @Builder
@@ -25,4 +25,15 @@ public class OrderInfoRequest {
 
     private String recipientZipcode;
 
+    public DeliveryInfoRequest toDeliveryInfoRequest() {
+        return DeliveryInfoRequest
+                .builder()
+                .recipientName(this.getRecipientName())
+                .recipientTel(this.getRecipientTel())
+                .recipientCity(this.getRecipientCity())
+                .recipientZipcode(this.getRecipientZipcode())
+                .recipientDetail(this.getRecipientDetail())
+                .recipientStreet(this.getRecipientStreet())
+                .build();
+    }
 }
