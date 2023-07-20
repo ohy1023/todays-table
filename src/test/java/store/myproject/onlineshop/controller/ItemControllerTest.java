@@ -99,12 +99,7 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.result.price").value(response.getPrice()))
                 .andExpect(jsonPath("$.result.stock").value(response.getStock()))
                 .andExpect(jsonPath("$.result.itemPhotoUrl").value(response.getItemPhotoUrl()))
-                .andExpect(jsonPath("$.result.brand.createdDate").exists())
-                .andExpect(jsonPath("$.result.brand.deletedDate").doesNotExist())
-                .andExpect(jsonPath("$.result.brand.lastModifiedDate").exists())
-//                .andExpect(jsonPath("$.result.brand.id").value(response.getBrand().getId()))
-//                .andExpect(jsonPath("$.result.brand.name").value(response.getBrand().getName()))
-//                .andExpect(jsonPath("$.result.brand.originImagePath").value(response.getBrand().getOriginImagePath()))
+                .andExpect(jsonPath("$.result.brandName").value(response.getBrandName()))
                 .andDo(print());
     }
 
