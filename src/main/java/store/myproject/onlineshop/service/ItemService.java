@@ -37,8 +37,9 @@ public class ItemService {
     private final AwsS3Service awsS3Service;
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "items", key = "#id")
+//    @Cacheable(value = "items", key = "#id")
     public ItemDto selectOne(Long id) {
+
         return getItem(id).toItemDto();
     }
 
@@ -60,14 +61,16 @@ public class ItemService {
 
         request.setItemPhotoUrl(originImageUrl);
 
-        Item savedItem = itemRepository.save(request.toEntity(findBrand));
+        Item savedItem = itemRepository.save(request.toEntity(request.getStock()));
+
+        findBrand.addItem(savedItem);
 
         return savedItem.toItemDto();
 
     }
 
-    @CacheEvict(value = "items", allEntries = true)
-    public ItemDto updateItem(Long id, ItemUpdateRequest request, MultipartFile multipartFile) {
+    //    @CacheEvict(value = "items", allEntries = true)
+    public MessageResponse updateItem(Long id, ItemUpdateRequest request, MultipartFile multipartFile) {
 
         Item findItem = getItem(id);
 
@@ -87,11 +90,11 @@ public class ItemService {
 
         findItem.updateItem(request, findBrand);
 
-        return findItem.toItemDto();
+        return new MessageResponse("해당 품목이 수정되었습니다.");
 
     }
 
-    @CacheEvict(value = "items", allEntries = true)
+    //    @CacheEvict(value = "items", allEntries = true)
     public MessageResponse deleteItem(Long id) {
 
         Item findItem = getItem(id);
@@ -106,14 +109,12 @@ public class ItemService {
     }
 
     private Item getItem(Long id) {
-        Item findItem = itemRepository.findById(id)
+        return itemRepository.findById(id)
                 .orElseThrow(() -> new AppException(ITEM_NOT_FOUND, ITEM_NOT_FOUND.getMessage()));
-        return findItem;
     }
 
     private Brand getBrand(String brandName) {
-        Brand findBrand = brandRepository.findBrandByName(brandName)
+        return brandRepository.findBrandByName(brandName)
                 .orElseThrow(() -> new AppException(BRAND_NOT_FOUND, BRAND_NOT_FOUND.getMessage()));
-        return findBrand;
     }
 }

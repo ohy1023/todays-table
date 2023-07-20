@@ -49,7 +49,7 @@ public class OrderItem extends BaseEntity {
                 .count(count)
                 .build();
 
-        item.removeStock(count);
+        item.getStock().decrease(count);
 
         return orderItem;
 
@@ -64,7 +64,7 @@ public class OrderItem extends BaseEntity {
     }
 
     public void cancel() {
-        getItem().addStock(count);
+        getItem().getStock().increase(this.count);
     }
 
     public BigDecimal getTotalPrice() {

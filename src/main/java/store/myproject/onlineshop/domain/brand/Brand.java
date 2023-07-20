@@ -6,6 +6,11 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.brand.dto.*;
+import store.myproject.onlineshop.domain.item.Item;
+import store.myproject.onlineshop.domain.orderitem.OrderItem;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -24,6 +29,15 @@ public class Brand extends BaseEntity {
     private String name;
 
     private String originImagePath;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "brand")
+    private List<Item> itemList = new ArrayList<>();
+
+    public void addItem(Item item) {
+        itemList.add(item);
+        item.addBrand(this);
+    }
 
 
     public BrandInfo toBrandInfo() {

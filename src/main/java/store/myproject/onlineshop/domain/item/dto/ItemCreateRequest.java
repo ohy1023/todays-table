@@ -3,6 +3,7 @@ package store.myproject.onlineshop.domain.item.dto;
 import lombok.*;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.item.Item;
+import store.myproject.onlineshop.domain.stock.Stock;
 
 @Data
 @Builder
@@ -20,17 +21,20 @@ public class ItemCreateRequest {
 
     private String brandName;
 
-    public void setPhotoUrl(String imagePath) {
-        this.itemPhotoUrl = imagePath;
-    }
 
-    public Item toEntity(Brand findBrand) {
-        return Item.builder()
+    public Item toEntity(Long cnt) {
+        Item item = Item.builder()
                 .itemName(this.itemName)
                 .price(this.price)
-                .stock(this.stock)
                 .itemPhotoUrl(this.itemPhotoUrl)
-                .brand(findBrand)
                 .build();
+
+        Stock newStock = Stock.builder()
+                .quantity(cnt)
+                .build();
+
+        item.setStock(newStock);
+
+        return item;
     }
 }

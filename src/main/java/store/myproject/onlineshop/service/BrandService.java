@@ -32,7 +32,7 @@ public class BrandService {
 
     // 브랜드 단건 조회
     @Transactional(readOnly = true)
-    @Cacheable(value = "brands",key = "#id")
+//    @Cacheable(value = "brands",key = "#id")
     public BrandInfo getBrandInfo(Long id) {
         return getBrandOrElseThrow(id).toBrandInfo();
     }

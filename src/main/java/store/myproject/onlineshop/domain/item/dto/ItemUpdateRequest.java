@@ -23,18 +23,4 @@ public class ItemUpdateRequest {
 
     private String brandName;
 
-    public void setPhotoUrl(String imagePath) {
-        this.itemPhotoUrl = imagePath;
-    }
-
-    public Item toEntity(Brand findBrand) {
-        return Item.builder()
-                .itemName(this.itemName)
-                .price(this.price)
-                .stock(this.stock)
-                .itemPhotoUrl(this.itemPhotoUrl)
-                .brand(findBrand)
-                .build();
-    }
-
 }

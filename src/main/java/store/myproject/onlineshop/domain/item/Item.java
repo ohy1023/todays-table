@@ -3,23 +3,23 @@ package store.myproject.onlineshop.domain.item;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.brand.Brand;
-import store.myproject.onlineshop.domain.item.dto.ItemCreateRequest;
+import store.myproject.onlineshop.domain.delivery.Delivery;
 import store.myproject.onlineshop.domain.item.dto.ItemDto;
 import store.myproject.onlineshop.domain.item.dto.ItemUpdateRequest;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
-import store.myproject.onlineshop.exception.AppException;
-import store.myproject.onlineshop.exception.ErrorCode;
+import store.myproject.onlineshop.domain.stock.Stock;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static jakarta.persistence.FetchType.*;
-import static store.myproject.onlineshop.exception.ErrorCode.*;
 
+@Slf4j
 @Entity
 @Getter
 @Builder
@@ -37,7 +37,9 @@ public class Item extends BaseEntity {
 
     private Long price;
 
-    private Long stock;
+    @OneToOne(fetch = LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "stock_id")
+    private Stock stock;
 
     private String itemPhotoUrl;
 
@@ -49,24 +51,22 @@ public class Item extends BaseEntity {
     @OneToMany(mappedBy = "item")
     private List<OrderItem> orderItemList = new ArrayList<>();
 
+
+    public void addBrand(Brand brand) {
+        this.brand = brand;
+    }
+
+    public void setStock(Stock stock) {
+        this.stock = stock;
+        stock.setItem(this);
+    }
+
     public void updateItem(ItemUpdateRequest updateRequest, Brand findBrand) {
         this.itemName = updateRequest.getItemName();
         this.price = updateRequest.getPrice();
-        this.stock = updateRequest.getStock();
         this.brand = findBrand;
         this.itemPhotoUrl = updateRequest.getItemPhotoUrl();
-    }
-
-    public void addStock(Long quantity) {
-        this.stock += quantity;
-    }
-
-    public void removeStock(Long quantity) {
-        Long restStock = this.stock - quantity;
-        if (restStock < 0) {
-            throw new AppException(NOT_ENOUGH_STOCK, NOT_ENOUGH_STOCK.getMessage());
-        }
-        this.stock = restStock;
+        this.stock.updateQuantity(updateRequest.getStock());
     }
 
 
@@ -74,9 +74,9 @@ public class Item extends BaseEntity {
         return ItemDto.builder()
                 .itemName(this.itemName)
                 .price(this.price)
-                .stock(this.stock)
+                .stock(this.stock.getQuantity())
                 .itemPhotoUrl(this.itemPhotoUrl)
-                .brand(this.brand)
+                .brandName(this.brand.getName())
                 .build();
     }
 

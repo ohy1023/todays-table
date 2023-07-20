@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.Response;
+import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.item.dto.ItemCreateRequest;
 import store.myproject.onlineshop.domain.item.dto.ItemDto;
 import store.myproject.onlineshop.domain.item.dto.ItemSearchCond;
@@ -38,7 +39,7 @@ public class ItemController {
 
     @Operation(summary = "품목 검색")
     @GetMapping
-    public Response<Page<ItemDto>> createItem(ItemSearchCond itemSearchCond, Pageable pageable) {
+    public Response<Page<ItemDto>> searchItem(ItemSearchCond itemSearchCond, Pageable pageable) {
 
         Page<ItemDto> response = itemService.searchItem(itemSearchCond, pageable);
 
@@ -54,9 +55,10 @@ public class ItemController {
     }
 
     @Operation(summary = "품목 수정")
-    @PatchMapping("/{itemId}")
-    public Response<ItemDto> changeItem(@PathVariable Long itemId, @RequestPart ItemUpdateRequest request, @RequestPart MultipartFile multipartFile, Authentication authentication) {
-        ItemDto response = itemService.updateItem(itemId, request, multipartFile);
+    @PutMapping("/{itemId}")
+    public Response<MessageResponse> changeItem(@PathVariable Long itemId, @RequestPart ItemUpdateRequest request, @RequestPart MultipartFile multipartFile, Authentication authentication) {
+
+        MessageResponse response = itemService.updateItem(itemId, request, multipartFile);
 
         return Response.success(response);
     }

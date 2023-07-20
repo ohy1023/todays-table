@@ -17,14 +17,14 @@ public class ItemDto {
 
     private String itemPhotoUrl;
 
-    private Brand brand;
+    private String brandName;
 
     @QueryProjection
-    public ItemDto(String itemName, Long price, Long stock, String itemPhotoUrl, Brand brand) {
+    public ItemDto(String itemName, Long price, Long stock, String itemPhotoUrl, String brandName) {
         this.itemName = itemName;
         this.price = price;
         this.stock = stock;
         this.itemPhotoUrl = itemPhotoUrl;
-        this.brand = brand;
+        this.brandName = brandName;
     }
 }

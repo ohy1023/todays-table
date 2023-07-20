@@ -52,7 +52,7 @@ public class CartService {
         Optional<CartItem> cartItem = cartItemRepository.findByCartAndItem(myCart, findItem);
 
         if (cartItem.isEmpty()) {
-            if (findItem.getStock() < request.getItemCnt()) {
+            if (findItem.getStock().getQuantity() < request.getItemCnt()) {
                 throw new AppException(NOT_ENOUGH_STOCK, NOT_ENOUGH_STOCK.getMessage());
             }
             CartItem createCartItem = CartItem.createCartItem(findItem, request.getItemCnt(), myCart);
@@ -61,7 +61,7 @@ public class CartService {
         } else {
             Long cnt = cartItem.get().getCartItemCnt() + request.getItemCnt();
 
-            if (findItem.getStock() < cnt) {
+            if (findItem.getStock().getQuantity() < cnt) {
                 throw new AppException(NOT_ENOUGH_STOCK, NOT_ENOUGH_STOCK.getMessage());
             }
 
