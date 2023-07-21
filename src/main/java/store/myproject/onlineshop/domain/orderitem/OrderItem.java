@@ -5,9 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 import store.myproject.onlineshop.domain.BaseEntity;
+import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.order.Order;
 
@@ -41,7 +40,7 @@ public class OrderItem extends BaseEntity {
 
     private Long count; //주문 수량
 
-    public static OrderItem createOrderItem(Item item, BigDecimal orderPrice, Long count) {
+    public static OrderItem createOrderItem(Customer customer, Item item, BigDecimal orderPrice, Long count) {
 
         OrderItem orderItem = OrderItem.builder()
                 .item(item)
@@ -49,7 +48,10 @@ public class OrderItem extends BaseEntity {
                 .count(count)
                 .build();
 
-        item.getStock().decrease(count);
+        item.decrease(count);
+
+        customer.purchase(orderItem.getTotalPrice());
+        customer.addPurchaseAmount(orderItem.getTotalPrice());
 
         return orderItem;
 
@@ -64,7 +66,7 @@ public class OrderItem extends BaseEntity {
     }
 
     public void cancel() {
-        getItem().getStock().increase(this.count);
+        getItem().increase(this.count);
     }
 
     public BigDecimal getTotalPrice() {

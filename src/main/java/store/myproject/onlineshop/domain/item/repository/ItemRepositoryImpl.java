@@ -18,7 +18,6 @@ import java.util.List;
 
 import static store.myproject.onlineshop.domain.brand.QBrand.brand;
 import static store.myproject.onlineshop.domain.item.QItem.*;
-import static store.myproject.onlineshop.domain.stock.QStock.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,7 +28,7 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
     @Override
     public Page<ItemDto> search(ItemSearchCond itemSearchCond, Pageable pageable) {
 
-        List<ItemDto> itemDtoList = queryFactory.select(new QItemDto(item.itemName, item.price, item.stock.quantity, item.itemPhotoUrl, item.brand.name))
+        List<ItemDto> itemDtoList = queryFactory.select(new QItemDto(item.itemName, item.price, item.stock, item.itemPhotoUrl, item.brand.name))
                 .from(item)
                 .where(
                         itemNameContains(itemSearchCond.getItemName()),
@@ -77,11 +76,11 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
     }
 
     private BooleanExpression stockGoe(Long stockGoe) {
-        return stockGoe == null ? null : item.stock.quantity.goe(stockGoe);
+        return stockGoe == null ? null : item.stock.goe(stockGoe);
     }
 
     private BooleanExpression stockLoe(Long stockLoe) {
-        return stockLoe == null ? null : item.stock.quantity.loe(stockLoe);
+        return stockLoe == null ? null : item.stock.loe(stockLoe);
     }
 
     private BooleanExpression betweenCreatedDate(LocalDateTime start, LocalDateTime end) {

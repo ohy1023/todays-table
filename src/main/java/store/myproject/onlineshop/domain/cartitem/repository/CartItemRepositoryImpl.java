@@ -34,7 +34,7 @@ public class CartItemRepositoryImpl implements CartItemCustomRepository {
                         item.itemName,
                         item.itemPhotoUrl,
                         item.price,
-                        item.stock.quantity,
+                        item.stock,
                         cartItem.cartItemCnt)
                 )
                 .from(cartItem)

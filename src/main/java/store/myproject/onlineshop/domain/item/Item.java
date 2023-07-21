@@ -8,16 +8,16 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.brand.Brand;
-import store.myproject.onlineshop.domain.delivery.Delivery;
 import store.myproject.onlineshop.domain.item.dto.ItemDto;
 import store.myproject.onlineshop.domain.item.dto.ItemUpdateRequest;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
-import store.myproject.onlineshop.domain.stock.Stock;
+import store.myproject.onlineshop.exception.AppException;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static jakarta.persistence.FetchType.*;
+import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 @Slf4j
 @Entity
@@ -37,9 +37,7 @@ public class Item extends BaseEntity {
 
     private Long price;
 
-    @OneToOne(fetch = LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "stock_id")
-    private Stock stock;
+    private Long stock;
 
     private String itemPhotoUrl;
 
@@ -56,17 +54,25 @@ public class Item extends BaseEntity {
         this.brand = brand;
     }
 
-    public void setStock(Stock stock) {
-        this.stock = stock;
-        stock.setItem(this);
+    public void decrease(Long count) {
+        if (stock < count) {
+            throw new AppException(NOT_ENOUGH_STOCK, NOT_ENOUGH_STOCK.getMessage());
+        }
+
+        this.stock -= count;
     }
+
+    public void increase(Long count) {
+        this.stock += count;
+    }
+
 
     public void updateItem(ItemUpdateRequest updateRequest, Brand findBrand) {
         this.itemName = updateRequest.getItemName();
         this.price = updateRequest.getPrice();
         this.brand = findBrand;
         this.itemPhotoUrl = updateRequest.getItemPhotoUrl();
-        this.stock.updateQuantity(updateRequest.getStock());
+        this.stock = updateRequest.getStock();
     }
 
 
@@ -74,7 +80,7 @@ public class Item extends BaseEntity {
         return ItemDto.builder()
                 .itemName(this.itemName)
                 .price(this.price)
-                .stock(this.stock.getQuantity())
+                .stock(this.stock)
                 .itemPhotoUrl(this.itemPhotoUrl)
                 .brandName(this.brand.getName())
                 .build();

@@ -61,7 +61,7 @@ public class ItemService {
 
         request.setItemPhotoUrl(originImageUrl);
 
-        Item savedItem = itemRepository.save(request.toEntity(request.getStock()));
+        Item savedItem = itemRepository.save(request.toEntity());
 
         findBrand.addItem(savedItem);
 

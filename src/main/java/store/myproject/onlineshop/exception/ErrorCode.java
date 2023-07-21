@@ -37,6 +37,9 @@ public enum ErrorCode {
     // Item
     DUPLICATE_ITEM(HttpStatus.CONFLICT, "중복된 품목 이름입니다."),
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 품목 이름입니다."),
+
+    // Stock
+    STOCK_NOT_FOUND(HttpStatus.NOT_FOUND, "재고 정보가 입력되지 않았습니다."),
     NOT_ENOUGH_STOCK(HttpStatus.CONFLICT, "재고가 부족합니다."),
 
     // Account

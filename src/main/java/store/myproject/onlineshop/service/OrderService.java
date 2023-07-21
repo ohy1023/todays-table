@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import store.myproject.onlineshop.domain.MessageResponse;
@@ -26,12 +25,10 @@ import store.myproject.onlineshop.domain.order.dto.OrderInfoRequest;
 import store.myproject.onlineshop.domain.order.dto.OrderSearchCond;
 import store.myproject.onlineshop.domain.order.repository.OrderRepository;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
-import store.myproject.onlineshop.domain.orderitem.repository.OrderItemRepository;
 import store.myproject.onlineshop.exception.AppException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -86,23 +83,23 @@ public class OrderService {
 
         delivery.createDeliveryStatus(DeliveryStatus.READY);
 
+        // 멤버쉽 할인
         BigDecimal price = memberShip.applyDiscount(findItem.getPrice());
 
         log.info("할인된 가격 : {}", price);
 
-        OrderItem orderItem = OrderItem.createOrderItem(findItem, price, request.getItemCnt());
+        // 주문 정보 생성
+        OrderItem orderItem = OrderItem.createOrderItem(findCustomer, findItem, price, request.getItemCnt());
 
+        // 주문 생성
         Order order = Order.createOrder(findCustomer, delivery, Collections.singletonList(orderItem));
 
         Order savedOrder = orderRepository.save(order);
 
+        // 연관 관계 설정
         orderItem.setOrder(savedOrder);
 
         log.info("Total Price : {}", orderItem.getTotalPrice());
-
-        findCustomer.purchase(orderItem.getTotalPrice());
-
-        findCustomer.addPurchaseAmount(orderItem.getTotalPrice());
 
         return savedOrder.toOrderInfo();
 
@@ -170,11 +167,9 @@ public class OrderService {
             if (cartItem.isChecked()) {
                 BigDecimal price = memberShip.applyDiscount(cartItem.getItem().getPrice());
 
-                OrderItem orderItem = OrderItem.createOrderItem(cartItem.getItem(), price, cartItem.getCartItemCnt());
+                OrderItem orderItem = OrderItem.createOrderItem(customer, cartItem.getItem(), price, cartItem.getCartItemCnt());
                 orderItemList.add(orderItem);
 
-                customer.purchase(orderItem.getTotalPrice());
-                customer.addPurchaseAmount(orderItem.getTotalPrice());
             }
         }
 

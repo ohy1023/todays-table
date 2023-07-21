@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import store.myproject.onlineshop.domain.MessageResponse;
@@ -17,8 +15,6 @@ import store.myproject.onlineshop.domain.order.dto.OrderInfo;
 import store.myproject.onlineshop.domain.order.dto.OrderInfoRequest;
 import store.myproject.onlineshop.domain.order.dto.OrderSearchCond;
 import store.myproject.onlineshop.service.OrderService;
-
-import java.util.List;
 
 @Slf4j
 @RestController
