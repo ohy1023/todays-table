@@ -76,7 +76,7 @@ public class OrderService {
 
         MemberShip memberShip = findCustomer.getMemberShip();
 
-        Item findItem = itemRepository.findById(request.getItemId())
+        Item findItem = itemRepository.findPessimisticLockById(request.getItemId())
                 .orElseThrow(() -> new AppException(ITEM_NOT_FOUND, ITEM_NOT_FOUND.getMessage()));
 
         Delivery delivery = Delivery.createWithInfo(request.toDeliveryInfoRequest());
