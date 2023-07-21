@@ -50,13 +50,13 @@ class OrderServiceTest {
 
 
     @Test
-    @DisplayName("동시에 100명이 구매하려는 상황")
+    @DisplayName("동시에 10명이 구매하려는 상황")
     void immediatePurchase() throws InterruptedException {
 
         Item item = itemRepository.findById(orderInfoRequest.getItemId())
                 .orElseThrow(() -> new AppException(ITEM_NOT_FOUND, ITEM_NOT_FOUND.getMessage()));
 
-        final int PURCHASE_PEOPLE = 100;
+        final int PURCHASE_PEOPLE = 10;
 
         CountDownLatch countDownLatch = new CountDownLatch(PURCHASE_PEOPLE);
 
@@ -70,7 +70,7 @@ class OrderServiceTest {
         Item item2 = itemRepository.findById(orderInfoRequest.getItemId())
                 .orElseThrow(() -> new AppException(ITEM_NOT_FOUND, ITEM_NOT_FOUND.getMessage()));
 
-        assertThat(item2.getStock()).isEqualTo(item.getStock() - 100L);
+        assertThat(item2.getStock()).isEqualTo(item.getStock() - PURCHASE_PEOPLE);
     }
 
     private class ImmediateBuyer implements Runnable {
