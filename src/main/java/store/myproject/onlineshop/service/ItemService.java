@@ -37,7 +37,7 @@ public class ItemService {
     private final AwsS3Service awsS3Service;
 
     @Transactional(readOnly = true)
-//    @Cacheable(value = "items", key = "#id")
+    @Cacheable(value = "items", key = "#id")
     public ItemDto selectOne(Long id) {
 
         return getItem(id).toItemDto();
@@ -69,7 +69,7 @@ public class ItemService {
 
     }
 
-    //    @CacheEvict(value = "items", allEntries = true)
+    @CacheEvict(value = "items", allEntries = true)
     public MessageResponse updateItem(Long id, ItemUpdateRequest request, MultipartFile multipartFile) {
 
         Item findItem = getItem(id);
@@ -94,7 +94,7 @@ public class ItemService {
 
     }
 
-    //    @CacheEvict(value = "items", allEntries = true)
+    @CacheEvict(value = "items", allEntries = true)
     public MessageResponse deleteItem(Long id) {
 
         Item findItem = getItem(id);

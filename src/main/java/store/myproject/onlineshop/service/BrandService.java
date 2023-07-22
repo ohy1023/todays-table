@@ -32,7 +32,7 @@ public class BrandService {
 
     // 브랜드 단건 조회
     @Transactional(readOnly = true)
-//    @Cacheable(value = "brands",key = "#id")
+    @Cacheable(value = "brands",key = "#id")
     public BrandInfo getBrandInfo(Long id) {
         return getBrandOrElseThrow(id).toBrandInfo();
     }
@@ -61,7 +61,7 @@ public class BrandService {
     }
 
     // 브랜드 수정
-//    @CacheEvict(value = "brands", allEntries = true)
+    @CacheEvict(value = "brands", allEntries = true)
     public BrandUpdateResponse updateBrand(Long id, BrandUpdateRequest request, MultipartFile multipartFile) {
 
         Brand brand = getBrandOrElseThrow(id);
@@ -86,7 +86,7 @@ public class BrandService {
     }
 
     // 브랜드 삭제
-//    @CacheEvict(value = "brands", allEntries = true)
+    @CacheEvict(value = "brands", allEntries = true)
     public BrandDeleteResponse deleteBrand(Long id) {
 
         Brand brand = getBrandOrElseThrow(id);
