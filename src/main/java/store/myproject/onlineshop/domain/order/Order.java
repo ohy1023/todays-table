@@ -74,7 +74,7 @@ public class Order extends BaseEntity {
         }
     }
 
-    public static Order createOrder(Customer customer, Delivery delivery, List<OrderItem> orderItemList) {
+    public static Order createOrder(Customer customer, Delivery delivery, OrderItem orderItem) {
 
         Order order = Order.builder()
                 .customer(customer)
@@ -85,9 +85,7 @@ public class Order extends BaseEntity {
 
         order.setDelivery(delivery);
 
-        for (OrderItem orderItem : orderItemList) {
-            order.addOrderItem(orderItem);
-        }
+        order.addOrderItem(orderItem);
 
         return order;
     }

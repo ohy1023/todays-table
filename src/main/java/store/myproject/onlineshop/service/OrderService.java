@@ -92,7 +92,7 @@ public class OrderService {
         OrderItem orderItem = OrderItem.createOrderItem(findCustomer, findItem, price, request.getItemCnt());
 
         // 주문 생성
-        Order order = Order.createOrder(findCustomer, delivery, Collections.singletonList(orderItem));
+        Order order = Order.createOrder(findCustomer, delivery, orderItem);
 
         Order savedOrder = orderRepository.save(order);
 
@@ -118,7 +118,45 @@ public class OrderService {
     }
 
     // 장바구니 내 품목 주문
-    public OrderInfo orderByCart(DeliveryInfoRequest request, String email) {
+//    public List<OrderInfo> orderByCart(DeliveryInfoRequest request, String email) {
+//        Customer findCustomer = customerRepository.findByEmail(email)
+//                .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
+//
+//        Cart findCart = cartRepository.findByCustomer(findCustomer)
+//                .orElseThrow(() -> new AppException(CART_NOT_FOUND, CART_NOT_FOUND.getMessage()));
+//
+//        // 장바구니에 품목 유무 & 체크 되어 있는지 체크
+//        validateCartItems(findCart.getCartItems());
+//
+//        MemberShip memberShip = findCustomer.getMemberShip();
+//
+//        // Delivery 정보 생성
+//        Delivery delivery = Delivery.createWithInfo(request);
+//        delivery.createDeliveryStatus(DeliveryStatus.READY);
+//
+//        // 주문 정보 생성
+//        List<OrderItem> orderItemList = createOrderItems(findCart.getCartItems(), memberShip, findCustomer);
+//
+//        // 주문 생성
+//        Order order = Order.createOrder(findCustomer, delivery, orderItemList);
+//        orderRepository.save(order);
+//
+//        // 주문 후 장바구니 비우기
+//        clearCartItems(findCart, orderItemList);
+//
+//        // 여러 개의 주문 정보를 담을 리스트 생성
+//        List<OrderInfo> orderInfoList = new ArrayList<>();
+//
+//
+//
+//        // 주문 정보를 리스트에 추가
+//        orderInfoList.add(order.toOrderInfo());
+//
+//        // 여러 개의 주문 정보를 반환
+//        return orderInfoList;
+//    }
+
+    public List<OrderInfo> orderByCart(DeliveryInfoRequest request, String email) {
         Customer findCustomer = customerRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
 
@@ -137,14 +175,23 @@ public class OrderService {
         // 주문 정보 생성
         List<OrderItem> orderItemList = createOrderItems(findCart.getCartItems(), memberShip, findCustomer);
 
-        // 주문 생성
-        Order order = Order.createOrder(findCustomer, delivery, orderItemList);
-        orderRepository.save(order);
+        // 여러 개의 주문 정보를 담을 리스트 생성
+        List<OrderInfo> orderInfoList = new ArrayList<>();
 
-        // 주문 후 장바구니 비우기
-        clearCartItems(findCart, orderItemList);
+        for (OrderItem orderItem : orderItemList) {
+            // 주문 생성
+            Order order = Order.createOrder(findCustomer, delivery, orderItem);
+            orderRepository.save(order);
 
-        return order.toOrderInfo();
+            // 주문 후 장바구니 비우기
+            clearCartItems(findCart, orderItem);
+
+            // 주문 정보를 리스트에 추가
+            orderInfoList.add(order.toOrderInfo());
+        }
+
+        // 여러 개의 주문 정보를 반환
+        return orderInfoList;
     }
 
     private void validateCartItems(List<CartItem> cartItems) {
@@ -165,9 +212,12 @@ public class OrderService {
 
         for (CartItem cartItem : cartItems) {
             if (cartItem.isChecked()) {
+                Item findItem = itemRepository.findPessimisticLockById(cartItem.getItem().getId())
+                        .orElseThrow(() -> new AppException(ITEM_NOT_FOUND, ITEM_NOT_FOUND.getMessage()));
+
                 BigDecimal price = memberShip.applyDiscount(cartItem.getItem().getPrice());
 
-                OrderItem orderItem = OrderItem.createOrderItem(customer, cartItem.getItem(), price, cartItem.getCartItemCnt());
+                OrderItem orderItem = OrderItem.createOrderItem(customer, findItem, price, cartItem.getCartItemCnt());
                 orderItemList.add(orderItem);
 
             }
@@ -176,9 +226,7 @@ public class OrderService {
         return orderItemList;
     }
 
-    private void clearCartItems(Cart cart, List<OrderItem> orderItems) {
-        for (OrderItem orderItem : orderItems) {
-            cartItemRepository.deleteCartItem(cart, orderItem.getItem());
-        }
+    private void clearCartItems(Cart cart, OrderItem orderItem) {
+        cartItemRepository.deleteCartItem(cart, orderItem.getItem());
     }
 }

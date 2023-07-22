@@ -16,6 +16,8 @@ import store.myproject.onlineshop.domain.order.dto.OrderInfoRequest;
 import store.myproject.onlineshop.domain.order.dto.OrderSearchCond;
 import store.myproject.onlineshop.service.OrderService;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -61,11 +63,11 @@ public class OrderController {
 
     @Operation(summary = "장바구니 내 품목 구매")
     @PostMapping("/cart")
-    public Response<OrderInfo> order(@RequestBody DeliveryInfoRequest request, Authentication authentication) {
+    public Response<List<OrderInfo>> order(@RequestBody DeliveryInfoRequest request, Authentication authentication) {
 
         String email = authentication.getName();
 
-        OrderInfo response = orderService.orderByCart(request, email);
+        List<OrderInfo> response = orderService.orderByCart(request, email);
 
         return Response.success(response);
     }
