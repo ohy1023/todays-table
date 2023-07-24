@@ -39,9 +39,11 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
+    @Column(name = "order_date")
     private LocalDateTime orderDate; //주문시간
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "order_status")
     private OrderStatus orderStatus;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

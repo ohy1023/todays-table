@@ -33,12 +33,14 @@ public class Item extends BaseEntity {
     @Column(name = "item_id")
     private Long id;
 
+    @Column(name = "item_name")
     private String itemName;
 
     private Long price;
 
     private Long stock;
 
+    @Column(name = "item_photo_url")
     private String itemPhotoUrl;
 
     @ManyToOne(fetch = LAZY)

@@ -29,7 +29,7 @@ import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 @Slf4j
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class CustomerService {
 
@@ -51,7 +51,7 @@ public class CustomerService {
     @Value("${refresh-token-maxage}")
     public int refreshTokenMaxAge;
 
-
+    @Transactional
     public MessageResponse join(CustomerJoinRequest request) {
         log.info("회원가입 요청 : {}", request);
 
@@ -78,6 +78,7 @@ public class CustomerService {
         return new MessageResponse("회원가입 성공");
     }
 
+    @Transactional
     public CustomerLoginResponse login(CustomerLoginRequest request) {
 
         Customer findCustomer = findCustomerByEmail(request.getEmail());
@@ -99,6 +100,7 @@ public class CustomerService {
         return new CustomerLoginResponse(accessToken, refreshToken);
     }
 
+    @Transactional
     public CustomerLoginResponse reissue(CustomerTokenRequest request, String email) {
 
         Customer findCustomer = findCustomerByEmail(email);
@@ -126,6 +128,7 @@ public class CustomerService {
 
     }
 
+    @Transactional
     public MessageResponse logout(CustomerTokenRequest request, String email) {
 
         Customer findCustomer = findCustomerByEmail(email);
@@ -152,6 +155,7 @@ public class CustomerService {
         return new MessageResponse("로그아웃 되었습니다.");
     }
 
+    @Transactional
     public String emailCheck(CustomerEmailCheckRequest request) {
 
         customerRepository.findByEmail(request.getEmail())
@@ -162,6 +166,7 @@ public class CustomerService {
         return "사용 가능한 이메일 입니다.";
     }
 
+    @Transactional
     public String nickNameCheck(CustomerNickNameCheckRequest request) {
 
         customerRepository.findByNickName(request.getNickName())
@@ -172,6 +177,7 @@ public class CustomerService {
         return "사용 가능한 닉네임 입니다.";
     }
 
+    @Transactional
     public Long modify(CustomerModifyRequest request, String email) {
 
         Customer findCustomer = findCustomerByEmail(email);
@@ -181,6 +187,7 @@ public class CustomerService {
         return findCustomer.getId();
     }
 
+    @Transactional
     public Long delete(String email) {
 
         Customer findCustomer = findCustomerByEmail(email);
@@ -190,6 +197,7 @@ public class CustomerService {
         return findCustomer.getId();
     }
 
+    @Transactional
     @SendMail(classInfo = CustomerTempPasswordResponse.class)
     public CustomerTempPasswordResponse setTempPassword(CustomerTempPasswordRequest request) {
 
@@ -203,6 +211,7 @@ public class CustomerService {
         return findCustomer.toCustomerTempPasswordResponse(tempPassword);
     }
 
+    @Transactional
     public MessageResponse setNewPassword(CustomerChangePasswordRequest request, String email) {
         Customer findCustomer = findCustomerByEmail(email);
         if (mismatchPassword(request.getCurrentPassword(), findCustomer.getPassword())) {
@@ -212,6 +221,7 @@ public class CustomerService {
         return new MessageResponse("비밀번호가 변경되었습니다.");
     }
 
+    @Transactional
     public MessageResponse settingAdmin(String email) {
 
         Customer findCustomer = findCustomerByEmail(email);
@@ -226,6 +236,7 @@ public class CustomerService {
     }
 
 
+    @Transactional
     public MessageResponse changeMemberShip(String email) {
 
         Customer findCustomer = findCustomerByEmail(email);
@@ -245,14 +256,12 @@ public class CustomerService {
 
     }
 
-    @Transactional(readOnly = true)
     public CustomerInfoResponse getInfo(String email) {
         Customer customer = findCustomerByEmail(email);
 
         return CustomerInfoResponse.toDto(customer);
     }
 
-    @Transactional(readOnly = true)
     public Customer findCustomerByEmail(String email) {
         return customerRepository.findByEmail(email).orElseThrow(() ->
                 new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));

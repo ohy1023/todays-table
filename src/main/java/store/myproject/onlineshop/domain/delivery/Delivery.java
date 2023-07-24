@@ -29,8 +29,10 @@ public class Delivery extends BaseEntity {
     @OneToOne(mappedBy = "delivery")
     private Order order;
 
+    @Column(name = "recipient_name")
     private String recipientName;
 
+    @Column(name = "recipient_tel")
     private String recipientTel;
 
     @Embedded

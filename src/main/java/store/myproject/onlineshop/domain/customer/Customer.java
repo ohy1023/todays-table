@@ -38,8 +38,10 @@ public class Customer extends BaseEntity {
     @Column(unique = true)
     private String email;
 
+    @Column(name = "nick_name")
     private String nickName;
 
+    @Column(name = "user_name")
     private String userName;
 
     private String password;
@@ -49,11 +51,13 @@ public class Customer extends BaseEntity {
     @Embedded
     private Account account;
 
+    @Column(name = "total_purchase_amount")
     private BigDecimal totalPurchaseAmount;
 
     @Embedded
     private Address address;
 
+    @Column(name = "customer_role")
     @Enumerated(EnumType.STRING)
     private CustomerRole customerRole;
 

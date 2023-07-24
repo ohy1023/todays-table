@@ -28,6 +28,7 @@ public class MemberShip extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Level level;
 
+    @Column(name = "discount_rate")
     private Float discountRate;
 
     private BigDecimal baseline;

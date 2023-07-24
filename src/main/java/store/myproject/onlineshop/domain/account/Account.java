@@ -1,5 +1,6 @@
 package store.myproject.onlineshop.domain.account;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.PrePersist;
 import lombok.*;
@@ -17,14 +18,16 @@ import static store.myproject.onlineshop.exception.ErrorCode.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Account{
-
+public class Account {
+    @Column(name = "bank_name")
     private String bankName;
 
+    @Column(name = "account_number")
     private String accountNumber;
 
     private String depositor;
 
+    @Column(name = "my_assets")
     private BigDecimal myAssets;
 
     public void plusMyAssets(BigDecimal money) {
@@ -35,7 +38,7 @@ public class Account{
         if (myAssets.compareTo(money) < 0) {
             throw new AppException(NOT_ENOUGH_MONEY, NOT_ENOUGH_MONEY.getMessage());
         }
-        this.myAssets =this.myAssets.subtract(money);
+        this.myAssets = this.myAssets.subtract(money);
     }
 
     public AccountDto toAccountDto() {

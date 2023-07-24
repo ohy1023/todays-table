@@ -28,6 +28,7 @@ public class Brand extends BaseEntity {
     @Column(unique = true)
     private String name;
 
+    @Column(name = "origin_image_path")
     private String originImagePath;
 
     @Builder.Default

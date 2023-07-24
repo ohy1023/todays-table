@@ -36,6 +36,7 @@ public class OrderItem extends BaseEntity {
     @JoinColumn(name = "order_id")
     private Order order; //주문
 
+    @Column(name = "order_price")
     private BigDecimal orderPrice; //주문 가격
 
     private Long count; //주문 수량

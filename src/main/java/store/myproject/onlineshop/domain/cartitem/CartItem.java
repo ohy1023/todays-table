@@ -19,6 +19,7 @@ public class CartItem extends BaseEntity {
     @Column(name = "cart_item_id")
     private Long id;
 
+    @Column(name = "cart_item_cnt")
     private Long cartItemCnt;
 
     @ManyToOne(fetch = FetchType.LAZY)
