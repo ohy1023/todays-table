@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,14 +40,14 @@ public class BrandController {
     @GetMapping("/search")
     public Response<Page<BrandInfo>> getBrands(@RequestParam(required = false) String brandName, Pageable pageable) {
 
-        Page<BrandInfo> brands = brandService.getBrandInfos(brandName,pageable);
+        Page<BrandInfo> brands = brandService.getBrandInfos(brandName, pageable);
 
         return Response.success(brands);
     }
 
 
     @Operation(summary = "브랜드 등록")
-    @PostMapping
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public Response<BrandCreateResponse> createBrand(@Valid @RequestPart BrandCreateRequest request, @RequestPart MultipartFile multipartFile, Authentication authentication) {
 
         BrandCreateResponse response = brandService.saveBrand(request, multipartFile);

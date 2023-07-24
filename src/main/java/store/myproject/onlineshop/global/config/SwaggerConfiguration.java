@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 
 
 /**
@@ -21,19 +22,20 @@ public class SwaggerConfiguration {
     @Bean
     public OpenAPI openAPI() {
         return new OpenAPI()
-            .info(new Info()
-                      .title(" 쇼핑몰 ")
-                      .description(" 연습용 프로젝트 ")
-                      .version(" 1.0.0 ")
-            )
-            .addSecurityItem(new SecurityRequirement().addList(defaultHeader))
-            .components(new Components().addSecuritySchemes(defaultHeader,
-                                                            new SecurityScheme()
-                                                                .type(SecurityScheme.Type.HTTP)
-                                                                .scheme("bearer")
-                                                                .bearerFormat("JWT")
-                                                                .in(SecurityScheme.In.HEADER)
-                                                                .name(defaultHeader)));
+                .info(new Info()
+                        .title(" 쇼핑몰 ")
+                        .description(" 연습용 프로젝트 ")
+                        .version(" 1.0.0 ")
+                )
+                .addSecurityItem(new SecurityRequirement().addList(defaultHeader))
+                .components(new Components().addSecuritySchemes(defaultHeader,
+                        new SecurityScheme()
+                                .type(SecurityScheme.Type.HTTP)
+                                .scheme("bearer")
+                                .bearerFormat("JWT")
+                                .in(SecurityScheme.In.HEADER)
+                                .name(defaultHeader)));
+
     }
 
     @Bean
@@ -42,8 +44,8 @@ public class SwaggerConfiguration {
         String paths[] = {"/api/**"};
 
         return GroupedOpenApi.builder()
-            .group("shop OpenAPI 1.0.0")
-            .pathsToMatch(paths)
-            .build();
+                .group("shop OpenAPI 1.0.0")
+                .pathsToMatch(paths)
+                .build();
     }
 }

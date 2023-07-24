@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -47,7 +48,7 @@ public class ItemController {
     }
 
     @Operation(summary = "품목 추가")
-    @PostMapping
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public Response<ItemDto> createItem(@RequestPart ItemCreateRequest request, @RequestPart MultipartFile multipartFile, Authentication authentication) {
         ItemDto response = itemService.saveItem(request, multipartFile);
 
