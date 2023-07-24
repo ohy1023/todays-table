@@ -26,13 +26,12 @@
 
 ## 아키텍처 📃
 
-![image](https://user-images.githubusercontent.com/68420044/219264059-2ec20f5b-e528-48a1-9ef3-afa81fe1e693.png)
+![219264059-2ec20f5b-e528-48a1-9ef3-afa81fe1e693](https://github.com/ohy1023/shopping-mall/assets/110380812/e8a0f16f-f13a-4230-ac3f-3bb4ca74bad2)
+
 
 ## API 명세서 📡
 
 - Swagger:[http://www.mystudyproject.store:8080/swagger-ui/index.html](http://www.mystudyproject.store:8080/swagger-ui/index.html)
-
-- Notion:[API 명세서 바로가기]()
 
 ## ERD 🗄️
 
