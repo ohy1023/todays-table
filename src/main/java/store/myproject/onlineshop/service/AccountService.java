@@ -16,13 +16,13 @@ import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 @Slf4j
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AccountService {
 
     private final CustomerRepository customerRepository;
 
-    @Transactional(readOnly = true)
+
     @Cacheable(value = "accounts")
     public AccountDto findAccount(String email) {
 
@@ -31,6 +31,7 @@ public class AccountService {
         return customer.getAccount().toAccountDto();
     }
 
+    @Transactional
     public AccountCreateResponse saveAccount(AccountCreateRequest request, String email) {
 
         Customer customer = findCustomerByEmail(email);
@@ -40,6 +41,7 @@ public class AccountService {
         return customer.toAccountCreateResponse();
     }
 
+    @Transactional
     @CacheEvict(value = "accounts", allEntries = true)
     public AccountUpdateResponse updateAccount(AccountUpdateRequest request, String email) {
 
@@ -50,6 +52,7 @@ public class AccountService {
         return customer.toAccountUpdateResponse();
     }
 
+    @Transactional
     @CacheEvict(value = "accounts", allEntries = true)
     public AccountDeleteResponse deleteAccount(String email) {
         Customer customer = findCustomerByEmail(email);
@@ -58,6 +61,7 @@ public class AccountService {
         return customer.toAccountDeleteResponse();
     }
 
+    @Transactional
     public AccountDto plus(AccountDepositRequest request, String email) {
         Customer customer = findCustomerByEmail(email);
 
@@ -73,6 +77,7 @@ public class AccountService {
 
     }
 
+    @Transactional
     public AccountDto minus(AccountWithdrawRequest request, String email) {
         Customer customer = findCustomerByEmail(email);
 
@@ -92,7 +97,7 @@ public class AccountService {
 
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Customer findCustomerByEmail(String email) {
         return customerRepository.findByEmail(email).orElseThrow(() ->
                 new AppException(EMAIL_NOT_FOUND, EMAIL_NOT_FOUND.getMessage()));
