@@ -50,6 +50,7 @@ public class ItemController {
     @Operation(summary = "품목 추가")
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public Response<ItemDto> createItem(@RequestPart ItemCreateRequest request, @RequestPart MultipartFile multipartFile, Authentication authentication) {
+
         ItemDto response = itemService.saveItem(request, multipartFile);
 
         return Response.success(response);
