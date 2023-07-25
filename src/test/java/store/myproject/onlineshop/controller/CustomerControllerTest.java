@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import store.myproject.onlineshop.custom.WithMockCustomUser;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.domain.customer.Address;
@@ -25,7 +25,7 @@ import static store.myproject.onlineshop.domain.customer.Gender.*;
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 @WebMvcTest(CustomerController.class)
-@WithMockCustomUser
+@WithMockUser
 class CustomerControllerTest {
 
     @MockBean
@@ -699,4 +699,188 @@ class CustomerControllerTest {
                 .andDo(print());
 
     }
+
+    @Test
+    @DisplayName("admin 변경 성공")
+    public void change_admin_success() throws Exception {
+
+        // given
+        given(customerService.settingAdmin(any(String.class)))
+                .willReturn(new MessageResponse("회원의 권한을 Admin으로 설정하였습니다."));
+
+        // when & then
+        mockMvc.perform(put("/api/v1/customers/admin")
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
+                .andExpect(jsonPath("$.result.msg").value("회원의 권한을 Admin으로 설정하였습니다."))
+                .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("admin 변경 실패- 이미 admin인 경우")
+    public void change_admin_fail_already_admin() throws Exception {
+
+        // given
+        given(customerService.settingAdmin(any(String.class)))
+                .willThrow(new AppException(ALREADY_ADMIN, ALREADY_ADMIN.getMessage()));
+
+        // when & then
+        mockMvc.perform(put("/api/v1/customers/admin")
+                        .with(csrf()))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.result.errorCode").value("ALREADY_ADMIN"))
+                .andExpect(jsonPath("$.result.message").value(ALREADY_ADMIN.getMessage()))
+                .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("멤버쉽 변경 성공")
+    public void change_membership_success() throws Exception {
+
+        // given
+        given(customerService.changeMemberShip(any(String.class)))
+                .willReturn(new MessageResponse(String.format("멤버쉽이 %s 등급으로 변경 되었습니다.", "GOLD")));
+
+        // when & then
+        mockMvc.perform(put("/api/v1/customers/membership")
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
+                .andExpect(jsonPath("$.result.msg").value("멤버쉽이 GOLD 등급으로 변경 되었습니다."))
+                .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("멤버쉽 변경 실패- 상위 멤버쉽을 찾을 수 없을 때")
+    public void change_membership_fail_limit_membership() throws Exception {
+
+        // given
+        given(customerService.changeMemberShip(any(String.class)))
+                .willThrow(new AppException(MEMBERSHIP_ACCESS_LIMIT, MEMBERSHIP_ACCESS_LIMIT.getMessage()));
+
+        // when & then
+        mockMvc.perform(put("/api/v1/customers/membership")
+                        .with(csrf()))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.result.errorCode").value("MEMBERSHIP_ACCESS_LIMIT"))
+                .andExpect(jsonPath("$.result.message").value(MEMBERSHIP_ACCESS_LIMIT.getMessage()))
+                .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("멤버쉽 변경 실패- 조건 불충족")
+    public void change_membership_fail_not_enough_cond() throws Exception {
+
+        // given
+        given(customerService.changeMemberShip(any(String.class)))
+                .willThrow(new AppException(NOT_ENOUGH_MEMBERSHIP, NOT_ENOUGH_MEMBERSHIP.getMessage()));
+
+        // when & then
+        mockMvc.perform(put("/api/v1/customers/membership")
+                        .with(csrf()))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.result.errorCode").value("NOT_ENOUGH_MEMBERSHIP"))
+                .andExpect(jsonPath("$.result.message").value(NOT_ENOUGH_MEMBERSHIP.getMessage()))
+                .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("임시 비밀번호 발급 성공")
+    public void temp_password_success() throws Exception {
+
+        // given
+        CustomerTempPasswordRequest request = new CustomerTempPasswordRequest("test@naver.com", "010-1234-5678");
+        CustomerTempPasswordResponse response = new CustomerTempPasswordResponse(request.getEmail(), "tempPassword");
+        given(customerService.setTempPassword(any(CustomerTempPasswordRequest.class)))
+                .willReturn(response);
+
+        // when & then
+        mockMvc.perform(put("/api/v1/customers/temp-password")
+                        .with(csrf())
+                        .content(objectMapper.writeValueAsBytes(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
+                .andExpect(jsonPath("$.result").value("ok"))
+                .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("임시 비밀번호 발급 실패- 요청 이메일과 전화번호로 해당 유저를 찾을 수 없는 경우")
+    public void temp_password_fail_not_found() throws Exception {
+
+        // given
+        CustomerTempPasswordRequest request = new CustomerTempPasswordRequest("test@naver.com", "010-1234-5678");
+        given(customerService.setTempPassword(any(CustomerTempPasswordRequest.class)))
+                .willThrow(new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
+
+        // when & then
+        mockMvc.perform(put("/api/v1/customers/temp-password")
+                        .with(csrf())
+                        .content(objectMapper.writeValueAsBytes(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.result.errorCode").value("CUSTOMER_NOT_FOUND"))
+                .andExpect(jsonPath("$.result.message").value(CUSTOMER_NOT_FOUND.getMessage()))
+                .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("새 비밀번호 변경 성공")
+    public void new_password_success() throws Exception {
+
+        // given
+        CustomerChangePasswordRequest request = new CustomerChangePasswordRequest("password", "newPassword");
+        MessageResponse response = new MessageResponse("비밀번호가 변경되었습니다.");
+
+        given(customerService.setNewPassword(any(CustomerChangePasswordRequest.class), any(String.class)))
+                .willReturn(response);
+
+        // when & then
+        mockMvc.perform(put("/api/v1/customers/password")
+                        .with(csrf())
+                        .content(objectMapper.writeValueAsBytes(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
+                .andExpect(jsonPath("$.result.msg").value(response.getMsg()))
+                .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("새 비밀번호 변경 실패 - 비밀번호 불일치")
+    public void new_password_fail() throws Exception {
+
+        // given
+        CustomerChangePasswordRequest request = new CustomerChangePasswordRequest("password", "newPassword");
+
+        given(customerService.setNewPassword(any(CustomerChangePasswordRequest.class), any(String.class)))
+                .willThrow(new AppException(MISMATCH_PASSWORD, MISMATCH_PASSWORD.getMessage()));
+
+        // when & then
+        mockMvc.perform(put("/api/v1/customers/password")
+                        .with(csrf())
+                        .content(objectMapper.writeValueAsBytes(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.result.errorCode").value("MISMATCH_PASSWORD"))
+                .andExpect(jsonPath("$.result.message").value(MISMATCH_PASSWORD.getMessage()))
+                .andDo(print());
+
+    }
+
 }

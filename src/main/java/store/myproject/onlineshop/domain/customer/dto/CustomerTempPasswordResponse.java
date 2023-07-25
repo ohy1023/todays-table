@@ -9,10 +9,7 @@ import lombok.*;
 public class CustomerTempPasswordResponse {
 
     private String email;
+
     private String tempPassword;
 
-    public CustomerTempPasswordResponse(CustomerTempPasswordResponse customerTempPasswordResponse) {
-        this.email = customerTempPasswordResponse.getEmail();
-        this.tempPassword = customerTempPasswordResponse.getTempPassword();
-    }
 }

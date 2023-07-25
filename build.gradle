@@ -5,58 +5,80 @@ plugins {
     id 'jacoco'
 }
 
+ext {
+    excludedPackages = [
+            '**/store/myproject/onlineshop/global/**',
+            '**/store/myproject/onlineshop/exception/**',
+            '**/store/myproject/onlineshop/domain/brand/**',
+            '**/store/myproject/onlineshop/domain/item/**',
+            '**/store/myproject/onlineshop/domain/order/**',
+            '**/store/myproject/onlineshop/domain/orderitem/**',
+            '**/store/myproject/onlineshop/domain/cart/**',
+            '**/store/myproject/onlineshop/domain/cartitem/**',
+            '**/store/myproject/onlineshop/domain/account/**',
+            '**/store/myproject/onlineshop/domain/membership/**',
+            '**/store/myproject/onlineshop/domain/delivery/**',
+    ]
+}
 
-//jacocoTestReport {
-//    dependsOn test
-//    reports {
-//        html.enabled true
-//        xml.enabled true
-//    }
-//    def Qdomains = []
-//    for (qPattern in '**/QA'..'**/QZ') {
-//        Qdomains.add(qPattern + '*')
-//    }
-//    afterEvaluate {
-//        classDirectories.setFrom(
-//                files(classDirectories.files.collect {
-//                    fileTree(dir: it,
-//                            excludes: [] + Qdomains)
-//                })
-//        )
-//    }
-//
-//    finalizedBy 'jacocoTestCoverageVerification'
-//
-//}
-//
-//jacocoTestCoverageVerification {
-//    def Qdomains = []
-//    for (qPattern in '*.QA'..'*.QZ') {
-//        Qdomains.add(qPattern + '*')
-//    }
-//
-//    violationRules {
-//        rule {
-//            element = 'CLASS'
-//            enabled = true
-//
-//            limit {
-//                counter = 'LINE'
-//                value = 'COVEREDRATIO'
-//                minimum = 0.60
-//            }
-//
-//            limit {
-//                counter = 'BRANCH'
-//                value = 'COVEREDRATIO'
-//                minimum = 0.60
-//            }
-//
-//            excludes = [] + Qdomains
-//        }
-//    }
-//}
+jacocoTestReport {
+    dependsOn test
+    reports {
+        html.enabled true
+        xml.enabled true
+    }
+    def Qdomains = []
+    for (qPattern in '**/QA'..'**/QZ') {
+        Qdomains.add(qPattern + '*')
+    }
+    afterEvaluate {
+        classDirectories.setFrom(
+                files(classDirectories.files.collect {
+                    fileTree(dir: it,
+                            excludes: [] + Qdomains + excludedPackages)
+                })
+        )
+    }
 
+    finalizedBy 'jacocoTestCoverageVerification'
+
+}
+
+jacocoTestCoverageVerification {
+
+    def Qdomains = []
+    for (qPattern in '*.QA'..'*.QZ') {
+        Qdomains.add(qPattern + '*')
+    }
+
+    afterEvaluate {
+        classDirectories.setFrom(
+                files(classDirectories.files.collect {
+                    fileTree(dir: it,
+                            excludes: [] + Qdomains + excludedPackages)
+                })
+        )
+    }
+
+    violationRules {
+        rule {
+            element = 'CLASS'
+            enabled = true
+
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.60
+            }
+
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.60
+            }
+        }
+    }
+}
 
 group = 'store.myproject'
 version = '0.0.1-SNAPSHOT'
@@ -100,6 +122,7 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
 
     // 쿼리 파라미터 로그 남기기
+    // master slave 설정 시 출돌로 인한 주석 처리
 //    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
 
     // Swagger

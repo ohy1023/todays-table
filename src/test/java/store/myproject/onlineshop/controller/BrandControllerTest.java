@@ -2,18 +2,16 @@ package store.myproject.onlineshop.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import store.myproject.onlineshop.custom.WithMockCustomUser;
 import store.myproject.onlineshop.domain.brand.dto.BrandCreateRequest;
 import store.myproject.onlineshop.domain.brand.dto.BrandCreateResponse;
 import store.myproject.onlineshop.domain.brand.dto.BrandInfo;
-import store.myproject.onlineshop.domain.customer.CustomerRole;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.service.BrandService;
 
@@ -21,7 +19,6 @@ import java.nio.charset.StandardCharsets;
 
 import static org.springframework.http.MediaType.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -31,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 @WebMvcTest(BrandController.class)
+@WithMockUser
 class BrandControllerTest {
 
     @MockBean
@@ -45,7 +43,6 @@ class BrandControllerTest {
 
     @Test
     @DisplayName("브랜드 단건 조회 성공")
-    @WithMockCustomUser
     public void findOne_success() throws Exception {
 
         // given
@@ -71,7 +68,6 @@ class BrandControllerTest {
 
     @Test
     @DisplayName("브랜드 단건 조회 실패 - 존재하지 않는 브랜드")
-    @WithMockCustomUser
     public void findOne_fail_not_found_brand() throws Exception {
 
         // given
@@ -91,7 +87,6 @@ class BrandControllerTest {
 
     @Test
     @DisplayName("브랜드 등록 성공")
-    @WithMockCustomUser(role = CustomerRole.ROLE_CUSTOMER)
     public void create_brand_success() throws Exception {
 
         // given

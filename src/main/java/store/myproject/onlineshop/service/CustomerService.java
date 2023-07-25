@@ -215,7 +215,7 @@ public class CustomerService {
     public MessageResponse setNewPassword(CustomerChangePasswordRequest request, String email) {
         Customer findCustomer = findCustomerByEmail(email);
         if (mismatchPassword(request.getCurrentPassword(), findCustomer.getPassword())) {
-            throw new AppException(INVALID_TOKEN, INVALID_TOKEN.getMessage());
+            throw new AppException(MISMATCH_PASSWORD, MISMATCH_PASSWORD.getMessage());
         }
         findCustomer.setPassword(encoder.encode(request.getNewPassword()));
         return new MessageResponse("비밀번호가 변경되었습니다.");

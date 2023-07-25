@@ -7,12 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import store.myproject.onlineshop.custom.WithMockCustomUser;
 import store.myproject.onlineshop.domain.brand.Brand;
-import store.myproject.onlineshop.domain.brand.dto.BrandCreateRequest;
-import store.myproject.onlineshop.domain.brand.dto.BrandCreateResponse;
-import store.myproject.onlineshop.domain.customer.CustomerRole;
 import store.myproject.onlineshop.domain.item.dto.ItemCreateRequest;
 import store.myproject.onlineshop.domain.item.dto.ItemDto;
 import store.myproject.onlineshop.service.ItemService;
@@ -32,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @WebMvcTest(ItemController.class)
+@WithMockUser
 class ItemControllerTest {
 
     @MockBean
@@ -46,7 +44,6 @@ class ItemControllerTest {
 
     @Test
     @DisplayName("브랜드 등록 성공")
-    @WithMockCustomUser(role = CustomerRole.ROLE_ADMIN)
     public void create_brand_success() throws Exception {
 
         // given
