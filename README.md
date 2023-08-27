@@ -26,7 +26,7 @@
 
 ## 아키텍처 📃
 
-![219264059-2ec20f5b-e528-48a1-9ef3-afa81fe1e693](https://github.com/ohy1023/shopping-mall/assets/110380812/e8a0f16f-f13a-4230-ac3f-3bb4ca74bad2)
+![img.png](img.png)
 
 
 ## API 명세서 📡
