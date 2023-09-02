@@ -48,4 +48,6 @@
 
 [MySQL 데이터 분산 처리를 위한 Master-Slave 이중화 구축](https://velog.io/@zvyg1023/mysql-master-slave)
 
+[MySQL 데이터 분산 처리를 위한 Master-Slave 이중화 구축 (Spring Boot, JPA 설정)](https://velog.io/@zvyg1023/spring-boot-mysql-master-slave)
+
 [Docker Volume으로 인해 MySQL 컨테이너 재실행시 스키마 안 생기는 이슈 해결](https://velog.io/@zvyg1023/docker-volume-schema-issue)
