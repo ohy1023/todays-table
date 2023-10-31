@@ -18,6 +18,6 @@ public interface ItemRepository extends JpaRepository<Item, Long>, ItemCustomRep
     @Query("select i from Item i join fetch i.brand b where i.id = :itemId")
     Optional<Item> findById(@Param("itemId") Long itemId);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Lock(LockModeType.PESSIMISTIC_READ)
     Optional<Item> findPessimisticLockById(@Param("id") Long id);
 }
