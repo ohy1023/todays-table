@@ -31,7 +31,7 @@
 
 ## API 명세서 📡
 
-- Swagger:[http://www.mystudyproject.store:8080/swagger-ui/index.html](http://www.mystudyproject.store:8080/swagger-ui/index.html)
+- Swagger:[Swagger 바로가기](http://mystudyproject.store:8080/swagger-ui/index.html)
 
 ## ERD 🗄️
 
