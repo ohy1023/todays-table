@@ -51,7 +51,6 @@ public class OrderItem extends BaseEntity {
 
         item.decrease(count);
 
-        customer.purchase(orderItem.getTotalPrice());
         customer.addPurchaseAmount(orderItem.getTotalPrice());
 
         return orderItem;
