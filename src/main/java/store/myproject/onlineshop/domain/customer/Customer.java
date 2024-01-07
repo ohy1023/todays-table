@@ -8,6 +8,7 @@ import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.account.Account;
 import store.myproject.onlineshop.domain.account.dto.*;
 import store.myproject.onlineshop.domain.customer.dto.*;
+import store.myproject.onlineshop.domain.like.Like;
 import store.myproject.onlineshop.domain.membership.MemberShip;
 import store.myproject.onlineshop.domain.order.Order;
 
@@ -17,7 +18,6 @@ import java.util.List;
 
 import static jakarta.persistence.FetchType.*;
 import static store.myproject.onlineshop.domain.customer.CustomerRole.*;
-import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 @Entity
 @Getter
@@ -69,6 +69,10 @@ public class Customer extends BaseEntity {
     @Builder.Default
     @OneToMany(mappedBy = "customer")
     private List<Order> orderList = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "customer")
+    private List<Like> likeList = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {

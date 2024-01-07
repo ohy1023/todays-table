@@ -60,6 +60,9 @@ public enum ErrorCode {
     CART_ITEM_NOT_EXIST_IN_CART(HttpStatus.NOT_FOUND, "장바구니가 비었습니다."),
     CHECK_NOT_EXIST_IN_CART(HttpStatus.NOT_FOUND, "구매할려는 품목을 체크해주세요"),
 
+    // Recipe
+    RECIPE_NOT_FOUND(HttpStatus.NOT_FOUND,"해당 레시피가 존재하지 않습니다."),
+
     // S3
     WRONG_FILE_FORMAT(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일입니다"),
     FILE_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다."),
