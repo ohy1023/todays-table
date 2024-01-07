@@ -25,6 +25,8 @@ import javax.sql.DataSource;
         "store.myproject.onlineshop.domain.membership.repository",
         "store.myproject.onlineshop.domain.order.repository",
         "store.myproject.onlineshop.domain.orderitem.repository",
+        "store.myproject.onlineshop.domain.like.repository",
+        "store.myproject.onlineshop.domain.recipe.repository",
 })
 @EnableTransactionManagement // 트랜잭션 관리 기능을 활성화하는 애너테이션
 public class JpaConfiguration {
@@ -53,10 +55,10 @@ public class JpaConfiguration {
 
     private JpaVendorAdapter jpaVendorAdapter() {
         HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
-        // DDL 생성 기능을 비활성화
-        hibernateJpaVendorAdapter.setGenerateDdl(false);
-        // SQL 쿼리를 로깅하지 않도록 설정
-        hibernateJpaVendorAdapter.setShowSql(false);
+//        // DDL 생성 기능을 비활성화
+//        hibernateJpaVendorAdapter.setGenerateDdl(true);
+//        // SQL 쿼리를 로깅하지 않도록 설정
+//        hibernateJpaVendorAdapter.setShowSql(false);
 
         hibernateJpaVendorAdapter.setDatabase(Database.MYSQL);
 
