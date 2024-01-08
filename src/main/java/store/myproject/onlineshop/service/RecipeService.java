@@ -5,13 +5,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.customer.Customer;
+import store.myproject.onlineshop.domain.customer.CustomerRole;
 import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
 import store.myproject.onlineshop.domain.like.Like;
 import store.myproject.onlineshop.domain.like.repository.LikeRepository;
 import store.myproject.onlineshop.domain.recipe.Recipe;
 import store.myproject.onlineshop.domain.recipe.repository.RecipeRepository;
+import store.myproject.onlineshop.domain.review.Review;
+import store.myproject.onlineshop.domain.review.dto.ReviewUpdateRequest;
+import store.myproject.onlineshop.domain.review.dto.ReviewUpdateResponse;
+import store.myproject.onlineshop.domain.review.dto.ReviewWriteRequest;
+import store.myproject.onlineshop.domain.review.dto.ReviewWriteResponse;
+import store.myproject.onlineshop.domain.review.repository.ReviewRepository;
 import store.myproject.onlineshop.exception.AppException;
-import store.myproject.onlineshop.exception.ErrorCode;
 
 import java.util.Optional;
 
@@ -24,6 +30,114 @@ public class RecipeService {
     private final LikeRepository likeRepository;
     private final CustomerRepository customerRepository;
     private final RecipeRepository recipeRepository;
+
+    private final ReviewRepository reviewRepository;
+
+    /**
+     * 특정 레시피에 댓글,대댓글 작성 메서드입니다.
+     *
+     * @param recipeId           레시피 ID
+     * @param email              사용자 이메일
+     * @param reviewWriteRequest 대댓글 여부, 댓글 내용
+     * @return ReviewWriteResponse 댓글 종류, 댓글 내용, 작성자 이메일, 레세피 ID
+     */
+    public ReviewWriteResponse writeReview(String email, Long recipeId, ReviewWriteRequest reviewWriteRequest) {
+        Customer customer = validateByEmail(email);
+
+        Recipe recipe = validateByRecipe(recipeId);
+
+        // 댓글 내용이 없으면 에러 코드
+        if (reviewWriteRequest.getReviewContent().length() == 0) {
+            throw new AppException(EMPTY_CONTENT, EMPTY_CONTENT.getMessage());
+        }
+
+        Review review;
+        if (reviewWriteRequest.getReviewParentId() == null) {
+            // 댓글
+            review = reviewWriteRequest.toEntity(0L, reviewWriteRequest.getReviewContent(), customer, recipe);
+        } else {
+            // 대댓글
+            review = reviewWriteRequest.toEntity(reviewWriteRequest.getReviewParentId(), reviewWriteRequest.getReviewContent(), customer, recipe);
+        }
+
+        // 리뷰 저장
+        Review saveReview = reviewRepository.save(review);
+
+        // 레시피에 리뷰 추가
+        recipe.addReview(saveReview);
+
+        return saveReview.toWriteResponse();
+    }
+
+    /**
+     * @param email               사용자 이메일
+     * @param recipeId            레시피 ID
+     * @param reviewId            댓글 ID
+     * @param reviewUpdateRequest 수정할 댓글 내용
+     * @return ReviewUpdateResponse 댓글 종류, 댓글 내용, 작성자 이메일, 레세피 ID
+     */
+    public ReviewUpdateResponse updateReview(String email, Long recipeId, Long reviewId, ReviewUpdateRequest reviewUpdateRequest) {
+        // 이메일을 통해 현재 로그인한 회원을 검증합니다.
+        Customer customer = validateByEmail(email);
+
+        // 레시피 ID를 통해 현재 조회하고자 하는 레시피를 검증합니다.
+        Recipe recipe = validateByRecipe(recipeId);
+
+        // 댓글 ID를 통해 현재 조회하고자 하는 댓글을 검증합니다.
+        Review review = validateByReview(reviewId);
+
+        // 댓글 내용이 없으면 에러 코드
+        if (reviewUpdateRequest.getReviewContent().length() == 0) {
+            throw new AppException(EMPTY_CONTENT, EMPTY_CONTENT.getMessage());
+        }
+
+        // (로그인 한 회원 or 관리자)과 댓글 수정을 요청한 회원이 동일한지 검증합니다.
+        if (checkPermission(customer, review)) {
+            review.updateReview(reviewUpdateRequest);
+
+        } else {
+            // 동일하지 않으면 권한 오류 발생
+            throw new AppException(FORBIDDEN_ACCESS, FORBIDDEN_ACCESS.getMessage());
+        }
+
+        return review.toUpdateResponse();
+    }
+
+
+    /**
+     * 특정 레시피에 댓글,대댓글 삭제 메서드입니다.
+     *
+     * @param recipeId 레시피 ID
+     * @param email    사용자 이메일
+     * @param reviewId 댓글 ID
+     * @return MessageResponse
+     */
+    public MessageResponse deleteReview(String email, Long recipeId, Long reviewId) {
+        // 이메일을 통해 현재 로그인한 회원을 검증합니다.
+        Customer customer = validateByEmail(email);
+
+        // 레시피 ID를 통해 현재 조회하고자 하는 레시피를 검증합니다.
+        Recipe recipe = validateByRecipe(recipeId);
+
+        // 댓글 ID를 통해 현재 조회하고자 하는 댓글을 검증합니다.
+        Review review = validateByReview(reviewId);
+
+        // (로그인 한 회원 or 관리자)과 댓글 삭제를 요청한 회원이 동일한지 검증합니다.
+        if (checkPermission(customer, review)) {
+            // 레시피에 리뷰 삭제
+            recipe.removeReview(review);
+
+            // 댓글 삭제
+            reviewRepository.delete(review);
+
+        } else {
+            // 동일하지 않으면 권한 오류 발생
+            throw new AppException(FORBIDDEN_ACCESS, FORBIDDEN_ACCESS.getMessage());
+        }
+
+
+        return new MessageResponse("댓글이 성공적으로 삭제되었습니다.");
+    }
 
     /**
      * 특정 레시피에 대한 좋아요를 토글하는 메서드입니다.
@@ -88,7 +202,37 @@ public class RecipeService {
      */
     private Recipe validateByRecipe(Long id) {
         return recipeRepository.findById(id)
-                .orElseThrow(() -> new AppException(RECIPE_NOT_FOUND, ErrorCode.RECIPE_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new AppException(RECIPE_NOT_FOUND, RECIPE_NOT_FOUND.getMessage()));
+    }
+
+    /**
+     * 댓글 ID를 이용하여 현재 조회하고자 하는 댓글이 존재하는지 검증하는 메서드입니다.
+     *
+     * @param id 댓글 ID
+     * @return Review 객체
+     * @throws AppException 해당 ID에 대한 댓글이 존재하지 않을 경우 발생
+     */
+    private Review validateByReview(Long id) {
+        return reviewRepository.findById(id)
+                .orElseThrow(() -> new AppException(REVIEW_NOT_FOUND, REVIEW_NOT_FOUND.getMessage()));
+    }
+
+
+    /**
+     * 댓글 삭제 요청자의 권한 체크하는 메서드입니다.
+     *
+     * @param customer Customer (요청자)
+     * @param review   Review (댓글 작성자)
+     * @return 권한 여부
+     */
+    private boolean checkPermission(Customer customer, Review review) {
+        // 관리자 권한 통과합니다.
+        if (customer.getCustomerRole() == CustomerRole.ROLE_ADMIN) {
+            return true;
+        }
+
+        // 동일성 검증합니다.
+        return customer == review.getCustomer();
     }
 
 }

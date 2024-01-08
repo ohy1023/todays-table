@@ -27,6 +27,7 @@ import javax.sql.DataSource;
         "store.myproject.onlineshop.domain.orderitem.repository",
         "store.myproject.onlineshop.domain.like.repository",
         "store.myproject.onlineshop.domain.recipe.repository",
+        "store.myproject.onlineshop.domain.review.repository",
 })
 @EnableTransactionManagement // 트랜잭션 관리 기능을 활성화하는 애너테이션
 public class JpaConfiguration {
