@@ -7,6 +7,7 @@ import store.myproject.onlineshop.domain.like.Like;
 import store.myproject.onlineshop.domain.recipeitem.RecipeItem;
 import store.myproject.onlineshop.domain.review.Review;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -42,17 +43,17 @@ public class Recipe extends BaseEntity {
     // 댓글
     @Builder.Default
     @OneToMany(mappedBy = "recipe")
-    private List<Review> reviewList;
+    private List<Review> reviewList = new ArrayList<>();
 
     // 좋아요
     @Builder.Default
     @OneToMany(mappedBy = "recipe")
-    private List<Like> likeList;
+    private List<Like> likeList = new ArrayList<>();;
 
     // 레시피 재료
     @Builder.Default
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL)
-    private List<RecipeItem> items;
+    private List<RecipeItem> items = new ArrayList<>();;
 
     // 연관 관계 메서드
     public void addReview(Review review) {
