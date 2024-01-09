@@ -58,7 +58,7 @@ public class JpaConfiguration {
     private JpaVendorAdapter jpaVendorAdapter() {
         HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
         // DDL 생성 기능을 비활성화
-        hibernateJpaVendorAdapter.setGenerateDdl(false);
+        hibernateJpaVendorAdapter.setGenerateDdl(true);
         // SQL 쿼리를 로깅하지 않도록 설정
         hibernateJpaVendorAdapter.setShowSql(false);
 

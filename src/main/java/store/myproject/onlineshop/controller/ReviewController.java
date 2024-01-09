@@ -2,6 +2,7 @@ package store.myproject.onlineshop.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -23,14 +24,14 @@ public class ReviewController {
 
     @Operation(summary = "댓글 작성")
     @PostMapping("/{id}/reviews")
-    public Response<ReviewWriteResponse> writeReview(@PathVariable Long id, ReviewWriteRequest request, Authentication authentication) {
+    public Response<ReviewWriteResponse> writeReview(@PathVariable Long id, @Valid ReviewWriteRequest request, Authentication authentication) {
         String email = authentication.getName();
         return Response.success(recipeService.writeReview(email, id, request));
     }
 
     @Operation(summary = "댓글 수정")
     @PostMapping("/{id}/reviews/{reviewId}")
-    public Response<ReviewUpdateResponse> writeReview(@PathVariable Long id, @PathVariable Long reviewId, ReviewUpdateRequest request, Authentication authentication) {
+    public Response<ReviewUpdateResponse> writeReview(@PathVariable Long id, @PathVariable Long reviewId, @Valid ReviewUpdateRequest request, Authentication authentication) {
         String email = authentication.getName();
         return Response.success(recipeService.updateReview(email, id, reviewId, request));
     }
