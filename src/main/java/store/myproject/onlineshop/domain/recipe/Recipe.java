@@ -47,7 +47,7 @@ public class Recipe extends BaseEntity {
     private String recipeCookingTime;
 
     // 몇인분
-    private int servings;
+    private String recipeServings;
 
     // 댓글
     @Builder.Default
@@ -70,13 +70,13 @@ public class Recipe extends BaseEntity {
                 .recipeTitle(recipe.getRecipeTitle())
                 .recipeContent(recipe.getRecipeContent())
                 .recipeCookingTime(recipe.getRecipeCookingTime())
-                .recipeServings(recipe.getServings())
+                .recipeServings(recipe.getRecipeServings())
                 .recipeWriter(recipe.getCustomer().getNickName())
+                .recipeView(recipe.getRecipeViewCnt())
                 .itemNameList(recipe.getItemList().stream()
                         .map(RecipeItem::getItem)
                         .map(Item::getItemName)
                         .collect(Collectors.toList()))
-
                 .build();
     }
 

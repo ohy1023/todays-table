@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.cartitem.CartItem;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.customer.CustomerRole;
 import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
@@ -12,14 +11,11 @@ import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.item.repository.ItemRepository;
 import store.myproject.onlineshop.domain.like.Like;
 import store.myproject.onlineshop.domain.like.repository.LikeRepository;
-import store.myproject.onlineshop.domain.membership.MemberShip;
-import store.myproject.onlineshop.domain.orderitem.OrderItem;
 import store.myproject.onlineshop.domain.recipe.Recipe;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateRequest;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateResponse;
 import store.myproject.onlineshop.domain.recipe.repository.RecipeRepository;
 import store.myproject.onlineshop.domain.recipeitem.RecipeItem;
-import store.myproject.onlineshop.domain.recipeitem.repository.RecipeItemRepository;
 import store.myproject.onlineshop.domain.review.Review;
 import store.myproject.onlineshop.domain.review.dto.ReviewUpdateRequest;
 import store.myproject.onlineshop.domain.review.dto.ReviewUpdateResponse;
@@ -28,7 +24,6 @@ import store.myproject.onlineshop.domain.review.dto.ReviewWriteResponse;
 import store.myproject.onlineshop.domain.review.repository.ReviewRepository;
 import store.myproject.onlineshop.exception.AppException;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -49,13 +44,20 @@ public class RecipeService {
     /**
      * 사용자가 작성한 레시피를 저장하고, 레시피에 속한 재료들을 연결하는 메서드입니다.
      *
-     * @param email                사용자 이메일
-     * @param recipeCreateRequest  사용자가 작성한 레시피 정보
+     * @param email               사용자 이메일
+     * @param recipeCreateRequest 사용자가 작성한 레시피 정보
      * @return RecipeCreateResponse 작성된 레시피의 응답 정보
      */
     public RecipeCreateResponse writeRecipe(String email, RecipeCreateRequest recipeCreateRequest) {
         // 현재 로그인한 회원을 검증합니다.
         Customer customer = validateByEmail(email);
+
+        // 레시피 중복을 검사합니다.
+        recipeRepository.findByRecipeTitle(recipeCreateRequest.getRecipeTitle())
+                .ifPresent(recipe -> {
+                    throw new AppException(DUPLICATE_RECIPE, DUPLICATE_RECIPE.getMessage());
+                });
+
 
         // Recipe 엔티티를 생성하고 저장합니다.
         Recipe saveRecipe = recipeRepository.save(recipeCreateRequest.toEntity(customer));

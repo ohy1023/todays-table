@@ -21,9 +21,8 @@ public class RecipeController {
 
     @Operation(summary = "레시피 작성")
     @PostMapping
-    public Response<RecipeCreateResponse> writeReview(@Valid RecipeCreateRequest request, Authentication authentication) {
+    public Response<RecipeCreateResponse> writeReview(@Valid @RequestBody RecipeCreateRequest request, Authentication authentication) {
         String email = authentication.getName();
         return Response.success(recipeService.writeRecipe(email, request));
     }
-
 }

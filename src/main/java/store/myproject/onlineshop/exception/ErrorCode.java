@@ -62,6 +62,7 @@ public enum ErrorCode {
 
     // Recipe
     RECIPE_NOT_FOUND(HttpStatus.NOT_FOUND,"해당 레시피가 존재하지 않습니다."),
+    DUPLICATE_RECIPE(HttpStatus.CONFLICT,"해당 레시피 제목이 중복됩니다."),
 
     // Review
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND,"해당 댓글이 존재하지 않습니다."),

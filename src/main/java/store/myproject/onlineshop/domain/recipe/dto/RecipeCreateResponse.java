@@ -18,7 +18,9 @@ public class RecipeCreateResponse {
 
     private String recipeCookingTime;
 
-    private int recipeServings;
+    private String recipeServings;
+
+    private int recipeView;
 
     private List<String> itemNameList;
 }

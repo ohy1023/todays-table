@@ -3,7 +3,6 @@ package store.myproject.onlineshop.domain.recipe.dto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import store.myproject.onlineshop.domain.customer.Customer;
-import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.recipe.Recipe;
 
 import java.util.List;
@@ -25,7 +24,7 @@ public class RecipeCreateRequest {
     private String recipeCookingTime;
 
     @NotBlank
-    private int recipeServings;
+    private String recipeServings;
 
     private List<Long> itemIdList;
 
@@ -36,7 +35,7 @@ public class RecipeCreateRequest {
                 .recipeContent(recipeContent)
                 .customer(customer)
                 .recipeCookingTime(recipeCookingTime)
-                .servings(recipeServings)
+                .recipeServings(recipeServings)
                 .build();
     }
 
