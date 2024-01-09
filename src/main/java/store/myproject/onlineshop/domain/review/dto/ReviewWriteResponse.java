@@ -1,7 +1,6 @@
 package store.myproject.onlineshop.domain.review.dto;
 
 import lombok.*;
-import store.myproject.onlineshop.domain.recipe.Recipe;
 
 
 @Data

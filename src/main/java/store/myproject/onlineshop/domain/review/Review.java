@@ -7,6 +7,7 @@ import org.hibernate.annotations.Where;
 import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.recipe.Recipe;
+import store.myproject.onlineshop.domain.recipeitem.RecipeItem;
 import store.myproject.onlineshop.domain.review.dto.ReviewUpdateRequest;
 import store.myproject.onlineshop.domain.review.dto.ReviewUpdateResponse;
 import store.myproject.onlineshop.domain.review.dto.ReviewWriteResponse;
@@ -72,4 +73,19 @@ public class Review extends BaseEntity {
     private String getReviewType() {
         return parentId == 0 ? "댓글" : "대댓글";
     }
+
+    // 연관 관계 메서드
+    public void addReviewToRecipe(Recipe recipe) {
+        this.recipe = recipe;
+        recipe.getReviewList().add(this);  // 연관된 Recipe에도 Review를 추가
+    }
+
+    public void removeReviewToRecipe() {
+        if (recipe != null) {
+            recipe.getReviewList().remove(this);  // 연관된 Recipe에서도 Review를 제거
+            this.recipe = null;
+        }
+    }
+
+
 }

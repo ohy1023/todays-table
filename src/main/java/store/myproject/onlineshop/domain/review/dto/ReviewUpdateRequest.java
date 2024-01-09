@@ -1,9 +1,7 @@
 package store.myproject.onlineshop.domain.review.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-import store.myproject.onlineshop.domain.customer.Customer;
-import store.myproject.onlineshop.domain.recipe.Recipe;
-import store.myproject.onlineshop.domain.review.Review;
 
 @Data
 @Builder
@@ -12,6 +10,7 @@ import store.myproject.onlineshop.domain.review.Review;
 public class ReviewUpdateRequest {
 
 
+    @NotBlank
     private String reviewContent;
 
 }

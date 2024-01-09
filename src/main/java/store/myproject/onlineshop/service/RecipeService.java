@@ -7,10 +7,16 @@ import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.customer.CustomerRole;
 import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
+import store.myproject.onlineshop.domain.item.Item;
+import store.myproject.onlineshop.domain.item.repository.ItemRepository;
 import store.myproject.onlineshop.domain.like.Like;
 import store.myproject.onlineshop.domain.like.repository.LikeRepository;
 import store.myproject.onlineshop.domain.recipe.Recipe;
+import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateRequest;
+import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateResponse;
 import store.myproject.onlineshop.domain.recipe.repository.RecipeRepository;
+import store.myproject.onlineshop.domain.recipeitem.RecipeItem;
+import store.myproject.onlineshop.domain.recipeitem.repository.RecipeItemRepository;
 import store.myproject.onlineshop.domain.review.Review;
 import store.myproject.onlineshop.domain.review.dto.ReviewUpdateRequest;
 import store.myproject.onlineshop.domain.review.dto.ReviewUpdateResponse;
@@ -30,8 +36,26 @@ public class RecipeService {
     private final LikeRepository likeRepository;
     private final CustomerRepository customerRepository;
     private final RecipeRepository recipeRepository;
-
+    private final RecipeItemRepository recipeItemRepository;
     private final ReviewRepository reviewRepository;
+    private final ItemRepository itemRepository;
+
+
+    public MessageResponse createRecipe(String email, RecipeCreateRequest recipeCreateRequest) {
+        // 이메일을 통해 현재 로그인한 회원을 검증합니다.
+        Customer customer = validateByEmail(email);
+
+        Recipe saveRecipe = recipeRepository.save(recipeCreateRequest.toEntity());
+
+
+        for (Long itemId : recipeCreateRequest.getItemIdList()) {
+            Item item = itemRepository.findById(itemId)
+                    .orElseThrow(() -> new AppException(ITEM_NOT_FOUND, ITEM_NOT_FOUND.getMessage()));
+
+        }
+
+        return new MessageResponse("레시피 작성이 완료되었습니다.");
+    }
 
     /**
      * 특정 레시피에 댓글,대댓글 작성 메서드입니다.
@@ -46,11 +70,6 @@ public class RecipeService {
 
         Recipe recipe = validateByRecipe(recipeId);
 
-        // 댓글 내용이 없으면 에러 코드
-        if (reviewWriteRequest.getReviewContent().length() == 0) {
-            throw new AppException(EMPTY_CONTENT, EMPTY_CONTENT.getMessage());
-        }
-
         Review review;
         if (reviewWriteRequest.getReviewParentId() == null) {
             // 댓글
@@ -60,11 +79,11 @@ public class RecipeService {
             review = reviewWriteRequest.toEntity(reviewWriteRequest.getReviewParentId(), reviewWriteRequest.getReviewContent(), customer, recipe);
         }
 
+        // 레시피에 리뷰 추가
+        review.addReviewToRecipe(recipe);
+
         // 리뷰 저장
         Review saveReview = reviewRepository.save(review);
-
-        // 레시피에 리뷰 추가
-        recipe.addReview(saveReview);
 
         return saveReview.toWriteResponse();
     }
@@ -85,11 +104,6 @@ public class RecipeService {
 
         // 댓글 ID를 통해 현재 조회하고자 하는 댓글을 검증합니다.
         Review review = validateByReview(reviewId);
-
-        // 댓글 내용이 없으면 에러 코드
-        if (reviewUpdateRequest.getReviewContent().length() == 0) {
-            throw new AppException(EMPTY_CONTENT, EMPTY_CONTENT.getMessage());
-        }
 
         // (로그인 한 회원 or 관리자)과 댓글 수정을 요청한 회원이 동일한지 검증합니다.
         if (checkPermission(customer, review)) {
@@ -125,7 +139,7 @@ public class RecipeService {
         // (로그인 한 회원 or 관리자)과 댓글 삭제를 요청한 회원이 동일한지 검증합니다.
         if (checkPermission(customer, review)) {
             // 레시피에 리뷰 삭제
-            recipe.removeReview(review);
+            review.removeReviewToRecipe();
 
             // 댓글 삭제
             reviewRepository.delete(review);
