@@ -13,6 +13,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
+import java.util.Properties;
 
 @Configuration
 @EnableJpaRepositories(basePackages = {
@@ -50,6 +51,8 @@ public class JpaConfiguration {
         entityManagerFactory.setJpaVendorAdapter(jpaVendorAdapter());
         // 영속성 유닛의 이름을 entityManager로 설정한다.
         entityManagerFactory.setPersistenceUnitName("entityManager");
+        // Hibernate 속성을 설정하기 위해 별도의 Properties 객체를 사용합니다.
+        entityManagerFactory.setJpaProperties(hibernateProperties());
 
         return entityManagerFactory;
 
@@ -57,7 +60,7 @@ public class JpaConfiguration {
 
     private JpaVendorAdapter jpaVendorAdapter() {
         HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
-        // DDL 생성 기능을 비활성화
+        // DDL 생성 기능을 활성화
         hibernateJpaVendorAdapter.setGenerateDdl(true);
         // SQL 쿼리를 로깅하지 않도록 설정
         hibernateJpaVendorAdapter.setShowSql(false);
@@ -67,6 +70,13 @@ public class JpaConfiguration {
         hibernateJpaVendorAdapter.setDatabasePlatform("org.hibernate.dialect.MySQLDialect");
         // SQL 방언을 MySQL8Dialect 방언으로 설정
         return hibernateJpaVendorAdapter;
+    }
+
+    private Properties hibernateProperties() {
+        Properties properties = new Properties();
+        // Hibernate 속성 설정
+        properties.setProperty("hibernate.format_sql", "true");
+        return properties;
     }
 
     @Bean
