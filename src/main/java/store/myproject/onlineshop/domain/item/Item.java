@@ -10,6 +10,7 @@ import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.item.dto.ItemDto;
 import store.myproject.onlineshop.domain.item.dto.ItemUpdateRequest;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
+import store.myproject.onlineshop.domain.recipeitem.RecipeItem;
 import store.myproject.onlineshop.exception.AppException;
 
 import java.util.ArrayList;
@@ -58,6 +59,10 @@ public class Item extends BaseEntity {
     @Builder.Default
     @OneToMany(mappedBy = "item")
     private List<OrderItem> orderItemList = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "item")
+    private List<RecipeItem> recipeItemList = new ArrayList<>();
 
     // 상품에 브랜드를 추가하는 메서드
     public void addBrand(Brand brand) {

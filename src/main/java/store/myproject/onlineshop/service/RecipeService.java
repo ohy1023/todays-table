@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import store.myproject.onlineshop.domain.MessageResponse;
+import store.myproject.onlineshop.domain.cartitem.CartItem;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.customer.CustomerRole;
 import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
@@ -11,6 +12,8 @@ import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.item.repository.ItemRepository;
 import store.myproject.onlineshop.domain.like.Like;
 import store.myproject.onlineshop.domain.like.repository.LikeRepository;
+import store.myproject.onlineshop.domain.membership.MemberShip;
+import store.myproject.onlineshop.domain.orderitem.OrderItem;
 import store.myproject.onlineshop.domain.recipe.Recipe;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateRequest;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateResponse;
@@ -25,6 +28,9 @@ import store.myproject.onlineshop.domain.review.dto.ReviewWriteResponse;
 import store.myproject.onlineshop.domain.review.repository.ReviewRepository;
 import store.myproject.onlineshop.exception.AppException;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static store.myproject.onlineshop.exception.ErrorCode.*;
@@ -36,25 +42,34 @@ public class RecipeService {
     private final LikeRepository likeRepository;
     private final CustomerRepository customerRepository;
     private final RecipeRepository recipeRepository;
-    private final RecipeItemRepository recipeItemRepository;
     private final ReviewRepository reviewRepository;
     private final ItemRepository itemRepository;
 
 
-    public MessageResponse createRecipe(String email, RecipeCreateRequest recipeCreateRequest) {
-        // 이메일을 통해 현재 로그인한 회원을 검증합니다.
+    /**
+     * 사용자가 작성한 레시피를 저장하고, 레시피에 속한 재료들을 연결하는 메서드입니다.
+     *
+     * @param email                사용자 이메일
+     * @param recipeCreateRequest  사용자가 작성한 레시피 정보
+     * @return RecipeCreateResponse 작성된 레시피의 응답 정보
+     */
+    public RecipeCreateResponse writeRecipe(String email, RecipeCreateRequest recipeCreateRequest) {
+        // 현재 로그인한 회원을 검증합니다.
         Customer customer = validateByEmail(email);
 
-        Recipe saveRecipe = recipeRepository.save(recipeCreateRequest.toEntity());
+        // Recipe 엔티티를 생성하고 저장합니다.
+        Recipe saveRecipe = recipeRepository.save(recipeCreateRequest.toEntity(customer));
 
+        // RecipeItem 리스트를 생성합니다.
+        List<RecipeItem> recipeItemList = createRecipeItems(recipeCreateRequest.getItemIdList());
 
-        for (Long itemId : recipeCreateRequest.getItemIdList()) {
-            Item item = itemRepository.findById(itemId)
-                    .orElseThrow(() -> new AppException(ITEM_NOT_FOUND, ITEM_NOT_FOUND.getMessage()));
-
+        // 생성된 RecipeItem들을 Recipe와 연관시키고 저장합니다.
+        for (RecipeItem recipeItem : recipeItemList) {
+            recipeItem.setRecipeAndItem(saveRecipe, recipeItem.getItem());
         }
 
-        return new MessageResponse("레시피 작성이 완료되었습니다.");
+        // 저장된 Recipe를 기반으로 응답을 생성하여 반환합니다.
+        return saveRecipe.fromEntity(saveRecipe);
     }
 
     /**
@@ -194,6 +209,38 @@ public class RecipeService {
         Recipe recipe = validateByRecipe(recipeId);
         return likeRepository.countByRecipe(recipe);
     }
+
+    /**
+     * 주어진 itemIdList를 사용하여 RecipeItem 리스트를 생성합니다.
+     *
+     * @param itemIdList Item의 ID 리스트
+     * @return 생성된 RecipeItem 리스트
+     * @throws AppException 주어진 itemId로 조회한 Item이 존재하지 않을 경우 발생
+     */
+    private List<RecipeItem> createRecipeItems(List<Long> itemIdList) {
+        List<RecipeItem> recipeItemList = new ArrayList<>();
+
+        for (Long itemId : itemIdList) {
+            Item item = validateByItemId(itemId);
+
+            recipeItemList.add(RecipeItem.createRecipeItem(item));
+        }
+
+        return recipeItemList;
+    }
+
+    /**
+     * 주어진 itemId로 Item을 조회하고, 존재하지 않을 경우 예외를 발생시킵니다.
+     *
+     * @param itemId Item의 ID
+     * @return 조회된 Item
+     * @throws AppException 주어진 itemId로 조회한 Item이 존재하지 않을 경우 발생
+     */
+    private Item validateByItemId(Long itemId) {
+        return itemRepository.findById(itemId)
+                .orElseThrow(() -> new AppException(ITEM_NOT_FOUND, ITEM_NOT_FOUND.getMessage()));
+    }
+
 
     /**
      * 이메일을 이용하여 현재 로그인한 회원이 존재하는지 검증하는 메서드입니다.

@@ -3,12 +3,16 @@ package store.myproject.onlineshop.domain.recipe;
 import jakarta.persistence.*;
 import lombok.*;
 import store.myproject.onlineshop.domain.BaseEntity;
+import store.myproject.onlineshop.domain.customer.Customer;
+import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.like.Like;
+import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateResponse;
 import store.myproject.onlineshop.domain.recipeitem.RecipeItem;
 import store.myproject.onlineshop.domain.review.Review;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Entity
@@ -30,6 +34,11 @@ public class Recipe extends BaseEntity {
     @Column(columnDefinition = "text")
     private String recipeContent;
 
+    // 레시피 작성자
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
+
     // 조회수
     @Column(columnDefinition = "integer default 0", nullable = false)
     private int recipeViewCnt;
@@ -48,20 +57,27 @@ public class Recipe extends BaseEntity {
     // 좋아요
     @Builder.Default
     @OneToMany(mappedBy = "recipe")
-    private List<Like> likeList = new ArrayList<>();;
+    private List<Like> likeList = new ArrayList<>();
 
     // 레시피 재료
     @Builder.Default
-    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL)
-    private List<RecipeItem> items = new ArrayList<>();;
+    @OneToMany(mappedBy = "recipe")
+    private List<RecipeItem> itemList = new ArrayList<>();
 
-    // 연관 관계 메서드
-    public void addReview(Review review) {
-        this.reviewList.add(review);
-    }
 
-    public void removeReview(Review review) {
-        this.reviewList.remove(review);
+    public RecipeCreateResponse fromEntity(Recipe recipe) {
+        return RecipeCreateResponse.builder()
+                .recipeTitle(recipe.getRecipeTitle())
+                .recipeContent(recipe.getRecipeContent())
+                .recipeCookingTime(recipe.getRecipeCookingTime())
+                .recipeServings(recipe.getServings())
+                .recipeWriter(recipe.getCustomer().getNickName())
+                .itemNameList(recipe.getItemList().stream()
+                        .map(RecipeItem::getItem)
+                        .map(Item::getItemName)
+                        .collect(Collectors.toList()))
+
+                .build();
     }
 
 }
