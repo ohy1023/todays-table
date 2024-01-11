@@ -18,11 +18,7 @@ public class BrandUpdateRequest {
     public Brand toEntity() {
         return Brand.builder()
                 .name(this.name)
-                .originImagePath(this.originImagePath)
                 .build();
     }
 
-    public void setOriginImagePath(String newImageUrl) {
-        this.originImagePath = newImageUrl;
-    }
 }

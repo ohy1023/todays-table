@@ -30,6 +30,7 @@ import java.util.Properties;
         "store.myproject.onlineshop.domain.recipe.repository",
         "store.myproject.onlineshop.domain.recipeitem.repository",
         "store.myproject.onlineshop.domain.review.repository",
+        "store.myproject.onlineshop.domain.imagefile.repository",
 })
 @EnableTransactionManagement // 트랜잭션 관리 기능을 활성화하는 애너테이션
 public class JpaConfiguration {
@@ -61,7 +62,7 @@ public class JpaConfiguration {
     private JpaVendorAdapter jpaVendorAdapter() {
         HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
         // DDL 생성 기능을 활성화
-        hibernateJpaVendorAdapter.setGenerateDdl(true);
+//        hibernateJpaVendorAdapter.setGenerateDdl(false);
         // SQL 쿼리를 로깅하지 않도록 설정
         hibernateJpaVendorAdapter.setShowSql(false);
 
@@ -74,7 +75,7 @@ public class JpaConfiguration {
 
     private Properties hibernateProperties() {
         Properties properties = new Properties();
-        // Hibernate 속성 설정
+        properties.setProperty("hibernate.hbm2ddl.auto", "update");
         properties.setProperty("hibernate.format_sql", "true");
         return properties;
     }

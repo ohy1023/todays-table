@@ -11,7 +11,7 @@ import static jakarta.persistence.FetchType.LAZY;
 @Entity
 @Getter
 @Builder
-@Table(name = "like_recipe")
+@Table(name = "LikeCount")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Like extends BaseEntity {

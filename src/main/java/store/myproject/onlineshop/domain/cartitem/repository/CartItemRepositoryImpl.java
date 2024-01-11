@@ -32,7 +32,6 @@ public class CartItemRepositoryImpl implements CartItemCustomRepository {
                 .select(new QCartItemResponse(
                         item.id,
                         item.itemName,
-                        item.itemPhotoUrl,
                         item.price,
                         item.stock,
                         cartItem.cartItemCnt)

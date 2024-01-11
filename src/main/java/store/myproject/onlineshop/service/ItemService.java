@@ -12,6 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.brand.repository.BrandRepository;
+import store.myproject.onlineshop.domain.imagefile.ImageFile;
+import store.myproject.onlineshop.domain.imagefile.repository.ImageFileRepository;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.item.dto.ItemCreateRequest;
 import store.myproject.onlineshop.domain.item.dto.ItemDto;
@@ -22,6 +24,8 @@ import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.s3.service.AwsS3Service;
 import store.myproject.onlineshop.global.utils.FileUtils;
 
+import java.util.List;
+
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 @Slf4j
@@ -29,6 +33,7 @@ import static store.myproject.onlineshop.exception.ErrorCode.*;
 @Transactional
 @RequiredArgsConstructor
 public class ItemService {
+    private final ImageFileRepository imageFileRepository;
 
     private final ItemRepository itemRepository;
 
@@ -40,7 +45,9 @@ public class ItemService {
     @Cacheable(value = "items", key = "#id")
     public ItemDto selectOne(Long id) {
 
-        return getItem(id).toItemDto();
+        Item item = getItem(id);
+
+        return item.toItemDto(getItem(id));
     }
 
     @Transactional(readOnly = true)
@@ -48,7 +55,7 @@ public class ItemService {
         return itemRepository.search(itemSearchCond, pageable);
     }
 
-    public ItemDto saveItem(ItemCreateRequest request, MultipartFile multipartFile) {
+    public ItemDto saveItem(ItemCreateRequest request, List<MultipartFile> multipartFileList) {
 
         itemRepository.findItemByItemName(request.getItemName())
                 .ifPresent((item -> {
@@ -57,38 +64,50 @@ public class ItemService {
 
         Brand findBrand = getBrand(request.getBrandName());
 
-        String originImageUrl = awsS3Service.uploadBrandOriginImage(multipartFile);
+        Item savedItem = itemRepository.save(request.toEntity(findBrand));
 
-        request.setItemPhotoUrl(originImageUrl);
+        for (MultipartFile multipartFile : multipartFileList) {
+            String originImageUrl = awsS3Service.uploadItemOriginImage(multipartFile);
 
-        Item savedItem = itemRepository.save(request.toEntity());
+            ImageFile image = ImageFile.createImage(originImageUrl, savedItem);
 
-        findBrand.addItem(savedItem);
+            // 연관관계 정의
+            image.addItem(savedItem);
 
-        return savedItem.toItemDto();
+            imageFileRepository.save(image);
+        }
 
+        return savedItem.toItemDto(savedItem);
     }
 
     @CacheEvict(value = "items", allEntries = true)
-    public MessageResponse updateItem(Long id, ItemUpdateRequest request, MultipartFile multipartFile) {
+    public MessageResponse updateItem(Long id, ItemUpdateRequest request, List<MultipartFile> multipartFileList) {
 
         Item findItem = getItem(id);
 
         Brand findBrand = getBrand(request.getBrandName());
 
-        if (!multipartFile.isEmpty()) {
-            String extractFileName = FileUtils.extractFileName(findItem.getItemPhotoUrl());
-
-            awsS3Service.deleteBrandImage(extractFileName);
-
-            String newUrl = awsS3Service.uploadBrandOriginImage(multipartFile);
-
-            request.setItemPhotoUrl(newUrl);
-        } else {
-            request.setItemPhotoUrl(findItem.getItemPhotoUrl());
-        }
-
         findItem.updateItem(request, findBrand);
+
+        if (!multipartFileList.isEmpty()) {
+            for (MultipartFile multipartFile : multipartFileList) {
+                for (ImageFile imageFile : findItem.getImageFileList()) {
+
+                    String extractFileName = FileUtils.extractFileName(imageFile.getImageUrl());
+                    // 연관관계 제거
+                    imageFile.removeItem(findItem);
+
+                    awsS3Service.deleteBrandImage(extractFileName);
+                }
+
+                String newUrl = awsS3Service.uploadBrandOriginImage(multipartFile);
+
+                ImageFile image = ImageFile.createImage(newUrl, findItem);
+
+                image.addItem(findItem);
+            }
+
+        }
 
         return new MessageResponse("해당 품목이 수정되었습니다.");
 
@@ -99,9 +118,13 @@ public class ItemService {
 
         Item findItem = getItem(id);
 
-        String extractFileName = FileUtils.extractFileName(findItem.getItemPhotoUrl());
+        for (ImageFile imageFile : findItem.getImageFileList()) {
+            String extractFileName = FileUtils.extractFileName(imageFile.getImageUrl());
 
-        awsS3Service.deleteBrandImage(extractFileName);
+            awsS3Service.deleteBrandImage(extractFileName);
+
+            imageFileRepository.deleteById(imageFile.getId());
+        }
 
         itemRepository.deleteById(findItem.getId());
 

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class CartItemResponse {
 
@@ -24,10 +25,9 @@ public class CartItemResponse {
     private Long itemCnt;
 
     @QueryProjection
-    public CartItemResponse(Long itemId, String itemName, String imagePath, Long price, Long stock, Long itemCnt) {
+    public CartItemResponse(Long itemId, String itemName, Long price, Long stock, Long itemCnt) {
         this.itemId = itemId;
         this.itemName = itemName;
-        this.imagePath = imagePath;
         this.price = price;
         this.stock = stock;
         this.itemCnt = itemCnt;

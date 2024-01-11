@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Customer;
+import store.myproject.onlineshop.domain.imagefile.ImageFile;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.like.Like;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateResponse;
@@ -64,6 +65,11 @@ public class Recipe extends BaseEntity {
     @OneToMany(mappedBy = "recipe")
     private List<RecipeItem> itemList = new ArrayList<>();
 
+    // 레시피 사진의 URL
+    @Builder.Default
+    @OneToMany(mappedBy = "recipe")
+    private List<ImageFile> imageFileList = new ArrayList<>();
+
 
     public RecipeCreateResponse fromEntity(Recipe recipe) {
         return RecipeCreateResponse.builder()
@@ -76,6 +82,9 @@ public class Recipe extends BaseEntity {
                 .itemNameList(recipe.getItemList().stream()
                         .map(RecipeItem::getItem)
                         .map(Item::getItemName)
+                        .collect(Collectors.toList()))
+                .recipeImageList(recipe.getImageFileList().stream()
+                        .map(ImageFile::getImageUrl)
                         .collect(Collectors.toList()))
                 .build();
     }

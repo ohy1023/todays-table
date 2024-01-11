@@ -4,8 +4,11 @@ import com.querydsl.core.annotations.QueryProjection;
 import lombok.*;
 import store.myproject.onlineshop.domain.brand.Brand;
 
+import java.util.List;
+
 @Data
 @Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ItemDto {
 
@@ -15,16 +18,15 @@ public class ItemDto {
 
     private Long stock;
 
-    private String itemPhotoUrl;
+    private List<String> imageList;
 
     private String brandName;
 
     @QueryProjection
-    public ItemDto(String itemName, Long price, Long stock, String itemPhotoUrl, String brandName) {
+    public ItemDto(String itemName, Long price, Long stock, String brandName) {
         this.itemName = itemName;
         this.price = price;
         this.stock = stock;
-        this.itemPhotoUrl = itemPhotoUrl;
         this.brandName = brandName;
     }
 }

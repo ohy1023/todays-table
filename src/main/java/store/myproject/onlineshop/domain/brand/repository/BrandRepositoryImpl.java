@@ -28,8 +28,7 @@ public class BrandRepositoryImpl implements BrandCustomRepository {
         List<BrandInfo> brandInfoList = queryFactory
                 .select(new QBrandInfo(
                         brand.id,
-                        brand.name,
-                        brand.originImagePath)
+                        brand.name)
                 )
                 .from(brand)
                 .where(brandNameEq(brandName))

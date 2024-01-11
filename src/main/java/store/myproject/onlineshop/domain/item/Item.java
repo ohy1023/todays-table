@@ -7,14 +7,17 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.brand.Brand;
+import store.myproject.onlineshop.domain.imagefile.ImageFile;
 import store.myproject.onlineshop.domain.item.dto.ItemDto;
 import store.myproject.onlineshop.domain.item.dto.ItemUpdateRequest;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
 import store.myproject.onlineshop.domain.recipeitem.RecipeItem;
 import store.myproject.onlineshop.exception.AppException;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static jakarta.persistence.FetchType.*;
 import static store.myproject.onlineshop.exception.ErrorCode.*;
@@ -46,14 +49,15 @@ public class Item extends BaseEntity {
     // 상품의 재고 수량
     private Long stock;
 
-    // 상품 사진의 URL
-    @Column(name = "item_photo_url")
-    private String itemPhotoUrl;
-
     // Brand 엔티티와의 다대일 관계
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "brand_id")
     private Brand brand;
+
+    // 상품 사진의 URL
+    @Builder.Default
+    @OneToMany(mappedBy = "item")
+    private List<ImageFile> imageFileList = new ArrayList<>();
 
     // OrderItem 엔티티들과의 일대다 관계
     @Builder.Default
@@ -65,8 +69,10 @@ public class Item extends BaseEntity {
     private List<RecipeItem> recipeItemList = new ArrayList<>();
 
     // 상품에 브랜드를 추가하는 메서드
+    // Brand 엔티티와의 연관관계 설정
     public void addBrand(Brand brand) {
         this.brand = brand;
+        brand.getItemList().add(this);
     }
 
     // 상품의 재고를 감소시키는 메서드
@@ -89,18 +95,19 @@ public class Item extends BaseEntity {
         this.itemName = updateRequest.getItemName();
         this.price = updateRequest.getPrice();
         this.brand = findBrand;
-        this.itemPhotoUrl = updateRequest.getItemPhotoUrl();
         this.stock = updateRequest.getStock();
     }
 
     // 상품을 DTO로 변환하는 메서드
-    public ItemDto toItemDto() {
+    public ItemDto toItemDto(Item item) {
         return ItemDto.builder()
                 .itemName(this.itemName)
                 .price(this.price)
                 .stock(this.stock)
-                .itemPhotoUrl(this.itemPhotoUrl)
                 .brandName(this.brand.getName())
+                .imageList(item.getImageFileList().stream()
+                        .map(ImageFile::getImageUrl)
+                        .collect(Collectors.toList()))
                 .build();
     }
 }

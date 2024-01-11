@@ -28,7 +28,7 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
     @Override
     public Page<ItemDto> search(ItemSearchCond itemSearchCond, Pageable pageable) {
 
-        List<ItemDto> itemDtoList = queryFactory.select(new QItemDto(item.itemName, item.price, item.stock, item.itemPhotoUrl, item.brand.name))
+        List<ItemDto> itemDtoList = queryFactory.select(new QItemDto(item.itemName, item.price, item.stock, item.brand.name))
                 .from(item)
                 .where(
                         itemNameContains(itemSearchCond.getItemName()),

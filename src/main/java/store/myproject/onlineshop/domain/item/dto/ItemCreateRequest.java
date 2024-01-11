@@ -1,6 +1,7 @@
 package store.myproject.onlineshop.domain.item.dto;
 
 import lombok.*;
+import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.item.Item;
 
 @Data
@@ -15,19 +16,15 @@ public class ItemCreateRequest {
 
     private Long stock;
 
-    private String itemPhotoUrl;
-
     private String brandName;
 
 
-    public Item toEntity() {
-        Item item = Item.builder()
+    public Item toEntity(Brand brand) {
+        return Item.builder()
                 .itemName(this.itemName)
                 .price(this.price)
                 .stock(this.stock)
-                .itemPhotoUrl(this.itemPhotoUrl)
+                .brand(brand)
                 .build();
-
-        return item;
     }
 }

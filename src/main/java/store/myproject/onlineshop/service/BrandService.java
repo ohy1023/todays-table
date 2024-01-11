@@ -11,12 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import store.myproject.onlineshop.domain.brand.dto.*;
 import store.myproject.onlineshop.domain.brand.Brand;
+import store.myproject.onlineshop.domain.imagefile.ImageFile;
+import store.myproject.onlineshop.domain.imagefile.repository.ImageFileRepository;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.s3.service.AwsS3Service;
 import store.myproject.onlineshop.global.utils.FileUtils;
 import store.myproject.onlineshop.domain.brand.repository.BrandRepository;
 
-import java.util.List;
 
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
@@ -25,6 +26,7 @@ import static store.myproject.onlineshop.exception.ErrorCode.*;
 @Transactional
 @RequiredArgsConstructor
 public class BrandService {
+    private final ImageFileRepository imageFileRepository;
 
     private final BrandRepository brandRepository;
 
@@ -32,7 +34,7 @@ public class BrandService {
 
     // 브랜드 단건 조회
     @Transactional(readOnly = true)
-    @Cacheable(value = "brands",key = "#id")
+    @Cacheable(value = "brands", key = "#id")
     public BrandInfo getBrandInfo(Long id) {
         return getBrandOrElseThrow(id).toBrandInfo();
     }
@@ -53,9 +55,13 @@ public class BrandService {
 
         String originImageUrl = awsS3Service.uploadBrandOriginImage(multipartFile);
 
-        request.setOriginImagePath(originImageUrl);
-
         Brand savedBrand = brandRepository.save(request.toEntity());
+
+        ImageFile image = ImageFile.createImage(originImageUrl, savedBrand);
+
+        image.addBrand(savedBrand);
+
+        imageFileRepository.save(image);
 
         return savedBrand.toBrandCreateResponse();
     }
@@ -69,15 +75,23 @@ public class BrandService {
         log.info("Check if file exists : {}", !multipartFile.isEmpty());
 
         if (!multipartFile.isEmpty()) {
-            String extractFileName = FileUtils.extractFileName(brand.getOriginImagePath());
+            String extractFileName = FileUtils.extractFileName(brand.getImageFile().getImageUrl());
 
             awsS3Service.deleteBrandImage(extractFileName);
 
+            ImageFile curImageFile = brand.getImageFile();
+
+            curImageFile.removeBrand();
+
+            imageFileRepository.deleteById(curImageFile.getId());
+
             String newUrl = awsS3Service.uploadBrandOriginImage(multipartFile);
 
-            request.setOriginImagePath(newUrl);
-        } else {
-            request.setOriginImagePath(brand.getOriginImagePath());
+            ImageFile image = ImageFile.createImage(newUrl, brand);
+
+            image.addBrand(brand);
+
+            imageFileRepository.save(image);
         }
 
         brand.update(request);
@@ -91,7 +105,9 @@ public class BrandService {
 
         Brand brand = getBrandOrElseThrow(id);
 
-        String extractFileName = FileUtils.extractFileName(brand.getOriginImagePath());
+        ImageFile curImageFile = brand.getImageFile();
+
+        String extractFileName = FileUtils.extractFileName(curImageFile.getImageUrl());
 
         awsS3Service.deleteBrandImage(extractFileName);
 

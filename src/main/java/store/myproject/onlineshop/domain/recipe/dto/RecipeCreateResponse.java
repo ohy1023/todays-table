@@ -23,4 +23,6 @@ public class RecipeCreateResponse {
     private int recipeView;
 
     private List<String> itemNameList;
+
+    private List<String> recipeImageList;
 }

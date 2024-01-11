@@ -3,10 +3,13 @@ package store.myproject.onlineshop.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.customer.CustomerRole;
 import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
+import store.myproject.onlineshop.domain.imagefile.ImageFile;
+import store.myproject.onlineshop.domain.imagefile.repository.ImageFileRepository;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.item.repository.ItemRepository;
 import store.myproject.onlineshop.domain.like.Like;
@@ -23,6 +26,8 @@ import store.myproject.onlineshop.domain.review.dto.ReviewWriteRequest;
 import store.myproject.onlineshop.domain.review.dto.ReviewWriteResponse;
 import store.myproject.onlineshop.domain.review.repository.ReviewRepository;
 import store.myproject.onlineshop.exception.AppException;
+import store.myproject.onlineshop.global.s3.service.AwsS3Service;
+import store.myproject.onlineshop.global.utils.FileUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +44,8 @@ public class RecipeService {
     private final RecipeRepository recipeRepository;
     private final ReviewRepository reviewRepository;
     private final ItemRepository itemRepository;
+    private final ImageFileRepository imageFileRepository;
+    private final AwsS3Service awsS3Service;
 
 
     /**
@@ -46,21 +53,33 @@ public class RecipeService {
      *
      * @param email               사용자 이메일
      * @param recipeCreateRequest 사용자가 작성한 레시피 정보
+     * @param multipartFileList   업로드된 이미지 파일 리스트
      * @return RecipeCreateResponse 작성된 레시피의 응답 정보
      */
-    public RecipeCreateResponse writeRecipe(String email, RecipeCreateRequest recipeCreateRequest) {
+    public RecipeCreateResponse writeRecipe(String email, RecipeCreateRequest recipeCreateRequest, List<MultipartFile> multipartFileList) {
         // 현재 로그인한 회원을 검증합니다.
         Customer customer = validateByEmail(email);
 
         // 레시피 중복을 검사합니다.
-        recipeRepository.findByRecipeTitle(recipeCreateRequest.getRecipeTitle())
-                .ifPresent(recipe -> {
-                    throw new AppException(DUPLICATE_RECIPE, DUPLICATE_RECIPE.getMessage());
-                });
-
+        checkRecipeTitle(recipeCreateRequest);
 
         // Recipe 엔티티를 생성하고 저장합니다.
         Recipe saveRecipe = recipeRepository.save(recipeCreateRequest.toEntity(customer));
+
+        // 업로드된 이미지 파일이 존재하는 경우 처리합니다.
+        if (multipartFileList != null) {
+            for (MultipartFile multipartFile : multipartFileList) {
+                String originImageUrl = awsS3Service.uploadRecipeOriginImage(multipartFile);
+
+                // 이미지 파일 엔티티를 생성하고 저장합니다.
+                ImageFile image = ImageFile.createImage(originImageUrl, saveRecipe);
+
+                // 연관관계 정의
+                image.addRecipe(saveRecipe);
+
+                imageFileRepository.save(image);
+            }
+        }
 
         // RecipeItem 리스트를 생성합니다.
         List<RecipeItem> recipeItemList = createRecipeItems(recipeCreateRequest.getItemIdList());
@@ -73,6 +92,20 @@ public class RecipeService {
         // 저장된 Recipe를 기반으로 응답을 생성하여 반환합니다.
         return saveRecipe.fromEntity(saveRecipe);
     }
+
+    /**
+     * 주어진 레시피 제목이 이미 존재하는지 검증하고, 중복된 경우 예외를 발생시키는 메서드입니다.
+     *
+     * @param recipeCreateRequest 레시피 생성 요청 정보
+     * @throws AppException 레시피 제목이 이미 존재하는 경우 발생하는 예외
+     */
+    private void checkRecipeTitle(RecipeCreateRequest recipeCreateRequest) {
+        recipeRepository.findByRecipeTitle(recipeCreateRequest.getRecipeTitle())
+                .ifPresent(recipe -> {
+                    throw new AppException(DUPLICATE_RECIPE, DUPLICATE_RECIPE.getMessage());
+                });
+    }
+
 
     /**
      * 특정 레시피에 댓글,대댓글 작성 메서드입니다.

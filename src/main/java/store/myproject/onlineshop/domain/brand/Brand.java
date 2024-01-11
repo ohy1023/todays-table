@@ -6,6 +6,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.brand.dto.*;
+import store.myproject.onlineshop.domain.imagefile.ImageFile;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
 
@@ -28,31 +29,24 @@ public class Brand extends BaseEntity {
     @Column(unique = true)
     private String name;
 
-    @Column(name = "origin_image_path")
-    private String originImagePath;
+    @OneToOne(mappedBy = "brand")
+    private ImageFile imageFile;
 
     @Builder.Default
     @OneToMany(mappedBy = "brand")
     private List<Item> itemList = new ArrayList<>();
-
-    public void addItem(Item item) {
-        itemList.add(item);
-        item.addBrand(this);
-    }
 
 
     public BrandInfo toBrandInfo() {
         return BrandInfo.builder()
                 .id(this.id)
                 .name(this.name)
-                .originImagePath(this.originImagePath)
                 .build();
     }
 
     public BrandCreateResponse toBrandCreateResponse() {
         return BrandCreateResponse.builder()
                 .name(this.name)
-                .originImagePath(this.originImagePath)
                 .build();
     }
 
@@ -65,12 +59,14 @@ public class Brand extends BaseEntity {
     public BrandUpdateResponse toBrandUpdateResponse() {
         return BrandUpdateResponse.builder()
                 .name(this.name)
-                .originImagePath(this.originImagePath)
                 .build();
     }
 
     public void update(BrandUpdateRequest updatedBrand) {
         this.name = updatedBrand.getName();
-        this.originImagePath = updatedBrand.getOriginImagePath();
+    }
+
+    public void removeImage() {
+        this.imageFile = null;
     }
 }

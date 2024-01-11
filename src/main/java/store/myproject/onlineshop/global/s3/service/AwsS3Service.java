@@ -38,6 +38,9 @@ public class AwsS3Service {
     public String uploadBrandOriginImage(MultipartFile file) {
         return upload(file, bucket, ORIGIN_BRAND_FOLDER);
     }
+    public String uploadRecipeOriginImage(MultipartFile file) {
+        return upload(file, bucket, ORIGIN_RECIPE_FOLDER);
+    }
 
     public String upload(MultipartFile file, String bucket, String folder) {
 

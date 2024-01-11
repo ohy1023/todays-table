@@ -19,6 +19,8 @@ import store.myproject.onlineshop.domain.item.dto.ItemSearchCond;
 import store.myproject.onlineshop.domain.item.dto.ItemUpdateRequest;
 import store.myproject.onlineshop.service.ItemService;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -49,18 +51,18 @@ public class ItemController {
 
     @Operation(summary = "품목 추가")
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public Response<ItemDto> createItem(@RequestPart ItemCreateRequest request, @RequestPart MultipartFile multipartFile, Authentication authentication) {
+    public Response<ItemDto> createItem(@RequestPart ItemCreateRequest request, @RequestPart List<MultipartFile> multipartFileList, Authentication authentication) {
 
-        ItemDto response = itemService.saveItem(request, multipartFile);
+        ItemDto response = itemService.saveItem(request, multipartFileList);
 
         return Response.success(response);
     }
 
     @Operation(summary = "품목 수정")
     @PutMapping("/{itemId}")
-    public Response<MessageResponse> changeItem(@PathVariable Long itemId, @RequestPart ItemUpdateRequest request, @RequestPart MultipartFile multipartFile, Authentication authentication) {
+    public Response<MessageResponse> changeItem(@PathVariable Long itemId, @RequestPart ItemUpdateRequest request, @RequestPart List<MultipartFile> multipartFileList, Authentication authentication) {
 
-        MessageResponse response = itemService.updateItem(itemId, request, multipartFile);
+        MessageResponse response = itemService.updateItem(itemId, request, multipartFileList);
 
         return Response.success(response);
     }
