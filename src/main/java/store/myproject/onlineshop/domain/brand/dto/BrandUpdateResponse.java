@@ -10,5 +10,4 @@ public class BrandUpdateResponse {
 
     private String name;
 
-    private String originImagePath;
 }

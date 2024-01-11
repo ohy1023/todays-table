@@ -19,8 +19,6 @@ public class ItemUpdateRequest {
 
     private Long stock;
 
-    private String itemPhotoUrl;
-
     private String brandName;
 
 }

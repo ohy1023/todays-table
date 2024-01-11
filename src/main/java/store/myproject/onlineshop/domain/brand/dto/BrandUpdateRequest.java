@@ -13,8 +13,6 @@ public class BrandUpdateRequest {
     @NotEmpty(message = "브랜드 명을 입력하세요.")
     private String name;
 
-    private String originImagePath;
-
     public Brand toEntity() {
         return Brand.builder()
                 .name(this.name)

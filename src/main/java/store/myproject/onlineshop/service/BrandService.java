@@ -72,9 +72,7 @@ public class BrandService {
 
         Brand brand = getBrandOrElseThrow(id);
 
-        log.info("Check if file exists : {}", !multipartFile.isEmpty());
-
-        if (!multipartFile.isEmpty()) {
+        if (multipartFile != null) {
             String extractFileName = FileUtils.extractFileName(brand.getImageFile().getImageUrl());
 
             awsS3Service.deleteBrandImage(extractFileName);

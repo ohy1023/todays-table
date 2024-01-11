@@ -59,8 +59,8 @@ public class ItemController {
     }
 
     @Operation(summary = "품목 수정")
-    @PutMapping("/{itemId}")
-    public Response<MessageResponse> changeItem(@PathVariable Long itemId, @RequestPart ItemUpdateRequest request, @RequestPart List<MultipartFile> multipartFileList, Authentication authentication) {
+    @PutMapping(value = "/{itemId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public Response<MessageResponse> changeItem(@PathVariable Long itemId, @RequestPart ItemUpdateRequest request, @RequestPart(required = false) List<MultipartFile> multipartFileList, Authentication authentication) {
 
         MessageResponse response = itemService.updateItem(itemId, request, multipartFileList);
 

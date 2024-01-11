@@ -89,7 +89,7 @@ public class ItemService {
 
         findItem.updateItem(request, findBrand);
 
-        if (!multipartFileList.isEmpty()) {
+        if (multipartFileList != null) {
             for (MultipartFile multipartFile : multipartFileList) {
                 for (ImageFile imageFile : findItem.getImageFileList()) {
 
