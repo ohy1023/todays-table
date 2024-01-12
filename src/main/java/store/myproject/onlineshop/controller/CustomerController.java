@@ -12,8 +12,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.Response;
+import store.myproject.onlineshop.domain.corporation.repository.CorporationRepository;
 import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.global.utils.CookieUtils;
+import store.myproject.onlineshop.service.CorporationService;
 import store.myproject.onlineshop.service.CustomerService;
 
 @Slf4j
@@ -24,6 +26,7 @@ import store.myproject.onlineshop.service.CustomerService;
 public class CustomerController {
 
     private final CustomerService customerService;
+    private final CorporationService corporationService;
 
     @Value("${access-token-maxage}")
     public int accessTokenMaxAge;
@@ -39,13 +42,13 @@ public class CustomerController {
 
     @Operation(summary = "로그인")
     @PostMapping("/login")
-    public Response<CustomerLoginResponse> login(@Valid @RequestBody CustomerLoginRequest customerLoginRequest, HttpServletRequest request,
-                                                 HttpServletResponse response) {
+    public Response<LoginResponse> login(@Valid @RequestBody CustomerLoginRequest customerLoginRequest, HttpServletRequest request,
+                                         HttpServletResponse response) {
 
-        CustomerLoginResponse customerLoginResponse = customerService.login(customerLoginRequest);
+        LoginResponse loginResponse = customerService.login(customerLoginRequest);
 
-        String accessToken = customerLoginResponse.getAccessToken();
-        String refreshToken = customerLoginResponse.getRefreshToken();
+        String accessToken = loginResponse.getAccessToken();
+        String refreshToken = loginResponse.getRefreshToken();
 
 
         log.info("쿠키에 저장된 AccessToken :");
@@ -56,16 +59,16 @@ public class CustomerController {
         log.info("Authorization-refresh= {}; Path=/; Secure; HttpOnly; Expires=DOW, DAY MONTH YEAR HH:MM:SS GMT;", refreshToken);
         CookieUtils.addRefreshTokenAtCookie(response, refreshToken);
 
-        return Response.success(customerLoginResponse);
+        return Response.success(loginResponse);
     }
 
     @Operation(summary = "로그아웃")
     @PostMapping("/logout")
-    public Response<MessageResponse> logout(@RequestBody CustomerTokenRequest customerTokenRequest, Authentication authentication) {
+    public Response<MessageResponse> logout(@RequestBody TokenRequest tokenRequest, Authentication authentication) {
 
         String email = authentication.getName();
 
-        MessageResponse response = customerService.logout(customerTokenRequest, email);
+        MessageResponse response = customerService.logout(tokenRequest, email);
         return Response.success(response);
     }
 
@@ -106,12 +109,16 @@ public class CustomerController {
 
     @Operation(summary = "토큰 재발급")
     @PostMapping("/reissue")
-    public Response<CustomerLoginResponse> reissue(@RequestBody CustomerTokenRequest userTokenRequest, Authentication authentication) {
+    public Response<LoginResponse> reissue(@RequestBody TokenRequest userTokenRequest, Authentication authentication) {
+        String info = authentication.getName();
+        LoginResponse loginResponse;
+        if (info.contains("@")) {
+            loginResponse = customerService.reissue(userTokenRequest, info);
+        } else {
+            loginResponse = corporationService.reissue(userTokenRequest, info);
+        }
 
-        String email = authentication.getName();
-
-        CustomerLoginResponse customerLoginResponse = customerService.reissue(userTokenRequest, email);
-        return Response.success(customerLoginResponse);
+        return Response.success(loginResponse);
     }
 
     @Operation(summary = "회원 정보 조회")

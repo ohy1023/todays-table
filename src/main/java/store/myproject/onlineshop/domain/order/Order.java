@@ -23,7 +23,7 @@ import static store.myproject.onlineshop.domain.order.OrderStatus.*;
 import static store.myproject.onlineshop.exception.ErrorCode.ALREADY_ARRIVED;
 
 @Entity
-@Table(name = "orders")
+@Table(name = "Orders")
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

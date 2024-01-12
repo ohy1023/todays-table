@@ -185,7 +185,7 @@ class CustomerServiceTest {
                 .willReturn(refreshToken);
 
         // when
-        CustomerLoginResponse response = customerService.login(request);
+        LoginResponse response = customerService.login(request);
 
         // then
         assertThat(response.getAccessToken()).isEqualTo(accessToken);
@@ -298,7 +298,7 @@ class CustomerServiceTest {
     public void logout_success() {
 
         // given
-        CustomerTokenRequest request = CustomerTokenRequest.builder()
+        TokenRequest request = TokenRequest.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
@@ -322,7 +322,7 @@ class CustomerServiceTest {
     public void logout_fail_notFoundEmail() {
 
         // given
-        CustomerTokenRequest request = CustomerTokenRequest.builder()
+        TokenRequest request = TokenRequest.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
@@ -341,7 +341,7 @@ class CustomerServiceTest {
     public void logout_fail_expiredToken() {
 
         // given
-        CustomerTokenRequest request = CustomerTokenRequest.builder()
+        TokenRequest request = TokenRequest.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
@@ -363,7 +363,7 @@ class CustomerServiceTest {
     public void logout_fail_invalidToken() {
 
         // given
-        CustomerTokenRequest request = CustomerTokenRequest.builder()
+        TokenRequest request = TokenRequest.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
@@ -388,7 +388,7 @@ class CustomerServiceTest {
     public void reissue_success() {
 
         // given
-        CustomerTokenRequest request = CustomerTokenRequest.builder()
+        TokenRequest request = TokenRequest.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
@@ -406,7 +406,7 @@ class CustomerServiceTest {
                 .willReturn("newRefreshToken");
 
         // when
-        CustomerLoginResponse response = customerService.reissue(request, customer1.getEmail());
+        LoginResponse response = customerService.reissue(request, customer1.getEmail());
 
         // then
         assertThat(response.getAccessToken()).isEqualTo("newAccessToken");
@@ -420,7 +420,7 @@ class CustomerServiceTest {
     public void reissue_fail_notFoundEmail() {
 
         // given
-        CustomerTokenRequest request = CustomerTokenRequest.builder()
+        TokenRequest request = TokenRequest.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
@@ -439,7 +439,7 @@ class CustomerServiceTest {
     public void reissue_fail_expiredToken() {
 
         // given
-        CustomerTokenRequest request = CustomerTokenRequest.builder()
+        TokenRequest request = TokenRequest.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
@@ -461,7 +461,7 @@ class CustomerServiceTest {
     public void reissue_fail_tokenNull() {
 
         // given
-        CustomerTokenRequest request = CustomerTokenRequest.builder()
+        TokenRequest request = TokenRequest.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
@@ -484,7 +484,7 @@ class CustomerServiceTest {
     public void reissue_fail_mismatchedToken() {
 
         // given
-        CustomerTokenRequest request = CustomerTokenRequest.builder()
+        TokenRequest request = TokenRequest.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();

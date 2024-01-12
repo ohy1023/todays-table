@@ -24,6 +24,11 @@ public enum ErrorCode {
     ALREADY_ADMIN(HttpStatus.CONFLICT, "이미 Admin 입니다."),
     MISMATCH_PASSWORD(HttpStatus.CONFLICT, "비밀번호가 틀렸습니다."),
 
+    // Corporation
+    DUPLICATE_REGISTRATION_NUMBER(HttpStatus.CONFLICT, "중복된 사업자 번호입니다."),
+    DUPLICATE_COMPANY_EMAIL(HttpStatus.CONFLICT, "중복된 회사 이메일입니다."),
+    CORPORATION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 회사입니다."),
+
     // Brand
     DUPLICATE_BRAND(HttpStatus.CONFLICT, "중복된 브랜드 이름입니다."),
     BRAND_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 브랜드 이름입니다."),
@@ -61,12 +66,12 @@ public enum ErrorCode {
     CHECK_NOT_EXIST_IN_CART(HttpStatus.NOT_FOUND, "구매할려는 품목을 체크해주세요"),
 
     // Recipe
-    RECIPE_NOT_FOUND(HttpStatus.NOT_FOUND,"해당 레시피가 존재하지 않습니다."),
-    DUPLICATE_RECIPE(HttpStatus.CONFLICT,"해당 레시피 제목이 중복됩니다."),
+    RECIPE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 레시피가 존재하지 않습니다."),
+    DUPLICATE_RECIPE(HttpStatus.CONFLICT, "해당 레시피 제목이 중복됩니다."),
 
     // Review
-    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND,"해당 댓글이 존재하지 않습니다."),
-    EMPTY_CONTENT(HttpStatus.NOT_FOUND,"댓글은 1자 이상 입력 필수입니다."),
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 댓글이 존재하지 않습니다."),
+    EMPTY_CONTENT(HttpStatus.NOT_FOUND, "댓글은 1자 이상 입력 필수입니다."),
 
     // S3
     WRONG_FILE_FORMAT(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일입니다"),

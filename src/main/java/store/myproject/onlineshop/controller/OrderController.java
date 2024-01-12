@@ -29,7 +29,7 @@ public class OrderController {
 
 
     @Operation(summary = "단건 주문 조회")
-    @GetMapping("{orderId}")
+    @GetMapping("/{orderId}")
     public Response<OrderInfo> findOneOrder(@PathVariable Long orderId, Authentication authentication) {
 
         String email = authentication.getName();

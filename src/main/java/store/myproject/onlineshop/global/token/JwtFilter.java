@@ -15,6 +15,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
+import store.myproject.onlineshop.domain.corporation.Corporation;
+import store.myproject.onlineshop.domain.corporation.repository.CorporationRepository;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.exception.ErrorCode;
@@ -33,6 +35,7 @@ import static store.myproject.onlineshop.exception.ErrorCode.*;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final CustomerRepository customerRepository;
+    private final CorporationRepository corporationRepository;
 
     private final JwtUtils jwtUtils;
 
@@ -101,11 +104,7 @@ public class JwtFilter extends OncePerRequestFilter {
             throw new JwtException("만료된 AccessToken 입니다.");
         }
 
-        String email = jwtUtils.getEmail(accessToken);
-
-//        Customer customer =
-//                customerRepository.findByEmail(email)
-//                        .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND));
+        String info = jwtUtils.getInfo(accessToken);
 
         // refresh Token 존재 여부 확인
         if (refreshTokenAtCookie.isEmpty()) {
@@ -127,31 +126,50 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         // refresh Token 유효한 경우 -> access Token / refresh Token 재발급
-        String newAccessToken = jwtUtils.createAccessToken(email);
+        String newAccessToken = jwtUtils.createAccessToken(info);
         log.info("newAccessToken : {}", newAccessToken);
-        String newRefreshToken = jwtUtils.createRefreshToken(email);
+        String newRefreshToken = jwtUtils.createRefreshToken(info);
         log.info("newRefreshToken : {}", newRefreshToken);
 
+        if (isValidEmail(info)) {
+            Customer customer = customerRepository.findByEmail(info)
+                    .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
 
-        Customer customer = customerRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
+            // 유효성 검증 통과한 경우
+            log.info("유효성 검증 통과! \n SecurityContextHolder 에 Authentication 객체를 저장합니다!");
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(customer.getEmail(),
+                            null,
+                            List.of(new SimpleGrantedAuthority(customer.getCustomerRole().name())));
+
+            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        } else {
+            Corporation corporation = corporationRepository.findByRegistrationNumber(info)
+                    .orElseThrow(() -> new AppException(CORPORATION_NOT_FOUND, CORPORATION_NOT_FOUND.getMessage()));
+
+            // 유효성 검증 통과한 경우
+            log.info("유효성 검증 통과! \n SecurityContextHolder 에 Authentication 객체를 저장합니다!");
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(corporation.getRegistrationNumber(),
+                            null,
+                            List.of(new SimpleGrantedAuthority(corporation.getCustomerRole().name())));
+
+            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        }
 
         // 발급된 accessToken을 response cookie 에 저장
         CookieUtils.addAccessTokenAtCookie(response, newAccessToken);
         // 발급된 refreshToken을 response cookie 에 저장
         CookieUtils.addRefreshTokenAtCookie(response, newRefreshToken);
 
-        // 유효성 검증 통과한 경우
-        log.info("유효성 검증 통과! \n SecurityContextHolder 에 Authentication 객체를 저장합니다!");
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(customer.getEmail(),
-                        null,
-                        List.of(new SimpleGrantedAuthority(customer.getCustomerRole().name())));
-
-        authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isValidEmail(String identifier) {
+        return identifier.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$");
     }
 }

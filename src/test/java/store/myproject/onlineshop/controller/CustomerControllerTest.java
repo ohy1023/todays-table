@@ -177,7 +177,7 @@ class CustomerControllerTest {
                 .password("test")
                 .build();
 
-        CustomerLoginResponse response = CustomerLoginResponse.builder()
+        LoginResponse response = LoginResponse.builder()
                 .accessToken("accessToken")
                 .refreshToken("refreshToken")
                 .build();
@@ -259,11 +259,11 @@ class CustomerControllerTest {
     public void logout_success() throws Exception {
 
         // given
-        CustomerTokenRequest request = CustomerTokenRequest.builder()
+        TokenRequest request = TokenRequest.builder()
                 .accessToken("accessToken")
                 .build();
 
-        given(customerService.logout(any(CustomerTokenRequest.class), any(String.class)))
+        given(customerService.logout(any(TokenRequest.class), any(String.class)))
                 .willReturn(new MessageResponse("로그아웃 되셨습니다."));
 
 
@@ -284,11 +284,11 @@ class CustomerControllerTest {
     public void logout_fail_tokenExpire() throws Exception {
 
         // given
-        CustomerTokenRequest request = CustomerTokenRequest.builder()
+        TokenRequest request = TokenRequest.builder()
                 .accessToken("accessToken")
                 .build();
 
-        given(customerService.logout(any(CustomerTokenRequest.class), any(String.class)))
+        given(customerService.logout(any(TokenRequest.class), any(String.class)))
                 .willThrow(new AppException(EXPIRED_TOKEN, EXPIRED_TOKEN.getMessage()));
 
 
@@ -310,12 +310,12 @@ class CustomerControllerTest {
     public void logout_fail_tokenInvalid() throws Exception {
 
         // given
-        CustomerTokenRequest request = CustomerTokenRequest.builder()
+        TokenRequest request = TokenRequest.builder()
                 .accessToken("accessToken")
                 .refreshToken("refreshToken")
                 .build();
 
-        given(customerService.logout(any(CustomerTokenRequest.class), any(String.class)))
+        given(customerService.logout(any(TokenRequest.class), any(String.class)))
                 .willThrow(new AppException(INVALID_TOKEN, INVALID_TOKEN.getMessage()));
 
 
@@ -337,18 +337,18 @@ class CustomerControllerTest {
     public void reissue_success() throws Exception {
 
         // given
-        CustomerTokenRequest request = CustomerTokenRequest.builder()
+        TokenRequest request = TokenRequest.builder()
                 .accessToken("accessToken")
                 .refreshToken("refreshToken")
                 .build();
 
-        CustomerLoginResponse response = CustomerLoginResponse.builder()
+        LoginResponse response = LoginResponse.builder()
                 .accessToken("accessToken")
                 .refreshToken("refreshToken")
                 .build();
 
 
-        given(customerService.reissue(any(CustomerTokenRequest.class), any(String.class)))
+        given(customerService.reissue(any(TokenRequest.class), any(String.class)))
                 .willReturn(response);
 
 
@@ -370,12 +370,12 @@ class CustomerControllerTest {
     public void reissue_fail_tokenInvalid() throws Exception {
 
         // given
-        CustomerTokenRequest request = CustomerTokenRequest.builder()
+        TokenRequest request = TokenRequest.builder()
                 .accessToken("accessToken")
                 .refreshToken("refreshToken")
                 .build();
 
-        given(customerService.reissue(any(CustomerTokenRequest.class), any(String.class)))
+        given(customerService.reissue(any(TokenRequest.class), any(String.class)))
                 .willThrow(new AppException(EXPIRED_TOKEN, EXPIRED_TOKEN.getMessage()));
 
 
@@ -398,12 +398,12 @@ class CustomerControllerTest {
     public void reissue_fail_tokenExpire() throws Exception {
 
         // given
-        CustomerTokenRequest request = CustomerTokenRequest.builder()
+        TokenRequest request = TokenRequest.builder()
                 .accessToken("accessToken")
                 .refreshToken("refreshToken")
                 .build();
 
-        given(customerService.reissue(any(CustomerTokenRequest.class), any(String.class)))
+        given(customerService.reissue(any(TokenRequest.class), any(String.class)))
                 .willThrow(new AppException(INVALID_TOKEN, INVALID_TOKEN.getMessage()));
 
 
@@ -426,11 +426,11 @@ class CustomerControllerTest {
     public void reissue_fail_tokenEmpty() throws Exception {
 
         // given
-        CustomerTokenRequest request = CustomerTokenRequest.builder()
+        TokenRequest request = TokenRequest.builder()
                 .accessToken("accessToken")
                 .build();
 
-        given(customerService.reissue(any(CustomerTokenRequest.class), any(String.class)))
+        given(customerService.reissue(any(TokenRequest.class), any(String.class)))
                 .willThrow(new AppException(INVALID_REQUEST, INVALID_REQUEST.getMessage()));
 
 

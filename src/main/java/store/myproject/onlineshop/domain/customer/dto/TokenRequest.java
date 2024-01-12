@@ -6,7 +6,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CustomerTokenRequest {
+public class TokenRequest {
     private String accessToken;
     private String refreshToken;
 }

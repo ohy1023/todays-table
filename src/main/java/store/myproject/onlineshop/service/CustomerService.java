@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,7 +78,7 @@ public class CustomerService {
     }
 
     @Transactional
-    public CustomerLoginResponse login(CustomerLoginRequest request) {
+    public LoginResponse login(CustomerLoginRequest request) {
 
         Customer findCustomer = findCustomerByEmail(request.getEmail());
 
@@ -97,11 +96,11 @@ public class CustomerService {
         // 저장 형태 {"RT:test@test.com" , "refreshToken"}
         redisDao.setValues("RT:" + findCustomer.getEmail(), refreshToken, refreshTokenMaxAge, TimeUnit.SECONDS);
 
-        return new CustomerLoginResponse(accessToken, refreshToken);
+        return new LoginResponse(accessToken, refreshToken);
     }
 
     @Transactional
-    public CustomerLoginResponse reissue(CustomerTokenRequest request, String email) {
+    public LoginResponse reissue(TokenRequest request, String email) {
 
         Customer findCustomer = findCustomerByEmail(email);
 
@@ -124,12 +123,12 @@ public class CustomerService {
         // 저장 형태 {"RT:test@test.com" , "refreshToken"}
         redisDao.setValues("RT:" + findCustomer.getEmail(), newRefreshToken, refreshTokenMaxAge, TimeUnit.SECONDS);
 
-        return new CustomerLoginResponse(newAccessToken, newRefreshToken);
+        return new LoginResponse(newAccessToken, newRefreshToken);
 
     }
 
     @Transactional
-    public MessageResponse logout(CustomerTokenRequest request, String email) {
+    public MessageResponse logout(TokenRequest request, String email) {
 
         Customer findCustomer = findCustomerByEmail(email);
 

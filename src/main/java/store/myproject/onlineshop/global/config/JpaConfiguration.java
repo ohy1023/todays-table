@@ -18,6 +18,7 @@ import java.util.Properties;
 @Configuration
 @EnableJpaRepositories(basePackages = {
         "store.myproject.onlineshop.domain.customer.repository",
+        "store.myproject.onlineshop.domain.corporation.repository",
         "store.myproject.onlineshop.domain.brand.repository",
         "store.myproject.onlineshop.domain.cart.repository",
         "store.myproject.onlineshop.domain.cartitem.repository",
