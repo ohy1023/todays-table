@@ -17,6 +17,8 @@ import store.myproject.onlineshop.domain.like.repository.LikeRepository;
 import store.myproject.onlineshop.domain.recipe.Recipe;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateRequest;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateResponse;
+import store.myproject.onlineshop.domain.recipe.dto.RecipeDto;
+import store.myproject.onlineshop.domain.recipe.dto.RecipeUpdateRequest;
 import store.myproject.onlineshop.domain.recipe.repository.RecipeRepository;
 import store.myproject.onlineshop.domain.recipeitem.RecipeItem;
 import store.myproject.onlineshop.domain.review.Review;
@@ -51,14 +53,14 @@ public class RecipeService {
     /**
      * 사용자가 작성한 레시피를 저장하고, 레시피에 속한 재료들을 연결하는 메서드입니다.
      *
-     * @param email               사용자 이메일
+     * @param info                사용자 정보
      * @param recipeCreateRequest 사용자가 작성한 레시피 정보
      * @param multipartFileList   업로드된 이미지 파일 리스트
      * @return RecipeCreateResponse 작성된 레시피의 응답 정보
      */
-    public RecipeCreateResponse writeRecipe(String email, RecipeCreateRequest recipeCreateRequest, List<MultipartFile> multipartFileList) {
+    public RecipeCreateResponse writeRecipe(RecipeCreateRequest recipeCreateRequest, List<MultipartFile> multipartFileList, String info) {
         // 현재 로그인한 회원을 검증합니다.
-        Customer customer = validateByEmail(email);
+        Customer customer = validateCustomer(info);
 
         // 레시피 중복을 검사합니다.
         checkRecipeTitle(recipeCreateRequest);
@@ -93,17 +95,88 @@ public class RecipeService {
         return saveRecipe.fromEntity(saveRecipe);
     }
 
+
     /**
-     * 주어진 레시피 제목이 이미 존재하는지 검증하고, 중복된 경우 예외를 발생시키는 메서드입니다.
+     * 특정 레시피의 정보를 조회하는 메서드입니다.
      *
-     * @param recipeCreateRequest 레시피 생성 요청 정보
-     * @throws AppException 레시피 제목이 이미 존재하는 경우 발생하는 예외
+     * @param recipeId 조회할 레시피의 식별자
+     * @return RecipeDto 조회된 레시피 정보를 담은 DTO (Data Transfer Object)
      */
-    private void checkRecipeTitle(RecipeCreateRequest recipeCreateRequest) {
-        recipeRepository.findByRecipeTitle(recipeCreateRequest.getRecipeTitle())
-                .ifPresent(recipe -> {
-                    throw new AppException(DUPLICATE_RECIPE, DUPLICATE_RECIPE.getMessage());
-                });
+    public RecipeDto viewOneRecipe(Long recipeId) {
+        // 레시피를 검증하고 해당 레시피의 정보를 RecipeDto로 변환하여 반환합니다.
+        return validateByRecipe(recipeId).toDto();
+    }
+
+
+    /**
+     * 특정 레시피를 업데이트하고 업데이트된 레시피 정보를 반환하는 메서드입니다.
+     *
+     * @param recipeId          업데이트할 레시피의 식별자
+     * @param request           업데이트할 레시피 정보를 담은 요청 객체
+     * @param multipartFileList 업로드된 이미지 파일 리스트
+     * @param email             현재 로그인한 사용자의 이메일
+     * @return RecipeDto         업데이트된 레시피 정보를 담은 DTO (Data Transfer Object)
+     */
+    public RecipeDto updateRecipe(Long recipeId, RecipeUpdateRequest request, List<MultipartFile> multipartFileList, String email) {
+        // 현재 로그인한 사용자를 검증합니다.
+        Customer customer = validateCustomer(email);
+
+        // 업데이트할 레시피를 검증합니다.
+        Recipe recipe = validateByRecipe(recipeId);
+
+        // 현재 로그인한 사용자가 레시피의 작성자이거나 관리자 권한이 있는 경우에만 업데이트를 수행합니다.
+        if (checkPermission(customer, recipe.getCustomer())) {
+            // 업로드된 이미지 파일이 존재하는 경우 처리합니다.
+            imageFileRepository.findAllByRecipe(recipe);
+
+            if (multipartFileList != null) {
+                for (MultipartFile multipartFile : multipartFileList) {
+                    for (ImageFile imageFile : recipe.getImageFileList()) {
+
+                        String extractFileName = FileUtils.extractFileName(imageFile.getImageUrl());
+                        // 연관관계 제거
+                        imageFile.removeRecipe(recipe);
+
+                        awsS3Service.deleteBrandImage(extractFileName);
+                    }
+
+                    String newUrl = awsS3Service.uploadRecipeOriginImage(multipartFile);
+
+                    ImageFile image = ImageFile.createImage(newUrl, recipe);
+
+                    image.addRecipe(recipe);
+                }
+            }
+
+            // 레시피를 업데이트합니다.
+            recipe.updateRecipe(request);
+        }
+
+        // 업데이트된 레시피 정보를 DTO로 변환하여 반환합니다.
+        return recipe.toDto();
+    }
+
+
+    /**
+     * 사용자가 작성한 레시피를 삭제하는 메서드입니다.
+     *
+     * @param recipeId 삭제할 레시피의 식별자
+     * @param email    현재 로그인한 사용자의 이메일
+     * @return MessageResponse 삭제 결과를 나타내는 응답 메시지
+     */
+    public MessageResponse deleteRecipe(Long recipeId, String email) {
+        // 현재 로그인한 사용자를 검증합니다.
+        Customer customer = validateCustomer(email);
+
+        // 삭제할 레시피를 검증합니다.
+        Recipe recipe = validateByRecipe(recipeId);
+
+        // 현재 로그인한 사용자가 레시피의 작성자이거나 관리자 권한이 있는 경우에만 삭제를 수행합니다.
+        if (checkPermission(customer, recipe.getCustomer())) {
+            recipeRepository.deleteById(recipe.getId());
+        }
+
+        return new MessageResponse("해당 레시피가 삭제되었습니다.");
     }
 
 
@@ -116,7 +189,7 @@ public class RecipeService {
      * @return ReviewWriteResponse 댓글 종류, 댓글 내용, 작성자 이메일, 레세피 ID
      */
     public ReviewWriteResponse writeReview(String email, Long recipeId, ReviewWriteRequest reviewWriteRequest) {
-        Customer customer = validateByEmail(email);
+        Customer customer = validateCustomer(email);
 
         Recipe recipe = validateByRecipe(recipeId);
 
@@ -147,7 +220,7 @@ public class RecipeService {
      */
     public ReviewUpdateResponse updateReview(String email, Long recipeId, Long reviewId, ReviewUpdateRequest reviewUpdateRequest) {
         // 이메일을 통해 현재 로그인한 회원을 검증합니다.
-        Customer customer = validateByEmail(email);
+        Customer customer = validateCustomer(email);
 
         // 레시피 ID를 통해 현재 조회하고자 하는 레시피를 검증합니다.
         Recipe recipe = validateByRecipe(recipeId);
@@ -156,7 +229,7 @@ public class RecipeService {
         Review review = validateByReview(reviewId);
 
         // (로그인 한 회원 or 관리자)과 댓글 수정을 요청한 회원이 동일한지 검증합니다.
-        if (checkPermission(customer, review)) {
+        if (checkPermission(customer, review.getCustomer())) {
             review.updateReview(reviewUpdateRequest);
 
         } else {
@@ -178,7 +251,7 @@ public class RecipeService {
      */
     public MessageResponse deleteReview(String email, Long recipeId, Long reviewId) {
         // 이메일을 통해 현재 로그인한 회원을 검증합니다.
-        Customer customer = validateByEmail(email);
+        Customer customer = validateCustomer(email);
 
         // 레시피 ID를 통해 현재 조회하고자 하는 레시피를 검증합니다.
         Recipe recipe = validateByRecipe(recipeId);
@@ -187,7 +260,7 @@ public class RecipeService {
         Review review = validateByReview(reviewId);
 
         // (로그인 한 회원 or 관리자)과 댓글 삭제를 요청한 회원이 동일한지 검증합니다.
-        if (checkPermission(customer, review)) {
+        if (checkPermission(customer, review.getCustomer())) {
             // 레시피에 리뷰 삭제
             review.removeReviewToRecipe();
 
@@ -212,7 +285,7 @@ public class RecipeService {
      */
     public MessageResponse pushLike(Long recipeId, String email) {
         // 이메일을 통해 현재 로그인한 회원을 검증합니다.
-        Customer customer = validateByEmail(email);
+        Customer customer = validateCustomer(email);
 
         // 레시피 ID를 통해 현재 조회하고자 하는 레시피를 검증합니다.
         Recipe recipe = validateByRecipe(recipeId);
@@ -265,6 +338,19 @@ public class RecipeService {
     }
 
     /**
+     * 주어진 레시피 제목이 이미 존재하는지 검증하고, 중복된 경우 예외를 발생시키는 메서드입니다.
+     *
+     * @param recipeCreateRequest 레시피 생성 요청 정보
+     * @throws AppException 레시피 제목이 이미 존재하는 경우 발생하는 예외
+     */
+    private void checkRecipeTitle(RecipeCreateRequest recipeCreateRequest) {
+        recipeRepository.findByRecipeTitle(recipeCreateRequest.getRecipeTitle())
+                .ifPresent(recipe -> {
+                    throw new AppException(DUPLICATE_RECIPE, DUPLICATE_RECIPE.getMessage());
+                });
+    }
+
+    /**
      * 주어진 itemId로 Item을 조회하고, 존재하지 않을 경우 예외를 발생시킵니다.
      *
      * @param itemId Item의 ID
@@ -284,7 +370,7 @@ public class RecipeService {
      * @return Customer 객체
      * @throws AppException 해당 이메일에 대한 회원이 존재하지 않을 경우 발생
      */
-    private Customer validateByEmail(String email) {
+    private Customer validateCustomer(String email) {
         return customerRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
     }
@@ -315,20 +401,22 @@ public class RecipeService {
 
 
     /**
-     * 댓글 삭제 요청자의 권한 체크하는 메서드입니다.
+     * 권한 검사를 수행하여 요청자와 대상이 동일한지 확인합니다.
+     * 관리자 권한을 가진 요청자는 항상 통과합니다.
      *
-     * @param customer Customer (요청자)
-     * @param review   Review (댓글 작성자)
-     * @return 권한 여부
+     * @param requester 요청자(Customer 객체)
+     * @param target    대상(Customer 객체)
+     * @return 동일한 사용자인 경우 true, 아닌 경우 false
      */
-    private boolean checkPermission(Customer customer, Review review) {
-        // 관리자 권한 통과합니다.
-        if (customer.getCustomerRole() == CustomerRole.ROLE_ADMIN) {
+    private boolean checkPermission(Customer requester, Customer target) {
+        // 관리자 권한을 가진 경우 항상 통과합니다.
+        if (requester.getCustomerRole() == CustomerRole.ROLE_ADMIN) {
             return true;
         }
 
         // 동일성 검증합니다.
-        return customer == review.getCustomer();
+        return requester == target;
     }
+
 
 }

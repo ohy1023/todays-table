@@ -100,7 +100,7 @@ public class ItemService {
                     awsS3Service.deleteBrandImage(extractFileName);
                 }
 
-                String newUrl = awsS3Service.uploadBrandOriginImage(multipartFile);
+                String newUrl = awsS3Service.uploadItemOriginImage(multipartFile);
 
                 ImageFile image = ImageFile.createImage(newUrl, findItem);
 

@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import store.myproject.onlineshop.domain.corporation.repository.CorporationRepository;
 import store.myproject.onlineshop.global.token.JwtExceptionFilter;
 import store.myproject.onlineshop.global.token.JwtFilter;
 import store.myproject.onlineshop.global.utils.JwtUtils;
@@ -95,27 +94,6 @@ public class SecurityConfiguration {
 
     };
 
-    private static final String[] GET_AUTH_CORPORATION = {
-    };
-
-    private static final String[] POST_AUTH_CORPORATION = {
-            "/api/v1/recipes", // 레시피 작성
-            "/api/v1/recipes/{id}/reviews", // 댓글 작성
-            "/api/v1/items", // 품목 생성
-            "/api/v1/{id}/likes", // 좋아요 누르기
-
-    };
-
-
-    private static final String[] PUT_AUTH_CORPORATION = {
-            "/api/v1/recipes/{id}/reviews/{recipeId}",
-            "/api/v1/items/{itemId}", // 품목 수정
-    };
-
-    private static final String[] DELETE_AUTH_CORPORATION = {
-            "/api/v1/recipes/{id}/reviews/{recipeId}",
-            "/api/v1/items/{itemId}", // 품목 삭제
-    };
 
     private static final String[] PERMIT_ALL = {
             "/api/v1/customers/join",
@@ -131,7 +109,7 @@ public class SecurityConfiguration {
             "/api/v1/{id}/likes", // 좋아요 수 조회
 
     };
-    private final CorporationRepository corporationRepository;
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -149,10 +127,6 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, POST_AUTH_ADMIN).hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, PUT_AUTH_ADMIN).hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, DELETE_AUTH_ADMIN).hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, GET_AUTH_CORPORATION).hasRole("CORPORATION")
-                        .requestMatchers(HttpMethod.POST, POST_AUTH_CORPORATION).hasRole("CORPORATION")
-                        .requestMatchers(HttpMethod.PUT, PUT_AUTH_CORPORATION).hasRole("CORPORATION")
-                        .requestMatchers(HttpMethod.DELETE, DELETE_AUTH_CORPORATION).hasRole("CORPORATION")
                         .requestMatchers(HttpMethod.GET, GET_AUTH_USER).authenticated()
                         .requestMatchers(HttpMethod.POST, POST_AUTH_USER).authenticated()
                         .requestMatchers(HttpMethod.PUT, PUT_AUTH_USER).authenticated()
@@ -163,7 +137,7 @@ public class SecurityConfiguration {
                 .and()
                 .exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                 .and()
-                .addFilterBefore(new JwtFilter(customerRepository, corporationRepository, jwtUtils), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtFilter(customerRepository, jwtUtils), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtExceptionFilter(), JwtFilter.class)
                 .build();
     }

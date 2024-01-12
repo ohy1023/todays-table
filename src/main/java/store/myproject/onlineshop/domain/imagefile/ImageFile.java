@@ -74,6 +74,13 @@ public class ImageFile {
         recipe.getImageFileList().add(this); // 레시피에 ImageFile 추가
     }
 
+    public void removeRecipe(Recipe recipe) {
+        if (this.recipe != null && this.recipe.equals(recipe)) {
+            this.recipe = null;
+            recipe.getImageFileList().remove(this); // 레시피에 연결된 ImageFile 제거
+        }
+    }
+
     public void addItem(Item item) {
         this.item = item;
         item.getImageFileList().add(this); // 아이템에 ImageFile 추가

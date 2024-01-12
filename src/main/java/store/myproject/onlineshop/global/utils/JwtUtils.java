@@ -24,9 +24,9 @@ public class JwtUtils {
     public Long refreshTokenExpiration;
 
 
-    public String createAccessToken(String info) {
+    public String createAccessToken(String email) {
         Claims claims = Jwts.claims();  //토큰의 내용에 값을 넣기 위해 Claims 객체 생성
-        claims.put("info", info);
+        claims.put("email", email);
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -36,11 +36,11 @@ public class JwtUtils {
                 .compact();
     }
 
-    public String createRefreshToken(String info) {
+    public String createRefreshToken(String email) {
 
 
         Claims claims = Jwts.claims();  //토큰의 내용에 값을 넣기 위해 Claims 객체 생성
-        claims.put("info", info);
+        claims.put("email", email);
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -90,8 +90,8 @@ public class JwtUtils {
                 .getBody();
     }
 
-    public String getInfo(String token) {
-        return extractClaims(token).get("info")
+    public String getEmail(String token) {
+        return extractClaims(token).get("email")
                 .toString();
     }
 

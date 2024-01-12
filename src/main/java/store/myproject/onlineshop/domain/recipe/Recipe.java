@@ -8,6 +8,8 @@ import store.myproject.onlineshop.domain.imagefile.ImageFile;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.like.Like;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateResponse;
+import store.myproject.onlineshop.domain.recipe.dto.RecipeDto;
+import store.myproject.onlineshop.domain.recipe.dto.RecipeUpdateRequest;
 import store.myproject.onlineshop.domain.recipeitem.RecipeItem;
 import store.myproject.onlineshop.domain.review.Review;
 
@@ -52,23 +54,30 @@ public class Recipe extends BaseEntity {
 
     // 댓글
     @Builder.Default
-    @OneToMany(mappedBy = "recipe")
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviewList = new ArrayList<>();
 
     // 좋아요
     @Builder.Default
-    @OneToMany(mappedBy = "recipe")
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Like> likeList = new ArrayList<>();
 
     // 레시피 재료
     @Builder.Default
-    @OneToMany(mappedBy = "recipe")
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecipeItem> itemList = new ArrayList<>();
 
     // 레시피 사진의 URL
     @Builder.Default
-    @OneToMany(mappedBy = "recipe")
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ImageFile> imageFileList = new ArrayList<>();
+
+    public void updateRecipe(RecipeUpdateRequest request) {
+        this.recipeTitle = request.getRecipeTitle();
+        this.recipeContent = request.getRecipeContent();
+        this.recipeCookingTime = request.getRecipeCookingTime();
+        this.recipeServings = request.getRecipeServings();
+    }
 
 
     public RecipeCreateResponse fromEntity(Recipe recipe) {
@@ -84,6 +93,24 @@ public class Recipe extends BaseEntity {
                         .map(Item::getItemName)
                         .collect(Collectors.toList()))
                 .recipeImageList(recipe.getImageFileList().stream()
+                        .map(ImageFile::getImageUrl)
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    public RecipeDto toDto() {
+        return RecipeDto.builder()
+                .recipeTitle(this.getRecipeTitle())
+                .recipeContent(this.getRecipeContent())
+                .recipeCookingTime(this.getRecipeCookingTime())
+                .recipeServings(this.getRecipeServings())
+                .recipeWriter(this.getCustomer().getNickName())
+                .recipeView(this.getRecipeViewCnt())
+                .itemNameList(this.getItemList().stream()
+                        .map(RecipeItem::getItem)
+                        .map(Item::getItemName)
+                        .collect(Collectors.toList()))
+                .recipeImageList(this.getImageFileList().stream()
                         .map(ImageFile::getImageUrl)
                         .collect(Collectors.toList()))
                 .build();

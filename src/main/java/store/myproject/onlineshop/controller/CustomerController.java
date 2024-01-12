@@ -12,10 +12,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.Response;
-import store.myproject.onlineshop.domain.corporation.repository.CorporationRepository;
 import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.global.utils.CookieUtils;
-import store.myproject.onlineshop.service.CorporationService;
 import store.myproject.onlineshop.service.CustomerService;
 
 @Slf4j
@@ -26,7 +24,6 @@ import store.myproject.onlineshop.service.CustomerService;
 public class CustomerController {
 
     private final CustomerService customerService;
-    private final CorporationService corporationService;
 
     @Value("${access-token-maxage}")
     public int accessTokenMaxAge;
@@ -112,11 +109,9 @@ public class CustomerController {
     public Response<LoginResponse> reissue(@RequestBody TokenRequest userTokenRequest, Authentication authentication) {
         String info = authentication.getName();
         LoginResponse loginResponse;
-        if (info.contains("@")) {
-            loginResponse = customerService.reissue(userTokenRequest, info);
-        } else {
-            loginResponse = corporationService.reissue(userTokenRequest, info);
-        }
+
+        loginResponse = customerService.reissue(userTokenRequest, info);
+
 
         return Response.success(loginResponse);
     }
