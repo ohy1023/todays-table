@@ -4,6 +4,7 @@ import com.querydsl.core.annotations.QueryProjection;
 import lombok.*;
 import store.myproject.onlineshop.domain.brand.Brand;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -14,7 +15,7 @@ public class ItemDto {
 
     private String itemName;
 
-    private Long price;
+    private BigDecimal price;
 
     private Long stock;
 
@@ -23,7 +24,7 @@ public class ItemDto {
     private String brandName;
 
     @QueryProjection
-    public ItemDto(String itemName, Long price, Long stock, String brandName) {
+    public ItemDto(String itemName, BigDecimal price, Long stock, String brandName) {
         this.itemName = itemName;
         this.price = price;
         this.stock = stock;

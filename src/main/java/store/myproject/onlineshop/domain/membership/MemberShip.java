@@ -29,7 +29,7 @@ public class MemberShip extends BaseEntity {
     private Level level;
 
     @Column(name = "discount_rate")
-    private Float discountRate;
+    private BigDecimal discountRate;
 
     private BigDecimal baseline;
 
@@ -39,8 +39,10 @@ public class MemberShip extends BaseEntity {
         this.discountRate = updateRequest.getDiscountRate();
     }
 
-    public BigDecimal applyDiscount(Long itemPrice) {
-        return new BigDecimal(itemPrice * (1 - this.discountRate));
+
+    public BigDecimal applyDiscount(BigDecimal itemPrice) {
+        BigDecimal discountMultiplier = BigDecimal.ONE.subtract(discountRate);
+        return itemPrice.multiply(discountMultiplier);
     }
 
     public MemberShipDto toDto() {

@@ -15,6 +15,7 @@ import store.myproject.onlineshop.domain.recipeitem.RecipeItem;
 import store.myproject.onlineshop.exception.AppException;
 
 import java.awt.*;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,11 +27,9 @@ import static store.myproject.onlineshop.exception.ErrorCode.*;
 @Entity
 @Getter
 @Builder
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-// 논리적 삭제를 위한 WHERE 절을 정의합니다.
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Where(clause = "deleted_date IS NULL")
-// 사용자 정의 SQL 문을 통한 논리적 삭제를 정의합니다.
 @SQLDelete(sql = "UPDATE item SET deleted_date = CURRENT_TIMESTAMP WHERE item_id = ?")
 public class Item extends BaseEntity {
     // Item 엔티티의 기본 키
@@ -44,7 +43,7 @@ public class Item extends BaseEntity {
     private String itemName;
 
     // 상품의 가격
-    private Long price;
+    private BigDecimal price;
 
     // 상품의 재고 수량
     private Long stock;
@@ -68,12 +67,7 @@ public class Item extends BaseEntity {
     @OneToMany(mappedBy = "item")
     private List<RecipeItem> recipeItemList = new ArrayList<>();
 
-    // 상품에 브랜드를 추가하는 메서드
-    // Brand 엔티티와의 연관관계 설정
-    public void addBrand(Brand brand) {
-        this.brand = brand;
-        brand.getItemList().add(this);
-    }
+
 
     // 상품의 재고를 감소시키는 메서드
     public void decrease(Long count) {

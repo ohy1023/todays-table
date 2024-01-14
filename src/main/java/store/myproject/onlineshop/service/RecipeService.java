@@ -103,10 +103,19 @@ public class RecipeService {
      * @return RecipeDto 조회된 레시피 정보를 담은 DTO (Data Transfer Object)
      */
     public RecipeDto viewOneRecipe(Long recipeId) {
-        // 레시피를 검증하고 해당 레시피의 정보를 RecipeDto로 변환하여 반환합니다.
-        return validateByRecipe(recipeId).toDto();
+        // 조회할 레시피를 검증합니다.
+        Recipe recipe = validateByRecipe(recipeId);
+
+        // 해당 레시피의 조회수를 증가시킵니다.
+        recipe.updateView();
+
+        // 하고 해당 레시피의 정보를 RecipeDto로 변환하여 반환합니다.
+        return recipe.toDto();
     }
 
+    // todo 레시피 전체 조회
+
+    // todo 레시피 이름 검색
 
     /**
      * 특정 레시피를 업데이트하고 업데이트된 레시피 정보를 반환하는 메서드입니다.
@@ -417,6 +426,5 @@ public class RecipeService {
         // 동일성 검증합니다.
         return requester == target;
     }
-
 
 }

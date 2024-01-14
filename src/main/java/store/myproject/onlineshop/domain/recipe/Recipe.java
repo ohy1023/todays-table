@@ -116,4 +116,8 @@ public class Recipe extends BaseEntity {
                 .build();
     }
 
+    public void updateView() {
+        this.recipeViewCnt++;
+    }
+
 }

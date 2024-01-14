@@ -31,7 +31,7 @@
 //            MemberShipCreateRequest bronze = MemberShipCreateRequest.builder()
 //                    .baseline(new BigDecimal(0))
 //                    .level(Level.BRONZE)
-//                    .discountRate(0F)
+//                    .discountRate(new BigDecimal(0))
 //                    .build();
 //
 //            memberShipService.saveMemberShip(bronze);
@@ -39,7 +39,7 @@
 //            MemberShipCreateRequest silver = MemberShipCreateRequest.builder()
 //                    .baseline(new BigDecimal(100000))
 //                    .level(Level.SILVER)
-//                    .discountRate(0.1F)
+//                    .discountRate(new BigDecimal("0.1"))
 //                    .build();
 //
 //            memberShipService.saveMemberShip(silver);
@@ -47,7 +47,7 @@
 //            MemberShipCreateRequest gold = MemberShipCreateRequest.builder()
 //                    .baseline(new BigDecimal(1000000))
 //                    .level(Level.GOLD)
-//                    .discountRate(0.3F)
+//                    .discountRate(new BigDecimal("0.15"))
 //                    .build();
 //
 //            memberShipService.saveMemberShip(gold);
@@ -55,7 +55,7 @@
 //            MemberShipCreateRequest diamond = MemberShipCreateRequest.builder()
 //                    .baseline(new BigDecimal(10000000))
 //                    .level(Level.DIAMOND)
-//                    .discountRate(0.5F)
+//                    .discountRate(new BigDecimal("0.3"))
 //                    .build();
 //
 //            memberShipService.saveMemberShip(diamond);

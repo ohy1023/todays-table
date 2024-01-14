@@ -15,6 +15,6 @@ public class MemberShipDto {
 
     private BigDecimal baseline;
 
-    private Float discountRate;
+    private BigDecimal discountRate;
 
 }

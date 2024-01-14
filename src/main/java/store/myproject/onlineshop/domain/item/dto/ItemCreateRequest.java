@@ -4,6 +4,8 @@ import lombok.*;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.item.Item;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -12,7 +14,7 @@ public class ItemCreateRequest {
 
     private String itemName;
 
-    private Long price;
+    private BigDecimal price;
 
     private Long stock;
 

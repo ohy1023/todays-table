@@ -21,7 +21,7 @@ public class MemberShipCreateRequest {
     private BigDecimal baseline;
 
     @NotNull
-    private Float discountRate;
+    private BigDecimal discountRate;
 
     public MemberShip toEntity() {
         return MemberShip.builder()

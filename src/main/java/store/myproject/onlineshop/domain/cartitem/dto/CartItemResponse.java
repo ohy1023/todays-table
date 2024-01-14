@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -18,14 +20,14 @@ public class CartItemResponse {
 
     private String imagePath;
 
-    private Long price;
+    private BigDecimal price;
 
     private Long stock;
 
     private Long itemCnt;
 
     @QueryProjection
-    public CartItemResponse(Long itemId, String itemName, Long price, Long stock, Long itemCnt) {
+    public CartItemResponse(Long itemId, String itemName, BigDecimal price, Long stock, Long itemCnt) {
         this.itemId = itemId;
         this.itemName = itemName;
         this.price = price;

@@ -5,8 +5,6 @@ import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import store.myproject.onlineshop.domain.BaseEntity;
-import store.myproject.onlineshop.domain.account.Account;
-import store.myproject.onlineshop.domain.account.dto.*;
 import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.domain.like.Like;
 import store.myproject.onlineshop.domain.membership.MemberShip;
@@ -45,9 +43,6 @@ public class Customer extends BaseEntity {
     private String password;
 
     private String tel;
-
-    @Embedded
-    private Account account;
 
     @Column(name = "total_purchase_amount")
     private BigDecimal totalPurchaseAmount;
@@ -94,23 +89,6 @@ public class Customer extends BaseEntity {
 
     }
 
-    public void registerAccount(AccountCreateRequest request) {
-        this.account = request.toEntity();
-    }
-
-    public void updateAccount(AccountUpdateRequest request) {
-        this.account = request.toEntity();
-    }
-
-    public void deleteAccount() {
-        this.account = Account
-                .builder()
-                .bankName(null)
-                .accountNumber(null)
-                .depositor(null)
-                .build();
-    }
-
     public void setPassword(String newPassword) {
         this.password = newPassword;
     }
@@ -127,46 +105,10 @@ public class Customer extends BaseEntity {
         this.totalPurchaseAmount = this.totalPurchaseAmount.add(price);
     }
 
-    public void purchase(BigDecimal price) {
-        this.account.minusMyAssets(price);
-    }
-
     public void upgradeMemberShip(MemberShip memberShip) {
         if (this.totalPurchaseAmount.compareTo(memberShip.getBaseline()) >= 0) {
             this.memberShip = memberShip;
         }
-    }
-
-    public AccountCreateResponse toAccountCreateResponse() {
-        return AccountCreateResponse.builder()
-                .bankName(this.account.getBankName())
-                .accountNumber(this.account.getAccountNumber())
-                .depositor(this.account.getDepositor())
-                .build();
-    }
-
-    public AccountUpdateResponse toAccountUpdateResponse() {
-        return AccountUpdateResponse.builder()
-                .bankName(this.account.getBankName())
-                .accountNumber(this.account.getAccountNumber())
-                .depositor(this.account.getDepositor())
-                .build();
-    }
-
-    public AccountDeleteResponse toAccountDeleteResponse() {
-        return AccountDeleteResponse.builder()
-                .bankName(this.account.getBankName())
-                .accountNumber(this.account.getAccountNumber())
-                .depositor(this.account.getDepositor())
-                .build();
-    }
-
-    public AccountInfo toAccountInfo() {
-        return AccountInfo.builder()
-                .bankName(this.account.getBankName())
-                .accountNumber(this.account.getAccountNumber())
-                .depositor(this.account.getDepositor())
-                .build();
     }
 
     public CustomerTempPasswordResponse toCustomerTempPasswordResponse(String tempPassword) {
