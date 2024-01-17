@@ -42,6 +42,9 @@ public class Order extends BaseEntity {
     @Column(name = "order_date")
     private LocalDateTime orderDate; //주문시간
 
+    @Column(name = "merchant_uid")
+    private String merchantUid;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status")
     private OrderStatus orderStatus;
@@ -76,18 +79,38 @@ public class Order extends BaseEntity {
         }
     }
 
-    public static Order createOrder(Customer customer, Delivery delivery, OrderItem orderItem) {
+    public static Order createOrder(String merchantUid, Customer customer, Delivery delivery, OrderItem orderItem) {
 
         Order order = Order.builder()
                 .customer(customer)
                 .delivery(delivery)
                 .orderDate(LocalDateTime.now())
                 .orderStatus(ORDER)
+                .merchantUid(merchantUid)
                 .build();
 
         order.setDelivery(delivery);
 
         order.addOrderItem(orderItem);
+
+        return order;
+    }
+
+    public static Order createOrders(String merchantUid, Customer customer, Delivery delivery, List<OrderItem> orderItems) {
+
+        Order order = Order.builder()
+                .customer(customer)
+                .delivery(delivery)
+                .orderDate(LocalDateTime.now())
+                .orderStatus(ORDER)
+                .merchantUid(merchantUid)
+                .build();
+
+        order.setDelivery(delivery);
+
+        for (OrderItem orderItem : orderItems) {
+            order.addOrderItem(orderItem);
+        }
 
         return order;
     }

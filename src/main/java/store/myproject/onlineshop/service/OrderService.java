@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.cart.Cart;
+import store.myproject.onlineshop.domain.cart.dto.CartOrderRequest;
 import store.myproject.onlineshop.domain.cart.repository.CartRepository;
 import store.myproject.onlineshop.domain.cartitem.CartItem;
 import store.myproject.onlineshop.domain.cartitem.repository.CartItemRepository;
@@ -92,7 +93,7 @@ public class OrderService {
         OrderItem orderItem = OrderItem.createOrderItem(findCustomer, findItem, price, request.getItemCnt());
 
         // 주문 생성
-        Order order = Order.createOrder(findCustomer, delivery, orderItem);
+        Order order = Order.createOrder(request.getMerchantUid(), findCustomer, delivery, orderItem);
 
         Order savedOrder = orderRepository.save(order);
 
@@ -156,7 +157,7 @@ public class OrderService {
 //        return orderInfoList;
 //    }
 
-    public List<OrderInfo> orderByCart(DeliveryInfoRequest request, String email) {
+    public List<OrderInfo> orderByCart(CartOrderRequest request, String email) {
         Customer findCustomer = customerRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
 
@@ -169,20 +170,19 @@ public class OrderService {
         MemberShip memberShip = findCustomer.getMemberShip();
 
         // Delivery 정보 생성
-        Delivery delivery = Delivery.createWithInfo(request);
+        Delivery delivery = Delivery.createWithInfo(request.toDeliveryInfoRequest());
         delivery.createDeliveryStatus(DeliveryStatus.READY);
 
         // 주문 정보 생성
         List<OrderItem> orderItemList = createOrderItems(findCart.getCartItems(), memberShip, findCustomer);
 
+        Order order = Order.createOrders(request.getMerchantUid(), findCustomer, delivery, orderItemList);
+        orderRepository.save(order);
+
         // 여러 개의 주문 정보를 담을 리스트 생성
         List<OrderInfo> orderInfoList = new ArrayList<>();
 
         for (OrderItem orderItem : orderItemList) {
-            // 주문 생성
-            Order order = Order.createOrder(findCustomer, delivery, orderItem);
-            orderRepository.save(order);
-
             // 주문 후 장바구니 비우기
             clearCartItems(findCart, orderItem);
 

@@ -1,20 +1,16 @@
-package store.myproject.onlineshop.domain.order.dto;
+package store.myproject.onlineshop.domain.cart.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import store.myproject.onlineshop.domain.delivery.dto.DeliveryInfoRequest;
-
-import java.math.BigDecimal;
 
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class OrderInfoRequest {
-
-    private Long itemId;
-
-    private Long itemCnt;
-
+public class CartOrderRequest {
     private String recipientName;
 
     private String recipientTel;
@@ -29,8 +25,6 @@ public class OrderInfoRequest {
 
     private String merchantUid;
 
-    private BigDecimal totalPrice;
-
     public DeliveryInfoRequest toDeliveryInfoRequest() {
         return DeliveryInfoRequest
                 .builder()
@@ -38,8 +32,9 @@ public class OrderInfoRequest {
                 .recipientTel(this.getRecipientTel())
                 .recipientCity(this.getRecipientCity())
                 .recipientZipcode(this.getRecipientZipcode())
-                .recipientDetail(this.getRecipientDetail())
                 .recipientStreet(this.getRecipientStreet())
+                .recipientDetail(this.getRecipientDetail())
                 .build();
     }
+
 }

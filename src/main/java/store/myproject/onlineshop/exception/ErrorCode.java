@@ -55,7 +55,9 @@ public enum ErrorCode {
 
     // Order
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문 내역입니다."),
-    NOT_ENOUGH_MONEY(HttpStatus.CONFLICT, "보유금액이 부족합니다."),
+    DUPLICATE_MERCHANT_UID(HttpStatus.CONFLICT, "해당 merchant_uid가 이미 존재합니다."),
+    FAILED_PREPARE_VALID(HttpStatus.CONFLICT, "사전 검증에 실패했습니다."),
+    WRONG_PAYMENT_AMOUNT(HttpStatus.CONFLICT, "결제금액이 다릅니다."),
     ALREADY_ARRIVED(HttpStatus.CONFLICT, "배송 완료된 상품입니다."),
 
     // Cart
