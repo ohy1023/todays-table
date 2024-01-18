@@ -79,6 +79,8 @@ public class PaymentService {
             throw new AppException(WRONG_PAYMENT_AMOUNT, WRONG_PAYMENT_AMOUNT.getMessage());
         }
 
+        order.setImpUid(request.getImpUid());
+
         return new MessageResponse("사후 검증 완료되었습니다.");
     }
 
@@ -105,7 +107,7 @@ public class PaymentService {
 
 
     public void cancelReservation(CancelRequest cancelReq) throws IamportResponseException, IOException {
-        IamportResponse<Payment> response = iamportClient.paymentByImpUid(cancelReq.getMerchantUid());
+        IamportResponse<Payment> response = iamportClient.paymentByImpUid(cancelReq.getImpUid());
         //cancelData 생성
         CancelData cancelData = createCancelData(response, cancelReq.getRefundAmount());
         //결제 취소

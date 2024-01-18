@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CancelRequest {
 
-    private String merchantUid;
+    private String impUid;
 
     private BigDecimal refundAmount;
 }

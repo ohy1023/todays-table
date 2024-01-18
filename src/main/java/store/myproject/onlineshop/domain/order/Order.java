@@ -45,6 +45,9 @@ public class Order extends BaseEntity {
     @Column(name = "merchant_uid")
     private String merchantUid;
 
+    @Column(name = "imp_uid")
+    private String impUid;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status")
     private OrderStatus orderStatus;
@@ -65,6 +68,10 @@ public class Order extends BaseEntity {
     public void addOrderItem(OrderItem orderItem) {
         orderItemList.add(orderItem);
         orderItem.addOrder(this);
+    }
+
+    public void setImpUid(String impUid) {
+        this.impUid = impUid;
     }
 
 
