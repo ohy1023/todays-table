@@ -106,9 +106,7 @@ public class Customer extends BaseEntity {
     }
 
     public void upgradeMemberShip(MemberShip memberShip) {
-        if (this.totalPurchaseAmount.compareTo(memberShip.getBaseline()) >= 0) {
-            this.memberShip = memberShip;
-        }
+        this.memberShip = memberShip;
     }
 
     public CustomerTempPasswordResponse toCustomerTempPasswordResponse(String tempPassword) {

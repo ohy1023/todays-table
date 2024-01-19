@@ -146,17 +146,6 @@ public class CustomerController {
         return Response.success(response);
     }
 
-    @Operation(summary = "멤버쉽 등급 변경")
-    @PutMapping("/membership")
-    public Response<MessageResponse> changeGrade(Authentication authentication) {
-
-        String email = authentication.getName();
-
-        MessageResponse response = customerService.changeMemberShip(email);
-
-        return Response.success(response);
-    }
-
     @Operation(summary = "비밀번호 변경")
     @PutMapping("/password")
     public Response<MessageResponse> changePassword(CustomerChangePasswordRequest request, Authentication authentication) {

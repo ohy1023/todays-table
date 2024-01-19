@@ -1,8 +1,6 @@
 package store.myproject.onlineshop.controller;
 
 import com.siot.IamportRestClient.exception.IamportResponseException;
-import com.siot.IamportRestClient.response.IamportResponse;
-import com.siot.IamportRestClient.response.Prepare;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.Response;
 import store.myproject.onlineshop.domain.cart.dto.CartOrderRequest;
-import store.myproject.onlineshop.domain.delivery.dto.DeliveryInfoRequest;
 import store.myproject.onlineshop.domain.order.dto.*;
 import store.myproject.onlineshop.service.OrderService;
-import store.myproject.onlineshop.service.PaymentService;
 
 import java.io.IOException;
 import java.util.List;
@@ -30,8 +26,6 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
-    private final PaymentService paymentService;
-
 
     @Operation(summary = "단건 주문 조회")
     @GetMapping("/{orderId}")
@@ -78,24 +72,21 @@ public class OrderController {
     }
 
     @Operation(summary = "주문 취소")
-    @DeleteMapping("/{orderId}")
-    public Response<MessageResponse> cancel(@PathVariable Long orderId, Authentication authentication) {
-
-        MessageResponse response = orderService.cancelForOrder(orderId);
-
-        return Response.success(response);
+    @DeleteMapping("/{orderItemId}")
+    public Response<MessageResponse> cancel(@PathVariable Long orderItemId, Authentication authentication) throws IamportResponseException, IOException {
+        return Response.success(orderService.cancelForOrder(orderItemId));
     }
 
     @Operation(summary = "사전 검증")
     @PostMapping("/preparation")
     public Response<PreparationResponse> prepareValid(@RequestBody PreparationRequest preparationRequest, Authentication authentication) throws IamportResponseException, IOException {
-        return Response.success(paymentService.prepareValid(preparationRequest));
+        return Response.success(orderService.prepareValid(preparationRequest));
     }
 
     @Operation(summary = "사후 검증")
     @PostMapping("/verification")
     public Response<MessageResponse> postVerification(@RequestBody PostVerificationRequest postVerificationRequest, Authentication authentication) throws IamportResponseException, IOException {
-        log.info("imp_uid:{}",postVerificationRequest.getImpUid());
-        return Response.success(paymentService.postVerification(postVerificationRequest));
+        log.info("imp_uid:{}", postVerificationRequest.getImpUid());
+        return Response.success(orderService.postVerification(postVerificationRequest));
     }
 }

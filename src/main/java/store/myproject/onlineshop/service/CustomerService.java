@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,9 @@ import store.myproject.onlineshop.global.redis.RedisDao;
 import store.myproject.onlineshop.global.utils.JwtUtils;
 import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -234,26 +239,44 @@ public class CustomerService {
         return new MessageResponse("회원의 권한을 Admin으로 설정하였습니다.");
     }
 
-
+    /**
+     * 주기적으로 모든 고객의 멤버십을 업데이트하는 메서드.
+     * 월요일 새벽 4시에 실행됩니다.
+     */
     @Transactional
-    public MessageResponse changeMemberShip(String email) {
+    @Scheduled(cron = "0 0 4 ? * MON")
+    public void updateAllMemberShip() {
+        // 모든 고객 정보를 조회합니다.
+        List<Customer> customers = customerRepository.findAll();
 
-        Customer findCustomer = findCustomerByEmail(email);
-
-        log.info("회원이 구매한 총 금액 : {}원", findCustomer.getTotalPurchaseAmount().intValue());
-
-        MemberShip memberShip = memberShipRepository.findFirstByBaselineGreaterThanEqual(findCustomer.getTotalPurchaseAmount())
-                .orElseThrow(() -> new AppException(MEMBERSHIP_ACCESS_LIMIT, MEMBERSHIP_ACCESS_LIMIT.getMessage()));
-
-        if (findCustomer.getMemberShip().equals(memberShip)) {
-            throw new AppException(NOT_ENOUGH_MEMBERSHIP, NOT_ENOUGH_MEMBERSHIP.getMessage());
+        // 각 고객에 대해 멤버십을 업데이트합니다.
+        for (Customer customer : customers) {
+            updateMembershipForCustomer(customer);
         }
-
-        findCustomer.upgradeMemberShip(memberShip);
-
-        return new MessageResponse(String.format("멤버쉽이 %s 등급으로 변경 되었습니다.", memberShip.getLevel()));
-
     }
+
+    /**
+     * 특정 고객의 멤버십을 업데이트하는 메서드.
+     *
+     * @param customer 업데이트할 고객
+     */
+    private void updateMembershipForCustomer(Customer customer) {
+        // 고객의 총 구매액을 조회합니다.
+        BigDecimal totalPurchaseAmount = customer.getTotalPurchaseAmount();
+
+        // 현재 총 구매액에 따라 업그레이드 가능한 멤버십을 조회합니다.
+        memberShipRepository.findNextMemberShip(totalPurchaseAmount)
+                .stream()
+                .findFirst()
+                .filter(memberShip -> totalPurchaseAmount.compareTo(memberShip.getBaseline()) > 0)
+                .ifPresent(memberShip -> {
+                    // 멤버십 업데이트를 로그에 기록합니다.
+                    log.info("{} 회원이 {}로 업데이트 되었습니다.", customer.getId(), memberShip.getLevel());
+                    // 실제 멤버십을 업데이트합니다.
+                    customer.upgradeMemberShip(memberShip);
+                });
+    }
+
 
     public CustomerInfoResponse getInfo(String email) {
         Customer customer = findCustomerByEmail(email);
