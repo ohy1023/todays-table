@@ -11,11 +11,13 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import store.myproject.onlineshop.domain.MessageResponse;
+import store.myproject.onlineshop.domain.alert.AlertType;
 import store.myproject.onlineshop.domain.cart.Cart;
 import store.myproject.onlineshop.domain.cart.dto.CartOrderRequest;
 import store.myproject.onlineshop.domain.cart.repository.CartRepository;
@@ -25,7 +27,6 @@ import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
 import store.myproject.onlineshop.domain.delivery.Delivery;
 import store.myproject.onlineshop.domain.delivery.DeliveryStatus;
-import store.myproject.onlineshop.domain.delivery.dto.DeliveryInfoRequest;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.item.repository.ItemRepository;
 import store.myproject.onlineshop.domain.membership.MemberShip;
@@ -39,7 +40,6 @@ import store.myproject.onlineshop.exception.AppException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static store.myproject.onlineshop.exception.ErrorCode.*;
@@ -55,6 +55,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
     private final ItemRepository itemRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Value("${payment.rest.api.key}")
     private String apiKey;
@@ -125,7 +126,6 @@ public class OrderService {
         log.info("Total Price : {}", orderItem.getTotalPrice());
 
         return savedOrder.toOrderInfo();
-
     }
 
 
@@ -219,6 +219,8 @@ public class OrderService {
         }
 
         order.setImpUid(request.getImpUid());
+
+        order.sendAlertOrderComplete(eventPublisher, AlertType.ORDER_COMPLETE);
 
         return new MessageResponse("사후 검증 완료되었습니다.");
     }

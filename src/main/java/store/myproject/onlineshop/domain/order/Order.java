@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.springframework.context.ApplicationEventPublisher;
 import store.myproject.onlineshop.domain.BaseEntity;
+import store.myproject.onlineshop.domain.alert.AlertType;
+import store.myproject.onlineshop.domain.alert.dto.AlertRequestDto;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.delivery.Delivery;
 import store.myproject.onlineshop.domain.delivery.DeliveryStatus;
@@ -148,5 +151,14 @@ public class Order extends BaseEntity {
                 .build();
     }
 
+    public void sendAlertOrderComplete(ApplicationEventPublisher eventPublisher, AlertType alertType) {
+        AlertRequestDto alertRequestDto = AlertRequestDto.builder()
+                .receiver(this.customer)
+                .alertType(alertType)
+                .content("주문이 완료되었습니다.")
+                .url("/order/detail/" + this.id)
+                .build();
 
+        eventPublisher.publishEvent(alertRequestDto);
+    }
 }

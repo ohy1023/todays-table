@@ -18,7 +18,6 @@ import java.util.Properties;
 @Configuration
 @EnableJpaRepositories(basePackages = {
         "store.myproject.onlineshop.domain.customer.repository",
-        "store.myproject.onlineshop.domain.corporation.repository",
         "store.myproject.onlineshop.domain.brand.repository",
         "store.myproject.onlineshop.domain.cart.repository",
         "store.myproject.onlineshop.domain.cartitem.repository",
@@ -32,6 +31,7 @@ import java.util.Properties;
         "store.myproject.onlineshop.domain.recipeitem.repository",
         "store.myproject.onlineshop.domain.review.repository",
         "store.myproject.onlineshop.domain.imagefile.repository",
+        "store.myproject.onlineshop.domain.alert.repository",
 })
 @EnableTransactionManagement // 트랜잭션 관리 기능을 활성화하는 애너테이션
 public class JpaConfiguration {
