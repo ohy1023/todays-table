@@ -10,9 +10,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./shop
+    # defaults:
+    #   run:
+    #     working-directory: ./shop
     steps:
 
       - name: checkout
@@ -107,6 +107,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.KEY }}
           script: |
+            cd /shop
             echo "Current directory: $(pwd)"
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
             docker-compose -f docker-compose.yml up -d
