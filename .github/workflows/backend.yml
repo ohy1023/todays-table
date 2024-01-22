@@ -10,6 +10,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: /root
     steps:
 
       - name: checkout
@@ -110,3 +113,5 @@ jobs:
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
             docker-compose -f docker-compose.yml up -d
             sudo docker image prune -f
+
+
