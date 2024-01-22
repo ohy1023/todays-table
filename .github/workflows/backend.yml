@@ -106,6 +106,7 @@ jobs:
           script: |
             echo "Current directory: $(pwd)"
             sudo su -
+            cd ~
             echo "Current directory: $(pwd)"
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
             docker-compose -f docker-compose.yml up -d
