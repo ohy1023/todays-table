@@ -104,7 +104,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.KEY }}
           script: |
-            cd /root
+            echo "Current directory: $(pwd)"
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
             docker-compose -f docker-compose.yml up -d
             sudo docker image prune -f
