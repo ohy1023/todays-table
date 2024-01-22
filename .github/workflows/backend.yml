@@ -106,5 +106,5 @@ jobs:
           script: |
             cd ~
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
-            docker-compose up -d
+            docker-compose -f docker-compose.yml up -d
             sudo docker image prune -f
