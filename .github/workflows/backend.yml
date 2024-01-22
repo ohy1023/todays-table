@@ -99,6 +99,9 @@ jobs:
       ## docker compose up
       - name: docker compose up
         uses: appleboy/ssh-action@master
+        env:
+          # 어느 디렉토리에서 커맨드를 실행할 지 결정
+          working-directory: ./root
         with:
           host: ${{ secrets.HOST }}
           username: ubuntu
