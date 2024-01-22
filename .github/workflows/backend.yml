@@ -100,16 +100,14 @@ jobs:
       - name: docker compose up
         uses: appleboy/ssh-action@master
         env:
-          # 어느 디렉토리에서 커맨드를 실행할 지 결정
-          working-directory: ./root
+          RUNNER_ALLOW_RUNASROOT: 1
         with:
           host: ${{ secrets.HOST }}
           username: ubuntu
           key: ${{ secrets.KEY }}
           script: |
-            echo "Current directory: $(pwd)"
-            echo "List files: $(ls -la)"
-      #       sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
-      #       docker-compose up -d
-      #       sudo docker image prune -f
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
+            cd /root
+            docker-compose up -d
+            sudo docker image prune -f
           
