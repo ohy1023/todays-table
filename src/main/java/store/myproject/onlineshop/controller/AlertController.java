@@ -13,7 +13,7 @@ import store.myproject.onlineshop.service.AlertService;
 
 @Slf4j
 @RestController
-@RequestMapping("/sse")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 @Tag(name = "SSE", description = "SSE API")
 public class AlertController {

@@ -2,7 +2,7 @@
 springdoc:
   swagger-ui:
     disable-swagger-default-url: true                   # 기본경로 해제
-    path: /swagger-ui.html                              # swagger-ui.html을 기본 경로로 설정
+    path: /swagger                                      # swagger 기본 경로로 설정
     groups-order: DESC                                  # Swagger Grouping 정렬
     operations-sorter: method                           # method, alpha
     display-request-duration: true                      # 요청 시간 표시
