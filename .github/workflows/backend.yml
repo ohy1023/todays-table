@@ -106,10 +106,10 @@ jobs:
           script: |
             echo "Current directory: $(pwd)"
             sudo su -
-            cd ~
+            cd /root
             echo "Current directory: $(pwd)"
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
-            docker-compose -f docker-compose.yml up -d
+            docker-compose up -d
             sudo docker image prune -f
 
 
