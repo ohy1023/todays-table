@@ -99,14 +99,14 @@ jobs:
       ## docker compose up
       - name: docker compose up
         uses: appleboy/ssh-action@master
-        env:
-          COMPOSE: "/root/shopping-mall-project/docker-compose.yml"
+        # env:
+        #   COMPOSE: "/root/shopping-mall-project/docker-compose.yml"
         with:
           host: ${{ secrets.HOST }}
-          username: ubuntu
+          username: zvyg1023
           key: ${{ secrets.KEY }}
           script: |
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
-            docker-compose -f $COMPOSE up -d
+            docker-compose up -d
             sudo docker image prune -f
           
