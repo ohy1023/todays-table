@@ -100,14 +100,13 @@ jobs:
       - name: docker compose up
         uses: appleboy/ssh-action@master
         env:
-          RUNNER_ALLOW_RUNASROOT: 1
+          COMPOSE: "/root/shopping-mall-project/docker-compose.yml"
         with:
           host: ${{ secrets.HOST }}
           username: ubuntu
           key: ${{ secrets.KEY }}
           script: |
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
-            cd /shopping-mall
-            docker-compose up -d
+            sudo docker-compose -f $COMPOSE up -d
             sudo docker image prune -f
           
