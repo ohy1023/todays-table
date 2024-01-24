@@ -103,7 +103,8 @@ jobs:
         #   COMPOSE: "/root/shopping-mall-project/docker-compose.yml"
         with:
           host: ${{ secrets.HOST }}
-          username: zvyg1023
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
           key: ${{ secrets.KEY }}
           script: |
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
