@@ -107,6 +107,6 @@ jobs:
           key: ${{ secrets.KEY }}
           script: |
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
-            sudo docker-compose -f $COMPOSE up -d
+            docker-compose -f $COMPOSE up -d
             sudo docker image prune -f
           
