@@ -16,6 +16,13 @@ spring:
       enabled: true
       max-file-size: 50MB
       max-request-size: 50MB
+  jpa:
+    open-in-view: false
+
+  security:
+    user:
+      name: user
+      password: 1111
 
 logging.level:
   org.hibernate.SQL: debug
