@@ -2,9 +2,97 @@
 
 오늘의 식탁은 레시피를 기반으로 식재료를 쉽게 구매할 수 있도록 지원하는 백엔드 API 서비스입니다.
 
-## 주요 기능
+## 📌 주요 기능
 
-## 기술 스택 🛠
+### 🥘 **레시피 (Recipe)**
+- **레시피 등록** (`POST /api/v1/recipes`)  
+  사용자가 직접 레시피를 등록할 수 있습니다.
+- **레시피 삭제** (`DELETE /api/v1/recipes/{recipeId}`)  
+  특정 레시피를 삭제할 수 있습니다.
+- **레시피 좋아요** (`POST /api/v1/recipes/{id}/likes`)  
+  특정 레시피에 좋아요를 누를 수 있습니다.
+- **레시피 좋아요 개수 조회** (`GET /api/v1/recipes/{id}/likes`)  
+  특정 레시피의 좋아요 개수를 조회할 수 있습니다.
+
+### 💬 **리뷰 (Review)**
+- **댓글 작성** (`POST /api/v1/recipes/{id}/reviews`)  
+  특정 레시피에 대한 리뷰(댓글)를 작성할 수 있습니다.
+- **댓글 수정** (`POST /api/v1/recipes/{id}/reviews/{reviewId}`)  
+  작성한 댓글을 수정할 수 있습니다.
+- **댓글 삭제** (`DELETE /api/v1/recipes/{id}/reviews/{reviewId}`)  
+  작성한 댓글을 삭제할 수 있습니다.
+
+### 📦 **주문 (Order)**
+- **단건 주문** (`POST /api/v1/orders`)  
+  개별 주문을 등록할 수 있습니다.
+- **장바구니 주문** (`POST /api/v1/orders/cart`)  
+  장바구니 내 모든 품목을 한 번에 주문할 수 있습니다.
+- **주문 조회** (`GET /api/v1/orders/{orderId}`)  
+  사용자의 주문 정보를 조회할 수 있습니다.
+- **주문 취소** (`DELETE /api/v1/orders/{orderItemId}`)  
+  특정 주문을 취소할 수 있습니다.
+
+### 🛒 **장바구니 (Cart)**
+- **장바구니 품목 추가** (`POST /api/v1/carts`)  
+  장바구니에 품목을 추가할 수 있습니다.
+- **장바구니 품목 조회** (`GET /api/v1/carts`)  
+  사용자의 장바구니에 담긴 품목을 조회할 수 있습니다.
+- **장바구니 품목 삭제** (`DELETE /api/v1/carts/{itemId}`)  
+  특정 품목을 장바구니에서 삭제할 수 있습니다.
+- **장바구니 전체 품목 삭제** (`DELETE /api/v1/carts`)  
+  장바구니 내 모든 품목을 삭제할 수 있습니다.
+
+### 🏪 **상품 (Item)**
+- **상품 등록** (`POST /api/v1/items`)  
+  새로운 상품을 추가할 수 있습니다.
+- **상품 수정** (`PUT /api/v1/items/{itemId}`)  
+  기존 상품 정보를 수정할 수 있습니다.
+- **상품 삭제** (`DELETE /api/v1/items/{itemId}`)  
+  특정 상품을 삭제할 수 있습니다.
+- **상품 조회** (`GET /api/v1/items/{itemId}`)  
+  개별 상품 정보를 조회할 수 있습니다.
+
+### 🚚 **배송 (Delivery)**
+- **배송지 변경** (`PUT /api/v1/deliveries/{orderId}`)  
+  주문의 배송지를 변경할 수 있습니다.
+
+### 👤 **회원 (Customer)**
+- **회원 가입** (`POST /api/v1/customers/join`)  
+  신규 회원을 등록할 수 있습니다.
+- **로그인** (`POST /api/v1/customers/login`)  
+  사용자 로그인 기능을 제공합니다.
+- **로그아웃** (`POST /api/v1/customers/logout`)  
+  사용자 로그아웃을 처리합니다.
+- **회원 정보 조회** (`GET /api/v1/customers`)  
+  사용자의 회원 정보를 조회할 수 있습니다.
+- **회원 정보 수정** (`PATCH /api/v1/customers`)  
+  회원 정보를 수정할 수 있습니다.
+- **회원 탈퇴** (`DELETE /api/v1/customers`)  
+  사용자의 계정을 삭제할 수 있습니다.
+
+### 🎟 **멤버십 (Membership)**
+- **멤버십 등록** (`POST /api/v1/memberships`)  
+  멤버십을 등록할 수 있습니다.
+- **멤버십 조회** (`GET /api/v1/memberships/{id}`)  
+  특정 멤버십 정보를 조회할 수 있습니다.
+- **멤버십 삭제** (`DELETE /api/v1/memberships/{id}`)  
+  특정 멤버십을 삭제할 수 있습니다.
+
+### 🔔 **알림 (SSE)**
+- **알림 구독** (`GET /api/v1/subscribe/{id}`)  
+  사용자는 SSE(Server-Sent Events)를 통해 실시간 알림을 받을 수 있습니다.
+
+### 🏢 **브랜드 (Brand)**
+- **브랜드 등록** (`POST /api/v1/brands`)  
+  새로운 브랜드를 등록할 수 있습니다.
+- **브랜드 조회** (`GET /api/v1/brands/{brandId}`)  
+  특정 브랜드 정보를 조회할 수 있습니다.
+- **브랜드 삭제** (`DELETE /api/v1/brands/{brandId}`)  
+  특정 브랜드를 삭제할 수 있습니다.
+
+---
+
+## 🛠 기술 스택
 
 **언어 / 툴**
 
@@ -28,20 +116,28 @@
 - Docker-Compose
 - AWS EC2
 
-## 아키텍처 📃
+---
+
+## 📃 아키텍처
 
 ![](img/today_table_architecture.png)
 
+---
 
-## API 명세서 📡
+## 📡 API 명세서
 
 - [Swagger](http://mystudyproject.store:8080/swagger-ui/index.html)
+- [데모 링크](https://port-0-todays-table-m7plej378a04f632.sel4.cloudtype.app/swagger-ui/index.html)
+- 
+---
 
-## ERD 🗄️
+## 🗄️ ERD
 
 ![](img/today_table_erd.png)
 
-## Trouble Shooting 🚧
+---
+
+## 🚧 Trouble Shooting 
 
 [Git Actions와 docker-compose를 이용한 자동 배포](https://velog.io/@zvyg1023/CICD-Docker-Github-Action-Spring-Boot)
 
