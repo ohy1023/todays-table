@@ -1,0 +1,7 @@
+payment:
+  identification:
+    code : ${PORTONE_IDENTIFICATION_CODE}
+  rest:
+    api:
+      key: ${PORTONE_API_KEY}
+      secret : ${PORTONE_API_SECRET}

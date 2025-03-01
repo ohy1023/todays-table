@@ -21,8 +21,11 @@ spring:
 
   security:
     user:
-      name: user
-      password: 1111
+      name: ${SECURITY_USER_NAME:user}
+      password: ${SECURITY_USER_PASSWORD:1q2w3e4r}
+
+server:
+  port: ${SERVER_PORT:8089}
 
 logging.level:
   org.hibernate.SQL: debug

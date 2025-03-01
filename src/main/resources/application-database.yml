@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    master:
+      hikari:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: ${MASTER_DB_URL:jdbc:mysql://localhost:3307/today-table-master}
+        username: ${MASTER_DB_USERNAME:root}
+        password: ${MASTER_DB_PASSWORD:rootpassword}
+
+    slave:
+      hikari:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: ${SLAVE_DB_URL:jdbc:mysql://localhost:3307/today-table-slave}
+        username: ${SLAVE_DB_USERNAME:root}
+        password: ${SLAVE_DB_PASSWORD:rootpassword}

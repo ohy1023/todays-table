@@ -1,0 +1,11 @@
+spring:
+  mail:
+    host: smtp.naver.com # smtp 서버 주소
+    port: 465 # 메일 인증서버 포트
+    username: ${NAVER_USERNAME} # 네이버 아이디
+    password: ${NAVER_PASSWORD} # 네이버 비밀번호
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.ssl.enable: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.ssl.trust: smtp.naver.com

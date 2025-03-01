@@ -1,0 +1,9 @@
+spring:
+  data:
+    redis:
+      auth:
+        host: ${REDIS_AUTH_HOST:localhost}
+        port: ${REDIS_AUTH_PORT:6379}
+      cache:
+        host: ${REDIS_CACHE_HOST:localhost}
+        port: ${REDIS_CACHE_PORT:6379}
