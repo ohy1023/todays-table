@@ -1,4 +1,8 @@
-# shopping-mall 💸
+# 🛒 오늘의 식탁 – 레시피 기반 쇼핑 API
+
+오늘의 식탁은 레시피를 기반으로 식재료를 쉽게 구매할 수 있도록 지원하는 백엔드 API 서비스입니다.
+
+## 주요 기능
 
 ## 기술 스택 🛠
 
@@ -26,17 +30,16 @@
 
 ## 아키텍처 📃
 
-![](KakaoTalk_20230827_214036460.png)
+![](img/today_table_architecture.png)
 
 
 ## API 명세서 📡
 
-- Swagger:[Swagger 바로가기](http://mystudyproject.store:8080/swagger-ui/index.html)
+- [Swagger](http://mystudyproject.store:8080/swagger-ui/index.html)
 
 ## ERD 🗄️
 
-![my_erd](https://github.com/ohy1023/shopping-mall/assets/110380812/73b11f3f-1d33-486b-a9f2-e20a70fae1f6)
-
+![](img/today_table_erd.png)
 
 ## Trouble Shooting 🚧
 
