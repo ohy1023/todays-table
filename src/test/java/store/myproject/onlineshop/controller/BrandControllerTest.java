@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
@@ -16,6 +17,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import store.myproject.onlineshop.domain.brand.dto.*;
 import store.myproject.onlineshop.exception.AppException;
+import store.myproject.onlineshop.fixture.BrandFixture;
+import store.myproject.onlineshop.fixture.ResultCode;
 import store.myproject.onlineshop.service.BrandService;
 
 import java.nio.charset.StandardCharsets;
@@ -31,8 +34,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static store.myproject.onlineshop.exception.ErrorCode.*;
+import static store.myproject.onlineshop.fixture.ResultCode.*;
 
 @WebMvcTest(BrandController.class)
+@AutoConfigureMockMvc
 @WithMockUser
 class BrandControllerTest {
 
@@ -48,13 +53,12 @@ class BrandControllerTest {
 
     @Test
     @DisplayName("브랜드 단건 조회 성공")
-    public void findOne_success() throws Exception {
+    public void get_brand_success() throws Exception {
+
+        long brandId = 1L;
 
         // given
-        BrandInfo response = BrandInfo.builder()
-                .id(1L)
-                .name("test")
-                .build();
+        BrandInfo response = BrandFixture.brandInfo(brandId);
 
         given(brandService.getBrandInfo(any(Long.class)))
                 .willReturn(response);
@@ -62,16 +66,16 @@ class BrandControllerTest {
         // when & then
         mockMvc.perform(get("/api/v1/brands/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
-                .andExpect(jsonPath("$.result.id").value(1L))
-                .andExpect(jsonPath("$.result.name").value("test"))
+                .andExpect(jsonPath("$.resultCode").value(SUCCESS))
+                .andExpect(jsonPath("$.result.id").value(brandId))
+                .andExpect(jsonPath("$.result.name").exists())
                 .andDo(print());
 
     }
 
     @Test
     @DisplayName("브랜드 단건 조회 실패 - 존재하지 않는 브랜드")
-    public void findOne_fail_not_found_brand() throws Exception {
+    public void get_brand_fail_not_found() throws Exception {
 
         // given
         given(brandService.getBrandInfo(any(Long.class)))
@@ -80,7 +84,7 @@ class BrandControllerTest {
         // when & then
         mockMvc.perform(get("/api/v1/brands/1"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.resultCode").value(ERROR))
                 .andExpect(jsonPath("$.result.errorCode").value(BRAND_NOT_FOUND.name()))
                 .andExpect(jsonPath("$.result.message").value(BRAND_NOT_FOUND.getMessage()))
                 .andDo(print());
@@ -90,22 +94,17 @@ class BrandControllerTest {
 
     @Test
     @DisplayName("브랜드 등록 성공")
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void create_brand_success() throws Exception {
 
         // given
-        BrandCreateRequest brandCreateRequest = BrandCreateRequest.builder()
-                .name("test")
-                .build();
+        BrandCreateRequest brandCreateRequest = BrandFixture.createRequest();
 
         String request = objectMapper.writeValueAsString(brandCreateRequest);
 
-        final String fileName = "testImage1"; //파일명
-        final String contentType = "png"; //파일타입
-        MockMultipartFile multipartFile = setMockMultipartFile(fileName, contentType);
+        MockMultipartFile multipartFile = setMockMultipartFile();
 
-        BrandCreateResponse response = BrandCreateResponse.builder()
-                .name("test")
-                .build();
+        BrandCreateResponse response = BrandFixture.createResponse();
 
         given(brandService.saveBrand(any(BrandCreateRequest.class), any(MockMultipartFile.class)))
                 .willReturn(response);
@@ -119,32 +118,25 @@ class BrandControllerTest {
                         .characterEncoding("UTF-8")
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
+                .andExpect(jsonPath("$.resultCode").value(SUCCESS))
                 .andExpect(jsonPath("$.result.name").value(response.getName()))
                 .andDo(print());
     }
 
     @Test
     @DisplayName("브랜드 수정 성공")
-    public void change_brand_success() throws Exception {
+    public void update_brand_success() throws Exception {
 
         // given
         Long brandId = 1L;
 
-        BrandUpdateRequest brandUpdateRequest = BrandUpdateRequest.builder()
-                .name("newBrand")
-                .build();
+        BrandUpdateRequest brandUpdateRequest = BrandFixture.updateRequest();
 
         String request = objectMapper.writeValueAsString(brandUpdateRequest);
 
-        final String fileName = "testImage1"; //파일명
-        final String contentType = "png"; //파일타입
+        MockMultipartFile multipartFile = setMockMultipartFile();
 
-        MockMultipartFile multipartFile = setMockMultipartFile(fileName, contentType);
-
-        BrandUpdateResponse response = BrandUpdateResponse.builder()
-                .name("newBrand")
-                .build();
+        BrandUpdateResponse response = BrandFixture.updateResponse();
 
         given(brandService.updateBrand(any(Long.class), any(BrandUpdateRequest.class), any(MockMultipartFile.class)))
                 .willReturn(response);
@@ -158,7 +150,7 @@ class BrandControllerTest {
                         .characterEncoding("UTF-8")
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
+                .andExpect(jsonPath("$.resultCode").value(SUCCESS))
                 .andExpect(jsonPath("$.result.name").value(response.getName()))
                 .andDo(print());
 
@@ -166,21 +158,16 @@ class BrandControllerTest {
 
     @Test
     @DisplayName("브랜드 수정 실패 - 해당 브랜드를 찾지 못한 경우")
-    public void change_brand_fail_not_found_brand() throws Exception {
+    public void update_brand_fail_not_found() throws Exception {
 
         // given
         Long brandId = 1L;
 
-        BrandUpdateRequest brandUpdateRequest = BrandUpdateRequest.builder()
-                .name("newBrand")
-                .build();
+        BrandUpdateRequest brandUpdateRequest = BrandFixture.updateRequest();
 
         String request = objectMapper.writeValueAsString(brandUpdateRequest);
 
-        final String fileName = "testImage1"; //파일명
-        final String contentType = "png"; //파일타입
-
-        MockMultipartFile multipartFile = setMockMultipartFile(fileName, contentType);
+        MockMultipartFile multipartFile = setMockMultipartFile();
 
         given(brandService.updateBrand(any(Long.class), any(BrandUpdateRequest.class), any(MockMultipartFile.class)))
                 .willThrow(new AppException(BRAND_NOT_FOUND, BRAND_NOT_FOUND.getMessage()));
@@ -194,7 +181,7 @@ class BrandControllerTest {
                         .characterEncoding("UTF-8")
                         .with(csrf()))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.resultCode").value(ERROR))
                 .andExpect(jsonPath("$.result.errorCode").value(BRAND_NOT_FOUND.name()))
                 .andExpect(jsonPath("$.result.message").value(BRAND_NOT_FOUND.getMessage()))
                 .andDo(print());
@@ -208,10 +195,7 @@ class BrandControllerTest {
         // given
         Long brandId = 1L;
 
-        BrandDeleteResponse response = BrandDeleteResponse.builder()
-                .name("brand")
-                .build();
-
+        BrandDeleteResponse response = BrandFixture.deleteResponse();
 
         given(brandService.deleteBrand(any(Long.class)))
                 .willReturn(response);
@@ -220,7 +204,7 @@ class BrandControllerTest {
         mockMvc.perform(delete("/api/v1/brands/{brandId}", brandId)
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
+                .andExpect(jsonPath("$.resultCode").value(SUCCESS))
                 .andExpect(jsonPath("$.result.name").value(response.getName()))
                 .andDo(print());
 
@@ -228,7 +212,7 @@ class BrandControllerTest {
 
     @Test
     @DisplayName("브랜드 삭제 실패 - 해당 브랜드를 찾을 수 없는 경우")
-    public void delete_brand_fail() throws Exception {
+    public void delete_brand_fail_not_found() throws Exception {
 
         // given
         Long brandId = 1L;
@@ -240,7 +224,7 @@ class BrandControllerTest {
         mockMvc.perform(delete("/api/v1/brands/{brandId}", brandId)
                         .with(csrf()))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.resultCode").value(ERROR))
                 .andExpect(jsonPath("$.result.errorCode").value(BRAND_NOT_FOUND.name()))
                 .andExpect(jsonPath("$.result.message").value(BRAND_NOT_FOUND.getMessage()))
                 .andDo(print());
@@ -255,15 +239,8 @@ class BrandControllerTest {
         String brandName = "brand";
         Pageable pageable = PageRequest.of(0, 10); // 0번째 페이지, 한 페이지당 10개의 아이템
 
-        BrandInfo brand1 = BrandInfo.builder()
-                .id(1L)
-                .name("brand1")
-                .build();
-
-        BrandInfo brand2 = BrandInfo.builder()
-                .id(2L)
-                .name("brand2")
-                .build();
+        BrandInfo brand1 = BrandFixture.brandInfo(1L);
+        BrandInfo brand2 = BrandFixture.brandInfo(2L);
 
         List<BrandInfo> mockBrandList = Arrays.asList(brand1, brand2);
 
@@ -277,16 +254,16 @@ class BrandControllerTest {
                         .param("brandName", brandName)
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
-                .andExpect(jsonPath("$.result.content[0].id").value(1))
-                .andExpect(jsonPath("$.result.content[0].name").value("brand1"))
-                .andExpect(jsonPath("$.result.content[1].id").value(2))
-                .andExpect(jsonPath("$.result.content[1].name").value("brand2"))
+                .andExpect(jsonPath("$.resultCode").value(SUCCESS))
+                .andExpect(jsonPath("$.result.content[0].id").value(brand1.getId()))
+                .andExpect(jsonPath("$.result.content[0].name").value(brand1.getName()))
+                .andExpect(jsonPath("$.result.content[1].id").value(brand2.getId()))
+                .andExpect(jsonPath("$.result.content[1].name").value(brand2.getName()))
                 .andDo(print());
     }
 
-    private MockMultipartFile setMockMultipartFile(String fileName, String contentType) {
-        return new MockMultipartFile("multipartFile", fileName + "." + contentType, contentType, "<<data>>".getBytes());
+    private MockMultipartFile setMockMultipartFile() {
+        return new MockMultipartFile("multipartFile", "testImage1" + "." + "png", "png", "<<data>>".getBytes());
     }
 
 

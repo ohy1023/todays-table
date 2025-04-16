@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import store.myproject.onlineshop.domain.MessageResponse;
@@ -24,11 +23,6 @@ import store.myproject.onlineshop.service.CustomerService;
 public class CustomerController {
 
     private final CustomerService customerService;
-
-    @Value("${access-token-maxage}")
-    public int accessTokenMaxAge;
-    @Value("${refresh-token-maxage}")
-    public int refreshTokenMaxAge;
 
     @Operation(summary = "회원 가입")
     @PostMapping("/join")

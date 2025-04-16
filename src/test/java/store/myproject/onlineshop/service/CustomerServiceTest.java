@@ -14,7 +14,7 @@ import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.membership.MemberShip;
 import store.myproject.onlineshop.domain.membership.repository.MemberShipRepository;
 import store.myproject.onlineshop.exception.AppException;
-import store.myproject.onlineshop.fixture.CustomerInfoFixture;
+import store.myproject.onlineshop.fixture.CustomerFixture;
 import store.myproject.onlineshop.global.redis.RedisDao;
 import store.myproject.onlineshop.global.utils.JwtUtils;
 import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
@@ -50,7 +50,7 @@ class CustomerServiceTest {
     @InjectMocks
     private CustomerService customerService;
 
-    Customer customer1 = CustomerInfoFixture.get("test@naver.com", "customer1", "test");
+    Customer customer1 = CustomerFixture.createCustomer("test@naver.com", "nick", "test");
     String accessToken = "accessToken";
     String refreshToken = "refreshToken";
 
