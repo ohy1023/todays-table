@@ -20,26 +20,55 @@ public class CustomerFixture {
     /**
      * 고정된 값 기반 Customer 객체 생성
      */
-    public static Customer createCustomer(String email, String nickName, String password) {
+    public static Customer createCustomer() {
+        Faker faker = new Faker();
+
+        String email = faker.internet().emailAddress();
+        String nickName = faker.name().username();
+        String password = faker.internet().password();
+        Gender gender = faker.options().option(Gender.class); // MALE 또는 FEMALE 랜덤 선택
+
         Customer customer = Customer.builder()
                 .id(1L)
                 .email(email)
                 .password(password)
-                .userName("test")
+                .userName(faker.name().firstName())
                 .nickName(nickName)
-                .gender(MALE)
-                .tel("010-1234-5678")
+                .gender(gender)
+                .tel(faker.phoneNumber().cellPhone())
                 .address(Address.builder()
-                        .city("서울특별시")
-                        .street("시흥대로 589-8")
-                        .detail("1601호")
-                        .zipcode("07445")
+                        .city(faker.address().city())
+                        .street(faker.address().streetName())
+                        .detail(faker.address().secondaryAddress())
+                        .zipcode(faker.address().zipCode())
                         .build())
                 .build();
 
         customer.setCreatedDate(LocalDateTime.now());
+
         return customer;
     }
+
+//    public static Customer createCustomer(String email, String nickName, String password) {
+//        Customer customer = Customer.builder()
+//                .id(1L)
+//                .email(email)
+//                .password(password)
+//                .userName("test")
+//                .nickName(nickName)
+//                .gender(MALE)
+//                .tel("010-1234-5678")
+//                .address(Address.builder()
+//                        .city("서울특별시")
+//                        .street("시흥대로 589-8")
+//                        .detail("1601호")
+//                        .zipcode("07445")
+//                        .build())
+//                .build();
+//
+//        customer.setCreatedDate(LocalDateTime.now());
+//        return customer;
+//    }
 
 
     public static CustomerJoinRequest createJoinRequest() {

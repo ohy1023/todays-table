@@ -8,25 +8,23 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.customer.Level;
 import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.membership.MemberShip;
 import store.myproject.onlineshop.domain.membership.repository.MemberShipRepository;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.fixture.CustomerFixture;
+import store.myproject.onlineshop.fixture.MemberShipFixture;
 import store.myproject.onlineshop.global.redis.RedisDao;
 import store.myproject.onlineshop.global.utils.JwtUtils;
 import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static store.myproject.onlineshop.domain.customer.Gender.MALE;
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,7 +48,7 @@ class CustomerServiceTest {
     @InjectMocks
     private CustomerService customerService;
 
-    Customer customer1 = CustomerFixture.createCustomer("test@naver.com", "nick", "test");
+    Customer customer = CustomerFixture.createCustomer();
     String accessToken = "accessToken";
     String refreshToken = "refreshToken";
 
@@ -59,38 +57,21 @@ class CustomerServiceTest {
     public void join_success() {
 
         // given
-        CustomerJoinRequest request = CustomerJoinRequest.builder()
-                .email("test@naver.com")
-                .password("test")
-                .userName("test")
-                .nickName("customer1")
-                .gender(MALE)
-                .tel("010-1234-5678")
-                .city("서울특별시")
-                .street("시흥대로 589-8")
-                .detail("1601호")
-                .zipcode("07445")
-                .build();
+        CustomerJoinRequest request = CustomerFixture.createJoinRequest();
 
-        MemberShip bronze = MemberShip.builder()
-                .id(1L)
-                .baseline(new BigDecimal(0))
-                .discountRate(new BigDecimal(0))
-                .level(Level.BRONZE)
-                .build();
+        MemberShip bronze = MemberShipFixture.createBronzeMembership();
 
-
-        given(customerRepository.findByNickName(customer1.getNickName()))
+        given(customerRepository.findByNickName(request.getNickName()))
                 .willReturn(Optional.empty());
 
-        given(customerRepository.findByEmail(customer1.getEmail()))
+        given(customerRepository.findByEmail(request.getEmail()))
                 .willReturn(Optional.empty());
 
         given(memberShipRepository.findMemberShipByLevel(any()))
                 .willReturn(Optional.of(bronze));
 
         given(customerRepository.save(any(Customer.class)))
-                .willReturn(customer1);
+                .willReturn(customer);
 
 
         // when
@@ -104,24 +85,13 @@ class CustomerServiceTest {
 
     @Test
     @DisplayName("회원가입 실패 - 닉네임 중복")
-    public void join_fail_nickNameDuplicate() {
+    public void join_fail_duplicate_nickname() {
 
         // given
-        CustomerJoinRequest request = CustomerJoinRequest.builder()
-                .email("test@naver.com")
-                .password("test")
-                .userName("test")
-                .nickName("customer1")
-                .gender(MALE)
-                .tel("010-1234-5678")
-                .city("서울특별시")
-                .street("시흥대로 589-8")
-                .detail("1601호")
-                .zipcode("07445")
-                .build();
+        CustomerJoinRequest request = CustomerFixture.createJoinRequest();
 
-        given(customerRepository.findByNickName(customer1.getNickName()))
-                .willReturn(Optional.of(customer1));
+        given(customerRepository.findByNickName(request.getNickName()))
+                .willReturn(Optional.of(customer));
 
         // when & then
         assertThatThrownBy(() -> customerService.join(request))
@@ -132,27 +102,16 @@ class CustomerServiceTest {
 
     @Test
     @DisplayName("회원가입 실패 - 이메일 중복")
-    public void join_fail_emailDuplicate() {
+    public void join_fail_duplicate_email() {
 
         // given
-        CustomerJoinRequest request = CustomerJoinRequest.builder()
-                .email("test@naver.com")
-                .password("test")
-                .userName("test")
-                .nickName("customer1")
-                .gender(MALE)
-                .tel("010-1234-5678")
-                .city("서울특별시")
-                .street("시흥대로 589-8")
-                .detail("1601호")
-                .zipcode("07445")
-                .build();
+        CustomerJoinRequest request = CustomerFixture.createJoinRequest();
 
-        given(customerRepository.findByNickName(customer1.getNickName()))
+        given(customerRepository.findByNickName(request.getNickName()))
                 .willReturn(Optional.empty());
 
-        given(customerRepository.findByEmail(customer1.getEmail()))
-                .willReturn(Optional.of(customer1));
+        given(customerRepository.findByEmail(request.getEmail()))
+                .willReturn(Optional.of(customer));
 
         // when & then
         assertThatThrownBy(() -> customerService.join(request))
@@ -165,15 +124,12 @@ class CustomerServiceTest {
     public void login_success() {
 
         // given
-        CustomerLoginRequest request = CustomerLoginRequest.builder()
-                .email("test@naver.com")
-                .password("test")
-                .build();
+        CustomerLoginRequest request = CustomerFixture.createLoginRequest();
 
         given(customerRepository.findByEmail(request.getEmail()))
-                .willReturn(Optional.of(customer1));
+                .willReturn(Optional.of(customer));
 
-        given(encoder.matches(request.getPassword(), customer1.getPassword()))
+        given(encoder.matches(request.getPassword(), customer.getPassword()))
                 .willReturn(true);
 
         given(jwtUtils.createAccessToken(request.getEmail()))
@@ -193,13 +149,10 @@ class CustomerServiceTest {
 
     @Test
     @DisplayName("로그인 실패 - 존재하지 않는 이메일")
-    public void login_fail_notFoundEmail() {
+    public void login_fail_email_not_found() {
 
         // given
-        CustomerLoginRequest request = CustomerLoginRequest.builder()
-                .email("test@naver.com")
-                .password("test")
-                .build();
+        CustomerLoginRequest request = CustomerFixture.createLoginRequest();
 
         given(customerRepository.findByEmail(request.getEmail()))
                 .willReturn(Optional.empty());
@@ -213,18 +166,15 @@ class CustomerServiceTest {
 
     @Test
     @DisplayName("로그인 실패 - 비밀번호 불일치")
-    public void login_fail_invalidPassword() {
+    public void login_fail_invalid_password() {
 
         // given
-        CustomerLoginRequest request = CustomerLoginRequest.builder()
-                .email("test@naver.com")
-                .password("test")
-                .build();
+        CustomerLoginRequest request = CustomerFixture.createLoginRequest();
 
         given(customerRepository.findByEmail(request.getEmail()))
-                .willReturn(Optional.of(customer1));
+                .willReturn(Optional.of(customer));
 
-        given(encoder.matches(request.getPassword(), customer1.getPassword()))
+        given(encoder.matches(request.getPassword(), customer.getPassword()))
                 .willReturn(false);
 
 
@@ -236,18 +186,15 @@ class CustomerServiceTest {
 
     @Test
     @DisplayName("로그인 실패 - accessToken이 null인 경우")
-    public void login_fail_accessTokenNull() {
+    public void login_fail_access_token_null() {
 
         // given
-        CustomerLoginRequest request = CustomerLoginRequest.builder()
-                .email("test@naver.com")
-                .password("test")
-                .build();
+        CustomerLoginRequest request = CustomerFixture.createLoginRequest();
 
         given(customerRepository.findByEmail(request.getEmail()))
-                .willReturn(Optional.of(customer1));
+                .willReturn(Optional.of(customer));
 
-        given(encoder.matches(request.getPassword(), customer1.getPassword()))
+        given(encoder.matches(request.getPassword(), customer.getPassword()))
                 .willReturn(true);
 
         given(jwtUtils.createAccessToken(request.getEmail()))
@@ -264,18 +211,15 @@ class CustomerServiceTest {
 
     @Test
     @DisplayName("로그인 실패 - refresh token이 null인 경우")
-    public void login_fail_refreshTokenNull() {
+    public void login_fail_refresh_token_null() {
 
         // given
-        CustomerLoginRequest request = CustomerLoginRequest.builder()
-                .email("test@naver.com")
-                .password("test")
-                .build();
+        CustomerLoginRequest request = CustomerFixture.createLoginRequest();
 
         given(customerRepository.findByEmail(request.getEmail()))
-                .willReturn(Optional.of(customer1));
+                .willReturn(Optional.of(customer));
 
-        given(encoder.matches(request.getPassword(), customer1.getPassword()))
+        given(encoder.matches(request.getPassword(), customer.getPassword()))
                 .willReturn(true);
 
 
@@ -296,19 +240,16 @@ class CustomerServiceTest {
     public void logout_success() {
 
         // given
-        TokenRequest request = TokenRequest.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        TokenRequest request = CustomerFixture.createTokenRequest();
 
-        given(customerRepository.findByEmail(customer1.getEmail()))
-                .willReturn(Optional.of(customer1));
+        given(customerRepository.findByEmail(customer.getEmail()))
+                .willReturn(Optional.of(customer));
 
         given(jwtUtils.getExpiration(request.getAccessToken()))
                 .willReturn(12000L);
 
         // when
-        MessageResponse response = customerService.logout(request, customer1.getEmail());
+        MessageResponse response = customerService.logout(request, customer.getEmail());
 
         // then
         assertThat(response.getMsg()).isEqualTo("로그아웃 되었습니다.");
@@ -317,57 +258,48 @@ class CustomerServiceTest {
 
     @Test
     @DisplayName("로그아웃 실패 - 존재하지 않는 이메일")
-    public void logout_fail_notFoundEmail() {
+    public void logout_fail_email_not_found() {
 
         // given
-        TokenRequest request = TokenRequest.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        TokenRequest request = CustomerFixture.createTokenRequest();
 
-        given(customerRepository.findByEmail(customer1.getEmail()))
+        given(customerRepository.findByEmail(customer.getEmail()))
                 .willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> customerService.logout(request, customer1.getEmail()))
+        assertThatThrownBy(() -> customerService.logout(request, customer.getEmail()))
                 .isInstanceOf(AppException.class)
                 .hasMessage(CUSTOMER_NOT_FOUND.getMessage());
     }
 
     @Test
     @DisplayName("로그아웃 실패 - 만료된 토큰")
-    public void logout_fail_expiredToken() {
+    public void logout_fail_expired_token() {
 
         // given
-        TokenRequest request = TokenRequest.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        TokenRequest request = CustomerFixture.createTokenRequest();
 
-        given(customerRepository.findByEmail(customer1.getEmail()))
-                .willReturn(Optional.of(customer1));
+        given(customerRepository.findByEmail(customer.getEmail()))
+                .willReturn(Optional.of(customer));
 
         given(jwtUtils.isExpired(request.getAccessToken()))
                 .willReturn(true);
 
         // when & then
-        assertThatThrownBy(() -> customerService.logout(request, customer1.getEmail()))
+        assertThatThrownBy(() -> customerService.logout(request, customer.getEmail()))
                 .isInstanceOf(AppException.class)
                 .hasMessage(INVALID_TOKEN.getMessage());
     }
 
     @Test
     @DisplayName("로그아웃 실패 - 유효하지 않은 토큰")
-    public void logout_fail_invalidToken() {
+    public void logout_fail_invalid_token() {
 
         // given
-        TokenRequest request = TokenRequest.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        TokenRequest request = CustomerFixture.createTokenRequest();
 
-        given(customerRepository.findByEmail(customer1.getEmail()))
-                .willReturn(Optional.of(customer1));
+        given(customerRepository.findByEmail(customer.getEmail()))
+                .willReturn(Optional.of(customer));
 
         given(jwtUtils.isExpired(request.getAccessToken()))
                 .willReturn(false);
@@ -376,35 +308,32 @@ class CustomerServiceTest {
                 .willReturn(true);
 
         // when & then
-        assertThatThrownBy(() -> customerService.logout(request, customer1.getEmail()))
+        assertThatThrownBy(() -> customerService.logout(request, customer.getEmail()))
                 .isInstanceOf(AppException.class)
                 .hasMessage(INVALID_TOKEN.getMessage());
     }
 
     @Test
     @DisplayName("토큰 재발급 성공")
-    public void reissue_success() {
+    public void reissue_token_success() {
 
         // given
-        TokenRequest request = TokenRequest.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        TokenRequest request = CustomerFixture.createTokenRequest();
 
-        given(customerRepository.findByEmail(customer1.getEmail()))
-                .willReturn(Optional.of(customer1));
+        given(customerRepository.findByEmail(customer.getEmail()))
+                .willReturn(Optional.of(customer));
 
-        given(redisDao.getValues("RT:" + customer1.getEmail()))
+        given(redisDao.getValues("RT:" + customer.getEmail()))
                 .willReturn(refreshToken);
 
-        given(jwtUtils.createAccessToken(customer1.getEmail()))
+        given(jwtUtils.createAccessToken(customer.getEmail()))
                 .willReturn("newAccessToken");
 
-        given(jwtUtils.createRefreshToken(customer1.getEmail()))
+        given(jwtUtils.createRefreshToken(customer.getEmail()))
                 .willReturn("newRefreshToken");
 
         // when
-        LoginResponse response = customerService.reissue(request, customer1.getEmail());
+        LoginResponse response = customerService.reissue(request, customer.getEmail());
 
         // then
         assertThat(response.getAccessToken()).isEqualTo("newAccessToken");
@@ -415,63 +344,54 @@ class CustomerServiceTest {
 
     @Test
     @DisplayName("토큰 재발급 실패 - 존재하지 않는 이메일")
-    public void reissue_fail_notFoundEmail() {
+    public void reissue_token_fail_email_not_found() {
 
         // given
-        TokenRequest request = TokenRequest.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        TokenRequest request = CustomerFixture.createTokenRequest();
 
-        given(customerRepository.findByEmail(customer1.getEmail()))
+        given(customerRepository.findByEmail(customer.getEmail()))
                 .willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> customerService.reissue(request, customer1.getEmail()))
+        assertThatThrownBy(() -> customerService.reissue(request, customer.getEmail()))
                 .isInstanceOf(AppException.class)
                 .hasMessage(CUSTOMER_NOT_FOUND.getMessage());
     }
 
     @Test
     @DisplayName("토큰 재발급 실패 - 만료된 토큰")
-    public void reissue_fail_expiredToken() {
+    public void reissue_token_fail_expired_token() {
 
         // given
-        TokenRequest request = TokenRequest.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        TokenRequest request = CustomerFixture.createTokenRequest();
 
-        given(customerRepository.findByEmail(customer1.getEmail()))
-                .willReturn(Optional.of(customer1));
+        given(customerRepository.findByEmail(customer.getEmail()))
+                .willReturn(Optional.of(customer));
 
         given(jwtUtils.isExpired(request.getRefreshToken()))
                 .willReturn(true);
 
         // when & then
-        assertThatThrownBy(() -> customerService.reissue(request, customer1.getEmail()))
+        assertThatThrownBy(() -> customerService.reissue(request, customer.getEmail()))
                 .isInstanceOf(AppException.class)
                 .hasMessage(INVALID_TOKEN.getMessage());
     }
 
     @Test
     @DisplayName("토큰 재발급 실패 - 존재하지 않는 토큰")
-    public void reissue_fail_tokenNull() {
+    public void reissue_token_fail_missing_token() {
 
         // given
-        TokenRequest request = TokenRequest.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        TokenRequest request = CustomerFixture.createTokenRequest();
 
-        given(customerRepository.findByEmail(customer1.getEmail()))
-                .willReturn(Optional.of(customer1));
+        given(customerRepository.findByEmail(customer.getEmail()))
+                .willReturn(Optional.of(customer));
 
-        given(redisDao.getValues("RT:" + customer1.getEmail()))
+        given(redisDao.getValues("RT:" + customer.getEmail()))
                 .willReturn(null);
 
         // when & then
-        assertThatThrownBy(() -> customerService.reissue(request, customer1.getEmail()))
+        assertThatThrownBy(() -> customerService.reissue(request, customer.getEmail()))
                 .isInstanceOf(AppException.class)
                 .hasMessage(INVALID_REQUEST.getMessage());
     }
@@ -479,52 +399,49 @@ class CustomerServiceTest {
 
     @Test
     @DisplayName("토큰 재발급 실패 - 토큰 불일치")
-    public void reissue_fail_mismatchedToken() {
+    public void reissue_token_fail_mismatch_token() {
 
         // given
-        TokenRequest request = TokenRequest.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        TokenRequest request = CustomerFixture.createTokenRequest();
 
-        given(customerRepository.findByEmail(customer1.getEmail()))
-                .willReturn(Optional.of(customer1));
+        given(customerRepository.findByEmail(customer.getEmail()))
+                .willReturn(Optional.of(customer));
 
-        given(redisDao.getValues("RT:" + customer1.getEmail()))
+        given(redisDao.getValues("RT:" + customer.getEmail()))
                 .willReturn("mismatchToken");
 
         // when & then
-        assertThatThrownBy(() -> customerService.reissue(request, customer1.getEmail()))
+        assertThatThrownBy(() -> customerService.reissue(request, customer.getEmail()))
                 .isInstanceOf(AppException.class)
                 .hasMessage(INVALID_TOKEN.getMessage());
     }
 
     @Test
     @DisplayName("회원 정보 조회 성공")
-    public void info_success() {
+    public void get_customer_info_success() {
 
         // given
-        String request = "test@naver.com";
+        String request = customer.getEmail();
 
         given(customerRepository.findByEmail(request))
-                .willReturn(Optional.of(customer1));
+                .willReturn(Optional.of(customer));
 
         // when
         CustomerInfoResponse response = customerService.getInfo(request);
 
         // then
-        assertThat(response.getEmail()).isEqualTo(customer1.getEmail());
-        assertThat(response.getUserName()).isEqualTo(customer1.getUserName());
-        assertThat(response.getNickName()).isEqualTo(customer1.getNickName());
+        assertThat(response.getEmail()).isEqualTo(customer.getEmail());
+        assertThat(response.getUserName()).isEqualTo(customer.getUserName());
+        assertThat(response.getNickName()).isEqualTo(customer.getNickName());
 
     }
 
     @Test
     @DisplayName("회원 정보 조회 실패 - 존재하지 않는 이메일")
-    public void info_fail_notFoundEmail() {
+    public void get_customer_info_fail_email_not_found() {
 
         // given
-        String request = "test@naver.com";
+        String request = customer.getEmail();
 
         given(customerRepository.findByEmail(request))
                 .willReturn(Optional.empty());
@@ -538,50 +455,34 @@ class CustomerServiceTest {
 
     @Test
     @DisplayName("회원 정보 수정 성공")
-    public void modify_success() {
+    public void modify_customer_info_success() {
 
         // given
-        CustomerModifyRequest request = CustomerModifyRequest.builder()
-                .userName("newTest")
-                .tel("010-5678-1234")
-                .nickName("newTest")
-                .street("test")
-                .city("test")
-                .zipcode("test")
-                .detail("test")
-                .build();
+        CustomerModifyRequest request = CustomerFixture.createModifyRequest();
 
-        given(customerRepository.findByEmail(customer1.getEmail()))
-                .willReturn(Optional.of(customer1));
+        given(customerRepository.findByEmail(customer.getEmail()))
+                .willReturn(Optional.of(customer));
 
         // when
-        Long modifyCustomerId = customerService.modify(request, customer1.getEmail());
+        Long modifyCustomerId = customerService.modify(request, customer.getEmail());
 
         // then
-        assertThat(modifyCustomerId).isEqualTo(customer1.getId());
+        assertThat(modifyCustomerId).isEqualTo(customer.getId());
 
     }
 
     @Test
     @DisplayName("회원 정보 수정 실패 - 존재하지 않는 이메일")
-    public void modify_fail_notFoundEmail() {
+    public void modify_customer_info_fail_email_not_found() {
 
         // given
-        CustomerModifyRequest request = CustomerModifyRequest.builder()
-                .userName("newTest")
-                .tel("010-5678-1234")
-                .nickName("newTest")
-                .street("test")
-                .city("test")
-                .zipcode("test")
-                .detail("test")
-                .build();
+        CustomerModifyRequest request = CustomerFixture.createModifyRequest();
 
-        given(customerRepository.findByEmail(customer1.getEmail()))
+        given(customerRepository.findByEmail(customer.getEmail()))
                 .willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> customerService.modify(request, customer1.getEmail()))
+        assertThatThrownBy(() -> customerService.modify(request, customer.getEmail()))
                 .isInstanceOf(AppException.class)
                 .hasMessage(CUSTOMER_NOT_FOUND.getMessage());
 
@@ -589,28 +490,28 @@ class CustomerServiceTest {
 
     @Test
     @DisplayName("회원 탈퇴 성공")
-    public void delete_success() {
+    public void delete_customer_success() {
 
         // given
-        String request = "test@naver.com";
+        String request = customer.getEmail();
 
-        given(customerRepository.findByEmail(customer1.getEmail()))
-                .willReturn(Optional.of(customer1));
+        given(customerRepository.findByEmail(customer.getEmail()))
+                .willReturn(Optional.of(customer));
 
         // when
         Long deleteCustomerId = customerService.delete(request);
 
         // then
-        assertThat(deleteCustomerId).isEqualTo(customer1.getId());
+        assertThat(deleteCustomerId).isEqualTo(customer.getId());
 
     }
 
     @Test
     @DisplayName("회원 탈퇴 실패 - 존재하지 않는 이메일")
-    public void delete_fail_notFoundEmail() {
+    public void delete_customer_fail_email_not_found() {
 
         // given
-        String request = "test@naver.com";
+        String request = customer.getEmail();
 
         given(customerRepository.findByEmail(request))
                 .willReturn(Optional.empty());
@@ -624,10 +525,10 @@ class CustomerServiceTest {
 
     @Test
     @DisplayName("이메일 중복 체크 성공")
-    public void email_check_success() {
+    public void check_email_duplicate_success() {
 
         // given
-        CustomerEmailCheckRequest request = new CustomerEmailCheckRequest("test@naver.com");
+        CustomerEmailCheckRequest request = CustomerFixture.createEmailCheckRequest();
 
         given(customerRepository.findByEmail(request.getEmail()))
                 .willReturn(Optional.empty());
@@ -642,13 +543,13 @@ class CustomerServiceTest {
 
     @Test
     @DisplayName("이메일 중복 체크 실패")
-    public void email_check_fail_duplicate_nickname() {
+    public void check_email_duplicate_fail() {
 
         // given
-        CustomerEmailCheckRequest request = new CustomerEmailCheckRequest("test@naver.com");
+        CustomerEmailCheckRequest request = CustomerFixture.createEmailCheckRequest();
 
         given(customerRepository.findByEmail(request.getEmail()))
-                .willReturn(Optional.of(customer1));
+                .willReturn(Optional.of(customer));
 
         // when & then
         assertThatThrownBy(() -> customerService.emailCheck(request))
@@ -659,10 +560,10 @@ class CustomerServiceTest {
 
     @Test
     @DisplayName("닉네임 중복 체크 성공")
-    public void nickName_check_success() {
+    public void check_nickname_duplicate_success() {
 
         // given
-        CustomerNickNameCheckRequest request = new CustomerNickNameCheckRequest("test");
+        CustomerNickNameCheckRequest request = CustomerFixture.createNickNameCheckRequest();
 
         given(customerRepository.findByNickName(request.getNickName()))
                 .willReturn(Optional.empty());
@@ -677,13 +578,13 @@ class CustomerServiceTest {
 
     @Test
     @DisplayName("닉네임 중복 체크 실패")
-    public void nickName_check_fail_duplicate_nickname() {
+    public void check_nickname_duplicate_fail() {
 
         // given
-        CustomerNickNameCheckRequest request = new CustomerNickNameCheckRequest("test");
+        CustomerNickNameCheckRequest request = CustomerFixture.createNickNameCheckRequest();
 
         given(customerRepository.findByNickName(request.getNickName()))
-                .willReturn(Optional.of(customer1));
+                .willReturn(Optional.of(customer));
 
         // when & then
         assertThatThrownBy(() -> customerService.nickNameCheck(request))
