@@ -15,8 +15,6 @@ import store.myproject.onlineshop.domain.Response;
 import store.myproject.onlineshop.domain.brand.dto.*;
 import store.myproject.onlineshop.service.BrandService;
 
-import java.util.List;
-
 
 @Slf4j
 @RestController

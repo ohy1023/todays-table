@@ -14,8 +14,6 @@ import store.myproject.onlineshop.domain.cart.dto.CartAddRequest;
 import store.myproject.onlineshop.domain.cartitem.dto.CartItemResponse;
 import store.myproject.onlineshop.service.CartService;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/carts")
