@@ -3,7 +3,6 @@ package store.myproject.onlineshop.fixture;
 import com.github.javafaker.Faker;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.brand.dto.*;
-import store.myproject.onlineshop.domain.imagefile.ImageFile;
 
 
 public class BrandFixture {
@@ -11,16 +10,11 @@ public class BrandFixture {
     private static final Faker faker = new Faker();
 
     public static Brand createBrand() {
-        Brand brand = Brand.builder()
+
+        return Brand.builder()
                 .id(1L)
                 .name(faker.company().name())
                 .build();
-
-        ImageFile imageFile = ImageFileFixture.withBrand(brand);
-
-        imageFile.addBrand(brand);
-
-        return brand;
     }
 
     public static BrandCreateRequest createRequest() {

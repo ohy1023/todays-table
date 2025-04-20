@@ -135,7 +135,7 @@ class ItemControllerTest {
     void changeItem_success() throws Exception {
         // given
         Long itemId = 1L;
-        ItemUpdateRequest request = ItemFixture.createUpdateRequest();
+        ItemUpdateRequest request = ItemFixture.updateRequest();
         String json = objectMapper.writeValueAsString(request);
         List<MockMultipartFile> files = CommonFixture.mockMultipartFileList();
 
