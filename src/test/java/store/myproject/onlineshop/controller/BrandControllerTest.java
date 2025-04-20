@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import store.myproject.onlineshop.domain.brand.dto.*;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.fixture.BrandFixture;
-import store.myproject.onlineshop.fixture.ResultCode;
 import store.myproject.onlineshop.service.BrandService;
 
 import java.nio.charset.StandardCharsets;

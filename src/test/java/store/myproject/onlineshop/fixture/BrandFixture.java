@@ -1,14 +1,27 @@
 package store.myproject.onlineshop.fixture;
 
 import com.github.javafaker.Faker;
-import org.springframework.mock.web.MockMultipartFile;
+import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.brand.dto.*;
+import store.myproject.onlineshop.domain.imagefile.ImageFile;
 
-import java.nio.charset.StandardCharsets;
 
 public class BrandFixture {
 
     private static final Faker faker = new Faker();
+
+    public static Brand createBrand() {
+        Brand brand = Brand.builder()
+                .id(1L)
+                .name(faker.company().name())
+                .build();
+
+        ImageFile imageFile = ImageFileFixture.withBrand(brand);
+
+        imageFile.addBrand(brand);
+
+        return brand;
+    }
 
     public static BrandCreateRequest createRequest() {
         return BrandCreateRequest.builder()
@@ -47,12 +60,5 @@ public class BrandFixture {
                 .build();
     }
 
-    public static MockMultipartFile mockMultipartFile() {
-        return new MockMultipartFile(
-                "multipartFile",
-                "image.png",
-                "image/png",
-                "<<image data>>".getBytes(StandardCharsets.UTF_8)
-        );
-    }
+
 }
