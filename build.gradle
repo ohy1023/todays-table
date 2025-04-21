@@ -105,6 +105,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation "org.assertj:assertj-core"
 
+    // H2 DB (테스트용)
+    testImplementation 'com.h2database:h2'
+
     // Instancio
     testImplementation 'org.instancio:instancio-junit:3.0.0'
 
