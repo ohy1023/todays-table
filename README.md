@@ -124,6 +124,10 @@
 
 ---
 
+### 배포 흐름
+
+<img src="img/today_table_deploy.png" style="width:60%;"  alt="배포 흐름"/>
+
 ## 📡 API 명세서
 
 - [Swagger](http://mystudyproject.store:8080/swagger-ui/index.html)
