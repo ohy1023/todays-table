@@ -19,7 +19,7 @@ import static jakarta.persistence.FetchType.*;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Where(clause = "deleted_date IS NULL")
-@SQLDelete(sql = "UPDATE delivery SET deleted_date = CURRENT_TIMESTAMP WHERE delivery_id = ?")
+@SQLDelete(sql = "UPDATE Delivery SET deleted_date = CURRENT_TIMESTAMP WHERE id = ?")
 public class Delivery extends BaseEntity {
 
     @Id

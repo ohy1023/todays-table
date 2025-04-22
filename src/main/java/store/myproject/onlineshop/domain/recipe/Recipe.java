@@ -7,7 +7,6 @@ import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.imagefile.ImageFile;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.like.Like;
-import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateResponse;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeDto;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeUpdateRequest;
 import store.myproject.onlineshop.domain.recipeitem.RecipeItem;
@@ -79,25 +78,6 @@ public class Recipe extends BaseEntity {
         this.recipeServings = request.getRecipeServings();
     }
 
-
-    public RecipeCreateResponse fromEntity(Recipe recipe) {
-        return RecipeCreateResponse.builder()
-                .recipeTitle(recipe.getRecipeTitle())
-                .recipeContent(recipe.getRecipeContent())
-                .recipeCookingTime(recipe.getRecipeCookingTime())
-                .recipeServings(recipe.getRecipeServings())
-                .recipeWriter(recipe.getCustomer().getNickName())
-                .recipeView(recipe.getRecipeViewCnt())
-                .itemNameList(recipe.getItemList().stream()
-                        .map(RecipeItem::getItem)
-                        .map(Item::getItemName)
-                        .collect(Collectors.toList()))
-                .recipeImageList(recipe.getImageFileList().stream()
-                        .map(ImageFile::getImageUrl)
-                        .collect(Collectors.toList()))
-                .build();
-    }
-
     public RecipeDto toDto() {
         return RecipeDto.builder()
                 .recipeTitle(this.getRecipeTitle())
@@ -116,7 +96,7 @@ public class Recipe extends BaseEntity {
                 .build();
     }
 
-    public void updateView() {
+    public void addViewCnt() {
         this.recipeViewCnt++;
     }
 

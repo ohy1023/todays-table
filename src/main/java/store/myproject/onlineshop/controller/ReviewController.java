@@ -9,9 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.Response;
 import store.myproject.onlineshop.domain.review.dto.ReviewUpdateRequest;
-import store.myproject.onlineshop.domain.review.dto.ReviewUpdateResponse;
 import store.myproject.onlineshop.domain.review.dto.ReviewWriteRequest;
-import store.myproject.onlineshop.domain.review.dto.ReviewWriteResponse;
 import store.myproject.onlineshop.service.RecipeService;
 
 @RestController
@@ -24,14 +22,14 @@ public class ReviewController {
 
     @Operation(summary = "댓글 작성")
     @PostMapping("/{id}/reviews")
-    public Response<ReviewWriteResponse> writeReview(@PathVariable Long id, @Valid @RequestBody ReviewWriteRequest request, Authentication authentication) {
+    public Response<MessageResponse> writeReview(@PathVariable Long id, @Valid @RequestBody ReviewWriteRequest request, Authentication authentication) {
         String email = authentication.getName();
-        return Response.success(recipeService.writeReview(email, id, request));
+        return Response.success(recipeService.addReview(email, id, request));
     }
 
     @Operation(summary = "댓글 수정")
     @PostMapping("/{id}/reviews/{reviewId}")
-    public Response<ReviewUpdateResponse> writeReview(@PathVariable Long id, @PathVariable Long reviewId, @Valid @RequestBody ReviewUpdateRequest request, Authentication authentication) {
+    public Response<MessageResponse> writeReview(@PathVariable Long id, @PathVariable Long reviewId, @Valid @RequestBody ReviewUpdateRequest request, Authentication authentication) {
         String email = authentication.getName();
         return Response.success(recipeService.updateReview(email, id, reviewId, request));
     }

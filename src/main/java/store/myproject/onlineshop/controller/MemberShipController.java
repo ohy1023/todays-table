@@ -26,7 +26,7 @@ public class MemberShipController {
     @Operation(summary = "단건 조회")
     @GetMapping("/{id}")
     public Response<MemberShipDto> findOneMemberShip(@PathVariable Long id) {
-        MemberShipDto memberShipDto = memberShipService.selectOne(id);
+        MemberShipDto memberShipDto = memberShipService.getMemberShipById(id);
 
         return Response.success(memberShipDto);
     }
@@ -35,7 +35,7 @@ public class MemberShipController {
     @GetMapping
     public Response<List<MemberShipDto>> findAllMemberShip() {
 
-        List<MemberShipDto> memberShipDtoList = memberShipService.selectAll();
+        List<MemberShipDto> memberShipDtoList = memberShipService.getAllMemberShips();
 
         return Response.success(memberShipDtoList);
     }
@@ -43,28 +43,19 @@ public class MemberShipController {
 
     @Operation(summary = "멤버쉽 추가")
     @PostMapping
-    public Response<MemberShipDto> createMemberShip(@Valid @RequestBody MemberShipCreateRequest request, Authentication authentication) {
-
-        MemberShipDto response = memberShipService.saveMemberShip(request);
-
-        return Response.success(response);
+    public Response<MessageResponse> createMemberShip(@Valid @RequestBody MemberShipCreateRequest request) {
+        return Response.success(memberShipService.createMemberShip(request));
     }
 
     @Operation(summary = "멤버쉽 수정")
     @PutMapping("/{id}")
-    public Response<MemberShipDto> changeMemberShip(@PathVariable Long id, @Valid @RequestBody MemberShipUpdateRequest request, Authentication authentication) {
-
-        MemberShipDto response = memberShipService.updateMemberShip(id, request);
-
-        return Response.success(response);
+    public Response<MessageResponse> changeMemberShip(@PathVariable Long id, @Valid @RequestBody MemberShipUpdateRequest request) {
+        return Response.success(memberShipService.updateMemberShip(id, request));
     }
 
     @Operation(summary = "멤버쉽 삭제")
     @DeleteMapping("/{id}")
-    public Response<MessageResponse> removeMemberShip(@PathVariable Long id, Authentication authentication) {
-
-        MessageResponse response = memberShipService.deleteMemberShip(id);
-
-        return Response.success(response);
+    public Response<MessageResponse> removeMemberShip(@PathVariable Long id) {
+        return Response.success(memberShipService.deleteMemberShip(id));
     }
 }

@@ -23,36 +23,10 @@ public class BrandFixture {
                 .build();
     }
 
-    public static BrandCreateResponse createResponse() {
-        return BrandCreateResponse.builder()
-                .name(faker.company().name())
-                .build();
-    }
-
     public static BrandUpdateRequest updateRequest() {
         return BrandUpdateRequest.builder()
                 .name(faker.company().name())
                 .build();
     }
-
-    public static BrandUpdateResponse updateResponse() {
-        return BrandUpdateResponse.builder()
-                .name(faker.company().name())
-                .build();
-    }
-
-    public static BrandDeleteResponse deleteResponse() {
-        return BrandDeleteResponse.builder()
-                .name(faker.company().name())
-                .build();
-    }
-
-    public static BrandInfo brandInfo(Long id) {
-        return BrandInfo.builder()
-                .id(id)
-                .name(faker.company().name())
-                .build();
-    }
-
 
 }

@@ -50,7 +50,7 @@ public class ItemController {
 
     @Operation(summary = "품목 추가")
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public Response<ItemDto> createItem(@RequestPart ItemCreateRequest request, @RequestPart List<MultipartFile> multipartFileList, Authentication authentication) {
+    public Response<ItemDto> createItem(@RequestPart ItemCreateRequest request, @RequestPart List<MultipartFile> multipartFileList) {
 
         ItemDto response = itemService.saveItem(request, multipartFileList);
 
@@ -59,18 +59,13 @@ public class ItemController {
 
     @Operation(summary = "품목 수정")
     @PutMapping(value = "/{itemId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public Response<MessageResponse> changeItem(@PathVariable Long itemId, @RequestPart ItemUpdateRequest request, @RequestPart(required = false) List<MultipartFile> multipartFileList, Authentication authentication) {
-
-        MessageResponse response = itemService.updateItem(itemId, request, multipartFileList);
-
-        return Response.success(response);
+    public Response<MessageResponse> changeItem(@PathVariable Long itemId, @RequestPart ItemUpdateRequest request, @RequestPart(required = false) List<MultipartFile> multipartFileList) {
+        return Response.success(itemService.updateItem(itemId, request, multipartFileList));
     }
 
     @Operation(summary = "품목 삭제")
     @DeleteMapping("/{itemId}")
-    public Response<MessageResponse> removeItem(@PathVariable Long itemId, Authentication authentication) {
-        MessageResponse response = itemService.deleteItem(itemId);
-
-        return Response.success(response);
+    public Response<MessageResponse> removeItem(@PathVariable Long itemId) {
+        return Response.success(itemService.deleteItem(itemId));
     }
 }

@@ -11,7 +11,6 @@ import store.myproject.onlineshop.domain.customer.dto.*;
 import java.time.LocalDateTime;
 
 import static org.instancio.Select.field;
-import static store.myproject.onlineshop.domain.customer.Gender.MALE;
 
 public class CustomerFixture {
 

@@ -163,10 +163,6 @@ dependencies {
 
     // 포트원 REST API
     implementation 'com.github.iamport:iamport-rest-client-java:0.2.23'
-
-    // JAXB
-    implementation 'jakarta.xml.bind:jakarta.xml.bind-api:3.0.1'
-    implementation 'org.glassfish.jaxb:jaxb-runtime:3.0.2'
 }
 
 tasks.named('test') {

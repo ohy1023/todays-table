@@ -25,7 +25,6 @@ public class AlertController {
     @ResponseStatus(HttpStatus.OK)
     public SseEmitter subscribe(@PathVariable Long id, @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId, Authentication authentication) {
         String email = authentication.getName();
-        log.info("email : {}", email);
         return alertService.subscribe(id, lastEventId);
     }
 

@@ -17,19 +17,19 @@ public class LikeController {
 
     private final RecipeService recipeService;
 
-    @Operation(summary = "해당 레시피 좋아요 누르기")
+    @Operation(summary = "해당 레시피 좋아요/취소 누르기")
     @PostMapping("/{id}/likes")
     public Response<MessageResponse> pushLike(@PathVariable Long id, Authentication authentication) {
         String email = authentication.getName();
 
-        return Response.success(recipeService.pushLike(id, email));
+        return Response.success(recipeService.toggleLike(id, email));
     }
 
 
     @Operation(summary = "해당 레세피 좋아요 개수 조회")
     @GetMapping("/{id}/likes")
     public Response<Integer> countLike(@PathVariable Long id) {
-        Integer likeCnt = recipeService.countLike(id);
+        Integer likeCnt = recipeService.getLikeCount(id);
         return Response.success(likeCnt);
     }
 

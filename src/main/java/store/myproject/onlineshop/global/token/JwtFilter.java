@@ -13,33 +13,29 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 import store.myproject.onlineshop.domain.customer.Customer;
-import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.utils.CookieUtils;
 import store.myproject.onlineshop.global.utils.JwtUtils;
-import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
+import store.myproject.onlineshop.service.CustomerService;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 @Slf4j
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
-    private final CustomerRepository customerRepository;
+    private final CustomerService customerService;
 
     private final JwtUtils jwtUtils;
 
     private static final List<String> EXCLUDED_URIS = List.of(
             "/api/v1/customers/login",     // 로그인
-            "/api/v1/customers/join",       // 회원가입
-            "/swagger-ui",                 // Swagger UI
-            "/v3/api-docs",                // Swagger 문서
-            "/swagger-resources"           // Swagger 리소스
+            "/api/v1/customers/join",      // 회원가입
+            "/swagger-ui/",
+            "/api-docs/"
     );
-
 
     /**
      * Access Token, Refresh Token Cookie 에 담아서 보낸다.
@@ -60,8 +56,6 @@ public class JwtFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
-        log.info("request.getCookies() : {}", (Object[]) request.getCookies());
 
         Optional<String> accessTokenAtCookie = CookieUtils.extractAccessToken(request);
         Optional<String> refreshTokenAtCookie = CookieUtils.extractRefreshToken(request);
@@ -110,8 +104,7 @@ public class JwtFilter extends OncePerRequestFilter {
         // 발급된 refreshToken을 response cookie 에 저장
         CookieUtils.addRefreshTokenAtCookie(response, newRefreshToken);
 
-        Customer customer = customerRepository.findByEmail(info)
-                .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
+        Customer customer = customerService.findCustomerByEmail(info);
 
         // 유효성 검증 통과한 경우
         log.info("유효성 검증 통과! \n SecurityContextHolder 에 Authentication 객체를 저장합니다!");

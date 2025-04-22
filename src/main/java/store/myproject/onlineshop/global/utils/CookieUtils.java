@@ -46,7 +46,7 @@ public class CookieUtils {
                 ResponseCookie.from(ACCESS_TOKEN_HEADER, value)
                         .httpOnly(false)
                         .secure(false)
-                        .sameSite("None")
+                        .sameSite("Strict")
                         .path("/")
                         .maxAge(ACCESS_TOKEN_MAX_AGE)
                         .build();
@@ -60,7 +60,7 @@ public class CookieUtils {
                 ResponseCookie.from(REFRESH_TOKEN_HEADER, value)
                         .httpOnly(false)
                         .secure(false)
-                        .sameSite("None")
+                        .sameSite("Strict")
                         .path("/")
                         .maxAge(REFRESH_TOKEN_MAX_AGE)
                         .build();

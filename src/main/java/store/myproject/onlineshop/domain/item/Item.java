@@ -30,7 +30,7 @@ import static store.myproject.onlineshop.exception.ErrorCode.*;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Where(clause = "deleted_date IS NULL")
-@SQLDelete(sql = "UPDATE item SET deleted_date = CURRENT_TIMESTAMP WHERE item_id = ?")
+@SQLDelete(sql = "UPDATE Item SET deleted_date = CURRENT_TIMESTAMP WHERE item_id = ?")
 public class Item extends BaseEntity {
     // Item 엔티티의 기본 키
     @Id

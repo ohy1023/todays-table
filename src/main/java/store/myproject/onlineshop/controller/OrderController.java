@@ -8,10 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.Response;
 import store.myproject.onlineshop.domain.cart.dto.CartOrderRequest;
+import store.myproject.onlineshop.domain.delivery.dto.DeliveryUpdateRequest;
 import store.myproject.onlineshop.domain.order.dto.*;
 import store.myproject.onlineshop.service.OrderService;
 
@@ -60,6 +62,12 @@ public class OrderController {
         return Response.success(response);
     }
 
+    @Operation(summary = "해당 주문의 배송지 변경")
+    @PutMapping("/{orderId}")
+    public Response<MessageResponse> changeDeliveryInfo(@PathVariable Long orderId, @RequestBody DeliveryUpdateRequest request) {
+        return Response.success(orderService.updateDeliveryInfo(orderId, request));
+    }
+
     @Operation(summary = "장바구니 내 품목 구매")
     @PostMapping("/cart")
     public Response<List<OrderInfo>> order(@RequestBody CartOrderRequest request, Authentication authentication) {
@@ -73,19 +81,19 @@ public class OrderController {
 
     @Operation(summary = "주문 취소")
     @DeleteMapping("/{orderItemId}")
-    public Response<MessageResponse> cancel(@PathVariable Long orderItemId, Authentication authentication) throws IamportResponseException, IOException {
+    public Response<MessageResponse> cancel(@PathVariable Long orderItemId) throws IamportResponseException, IOException {
         return Response.success(orderService.cancelForOrder(orderItemId));
     }
 
     @Operation(summary = "사전 검증")
     @PostMapping("/preparation")
-    public Response<PreparationResponse> prepareValid(@RequestBody PreparationRequest preparationRequest, Authentication authentication) throws IamportResponseException, IOException {
+    public Response<PreparationResponse> prepareValid(@RequestBody PreparationRequest preparationRequest) throws IamportResponseException, IOException {
         return Response.success(orderService.prepareValid(preparationRequest));
     }
 
     @Operation(summary = "사후 검증")
     @PostMapping("/verification")
-    public Response<MessageResponse> postVerification(@RequestBody PostVerificationRequest postVerificationRequest, Authentication authentication) throws IamportResponseException, IOException {
+    public Response<MessageResponse> postVerification(@RequestBody PostVerificationRequest postVerificationRequest) throws IamportResponseException, IOException {
         log.info("imp_uid:{}", postVerificationRequest.getImpUid());
         return Response.success(orderService.postVerification(postVerificationRequest));
     }

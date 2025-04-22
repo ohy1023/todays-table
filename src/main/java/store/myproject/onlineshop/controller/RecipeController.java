@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.Response;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateRequest;
-import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateResponse;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeDto;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeUpdateRequest;
 import store.myproject.onlineshop.service.RecipeService;
@@ -26,26 +25,25 @@ public class RecipeController {
 
     private final RecipeService recipeService;
 
-//    @Operation(summary = "레시피 단건 조회")
-//    @GetMapping("/{recipeId}")
-//    public Response<RecipeDto> viewOneRecipe(@PathVariable Long recipeId, @Valid @RequestPart RecipeCreateRequest request, Authentication authentication) {
-//        String email = authentication.getName();
-//        return Response.success(recipeService.viewOneRecipe(recipeId, request, email));
-//    }
+    @Operation(summary = "레시피 단건 조회")
+    @GetMapping("/{recipeId}")
+    public Response<RecipeDto> viewOneRecipe(@PathVariable Long recipeId) {
+        return Response.success(recipeService.getRecipe(recipeId));
+    }
 
     @Operation(summary = "레시피 작성")
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public Response<RecipeCreateResponse> writeRecipe(@Valid @RequestPart RecipeCreateRequest request, @RequestPart(required = false) List<MultipartFile> multipartFileList, Authentication authentication) {
+    public Response<MessageResponse> writeRecipe(@Valid @RequestPart RecipeCreateRequest request, @RequestPart(required = false) List<MultipartFile> multipartFileList, Authentication authentication) {
         String email = authentication.getName();
-        return Response.success(recipeService.writeRecipe(request, multipartFileList, email));
+        return Response.success(recipeService.createRecipe(request, multipartFileList, email));
     }
 
-//    @Operation(summary = "레시피 수정")
-//    @PutMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-//    public Response<RecipeCreateResponse> writeRecipe(@Valid @RequestPart RecipeUpdateRequest request, @RequestPart(required = false) List<MultipartFile> multipartFileList, Authentication authentication) {
-//        String email = authentication.getName();
-//        return Response.success(recipeService.updateRecipe(request, multipartFileList, email));
-//    }
+    @Operation(summary = "레시피 수정")
+    @PutMapping(value = "/{recipeId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public Response<MessageResponse> writeRecipe(@PathVariable Long recipeId, @Valid @RequestPart RecipeUpdateRequest request, @RequestPart(required = false) List<MultipartFile> multipartFileList, Authentication authentication) {
+        String email = authentication.getName();
+        return Response.success(recipeService.updateRecipe(recipeId, request, multipartFileList, email));
+    }
 
     @Operation(summary = "레시피 삭제")
     @DeleteMapping("/{recipeId}")

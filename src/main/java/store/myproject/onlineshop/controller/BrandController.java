@@ -56,8 +56,7 @@ public class BrandController {
 
     @Operation(
             summary = "브랜드 등록",
-            description = "브랜드 정보와 이미지 파일을 함께 등록합니다.",
-            security = @SecurityRequirement(name = "JWT")
+            description = "브랜드 정보와 이미지 파일을 함께 등록합니다."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "브랜드 등록 성공"),
@@ -66,16 +65,14 @@ public class BrandController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Response<MessageResponse> createBrand(
             @Valid @RequestPart BrandCreateRequest request,
-            @RequestPart MultipartFile multipartFile,
-            Authentication authentication) {
+            @RequestPart MultipartFile multipartFile) {
 
         return Response.success(brandService.createBrand(request, multipartFile));
     }
 
     @Operation(
             summary = "브랜드 수정",
-            description = "브랜드 정보를 수정합니다. 이미지 파일을 선택적으로 포함할 수 있습니다.",
-            security = @SecurityRequirement(name = "JWT")
+            description = "브랜드 정보를 수정합니다. 이미지 파일을 선택적으로 포함할 수 있습니다."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "브랜드 수정 성공"),
@@ -86,15 +83,13 @@ public class BrandController {
             @Parameter(description = "브랜드 ID", example = "1")
             @PathVariable Long brandId,
             @Valid @RequestPart BrandUpdateRequest request,
-            @RequestPart(required = false) MultipartFile multipartFile,
-            Authentication authentication) {
+            @RequestPart(required = false) MultipartFile multipartFile) {
         return Response.success(brandService.updateBrand(brandId, request, multipartFile));
     }
 
     @Operation(
             summary = "브랜드 삭제",
-            description = "특정 브랜드를 삭제합니다. 연관 이미지도 함께 제거됩니다.",
-            security = @SecurityRequirement(name = "JWT")
+            description = "특정 브랜드를 삭제합니다. 연관 이미지도 함께 제거됩니다."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "브랜드 삭제 성공"),
@@ -103,8 +98,7 @@ public class BrandController {
     @DeleteMapping("/{brandId}")
     public Response<MessageResponse> deleteBrand(
             @Parameter(description = "브랜드 ID", example = "1")
-            @PathVariable Long brandId,
-            Authentication authentication) {
+            @PathVariable Long brandId) {
         return Response.success(brandService.deleteBrand(brandId));
     }
 }

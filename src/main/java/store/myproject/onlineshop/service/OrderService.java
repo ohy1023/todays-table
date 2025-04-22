@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.alert.AlertType;
 import store.myproject.onlineshop.domain.cart.Cart;
@@ -27,6 +28,7 @@ import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
 import store.myproject.onlineshop.domain.delivery.Delivery;
 import store.myproject.onlineshop.domain.delivery.DeliveryStatus;
+import store.myproject.onlineshop.domain.delivery.dto.DeliveryUpdateRequest;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.item.repository.ItemRepository;
 import store.myproject.onlineshop.domain.membership.MemberShip;
@@ -36,6 +38,7 @@ import store.myproject.onlineshop.domain.order.repository.OrderRepository;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
 import store.myproject.onlineshop.domain.orderitem.repository.OrderItemRepository;
 import store.myproject.onlineshop.exception.AppException;
+import store.myproject.onlineshop.global.utils.MessageUtil;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -56,6 +59,7 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final ItemRepository itemRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final MessageUtil messageUtil;
 
     @Value("${payment.rest.api.key}")
     private String apiKey;
@@ -128,6 +132,16 @@ public class OrderService {
         return savedOrder.toOrderInfo();
     }
 
+    public MessageResponse updateDeliveryInfo(Long orderId, DeliveryUpdateRequest request) {
+        Order findOrder = orderRepository.findById(orderId)
+                .orElseThrow(() -> new AppException(ORDER_NOT_FOUND, ORDER_NOT_FOUND.getMessage()));
+
+        Delivery delivery = findOrder.getDelivery();
+
+        delivery.setInfo(request);
+
+        return new MessageResponse(messageUtil.get(MessageCode.ORDER_DELIVERY_MODIFIED));
+    }
 
     // 주문 취소
     public MessageResponse cancelForOrder(Long orderItemId) throws IamportResponseException, IOException {
@@ -246,14 +260,12 @@ public class OrderService {
         return totalPrice;
     }
 
-    private MessageResponse cancelReservation(CancelRequest cancelReq) throws IamportResponseException, IOException {
+    private void cancelReservation(CancelRequest cancelReq) throws IamportResponseException, IOException {
         IamportResponse<Payment> response = iamportClient.paymentByImpUid(cancelReq.getImpUid());
         //cancelData 생성
         CancelData cancelData = createCancelData(response, cancelReq.getRefundAmount());
         //결제 취소
         iamportClient.cancelPaymentByImpUid(cancelData);
-
-        return new MessageResponse("취소되었습니다.");
     }
 
     private CancelData createCancelData(IamportResponse<Payment> response, BigDecimal refundAmount) {

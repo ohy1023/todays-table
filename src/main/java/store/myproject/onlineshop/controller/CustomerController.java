@@ -27,7 +27,7 @@ public class CustomerController {
     @Operation(summary = "회원 가입")
     @PostMapping("/join")
     public Response<MessageResponse> join(@Valid @RequestBody CustomerJoinRequest reqeust) {
-        MessageResponse response = customerService.join(reqeust);
+        MessageResponse response = customerService.registerCustomer(reqeust);
         return Response.success(response);
     }
 
@@ -66,36 +66,32 @@ public class CustomerController {
 
     @Operation(summary = "회원 정보 수정")
     @PatchMapping
-    public Response<Long> modify(@RequestBody CustomerModifyRequest customerModifyRequest, Authentication authentication) {
+    public Response<MessageResponse> modify(@RequestBody CustomerModifyRequest customerModifyRequest, Authentication authentication) {
 
         String email = authentication.getName();
 
-        Long customerId = customerService.modify(customerModifyRequest, email);
-        return Response.success(customerId);
+        return Response.success(customerService.updateCustomerInfo(customerModifyRequest, email));
     }
 
     @Operation(summary = "회원 탈퇴")
     @DeleteMapping
-    public Response<Long> delete(Authentication authentication) {
+    public Response<MessageResponse> delete(Authentication authentication) {
 
         String email = authentication.getName();
 
-        Long customerId = customerService.delete(email);
-        return Response.success(customerId);
+        return Response.success(customerService.deleteCustomer(email));
     }
 
     @Operation(summary = "이메일 중복 체크")
     @PostMapping("/email")
-    public Response<String> emailCheck(@Valid @RequestBody CustomerEmailCheckRequest request) {
-        String msg = customerService.emailCheck(request);
-        return Response.success(msg);
+    public Response<MessageResponse> emailCheck(@Valid @RequestBody CustomerEmailCheckRequest request) {
+        return Response.success(customerService.checkEmail(request));
     }
 
     @Operation(summary = "닉네임 중복 체크")
     @PostMapping("/nickname")
-    public Response<String> nickNameCheck(@Valid @RequestBody CustomerNickNameCheckRequest request) {
-        String msg = customerService.nickNameCheck(request);
-        return Response.success(msg);
+    public Response<MessageResponse> nickNameCheck(@Valid @RequestBody CustomerNickNameCheckRequest request) {
+        return Response.success(customerService.checkNickName(request));
     }
 
     @Operation(summary = "토큰 재발급")
@@ -104,7 +100,7 @@ public class CustomerController {
         String info = authentication.getName();
         LoginResponse loginResponse;
 
-        loginResponse = customerService.reissue(userTokenRequest, info);
+        loginResponse = customerService.reissueToken(userTokenRequest, info);
 
 
         return Response.success(loginResponse);
@@ -114,9 +110,8 @@ public class CustomerController {
     @GetMapping
     public Response<CustomerInfoResponse> getInfo(Authentication authentication) {
         String email = authentication.getName();
-        log.info("userEmail : {}", email);
 
-        CustomerInfoResponse customerInfoResponse = customerService.getInfo(email);
+        CustomerInfoResponse customerInfoResponse = customerService.getCustomerInfo(email);
 
         return Response.success(customerInfoResponse);
     }
@@ -124,9 +119,8 @@ public class CustomerController {
 
     @Operation(summary = "임시 비밀번호 발급")
     @PutMapping("/temp-password")
-    public Response<String> findPassword(@Valid @RequestBody CustomerTempPasswordRequest request) {
-        customerService.setTempPassword(request);
-        return Response.success("ok");
+    public Response<CustomerTempPasswordResponse> findPassword(@Valid @RequestBody CustomerTempPasswordRequest request) {
+        return Response.success(customerService.sendTempPassword(request));
     }
 
 //    @Operation(summary = "관리자 권한 부여")
@@ -146,9 +140,7 @@ public class CustomerController {
 
         String email = authentication.getName();
 
-        MessageResponse response = customerService.setNewPassword(request, email);
-
-        return Response.success(response);
+        return Response.success(customerService.updatePassword(request, email));
     }
 
 

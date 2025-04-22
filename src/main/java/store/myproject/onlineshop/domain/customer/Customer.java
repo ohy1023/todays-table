@@ -23,7 +23,7 @@ import static store.myproject.onlineshop.domain.customer.CustomerRole.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Where(clause = "deleted_date IS NULL")
-@SQLDelete(sql = "UPDATE customer SET deleted_date = CURRENT_TIMESTAMP WHERE customer_id = ?")
+@SQLDelete(sql = "UPDATE Customer SET deleted_date = CURRENT_TIMESTAMP WHERE customer_id = ?")
 public class Customer extends BaseEntity {
 
     @Id

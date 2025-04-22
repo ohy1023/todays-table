@@ -29,8 +29,7 @@ public class CartController {
 
     @Operation(
             summary = "장바구니 품목 추가",
-            description = "장바구니에 새로운 품목을 추가합니다.",
-            security = @SecurityRequirement(name = "JWT")
+            description = "장바구니에 새로운 품목을 추가합니다."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "장바구니에 품목 추가 성공"),
@@ -47,8 +46,7 @@ public class CartController {
 
     @Operation(
             summary = "장바구니 전체 비우기",
-            description = "장바구니의 모든 품목을 삭제합니다.",
-            security = @SecurityRequirement(name = "JWT")
+            description = "장바구니의 모든 품목을 삭제합니다."
     )
     @ApiResponse(responseCode = "200", description = "장바구니 비우기 성공")
     @DeleteMapping
@@ -60,8 +58,7 @@ public class CartController {
 
     @Operation(
             summary = "장바구니 품목 삭제",
-            description = "장바구니에서 특정 품목을 삭제합니다.",
-            security = @SecurityRequirement(name = "JWT")
+            description = "장바구니에서 특정 품목을 삭제합니다."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "품목 삭제 성공"),
@@ -79,8 +76,7 @@ public class CartController {
 
     @Operation(
             summary = "장바구니 품목 전체 조회",
-            description = "장바구니에 담긴 모든 품목을 페이징으로 조회합니다.",
-            security = @SecurityRequirement(name = "JWT")
+            description = "장바구니에 담긴 모든 품목을 페이징으로 조회합니다."
     )
     @ApiResponse(responseCode = "200", description = "장바구니 조회 성공")
     @GetMapping
