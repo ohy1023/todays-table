@@ -22,7 +22,11 @@ public class SecurityConfiguration {
     private final JwtUtils jwtUtils;
 
     private static final String[] SWAGGER_AUTH = {
+            "/api-docs/swagger-config/**",
+            "/swagger-ui.html/**",
             "/swagger-ui/**",
+            "/api-docs/**",
+            "/swagger-resources/**",
             "/v3/api-docs/**",
             "/webjars/**",
     };

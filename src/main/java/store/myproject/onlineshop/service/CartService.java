@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.cart.Cart;
 import store.myproject.onlineshop.domain.cart.dto.CartAddRequest;
@@ -19,8 +19,7 @@ import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.item.repository.ItemRepository;
 import store.myproject.onlineshop.exception.AppException;
-
-import java.util.Optional;
+import store.myproject.onlineshop.global.utils.MessageUtil;
 
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
@@ -31,100 +30,128 @@ import static store.myproject.onlineshop.exception.ErrorCode.*;
 public class CartService {
 
     private final CartRepository cartRepository;
-
     private final CartItemRepository cartItemRepository;
-
     private final CustomerRepository customerRepository;
-
     private final ItemRepository itemRepository;
+    private final MessageUtil messageUtil;
 
-    public MessageResponse addCart(CartAddRequest request, String email) {
+    /**
+     * 장바구니에 품목 추가
+     */
+    public MessageResponse addItemToCart(CartAddRequest request, String email) {
+        Customer customer = findCustomerByEmail(email);
+        Cart cart = findOrCreateCartByCustomer(customer);
+        Item item = findItemById(request.getItemId());
 
-        Customer findCustomer = customerRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
+        cartItemRepository.findByCartAndItem(cart, item)
+                .ifPresentOrElse(
+                        existingItem -> updateItemCount(existingItem, request.getItemCnt(), item),
+                        () -> addNewItemToCart(cart, item, request.getItemCnt())
+                );
 
-        Cart myCart = cartRepository.findByCustomer(findCustomer)
-                .orElseGet(() -> cartRepository.save(Cart.createCart(findCustomer)));
-
-        Item findItem = itemRepository.findById(request.getItemId())
-                .orElseThrow(() -> new AppException(ITEM_NOT_FOUND, ITEM_NOT_FOUND.getMessage()));
-
-        Optional<CartItem> cartItem = cartItemRepository.findByCartAndItem(myCart, findItem);
-
-        if (cartItem.isEmpty()) {
-            if (findItem.getStock() < request.getItemCnt()) {
-                throw new AppException(NOT_ENOUGH_STOCK, NOT_ENOUGH_STOCK.getMessage());
-            }
-            CartItem createCartItem = CartItem.createCartItem(findItem, request.getItemCnt(), myCart);
-
-            cartItemRepository.save(createCartItem);
-        } else {
-            Long cnt = cartItem.get().getCartItemCnt() + request.getItemCnt();
-
-            if (findItem.getStock() < cnt) {
-                throw new AppException(NOT_ENOUGH_STOCK, NOT_ENOUGH_STOCK.getMessage());
-            }
-
-            cartItem.get().plusItemCnt(request.getItemCnt());
-        }
-
-        return new MessageResponse("해당 아이템이 장바구니에 추가되었습니다.");
+        return new MessageResponse(messageUtil.get(MessageCode.CART_ITEM_ADDED));
     }
 
-    public MessageResponse deleteCarts(String email) {
+    /**
+     * 장바구니 비우기 (모든 품목 삭제)
+     */
+    public MessageResponse clearCart(String email) {
+        Customer customer = findCustomerByEmail(email);
+        Cart cart = findCartByCustomer(customer);
 
-        Customer findCustomer = customerRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
-
-        Cart findCart = cartRepository.findByCustomer(findCustomer)
-                .orElseThrow(() -> new AppException(CART_NOT_FOUND, CART_NOT_FOUND.getMessage()));
-
-        cartItemRepository.deleteByCart(findCart);
-
-        return new MessageResponse("장바구니를 비웠습니다.");
+        cartItemRepository.deleteByCart(cart);
+        return new MessageResponse(messageUtil.get(MessageCode.CART_CLEARED));
     }
 
+    /**
+     * 장바구니 품목 전체 조회 (페이징)
+     */
     @Transactional(readOnly = true)
-    public Page<CartItemResponse> selectAllCartItem(String email, Pageable pageable) {
+    public Page<CartItemResponse> getCartItems(String email, Pageable pageable) {
+        Customer customer = findCustomerByEmail(email);
+        Cart cart = findCartByCustomer(customer);
 
-        Customer findCustomer = customerRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
-
-        Cart myCart = cartRepository.findByCustomer(findCustomer)
-                .orElseThrow(() -> new AppException(CART_NOT_FOUND, CART_NOT_FOUND.getMessage()));
-
-        return cartItemRepository.findByCartPage(myCart, pageable);
-
+        return cartItemRepository.findByCartPage(cart, pageable);
     }
 
-    public MessageResponse deleteItem(Long itemId, String email) {
+    /**
+     * 장바구니에서 특정 품목 삭제
+     */
+    public MessageResponse deleteItemFromCart(Long itemId, String email) {
+        findCustomerByEmail(email); // 고객 존재 여부 확인
+        Item item = findItemById(itemId);
 
-        Customer findCustomer = customerRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
-
-        cartRepository.findByCustomer(findCustomer)
-                .orElseThrow(() -> new AppException(CART_NOT_FOUND, CART_NOT_FOUND.getMessage()));
-
-        Item findItem = itemRepository.findById(itemId)
-                .orElseThrow(() -> new AppException(ITEM_NOT_FOUND, ITEM_NOT_FOUND.getMessage()));
-
-        cartItemRepository.deleteByItem(findItem);
-
-        return new MessageResponse("장바구니에서 해당 품목을 삭제하였습니다.");
+        cartItemRepository.deleteByItem(item);
+        return new MessageResponse(messageUtil.get(MessageCode.CART_ITEM_DELETED));
     }
 
-    public MessageResponse updateCheck(Long cartItemId, String email) {
-        Customer findCustomer = customerRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
+    // === private utils ===
 
-        cartRepository.findByCustomer(findCustomer)
-                .orElseThrow(() -> new AppException(CART_NOT_FOUND, CART_NOT_FOUND.getMessage()));
-
-        CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new AppException(CART_ITEM_NOT_FOUND, CART_ITEM_NOT_FOUND.getMessage()));
-
-        cartItem.setCheck();
-
-        return new MessageResponse(String.format("%b로 변경되었습니다.", cartItem.isChecked()));
+    /**
+     * 이메일로 고객 조회 (없으면 예외 발생)
+     */
+    private Customer findCustomerByEmail(String email) {
+        return customerRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND));
     }
+
+    /**
+     * 고객의 장바구니 조회, 없으면 새로 생성
+     */
+    private Cart findOrCreateCartByCustomer(Customer customer) {
+        return cartRepository.findByCustomer(customer)
+                .orElseGet(() -> cartRepository.save(Cart.createCart(customer)));
+    }
+
+    /**
+     * 고객의 장바구니 조회 (없으면 예외 발생)
+     */
+    private Cart findCartByCustomer(Customer customer) {
+        return cartRepository.findByCustomer(customer)
+                .orElseThrow(() -> new AppException(CART_NOT_FOUND));
+    }
+
+    /**
+     * 품목 ID로 조회 (없으면 예외 발생)
+     */
+    private Item findItemById(Long id) {
+        return itemRepository.findById(id)
+                .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
+    }
+
+    /**
+     * 장바구니 품목 ID로 조회 (없으면 예외 발생)
+     */
+    private CartItem findCartItemById(Long id) {
+        return cartItemRepository.findById(id)
+                .orElseThrow(() -> new AppException(CART_ITEM_NOT_FOUND));
+    }
+
+    /**
+     * 기존 장바구니 품목 수량 증가 (재고 초과 여부 검증 포함)
+     */
+    private void updateItemCount(CartItem cartItem, Long additionalCount, Item item) {
+        long newCount = cartItem.getCartItemCnt() + additionalCount;
+        validateStockEnough(item, newCount);
+        cartItem.plusItemCnt(additionalCount);
+    }
+
+    /**
+     * 장바구니에 새 품목 추가
+     */
+    private void addNewItemToCart(Cart cart, Item item, Long count) {
+        validateStockEnough(item, count);
+        CartItem newCartItem = CartItem.createCartItem(item, count, cart);
+        cartItemRepository.save(newCartItem);
+    }
+
+    /**
+     * 재고 부족 여부 검증
+     */
+    private void validateStockEnough(Item item, long requiredCount) {
+        if (item.getStock() < requiredCount) {
+            throw new AppException(NOT_ENOUGH_STOCK);
+        }
+    }
+
 }

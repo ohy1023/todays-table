@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import store.myproject.onlineshop.domain.MessageCode;
+import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.brand.dto.*;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.imagefile.ImageFile;
@@ -17,7 +19,7 @@ import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.s3.service.AwsS3Service;
 import store.myproject.onlineshop.global.utils.FileUtils;
 import store.myproject.onlineshop.domain.brand.repository.BrandRepository;
-
+import store.myproject.onlineshop.global.utils.MessageUtil;
 
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
@@ -26,105 +28,100 @@ import static store.myproject.onlineshop.exception.ErrorCode.*;
 @Transactional
 @RequiredArgsConstructor
 public class BrandService {
+
     private final ImageFileRepository imageFileRepository;
-
     private final BrandRepository brandRepository;
-
     private final AwsS3Service awsS3Service;
+    private final MessageUtil messageUtil;
 
-    // 브랜드 단건 조회
+    /**
+     * 브랜드 단건 조회 (캐싱 적용)
+     */
     @Transactional(readOnly = true)
     @Cacheable(value = "brands", key = "#id")
-    public BrandInfo getBrandInfo(Long id) {
-        return getBrandOrElseThrow(id).toBrandInfo();
+    public BrandInfo findBrandInfoById(Long id) {
+        return findBrandOrThrow(id).toBrandInfo();
     }
 
-    // 브랜드 전체 조회
+    /**
+     * 브랜드 전체 조회 (검색어 + 페이징)
+     */
     @Transactional(readOnly = true)
-    public Page<BrandInfo> getBrandInfos(String brandName, Pageable pageable) {
+    public Page<BrandInfo> searchBrands(String brandName, Pageable pageable) {
         return brandRepository.search(brandName, pageable);
     }
 
-    // 브랜드 추가
-    public BrandCreateResponse saveBrand(BrandCreateRequest request, MultipartFile multipartFile) {
+    /**
+     * 브랜드 등록
+     */
+    public MessageResponse createBrand(BrandCreateRequest request, MultipartFile multipartFile) {
+        validateBrandNameUniqueness(request.getName());
 
-        checkDuplicatedBrand(request.getName());
-
-        String originImageUrl = awsS3Service.uploadBrandOriginImage(multipartFile);
-
+        String imageUrl = awsS3Service.uploadBrandOriginImage(multipartFile);
         Brand savedBrand = brandRepository.save(request.toEntity());
 
-        ImageFile image = ImageFile.createImage(originImageUrl, savedBrand);
-
+        ImageFile image = ImageFile.createImage(imageUrl, savedBrand);
         image.addBrand(savedBrand);
-
         imageFileRepository.save(image);
 
-        return savedBrand.toBrandCreateResponse(originImageUrl);
+        return new MessageResponse(messageUtil.get(MessageCode.BRAND_ADDED));
     }
 
-    // 브랜드 수정
+    /**
+     * 브랜드 수정 (이미지 변경 포함, 캐시 초기화)
+     */
     @CacheEvict(value = "brands", allEntries = true)
-    public BrandUpdateResponse updateBrand(Long id, BrandUpdateRequest request, MultipartFile multipartFile) {
-
-        Brand brand = getBrandOrElseThrow(id);
+    public MessageResponse updateBrand(Long id, BrandUpdateRequest request, MultipartFile multipartFile) {
+        Brand brand = findBrandOrThrow(id);
 
         if (multipartFile != null) {
-            String extractFileName = FileUtils.extractFileName(brand.getImageFile().getImageUrl());
+            String oldFileName = FileUtils.extractFileName(brand.getImageFile().getImageUrl());
+            awsS3Service.deleteBrandImage(oldFileName);
 
-            awsS3Service.deleteBrandImage(extractFileName);
+            ImageFile oldImage = brand.getImageFile();
+            oldImage.removeBrand();
+            imageFileRepository.deleteById(oldImage.getId());
 
-            ImageFile curImageFile = brand.getImageFile();
-
-            curImageFile.removeBrand();
-
-            imageFileRepository.deleteById(curImageFile.getId());
-
-            String newUrl = awsS3Service.uploadBrandOriginImage(multipartFile);
-
-            ImageFile image = ImageFile.createImage(newUrl, brand);
-
-            image.addBrand(brand);
-
-            imageFileRepository.save(image);
+            String newImageUrl = awsS3Service.uploadBrandOriginImage(multipartFile);
+            ImageFile newImage = ImageFile.createImage(newImageUrl, brand);
+            newImage.addBrand(brand);
+            imageFileRepository.save(newImage);
         }
 
         brand.update(request);
 
-        return brand.toBrandUpdateResponse();
+        return new MessageResponse(messageUtil.get(MessageCode.BRAND_MODIFIED));
     }
 
-    // 브랜드 삭제
+    /**
+     * 브랜드 삭제 (캐시 초기화 및 이미지 삭제 포함)
+     */
     @CacheEvict(value = "brands", allEntries = true)
-    public BrandDeleteResponse deleteBrand(Long id) {
+    public MessageResponse deleteBrand(Long id) {
+        Brand brand = findBrandOrThrow(id);
 
-        Brand brand = getBrandOrElseThrow(id);
-
-        ImageFile curImageFile = brand.getImageFile();
-
-        String extractFileName = FileUtils.extractFileName(curImageFile.getImageUrl());
-
-        awsS3Service.deleteBrandImage(extractFileName);
+        ImageFile image = brand.getImageFile();
+        String fileName = FileUtils.extractFileName(image.getImageUrl());
+        awsS3Service.deleteBrandImage(fileName);
 
         brandRepository.deleteById(id);
-
-        return brand.toBrandDeleteResponse();
+        return new MessageResponse(messageUtil.get(MessageCode.BRAND_DELETED));
     }
 
-
-    // 브랜드 찾기
-    @Transactional(readOnly = true)
-    public Brand getBrandOrElseThrow(Long id) {
-        return brandRepository.findById(id).orElseThrow(() -> new AppException(BRAND_NOT_FOUND, BRAND_NOT_FOUND.getMessage()));
+    /**
+     * 브랜드 ID로 조회 (없으면 예외 발생)
+     */
+    private Brand findBrandOrThrow(Long id) {
+        return brandRepository.findById(id)
+                .orElseThrow(() -> new AppException(BRAND_NOT_FOUND, BRAND_NOT_FOUND.getMessage()));
     }
 
-    // 브랜드 명 중복 확인
-    @Transactional(readOnly = true)
-    public void checkDuplicatedBrand(String brandName) {
+    /**
+     * 브랜드 이름 중복 여부 검증 (중복이면 예외)
+     */
+    private void validateBrandNameUniqueness(String brandName) {
         if (brandRepository.existsByName(brandName)) {
             throw new AppException(DUPLICATE_BRAND);
         }
     }
-
-
 }

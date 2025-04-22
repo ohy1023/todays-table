@@ -8,7 +8,6 @@ import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.brand.dto.*;
 import store.myproject.onlineshop.domain.imagefile.ImageFile;
 import store.myproject.onlineshop.domain.item.Item;
-import store.myproject.onlineshop.domain.orderitem.OrderItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,25 +39,6 @@ public class Brand extends BaseEntity {
     public BrandInfo toBrandInfo() {
         return BrandInfo.builder()
                 .id(this.id)
-                .name(this.name)
-                .build();
-    }
-
-    public BrandCreateResponse toBrandCreateResponse(String brandImg) {
-        return BrandCreateResponse.builder()
-                .name(this.name)
-                .brandImg(brandImg)
-                .build();
-    }
-
-    public BrandDeleteResponse toBrandDeleteResponse() {
-        return BrandDeleteResponse.builder()
-                .name(this.name)
-                .build();
-    }
-
-    public BrandUpdateResponse toBrandUpdateResponse() {
-        return BrandUpdateResponse.builder()
                 .name(this.name)
                 .build();
     }
