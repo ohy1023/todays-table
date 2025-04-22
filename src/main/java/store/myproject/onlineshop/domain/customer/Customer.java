@@ -40,6 +40,7 @@ public class Customer extends BaseEntity {
     @Column(name = "user_name")
     private String userName;
 
+    @Setter
     private String password;
 
     private String tel;
@@ -71,7 +72,7 @@ public class Customer extends BaseEntity {
 
     @PrePersist
     public void prePersist() {
-        this.customerRole = this.customerRole == null ? ROLE_CUSTOMER : this.customerRole;
+        this.customerRole = this.customerRole == null ? ROLE_USER : this.customerRole;
         this.totalPurchaseAmount = this.totalPurchaseAmount == null ? new BigDecimal(0) : this.totalPurchaseAmount;
     }
 
@@ -87,10 +88,6 @@ public class Customer extends BaseEntity {
                 .zipcode(request.getZipcode())
                 .build();
 
-    }
-
-    public void setPassword(String newPassword) {
-        this.password = newPassword;
     }
 
     public void setTempPassword(String tempPassword) {

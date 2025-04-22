@@ -596,42 +596,42 @@ class CustomerControllerTest {
 
     }
 
-    @Test
-    @DisplayName("admin 변경 성공")
-    public void change_to_admin_success() throws Exception {
+//    @Test
+//    @DisplayName("admin 변경 성공")
+//    public void change_to_admin_success() throws Exception {
+//
+//        // given
+//        given(customerService.settingAdmin(any(String.class)))
+//                .willReturn(new MessageResponse("회원의 권한을 Admin으로 설정하였습니다."));
+//
+//        // when & then
+//        mockMvc.perform(put("/api/v1/customers/admin")
+//                        .with(csrf()))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.resultCode").value(SUCCESS))
+//                .andExpect(jsonPath("$.result.msg").value("회원의 권한을 Admin으로 설정하였습니다."))
+//                .andDo(print());
+//
+//    }
 
-        // given
-        given(customerService.settingAdmin(any(String.class)))
-                .willReturn(new MessageResponse("회원의 권한을 Admin으로 설정하였습니다."));
-
-        // when & then
-        mockMvc.perform(put("/api/v1/customers/admin")
-                        .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value(SUCCESS))
-                .andExpect(jsonPath("$.result.msg").value("회원의 권한을 Admin으로 설정하였습니다."))
-                .andDo(print());
-
-    }
-
-    @Test
-    @DisplayName("admin 변경 실패- 이미 admin인 경우")
-    public void change_to_admin_fail_already_admin() throws Exception {
-
-        // given
-        given(customerService.settingAdmin(any(String.class)))
-                .willThrow(new AppException(ALREADY_ADMIN, ALREADY_ADMIN.getMessage()));
-
-        // when & then
-        mockMvc.perform(put("/api/v1/customers/admin")
-                        .with(csrf()))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.resultCode").value(ERROR))
-                .andExpect(jsonPath("$.result.errorCode").value("ALREADY_ADMIN"))
-                .andExpect(jsonPath("$.result.message").value(ALREADY_ADMIN.getMessage()))
-                .andDo(print());
-
-    }
+//    @Test
+//    @DisplayName("admin 변경 실패- 이미 admin인 경우")
+//    public void change_to_admin_fail_already_admin() throws Exception {
+//
+//        // given
+//        given(customerService.settingAdmin(any(String.class)))
+//                .willThrow(new AppException(ALREADY_ADMIN, ALREADY_ADMIN.getMessage()));
+//
+//        // when & then
+//        mockMvc.perform(put("/api/v1/customers/admin")
+//                        .with(csrf()))
+//                .andExpect(status().isConflict())
+//                .andExpect(jsonPath("$.resultCode").value(ERROR))
+//                .andExpect(jsonPath("$.result.errorCode").value("ALREADY_ADMIN"))
+//                .andExpect(jsonPath("$.result.message").value(ALREADY_ADMIN.getMessage()))
+//                .andDo(print());
+//
+//    }
 
     @Test
     @DisplayName("임시 비밀번호 발급 성공")

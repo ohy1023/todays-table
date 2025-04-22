@@ -17,13 +17,8 @@ public class RedisConfig {
     @Value("${spring.data.redis.auth.port}")
     private int redisPort;
 
-    @Value("${spring.data.redis.auth.database}")
-    private int authRedisDatabase;
-
     public RedisConnectionFactory redisConnectionFactory() {
-        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(redisHost, redisPort);
-        config.setDatabase(authRedisDatabase);
-        return new LettuceConnectionFactory(config);
+        return new LettuceConnectionFactory(new RedisStandaloneConfiguration(redisHost, redisPort));
     }
 
     /**

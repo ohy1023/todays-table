@@ -48,9 +48,6 @@ public class BrandService {
     // 브랜드 추가
     public BrandCreateResponse saveBrand(BrandCreateRequest request, MultipartFile multipartFile) {
 
-        log.info("request : {}", request.toString());
-        log.info("Check if file exists : {}", !multipartFile.isEmpty());
-
         checkDuplicatedBrand(request.getName());
 
         String originImageUrl = awsS3Service.uploadBrandOriginImage(multipartFile);
@@ -63,7 +60,7 @@ public class BrandService {
 
         imageFileRepository.save(image);
 
-        return savedBrand.toBrandCreateResponse();
+        return savedBrand.toBrandCreateResponse(originImageUrl);
     }
 
     // 브랜드 수정
@@ -116,12 +113,14 @@ public class BrandService {
 
 
     // 브랜드 찾기
-    private Brand getBrandOrElseThrow(Long id) {
+    @Transactional(readOnly = true)
+    public Brand getBrandOrElseThrow(Long id) {
         return brandRepository.findById(id).orElseThrow(() -> new AppException(BRAND_NOT_FOUND, BRAND_NOT_FOUND.getMessage()));
     }
 
     // 브랜드 명 중복 확인
-    private void checkDuplicatedBrand(String brandName) {
+    @Transactional(readOnly = true)
+    public void checkDuplicatedBrand(String brandName) {
         if (brandRepository.existsByName(brandName)) {
             throw new AppException(DUPLICATE_BRAND);
         }

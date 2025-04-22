@@ -3,13 +3,10 @@ package store.myproject.onlineshop.global.token;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,19 +32,17 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
 
-    private final String LOGIN = "/api/v1/customers/login";
-    private final String LOGIN_URI = "/api/v1/customers/login";
+    private static final List<String> EXCLUDED_URIS = List.of(
+            "/api/v1/customers/login",     // 로그인
+            "/api/v1/customers/join",       // 회원가입
+            "/swagger-ui",                 // Swagger UI
+            "/v3/api-docs",                // Swagger 문서
+            "/swagger-resources"           // Swagger 리소스
+    );
 
-    private final String JOIN_URI = "/api/v1/customers/join";
-
-
-    @Value("${access-token-maxage}")
-    public int accessTokenMaxAge;
-    @Value("${refresh-token-maxage}")
-    public int refreshTokenMaxAge;
 
     /**
-     * Access Token 은 Header 에 담아서 보내고, Refresh Token 은 Cookie 에 담아서 보낸다.
+     * Access Token, Refresh Token Cookie 에 담아서 보낸다.
      *
      * @param request
      * @param response
@@ -58,29 +53,14 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        final String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        log.info("jwtFilter 실행");
-        log.info("request.getRequestURI() : {}", request.getRequestURI());
-        log.info("request.getRequestURL() : {}", request.getRequestURL());
+        String requestUri = request.getRequestURI();
 
-        // 메인페이지 요청일 때 토큰 검증을 하지 않는다.
-        if (request.getRequestURI().equals("/")) {
-            log.info("메인페이지 요청입니다.");
+        if (isExcludedUri(requestUri)) {
             filterChain.doFilter(request, response);
-            return; // 필터가 더 이상 진행되지 않도록 리턴
+            return;
         }
 
-        // Login 요청일 때 토큰 검증을 하지 않는다.
-        if (request.getRequestURI().equals(LOGIN_URI)
-                || request.getRequestURI().equals(LOGIN)) {
-            log.info("로그인 요청입니다.");
-            filterChain.doFilter(request, response);
-            return; // 필터가 더 이상 진행되지 않도록 리턴
-        }
-
-
-        Cookie[] cookie = request.getCookies();
         log.info("request.getCookies() : {}", (Object[]) request.getCookies());
 
         Optional<String> accessTokenAtCookie = CookieUtils.extractAccessToken(request);
@@ -105,8 +85,6 @@ public class JwtFilter extends OncePerRequestFilter {
         // refresh Token 존재 여부 확인
         if (refreshTokenAtCookie.isEmpty()) {
             log.error("Refresh Token 없습니다.");
-            log.info("request.getRequestURI() : {}", request.getRequestURI());
-            log.info("request.getRequestURL() : {}", request.getRequestURL());
             throw new JwtException("Refresh Token 없습니다.");
         }
 
@@ -117,7 +95,6 @@ public class JwtFilter extends OncePerRequestFilter {
         if (jwtUtils.isExpired(refreshToken)) {
             // refresh Token 만료된 경우
             log.error("Refresh Token 만료");
-            log.info("refreshToken : {}", refreshToken);
             throw new JwtException("만료된 RefreshToken 입니다. 다시 로그인 해주세요.");
         }
 
@@ -145,9 +122,17 @@ public class JwtFilter extends OncePerRequestFilter {
 
         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
+        log.info("권한 리스트: {}", authenticationToken.getAuthorities());
+        log.info("인증 객체 설정 전: {}", SecurityContextHolder.getContext().getAuthentication());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
+        log.info("인증 객체 설정 후: {}", SecurityContextHolder.getContext().getAuthentication());
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isExcludedUri(String uri) {
+        if (uri.equals("/")) return true;
+        return EXCLUDED_URIS.stream().anyMatch(uri::startsWith);
     }
 
 }

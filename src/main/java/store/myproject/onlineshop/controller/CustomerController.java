@@ -129,16 +129,16 @@ public class CustomerController {
         return Response.success("ok");
     }
 
-    @Operation(summary = "관리자 권한 부여")
-    @PutMapping("/admin")
-    public Response<MessageResponse> changeRole(Authentication authentication) {
-
-        String email = authentication.getName();
-
-        MessageResponse response = customerService.settingAdmin(email);
-
-        return Response.success(response);
-    }
+//    @Operation(summary = "관리자 권한 부여")
+//    @PutMapping("/admin")
+//    public Response<MessageResponse> changeRole(Authentication authentication) {
+//
+//        String email = authentication.getName();
+//
+//        MessageResponse response = customerService.settingAdmin(email);
+//
+//        return Response.success(response);
+//    }
 
     @Operation(summary = "비밀번호 변경")
     @PutMapping("/password")

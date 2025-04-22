@@ -9,8 +9,6 @@ import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.MediaType;
-
 
 /**
  * Swagger springdoc-ui 설정
@@ -25,8 +23,8 @@ public class SwaggerConfiguration {
         return new OpenAPI()
                 .addServersItem(new Server().url("/"))
                 .info(new Info()
-                        .title(" 쇼핑몰 ")
-                        .description(" 연습용 프로젝트 ")
+                        .title("오늘의 식탁 ")
+                        .description("오늘의 식탁은 레시피를 기반으로 사용자가 식재료를 쉽게 구매할 수 있도록 지원하는 백엔드 API 서비스입니다.")
                         .version(" 1.0.0 ")
                 )
                 .addSecurityItem(new SecurityRequirement().addList(defaultHeader))

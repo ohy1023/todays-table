@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import store.myproject.onlineshop.global.token.JwtExceptionFilter;
 import store.myproject.onlineshop.global.token.JwtFilter;
 import store.myproject.onlineshop.global.utils.JwtUtils;
 import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
@@ -23,11 +22,8 @@ public class SecurityConfiguration {
     private final JwtUtils jwtUtils;
 
     private static final String[] SWAGGER_AUTH = {
-            "/api-docs/swagger-config/**",
-            "/swagger-ui.html/**",
             "/swagger-ui/**",
-            "/api-docs/**",
-            "/swagger-resources/**",
+            "/v3/api-docs/**",
             "/webjars/**",
     };
 
@@ -41,91 +37,90 @@ public class SecurityConfiguration {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests(authorize -> authorize
-                        // Swagger 허용
-                        .requestMatchers(SWAGGER_AUTH).permitAll()
+                                // Swagger 허용
+                                .requestMatchers(SWAGGER_AUTH).permitAll()
 
-                        // 비회원 접근 허용
-                        .requestMatchers(
-                                "/api/v1/customers/join",
-                                "/api/v1/customers/login",
-                                "/api/v1/corporations/join",
-                                "/api/v1/corporations/login",
-                                "/api/v1/customers/email",
-                                "/api/v1/customers/nickName",
-                                "/api/v1/brands/*",
-                                "/api/v1/memberships",
-                                "/api/v1/memberships/*",
-                                "/api/v1/items/*",       // 품목 단건 조회
-                                "/api/v1/*/likes"       // 좋아요 수 조회 (GET 기준)
-                        ).permitAll()
+                                // 비회원 접근 허용
+                                .requestMatchers(
+                                        "/api/v1/customers/join",
+                                        "/api/v1/customers/login",
+                                        "/api/v1/corporations/join",
+                                        "/api/v1/corporations/login",
+                                        "/api/v1/customers/email",
+                                        "/api/v1/customers/nickName",
+                                        "/api/v1/brands/*",
+                                        "/api/v1/memberships",
+                                        "/api/v1/memberships/*",
+                                        "/api/v1/items/*",       // 품목 단건 조회
+                                        "/api/v1/*/likes"       // 좋아요 수 조회 (GET 기준)
+                                ).permitAll()
 
-                        // ADMIN 전용
-                        .requestMatchers(HttpMethod.POST,
-                                "/api/v1/brands",
-                                "/api/v1/memberships",
-                                "/api/v1/recipes",
-                                "/api/v1/items"
-                        ).hasRole("ADMIN")
+                                // ADMIN 전용
+                                .requestMatchers(HttpMethod.POST,
+                                        "/api/v1/brands",
+                                        "/api/v1/memberships",
+                                        "/api/v1/recipes",
+                                        "/api/v1/items"
+                                ).hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.PUT,
-                                "/api/v1/brands/*",
-                                "/api/v1/memberships/*",
-                                "/api/v1/recipes/*/reviews/*",
-                                "/api/v1/items/*"
-                        ).hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.PUT,
+                                        "/api/v1/brands/*",
+                                        "/api/v1/memberships/*",
+                                        "/api/v1/recipes/*/reviews/*",
+                                        "/api/v1/items/*"
+                                ).hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.DELETE,
-                                "/api/v1/brands/*",
-                                "/api/v1/memberships/*",
-                                "/api/v1/recipes/*/reviews/*",
-                                "/api/v1/items/*"
-                        ).hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.DELETE,
+                                        "/api/v1/brands/*",
+                                        "/api/v1/memberships/*",
+                                        "/api/v1/recipes/*/reviews/*",
+                                        "/api/v1/items/*"
+                                ).hasRole("ADMIN")
 
-                        // USER 이상 접근 허용
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/v1/accounts",
-                                "/api/v1/orders/*",
-                                "/api/v1/orders/search",
-                                "/api/v1/carts"
-                        ).authenticated()
+                                // USER 이상 접근 허용
+                                .requestMatchers(HttpMethod.GET,
+                                        "/api/v1/accounts",
+                                        "/api/v1/orders/*",
+                                        "/api/v1/orders/search",
+                                        "/api/v1/carts"
+                                ).authenticated()
 
-                        .requestMatchers(HttpMethod.POST,
-                                "/api/v1/customers/reissue",
-                                "/api/v1/customers/logout",
-                                "/api/v1/accounts",
-                                "/api/v1/recipes",
-                                "/api/v1/orders",
-                                "/api/v1/orders/cart",
-                                "/api/v1/carts",
-                                "/api/v1/carts/*",
-                                "/api/v1/*/likes" // 좋아요 누르기
-                        ).authenticated()
+                                .requestMatchers(HttpMethod.POST,
+                                        "/api/v1/customers/reissue",
+                                        "/api/v1/customers/logout",
+                                        "/api/v1/accounts",
+                                        "/api/v1/recipes",
+                                        "/api/v1/orders",
+                                        "/api/v1/orders/cart",
+                                        "/api/v1/carts",
+                                        "/api/v1/carts/*",
+                                        "/api/v1/*/likes" // 좋아요 누르기
+                                ).authenticated()
 
-                        .requestMatchers(HttpMethod.PUT,
-                                "/api/v1/customers",
-                                "/api/v1/accounts",
-                                "/api/v1/recipes/*/reviews/*",
-                                "/api/v1/deliveries/*"
-                        ).authenticated()
+                                .requestMatchers(HttpMethod.PUT,
+                                        "/api/v1/customers",
+                                        "/api/v1/accounts",
+                                        "/api/v1/recipes/*/reviews/*",
+                                        "/api/v1/deliveries/*"
+                                ).authenticated()
 
-                        .requestMatchers(HttpMethod.DELETE,
-                                "/api/v1/customers",
-                                "/api/v1/accounts",
-                                "/api/v1/recipes/*/reviews/*",
-                                "/api/v1/orders/*",
-                                "/api/v1/carts",
-                                "/api/v1/carts/*"
-                        ).authenticated()
+                                .requestMatchers(HttpMethod.DELETE,
+                                        "/api/v1/customers",
+                                        "/api/v1/accounts",
+                                        "/api/v1/recipes/*/reviews/*",
+                                        "/api/v1/orders/*",
+                                        "/api/v1/carts",
+                                        "/api/v1/carts/*"
+                                ).authenticated()
 
-                        // 나머지 모두 차단
-                        .anyRequest().denyAll()
+                                // 나머지 모두 차단
+                                .anyRequest().denyAll()
                 )
-                .exceptionHandling().accessDeniedHandler(new CustomAccessDeniedHandler())
-                .and()
-                .exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
-                .and()
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler(new CustomAccessDeniedHandler())
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+                )
                 .addFilterBefore(new JwtFilter(customerRepository, jwtUtils), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JwtExceptionFilter(), JwtFilter.class)
                 .build();
     }
 

@@ -62,8 +62,8 @@ public class JpaConfiguration {
 
     private JpaVendorAdapter jpaVendorAdapter() {
         HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
-        // DDL 생성 기능을 활성화
-//        hibernateJpaVendorAdapter.setGenerateDdl(false);
+        // DDL 생성 기능을 비활성화
+        hibernateJpaVendorAdapter.setGenerateDdl(false);
         // SQL 쿼리를 로깅하지 않도록 설정
         hibernateJpaVendorAdapter.setShowSql(false);
 
@@ -76,7 +76,7 @@ public class JpaConfiguration {
 
     private Properties hibernateProperties() {
         Properties properties = new Properties();
-        properties.setProperty("hibernate.hbm2ddl.auto", "update");
+        properties.setProperty("hibernate.hbm2ddl.auto", "none");
         properties.setProperty("hibernate.format_sql", "true");
         return properties;
     }

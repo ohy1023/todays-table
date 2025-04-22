@@ -5,6 +5,7 @@
 //import org.junit.jupiter.api.DisplayName;
 //import org.junit.jupiter.api.Test;
 //import org.springframework.boot.test.context.SpringBootTest;
+//import org.springframework.test.context.ActiveProfiles;
 //import org.springframework.test.context.TestConstructor;
 //import store.myproject.onlineshop.domain.customer.Customer;
 //import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
@@ -12,6 +13,8 @@
 //import store.myproject.onlineshop.domain.item.repository.ItemRepository;
 //import store.myproject.onlineshop.domain.order.dto.OrderInfoRequest;
 //import store.myproject.onlineshop.exception.AppException;
+//import store.myproject.onlineshop.fixture.CustomerFixture;
+//import store.myproject.onlineshop.fixture.ItemFixture;
 //
 //import java.util.List;
 //import java.util.concurrent.CountDownLatch;
@@ -21,6 +24,7 @@
 //import static store.myproject.onlineshop.exception.ErrorCode.*;
 //
 //@SpringBootTest
+//@ActiveProfiles("test")
 //@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 //@RequiredArgsConstructor
 //class OrderServiceTest {
@@ -45,7 +49,10 @@
 //
 //    @BeforeEach
 //    void init() {
-//        buyer = customerRepository.findById(1L).get();
+//
+//        Customer customer = customerRepository.save(CustomerFixture.createCustomer());
+//        Item item = itemRepository.save(ItemFixture.createItem());
+//        buyer = customerRepository.findById(item.getId()).orElseThrow();
 //    }
 //
 //

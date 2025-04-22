@@ -44,9 +44,10 @@ public class Brand extends BaseEntity {
                 .build();
     }
 
-    public BrandCreateResponse toBrandCreateResponse() {
+    public BrandCreateResponse toBrandCreateResponse(String brandImg) {
         return BrandCreateResponse.builder()
                 .name(this.name)
+                .brandImg(brandImg)
                 .build();
     }
 

@@ -9,4 +9,5 @@ import lombok.*;
 public class BrandCreateResponse {
 
     private String name;
+    private String brandImg;
 }
