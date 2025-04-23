@@ -5,8 +5,6 @@ import store.myproject.onlineshop.exception.ErrorCode;
 
 import java.util.UUID;
 
-import static store.myproject.onlineshop.global.s3.AwsConstants.ORIGINAL_BUCKET_NAME;
-
 public class FileUtils {
 
     public static void checkFileFormat(String originalFileName) {
@@ -41,13 +39,5 @@ public class FileUtils {
         int idx = path.lastIndexOf("/");
 
         return path.substring(idx + 1);
-    }
-
-    public static String convertBucket(String url, String bucketName) {
-        return url.replaceFirst(ORIGINAL_BUCKET_NAME, bucketName);
-    }
-
-    public static String convertFolder(String url, String folder, String newFolder) {
-        return url.replaceFirst(folder, newFolder);
     }
 }
