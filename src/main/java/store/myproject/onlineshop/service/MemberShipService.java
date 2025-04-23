@@ -40,6 +40,9 @@ public class MemberShipService {
         return memberShip.toDto();
     }
 
+    /**
+     * 해당 레벨의 멤버쉽 존재 여부 체크
+     */
     @Transactional(readOnly = true)
     public boolean existsByLevel(Level level) {
         return memberShipRepository.existsByLevel(level);

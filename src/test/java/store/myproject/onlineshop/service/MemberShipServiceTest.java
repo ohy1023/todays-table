@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.annotation.Transactional;
 import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.customer.Level;
@@ -164,5 +165,19 @@ class MemberShipServiceTest {
         assertThatThrownBy(() -> memberShipService.deleteMemberShip(1L))
                 .isInstanceOf(AppException.class)
                 .hasMessageContaining(ErrorCode.MEMBERSHIP_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("해당 레벨의 멤버쉽 존재 여부")
+    void exist_membership_true() {
+        // given
+        Level level = Level.GOLD;
+        given(memberShipRepository.existsByLevel(level)).willReturn(true);
+
+        // when
+        boolean exists = memberShipService.existsByLevel(level);
+
+        // then
+        assertThat(exists).isTrue();
     }
 }
