@@ -6,8 +6,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import store.myproject.onlineshop.domain.alert.Alert;
 import store.myproject.onlineshop.domain.alert.AlertType;
 import store.myproject.onlineshop.domain.alert.dto.AlertResponseDto;
-import store.myproject.onlineshop.domain.alert.repository.AlertRepository;
-import store.myproject.onlineshop.domain.alert.repository.EmitterRepository;
+import store.myproject.onlineshop.repository.alert.AlertRepository;
+import store.myproject.onlineshop.repository.alert.EmitterRepository;
 import store.myproject.onlineshop.domain.customer.Customer;
 
 import java.io.IOException;

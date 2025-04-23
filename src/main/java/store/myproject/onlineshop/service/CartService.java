@@ -10,14 +10,14 @@ import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.cart.Cart;
 import store.myproject.onlineshop.domain.cart.dto.CartAddRequest;
-import store.myproject.onlineshop.domain.cart.repository.CartRepository;
+import store.myproject.onlineshop.repository.cart.CartRepository;
 import store.myproject.onlineshop.domain.cartitem.CartItem;
 import store.myproject.onlineshop.domain.cartitem.dto.CartItemResponse;
-import store.myproject.onlineshop.domain.cartitem.repository.CartItemRepository;
+import store.myproject.onlineshop.repository.cartitem.CartItemRepository;
 import store.myproject.onlineshop.domain.customer.Customer;
-import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
+import store.myproject.onlineshop.repository.customer.CustomerRepository;
 import store.myproject.onlineshop.domain.item.Item;
-import store.myproject.onlineshop.domain.item.repository.ItemRepository;
+import store.myproject.onlineshop.repository.item.ItemRepository;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.utils.MessageUtil;
 

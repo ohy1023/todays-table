@@ -8,11 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
+import store.myproject.onlineshop.domain.customer.Level;
 import store.myproject.onlineshop.domain.membership.MemberShip;
 import store.myproject.onlineshop.domain.membership.dto.MemberShipCreateRequest;
 import store.myproject.onlineshop.domain.membership.dto.MemberShipDto;
 import store.myproject.onlineshop.domain.membership.dto.MemberShipUpdateRequest;
-import store.myproject.onlineshop.domain.membership.repository.MemberShipRepository;
+import store.myproject.onlineshop.repository.membership.MemberShipRepository;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.utils.MessageUtil;
 
@@ -37,6 +38,11 @@ public class MemberShipService {
     public MemberShipDto getMemberShipById(Long id) {
         MemberShip memberShip = findMemberShipById(id);
         return memberShip.toDto();
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByLevel(Level level) {
+        return memberShipRepository.existsByLevel(level);
     }
 
     /**

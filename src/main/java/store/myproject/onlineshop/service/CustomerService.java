@@ -13,12 +13,12 @@ import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.membership.MemberShip;
-import store.myproject.onlineshop.domain.membership.repository.MemberShipRepository;
+import store.myproject.onlineshop.repository.membership.MemberShipRepository;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.annotation.SendMail;
 import store.myproject.onlineshop.global.redis.RedisDao;
 import store.myproject.onlineshop.global.utils.JwtUtils;
-import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
+import store.myproject.onlineshop.repository.customer.CustomerRepository;
 import store.myproject.onlineshop.global.utils.MessageUtil;
 
 import java.math.BigDecimal;

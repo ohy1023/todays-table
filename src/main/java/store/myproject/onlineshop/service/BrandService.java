@@ -14,11 +14,11 @@ import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.brand.dto.*;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.imagefile.ImageFile;
-import store.myproject.onlineshop.domain.imagefile.repository.ImageFileRepository;
+import store.myproject.onlineshop.repository.imagefile.ImageFileRepository;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.s3.service.AwsS3Service;
 import store.myproject.onlineshop.global.utils.FileUtils;
-import store.myproject.onlineshop.domain.brand.repository.BrandRepository;
+import store.myproject.onlineshop.repository.brand.BrandRepository;
 import store.myproject.onlineshop.global.utils.MessageUtil;
 
 import static store.myproject.onlineshop.exception.ErrorCode.*;

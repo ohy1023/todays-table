@@ -7,17 +7,10 @@ plugins {
 
 ext {
     excludedPackages = [
-            '**/store/myproject/onlineshop/global/**',
+            '**/store/myproject/onlineshop/global/config',
             '**/store/myproject/onlineshop/exception/**',
-            '**/store/myproject/onlineshop/domain/brand/**',
-            '**/store/myproject/onlineshop/domain/item/**',
-            '**/store/myproject/onlineshop/domain/order/**',
-            '**/store/myproject/onlineshop/domain/orderitem/**',
-            '**/store/myproject/onlineshop/domain/cart/**',
-            '**/store/myproject/onlineshop/domain/cartitem/**',
-            '**/store/myproject/onlineshop/domain/account/**',
-            '**/store/myproject/onlineshop/domain/membership/**',
-            '**/store/myproject/onlineshop/domain/delivery/**',
+            '**/store/myproject/onlineshop/domain/**',
+            '**/OnlineshopApplication.class'     // 메인 클래스
     ]
 }
 
@@ -138,8 +131,8 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.4'
 
     //Querydsl 추가
-    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
-    annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+    implementation "com.querydsl:querydsl-jpa:5.1.0:jakarta"
+    annotationProcessor "com.querydsl:querydsl-apt:5.1.0:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 

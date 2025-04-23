@@ -16,23 +16,7 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 @Configuration
-@EnableJpaRepositories(basePackages = {
-        "store.myproject.onlineshop.domain.customer.repository",
-        "store.myproject.onlineshop.domain.brand.repository",
-        "store.myproject.onlineshop.domain.cart.repository",
-        "store.myproject.onlineshop.domain.cartitem.repository",
-        "store.myproject.onlineshop.domain.delivery.repository",
-        "store.myproject.onlineshop.domain.item.repository",
-        "store.myproject.onlineshop.domain.membership.repository",
-        "store.myproject.onlineshop.domain.order.repository",
-        "store.myproject.onlineshop.domain.orderitem.repository",
-        "store.myproject.onlineshop.domain.like.repository",
-        "store.myproject.onlineshop.domain.recipe.repository",
-        "store.myproject.onlineshop.domain.recipeitem.repository",
-        "store.myproject.onlineshop.domain.review.repository",
-        "store.myproject.onlineshop.domain.imagefile.repository",
-        "store.myproject.onlineshop.domain.alert.repository",
-})
+@EnableJpaRepositories(basePackages = "store.myproject.onlineshop.repository")
 @EnableTransactionManagement // 트랜잭션 관리 기능을 활성화하는 애너테이션
 public class JpaConfiguration {
 
