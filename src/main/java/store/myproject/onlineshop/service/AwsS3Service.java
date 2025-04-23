@@ -1,7 +1,6 @@
-package store.myproject.onlineshop.global.s3.service;
+package store.myproject.onlineshop.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -17,7 +16,7 @@ import store.myproject.onlineshop.global.utils.FileUtils;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static store.myproject.onlineshop.global.s3.AwsConstants.*;
+import static store.myproject.onlineshop.domain.AwsConstants.*;
 
 
 @Slf4j

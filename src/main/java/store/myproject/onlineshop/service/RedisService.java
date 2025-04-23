@@ -1,31 +1,18 @@
-package store.myproject.onlineshop.global.redis;
+package store.myproject.onlineshop.service;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-@Component
-public class RedisDao {
+@Service
+public class RedisService {
     private final RedisTemplate<String, String> redisTemplate;
 
-    public RedisDao(RedisTemplate<String, String> redisTemplate) {
+    public RedisService(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
-    }
-
-    @Transactional
-    public void setValues(String key, String value) {
-        ValueOperations<String, String> values = redisTemplate.opsForValue();
-        values.set(key, value);
-    }
-
-    @Transactional
-    public void setValues(String key, String value, Duration duration) {
-        ValueOperations<String, String> values = redisTemplate.opsForValue();
-        values.set(key, value, duration);
     }
 
     @Transactional

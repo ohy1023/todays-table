@@ -22,7 +22,6 @@ import store.myproject.onlineshop.domain.item.dto.ItemSearchCond;
 import store.myproject.onlineshop.domain.item.dto.ItemUpdateRequest;
 import store.myproject.onlineshop.repository.item.ItemRepository;
 import store.myproject.onlineshop.exception.AppException;
-import store.myproject.onlineshop.global.s3.service.AwsS3Service;
 import store.myproject.onlineshop.global.utils.FileUtils;
 import store.myproject.onlineshop.global.utils.MessageUtil;
 

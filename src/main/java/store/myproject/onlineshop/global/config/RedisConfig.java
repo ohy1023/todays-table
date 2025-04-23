@@ -1,4 +1,4 @@
-package store.myproject.onlineshop.global.redis;
+package store.myproject.onlineshop.global.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

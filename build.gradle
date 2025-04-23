@@ -8,6 +8,11 @@ plugins {
 ext {
     excludedPackages = [
             '**/store/myproject/onlineshop/global/config',
+            '**/store/myproject/onlineshop/global/aop',
+            '**/store/myproject/onlineshop/global/db',
+            '**/store/myproject/onlineshop/global/annotation',
+            '**/store/myproject/onlineshop/global/init',
+            '**/store/myproject/onlineshop/global/event',
             '**/store/myproject/onlineshop/exception/**',
             '**/store/myproject/onlineshop/domain/**',
             '**/OnlineshopApplication.class'     // 메인 클래스

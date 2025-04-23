@@ -16,7 +16,6 @@ import store.myproject.onlineshop.domain.membership.MemberShip;
 import store.myproject.onlineshop.repository.membership.MemberShipRepository;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.annotation.SendMail;
-import store.myproject.onlineshop.global.redis.RedisDao;
 import store.myproject.onlineshop.global.utils.JwtUtils;
 import store.myproject.onlineshop.repository.customer.CustomerRepository;
 import store.myproject.onlineshop.global.utils.MessageUtil;
@@ -38,7 +37,7 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final MemberShipRepository memberShipRepository;
     private final BCryptPasswordEncoder encoder;
-    private final RedisDao redisDao;
+    private final RedisService redisService;
     private final JwtUtils jwtUtils;
     private final MessageUtil messageUtil;
 
@@ -78,7 +77,7 @@ public class CustomerService {
             throw new AppException(INVALID_TOKEN);
         }
 
-        redisDao.setValues("RT:" + customer.getEmail(), refreshToken, refreshTokenMaxAge, TimeUnit.SECONDS);
+        redisService.setValues("RT:" + customer.getEmail(), refreshToken, refreshTokenMaxAge, TimeUnit.SECONDS);
 
         return new LoginResponse(accessToken, refreshToken);
     }
@@ -93,7 +92,7 @@ public class CustomerService {
             throw new AppException(INVALID_TOKEN);
         }
 
-        String storedRefreshToken = redisDao.getValues("RT:" + email);
+        String storedRefreshToken = redisService.getValues("RT:" + email);
 
         if (ObjectUtils.isEmpty(storedRefreshToken) || !storedRefreshToken.equals(request.getRefreshToken())) {
             throw new AppException(INVALID_TOKEN);
@@ -102,7 +101,7 @@ public class CustomerService {
         String newAccessToken = jwtUtils.createAccessToken(customer.getEmail());
         String newRefreshToken = jwtUtils.createRefreshToken(customer.getEmail());
 
-        redisDao.setValues("RT:" + customer.getEmail(), newRefreshToken, refreshTokenMaxAge, TimeUnit.SECONDS);
+        redisService.setValues("RT:" + customer.getEmail(), newRefreshToken, refreshTokenMaxAge, TimeUnit.SECONDS);
 
         return new LoginResponse(newAccessToken, newRefreshToken);
     }
@@ -117,9 +116,9 @@ public class CustomerService {
             throw new AppException(INVALID_TOKEN);
         }
 
-        redisDao.deleteValues("RT:" + customer.getEmail());
+        redisService.deleteValues("RT:" + customer.getEmail());
         int expiration = jwtUtils.getExpiration(request.getAccessToken()).intValue() / 1000;
-        redisDao.setValues(request.getAccessToken(), "logout", expiration, TimeUnit.SECONDS);
+        redisService.setValues(request.getAccessToken(), "logout", expiration, TimeUnit.SECONDS);
 
         return new MessageResponse(messageUtil.get(MessageCode.CUSTOMER_LOGOUT));
     }

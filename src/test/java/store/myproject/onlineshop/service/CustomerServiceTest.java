@@ -16,7 +16,6 @@ import store.myproject.onlineshop.repository.membership.MemberShipRepository;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.fixture.CustomerFixture;
 import store.myproject.onlineshop.fixture.MemberShipFixture;
-import store.myproject.onlineshop.global.redis.RedisDao;
 import store.myproject.onlineshop.global.utils.JwtUtils;
 import store.myproject.onlineshop.repository.customer.CustomerRepository;
 import store.myproject.onlineshop.global.utils.MessageUtil;
@@ -41,7 +40,7 @@ class CustomerServiceTest {
     private BCryptPasswordEncoder encoder;
 
     @Mock
-    private RedisDao redisDao;
+    private RedisService redisService;
 
     @Mock
     private JwtUtils jwtUtils;
@@ -329,7 +328,7 @@ class CustomerServiceTest {
         given(customerRepository.findByEmail(customer.getEmail()))
                 .willReturn(Optional.of(customer));
 
-        given(redisDao.getValues("RT:" + customer.getEmail()))
+        given(redisService.getValues("RT:" + customer.getEmail()))
                 .willReturn(refreshToken);
 
         given(jwtUtils.createAccessToken(customer.getEmail()))
@@ -393,7 +392,7 @@ class CustomerServiceTest {
         given(customerRepository.findByEmail(customer.getEmail()))
                 .willReturn(Optional.of(customer));
 
-        given(redisDao.getValues("RT:" + customer.getEmail()))
+        given(redisService.getValues("RT:" + customer.getEmail()))
                 .willReturn(null);
 
         // when & then
@@ -413,7 +412,7 @@ class CustomerServiceTest {
         given(customerRepository.findByEmail(customer.getEmail()))
                 .willReturn(Optional.of(customer));
 
-        given(redisDao.getValues("RT:" + customer.getEmail()))
+        given(redisService.getValues("RT:" + customer.getEmail()))
                 .willReturn("mismatchToken");
 
         // when & then

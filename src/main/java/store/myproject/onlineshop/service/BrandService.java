@@ -16,7 +16,6 @@ import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.imagefile.ImageFile;
 import store.myproject.onlineshop.repository.imagefile.ImageFileRepository;
 import store.myproject.onlineshop.exception.AppException;
-import store.myproject.onlineshop.global.s3.service.AwsS3Service;
 import store.myproject.onlineshop.global.utils.FileUtils;
 import store.myproject.onlineshop.repository.brand.BrandRepository;
 import store.myproject.onlineshop.global.utils.MessageUtil;

@@ -22,7 +22,6 @@ import store.myproject.onlineshop.exception.ErrorCode;
 import store.myproject.onlineshop.fixture.BrandFixture;
 import store.myproject.onlineshop.fixture.ImageFileFixture;
 import store.myproject.onlineshop.fixture.ItemFixture;
-import store.myproject.onlineshop.global.s3.service.AwsS3Service;
 import store.myproject.onlineshop.global.utils.MessageUtil;
 
 import java.util.List;

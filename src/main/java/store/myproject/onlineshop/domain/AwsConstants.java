@@ -1,5 +1,5 @@
 
-package store.myproject.onlineshop.global.s3;
+package store.myproject.onlineshop.domain;
 
 public class AwsConstants {
 

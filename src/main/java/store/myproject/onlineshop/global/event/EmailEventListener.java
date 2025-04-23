@@ -1,7 +1,6 @@
 package store.myproject.onlineshop.global.event;
 
 import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -20,13 +19,5 @@ public class EmailEventListener {
 
         emailService.sendEmailForTempPassword(event.getEmail(), event.getTempPassword());
     }
-
-//    @TransactionalEventListener(classes = UserCertificateResponse.class)
-//    public void handle(UserCertificateResponse event) throws MessagingException {
-//
-//        emailCertificationService.sendEmailForCertification(event.getEmail(), event.getCertificationNumber());
-//    }
-    //
-
 
 }

@@ -1,4 +1,4 @@
-package store.myproject.onlineshop.global.redis.entity;
+package store.myproject.onlineshop.domain.redis;
 
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;

@@ -26,7 +26,6 @@ import store.myproject.onlineshop.domain.review.dto.ReviewUpdateRequest;
 import store.myproject.onlineshop.domain.review.dto.ReviewWriteRequest;
 import store.myproject.onlineshop.repository.review.ReviewRepository;
 import store.myproject.onlineshop.exception.AppException;
-import store.myproject.onlineshop.global.s3.service.AwsS3Service;
 import store.myproject.onlineshop.global.utils.FileUtils;
 import store.myproject.onlineshop.global.utils.MessageUtil;
 

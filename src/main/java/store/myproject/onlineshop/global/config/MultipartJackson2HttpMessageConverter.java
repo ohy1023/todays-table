@@ -1,4 +1,4 @@
-package store.myproject.onlineshop.global.conveter;
+package store.myproject.onlineshop.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.MediaType;

@@ -1,4 +1,4 @@
-package store.myproject.onlineshop.global.s3;
+package store.myproject.onlineshop.global.config;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;

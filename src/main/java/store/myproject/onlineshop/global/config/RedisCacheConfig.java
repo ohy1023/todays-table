@@ -1,4 +1,4 @@
-package store.myproject.onlineshop.global.redis;
+package store.myproject.onlineshop.global.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
