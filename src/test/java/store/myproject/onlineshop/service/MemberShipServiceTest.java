@@ -13,7 +13,7 @@ import store.myproject.onlineshop.domain.membership.MemberShip;
 import store.myproject.onlineshop.domain.membership.dto.MemberShipCreateRequest;
 import store.myproject.onlineshop.domain.membership.dto.MemberShipDto;
 import store.myproject.onlineshop.domain.membership.dto.MemberShipUpdateRequest;
-import store.myproject.onlineshop.domain.membership.repository.MemberShipRepository;
+import store.myproject.onlineshop.repository.membership.MemberShipRepository;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.exception.ErrorCode;
 import store.myproject.onlineshop.fixture.MemberShipFixture;
