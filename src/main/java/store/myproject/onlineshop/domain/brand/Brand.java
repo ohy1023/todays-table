@@ -27,6 +27,7 @@ public class Brand extends BaseEntity {
 
     private String name;
 
+    @Setter
     @OneToOne(mappedBy = "brand")
     private ImageFile imageFile;
 

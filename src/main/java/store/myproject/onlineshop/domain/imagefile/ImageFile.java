@@ -60,6 +60,7 @@ public class ImageFile {
 
     public void addBrand(Brand brand) {
         this.brand = brand;
+        brand.setImageFile(this);
     }
 
     public void removeBrand() {

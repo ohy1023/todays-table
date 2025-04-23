@@ -158,10 +158,6 @@ public class CustomerFixture {
                 .build();
     }
 
-    public static MessageResponse createSuccessMessage(String message) {
-        return new MessageResponse(message);
-    }
-
     public static CustomerTempPasswordResponse createTempPasswordResponse(String email) {
         return new CustomerTempPasswordResponse(email, "tempPassword");
     }

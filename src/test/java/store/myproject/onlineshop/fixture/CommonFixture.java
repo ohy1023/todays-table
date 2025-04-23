@@ -1,7 +1,6 @@
 package store.myproject.onlineshop.fixture;
 
 import org.springframework.mock.web.MockMultipartFile;
-
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 

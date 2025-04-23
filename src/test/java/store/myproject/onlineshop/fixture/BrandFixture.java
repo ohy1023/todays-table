@@ -29,4 +29,11 @@ public class BrandFixture {
                 .build();
     }
 
+    public static BrandInfo createBrandInfo(Long id) {
+        return BrandInfo.builder()
+                .id(id)
+                .name(faker.company().name())
+                .build();
+    }
+
 }

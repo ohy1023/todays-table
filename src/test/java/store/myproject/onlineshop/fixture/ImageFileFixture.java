@@ -10,7 +10,9 @@ public class ImageFileFixture {
     private static final String DEFAULT_IMAGE_URL = "https://example.com/image.jpg";
 
     public static ImageFile withBrand(Brand brand) {
-        return ImageFile.createImage(DEFAULT_IMAGE_URL, brand);
+        ImageFile imageFile = ImageFile.createImage(DEFAULT_IMAGE_URL, brand);
+        imageFile.addBrand(brand);
+        return imageFile;
     }
 
     public static ImageFile withRecipe(Recipe recipe) {
@@ -21,7 +23,4 @@ public class ImageFileFixture {
         return ImageFile.createImage(DEFAULT_IMAGE_URL, item);
     }
 
-    public static ImageFile dummy() {
-        return ImageFile.createImage(DEFAULT_IMAGE_URL, (Object) null); // 필요 시 예외 테스트용
-    }
 }
