@@ -70,12 +70,6 @@ public class Customer extends BaseEntity {
     @OneToMany(mappedBy = "customer")
     private List<Like> likeList = new ArrayList<>();
 
-    @PrePersist
-    public void prePersist() {
-        this.customerRole = this.customerRole == null ? ROLE_USER : this.customerRole;
-        this.totalPurchaseAmount = this.totalPurchaseAmount == null ? new BigDecimal(0) : this.totalPurchaseAmount;
-    }
-
 
     public void updateInfo(CustomerModifyRequest request) {
         this.userName = request.getUserName();

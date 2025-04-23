@@ -16,10 +16,14 @@ public enum MessageCode {
     BRAND_MODIFIED("brand.modified"),
     BRAND_DELETED("brand.deleted"),
 
-    // 멤버쉽
+    // 멤버쉽 관련
     MEMBERSHIP_ADDED("membership.added"),
     MEMBERSHIP_MODIFIED("membership.modified"),
     MEMBERSHIP_DELETED("membership.deleted"),
+
+    // 상품 관련
+    ITEM_MODIFIED("item.modified"),
+    ITEM_DELETED("item.deleted"),
 
     // 레시피 관련
     RECIPE_ADDED("recipe.added"),

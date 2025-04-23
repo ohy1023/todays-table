@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import store.myproject.onlineshop.domain.customer.Address;
 import store.myproject.onlineshop.domain.customer.Customer;
+import store.myproject.onlineshop.domain.customer.CustomerRole;
 import store.myproject.onlineshop.domain.customer.Gender;
 import store.myproject.onlineshop.domain.membership.MemberShip;
 
@@ -60,6 +61,7 @@ public class CustomerJoinRequest {
                         .build()
                 )
                 .memberShip(memberShip)
+                .customerRole(CustomerRole.ROLE_USER)
                 .build();
     }
 

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.customer.Level;
 import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.membership.MemberShip;
@@ -53,10 +52,10 @@ public class CustomerService {
         validateDuplicateEmail(request.getEmail());
         validateDuplicateNickName(request.getNickName());
 
-        MemberShip defaultMemberShip = memberShipRepository.findMemberShipByLevel(Level.BRONZE)
+        MemberShip baseMemberShip = memberShipRepository.findTopByLowestBaseline()
                 .orElseThrow(() -> new AppException(MEMBERSHIP_NOT_FOUND));
 
-        Customer customer = request.toEntity(encoder.encode(request.getPassword()), defaultMemberShip);
+        Customer customer = request.toEntity(encoder.encode(request.getPassword()), baseMemberShip);
         customerRepository.save(customer);
 
         return new MessageResponse(messageUtil.get(MessageCode.CUSTOMER_JOIN));

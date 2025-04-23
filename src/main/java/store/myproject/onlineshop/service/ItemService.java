@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.brand.repository.BrandRepository;
@@ -23,6 +24,7 @@ import store.myproject.onlineshop.domain.item.repository.ItemRepository;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.s3.service.AwsS3Service;
 import store.myproject.onlineshop.global.utils.FileUtils;
+import store.myproject.onlineshop.global.utils.MessageUtil;
 
 import java.util.List;
 
@@ -41,9 +43,11 @@ public class ItemService {
 
     private final AwsS3Service awsS3Service;
 
+    private final MessageUtil messageUtil;
+
     @Transactional(readOnly = true)
     @Cacheable(value = "items", key = "#id")
-    public ItemDto selectOne(Long id) {
+    public ItemDto getItemById(Long id) {
 
         Item item = getItem(id);
 
@@ -55,7 +59,7 @@ public class ItemService {
         return itemRepository.search(itemSearchCond, pageable);
     }
 
-    public ItemDto saveItem(ItemCreateRequest request, List<MultipartFile> multipartFileList) {
+    public ItemDto createItem(ItemCreateRequest request, List<MultipartFile> multipartFileList) {
 
         itemRepository.findItemByItemName(request.getItemName())
                 .ifPresent((item -> {
@@ -109,7 +113,7 @@ public class ItemService {
 
         }
 
-        return new MessageResponse("해당 품목이 수정되었습니다.");
+        return new MessageResponse(messageUtil.get(MessageCode.ITEM_MODIFIED));
 
     }
 
@@ -128,7 +132,7 @@ public class ItemService {
 
         itemRepository.deleteById(findItem.getId());
 
-        return new MessageResponse("해당 품목이 삭제되었습니다.");
+        return new MessageResponse(messageUtil.get(MessageCode.ITEM_DELETED));
     }
 
     private Item getItem(Long id) {

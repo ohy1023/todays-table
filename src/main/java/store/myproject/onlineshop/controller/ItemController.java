@@ -34,7 +34,7 @@ public class ItemController {
     @GetMapping("/{itemId}")
     public Response<ItemDto> findItem(@PathVariable Long itemId) {
 
-        ItemDto response = itemService.selectOne(itemId);
+        ItemDto response = itemService.getItemById(itemId);
 
         return Response.success(response);
     }
@@ -52,7 +52,7 @@ public class ItemController {
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public Response<ItemDto> createItem(@RequestPart ItemCreateRequest request, @RequestPart List<MultipartFile> multipartFileList) {
 
-        ItemDto response = itemService.saveItem(request, multipartFileList);
+        ItemDto response = itemService.createItem(request, multipartFileList);
 
         return Response.success(response);
     }
