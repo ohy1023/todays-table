@@ -39,6 +39,8 @@ public enum MessageCode {
 
     // 주문 관련
     ORDER_DELIVERY_MODIFIED("order.delivery.modified"),
+    ORDER_CANCEL("order.cancel"),
+    ORDER_POST_VERIFICATION("order.post.verification"),
 
     // 장바구니 관련
     CART_ITEM_ADDED("cart.item.added"),

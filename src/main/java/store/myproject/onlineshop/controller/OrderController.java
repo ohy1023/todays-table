@@ -35,7 +35,7 @@ public class OrderController {
 
         String email = authentication.getName();
 
-        OrderInfo response = orderService.findOrder(orderId, email);
+        OrderInfo response = orderService.getOrderById(orderId, email);
 
         return Response.success(response);
     }
@@ -46,7 +46,7 @@ public class OrderController {
 
         String email = authentication.getName();
 
-        Page<OrderInfo> response = orderService.searchMyOrders(orderSearchCond, email, pageable);
+        Page<OrderInfo> response = orderService.getMyOrders(orderSearchCond, email, pageable);
 
         return Response.success(response);
     }
@@ -57,7 +57,7 @@ public class OrderController {
 
         String email = authentication.getName();
 
-        OrderInfo response = orderService.orderByOne(request, email);
+        OrderInfo response = orderService.placeSingleOrder(request, email);
 
         return Response.success(response);
     }
@@ -65,7 +65,7 @@ public class OrderController {
     @Operation(summary = "해당 주문의 배송지 변경")
     @PutMapping("/{orderId}")
     public Response<MessageResponse> changeDeliveryInfo(@PathVariable Long orderId, @RequestBody DeliveryUpdateRequest request) {
-        return Response.success(orderService.updateDeliveryInfo(orderId, request));
+        return Response.success(orderService.updateDeliveryAddress(orderId, request));
     }
 
     @Operation(summary = "장바구니 내 품목 구매")
@@ -74,7 +74,7 @@ public class OrderController {
 
         String email = authentication.getName();
 
-        List<OrderInfo> response = orderService.orderByCart(request, email);
+        List<OrderInfo> response = orderService.placeCartOrder(request, email);
 
         return Response.success(response);
     }
@@ -82,19 +82,19 @@ public class OrderController {
     @Operation(summary = "주문 취소")
     @DeleteMapping("/{orderItemId}")
     public Response<MessageResponse> cancel(@PathVariable Long orderItemId) throws IamportResponseException, IOException {
-        return Response.success(orderService.cancelForOrder(orderItemId));
+        return Response.success(orderService.cancelOrder(orderItemId));
     }
 
     @Operation(summary = "사전 검증")
     @PostMapping("/preparation")
     public Response<PreparationResponse> prepareValid(@RequestBody PreparationRequest preparationRequest) throws IamportResponseException, IOException {
-        return Response.success(orderService.prepareValid(preparationRequest));
+        return Response.success(orderService.validatePrePayment(preparationRequest));
     }
 
     @Operation(summary = "사후 검증")
     @PostMapping("/verification")
     public Response<MessageResponse> postVerification(@RequestBody PostVerificationRequest postVerificationRequest) throws IamportResponseException, IOException {
         log.info("imp_uid:{}", postVerificationRequest.getImpUid());
-        return Response.success(orderService.postVerification(postVerificationRequest));
+        return Response.success(orderService.verifyPostPayment(postVerificationRequest));
     }
 }
