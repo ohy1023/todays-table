@@ -8,9 +8,9 @@
 //import org.springframework.test.context.ActiveProfiles;
 //import org.springframework.test.context.TestConstructor;
 //import store.myproject.onlineshop.domain.customer.Customer;
-//import store.myproject.onlineshop.domain.customer.repository.CustomerRepository;
+//import store.myproject.onlineshop.repository.customer.CustomerRepository;
 //import store.myproject.onlineshop.domain.item.Item;
-//import store.myproject.onlineshop.domain.item.repository.ItemRepository;
+//import store.myproject.onlineshop.repository.item.ItemRepository;
 //import store.myproject.onlineshop.domain.order.dto.OrderInfoRequest;
 //import store.myproject.onlineshop.exception.AppException;
 //import store.myproject.onlineshop.fixture.CustomerFixture;
