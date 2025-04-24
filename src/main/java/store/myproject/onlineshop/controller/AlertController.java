@@ -21,11 +21,11 @@ public class AlertController {
     private final AlertService alertService;
 
     @Operation(summary = "알림 구독")
-    @GetMapping(value = "/subscribe/{id}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public SseEmitter subscribe(@PathVariable Long id, @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId, Authentication authentication) {
+    public SseEmitter subscribe(@RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId, Authentication authentication) {
         String email = authentication.getName();
-        return alertService.subscribe(id, lastEventId);
+        return alertService.subscribe(email, lastEventId);
     }
 
 }
