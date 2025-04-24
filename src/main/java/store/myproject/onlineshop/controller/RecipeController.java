@@ -31,6 +31,8 @@ public class RecipeController {
         return Response.success(recipeService.getRecipe(recipeId));
     }
 
+    // recipe page 조회
+
     @Operation(summary = "레시피 작성")
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public Response<MessageResponse> writeRecipe(@Valid @RequestPart RecipeCreateRequest request, @RequestPart(required = false) List<MultipartFile> multipartFileList, Authentication authentication) {

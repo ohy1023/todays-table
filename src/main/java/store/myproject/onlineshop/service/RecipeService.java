@@ -1,6 +1,9 @@
 package store.myproject.onlineshop.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -8,6 +11,7 @@ import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.customer.CustomerRole;
+import store.myproject.onlineshop.domain.review.dto.*;
 import store.myproject.onlineshop.repository.customer.CustomerRepository;
 import store.myproject.onlineshop.domain.imagefile.ImageFile;
 import store.myproject.onlineshop.repository.imagefile.ImageFileRepository;
@@ -22,8 +26,6 @@ import store.myproject.onlineshop.domain.recipe.dto.RecipeUpdateRequest;
 import store.myproject.onlineshop.repository.recipe.RecipeRepository;
 import store.myproject.onlineshop.domain.recipeitem.RecipeItem;
 import store.myproject.onlineshop.domain.review.Review;
-import store.myproject.onlineshop.domain.review.dto.ReviewUpdateRequest;
-import store.myproject.onlineshop.domain.review.dto.ReviewWriteRequest;
 import store.myproject.onlineshop.repository.review.ReviewRepository;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.utils.FileUtils;
@@ -31,7 +33,9 @@ import store.myproject.onlineshop.global.utils.MessageUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
@@ -125,6 +129,69 @@ public class RecipeService {
         }
 
         return new MessageResponse(messageUtil.get(MessageCode.RECIPE_DELETED));
+    }
+
+    /**
+     * 해당 레시피의 댓글과 대댓글 미리보기(3개)를 조회합니다.
+     */
+    @Transactional(readOnly = true)
+    public Page<ReviewResponse> getReviewsByRecipe(Long recipeId, Pageable pageable) {
+        Recipe recipe = findRecipeById(recipeId);
+
+        Page<Review> parentReviews = reviewRepository.findParentReviews(recipe.getId(), pageable); // 댓글
+
+        List<Long> parentReviewIds = parentReviews.stream().map(Review::getId).toList();
+
+        Map<Long, List<Review>> childMap = reviewRepository.findTop3ChildReviews(parentReviewIds, PageRequest.of(0, 3)).stream()
+                .collect(Collectors.groupingBy(Review::getParentId));
+
+        // 대댓글 개수 조회
+        Map<Long, Long> childCountMap = reviewRepository.countByParentIds(parentReviewIds);
+
+        return parentReviews.map(parentReview -> {
+            List<ChildReviewResponse> childReviewResponses = Optional.ofNullable(childMap.get(parentReview.getId()))
+                    .orElse(List.of())
+                    .stream()
+                    .map(r -> ChildReviewResponse.builder()
+                            .id(r.getId())
+                            .writer(r.getCustomer().getNickName())
+                            .content(r.getReviewContent())
+                            .build())
+                    .toList();
+
+            long totalChildCount = childCountMap.getOrDefault(parentReview.getId(), 0L);
+            boolean hasMoreChild = totalChildCount > 3;
+
+            return ReviewResponse.builder()
+                    .id(parentReview.getId())
+                    .writer(parentReview.getCustomer().getNickName())
+                    .content(parentReview.getReviewContent())
+                    .childReviews(childReviewResponses)
+                    .hasMoreChildReviews(hasMoreChild)
+                    .build();
+        });
+
+    }
+
+    /**
+     * 대댓글 더보기.
+     */
+    @Transactional(readOnly = true)
+    public Page<ChildReviewResponse> getChildReviews(Long recipeId, Long parentReviewId, Pageable pageable) {
+        // 레시피 및 부모 댓글 존재 검증
+        findRecipeById(recipeId);
+        Review parentReview = findReviewById(parentReviewId);
+
+        if (!parentReview.getRecipe().getId().equals(recipeId)) {
+            throw new AppException(INVALID_REVIEW);
+        }
+
+        return reviewRepository.findByParentId(parentReviewId, pageable)
+                .map(review -> ChildReviewResponse.builder()
+                        .id(review.getId())
+                        .writer(review.getCustomer().getNickName())
+                        .content(review.getReviewContent())
+                        .build());
     }
 
     /**

@@ -4,12 +4,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.Response;
-import store.myproject.onlineshop.domain.review.dto.ReviewUpdateRequest;
-import store.myproject.onlineshop.domain.review.dto.ReviewWriteRequest;
+import store.myproject.onlineshop.domain.review.dto.*;
 import store.myproject.onlineshop.service.RecipeService;
 
 @RestController
@@ -19,6 +20,22 @@ import store.myproject.onlineshop.service.RecipeService;
 public class ReviewController {
 
     private final RecipeService recipeService;
+
+    @Operation(summary = "댓글 조회")
+    @GetMapping("/{recipeId}/reviews")
+    public Response<Page<ReviewResponse>> getReview(@PathVariable Long recipeId, Pageable pageable) {
+        return Response.success(recipeService.getReviewsByRecipe(recipeId, pageable));
+    }
+
+    @Operation(summary = "대댓글 더보기")
+    @GetMapping("/{recipeId}/reviews/{parentReviewId}/replies")
+    public Response<Page<ChildReviewResponse>> getChildReviews(
+            @PathVariable Long recipeId,
+            @PathVariable Long parentReviewId,
+            Pageable pageable
+    ) {
+        return Response.success(recipeService.getChildReviews(recipeId, parentReviewId, pageable));
+    }
 
     @Operation(summary = "댓글 작성")
     @PostMapping("/{id}/reviews")
