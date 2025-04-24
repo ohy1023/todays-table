@@ -6,9 +6,12 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import store.myproject.onlineshop.domain.alert.Alert;
 import store.myproject.onlineshop.domain.alert.AlertType;
 import store.myproject.onlineshop.domain.alert.dto.AlertResponseDto;
+import store.myproject.onlineshop.exception.AppException;
+import store.myproject.onlineshop.exception.ErrorCode;
 import store.myproject.onlineshop.repository.alert.AlertRepository;
 import store.myproject.onlineshop.repository.alert.EmitterRepository;
 import store.myproject.onlineshop.domain.customer.Customer;
+import store.myproject.onlineshop.repository.customer.CustomerRepository;
 
 import java.io.IOException;
 import java.util.Map;
@@ -24,17 +27,22 @@ public class AlertService {
     private final static long TIMEOUT = 60L * 1000 * 60;
 
     // 의존성 주입을 통해 사용할 레포지토리들
+    private final CustomerRepository customerRepository;
     private final EmitterRepository emitterRepository;
     private final AlertRepository alertRepository;
 
     /**
      * 클라이언트가 알림을 구독할 때 호출되는 메서드입니다.
      *
-     * @param customerId  클라이언트의 고유 ID
+     * @param email       클라이언트의 이메일
      * @param lastEventId 클라이언트가 마지막으로 수신한 이벤트의 ID
      * @return SseEmitter 객체
      */
-    public SseEmitter subscribe(Long customerId, String lastEventId) {
+    public SseEmitter subscribe(String email, String lastEventId) {
+        // 회원 조회
+        Customer customer = customerRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.CUSTOMER_NOT_FOUND));
+        Long customerId = customer.getId();
+
         // 고유한 emitterId를 생성합니다.
         String emitterId = makeTimeIncludeId(customerId);
 
