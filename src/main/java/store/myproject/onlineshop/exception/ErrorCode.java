@@ -75,6 +75,7 @@ public enum ErrorCode {
     // Review
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 댓글이 존재하지 않습니다."),
     EMPTY_CONTENT(HttpStatus.NOT_FOUND, "댓글은 1자 이상 입력 필수입니다."),
+    INVALID_REVIEW(HttpStatus.CONFLICT, "해당 레시피에 대한 댓글이 아닙니다."),
 
     // S3
     WRONG_FILE_FORMAT(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일입니다"),
