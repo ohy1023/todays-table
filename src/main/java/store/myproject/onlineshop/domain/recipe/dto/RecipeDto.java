@@ -16,6 +16,8 @@ public class RecipeDto {
     private String recipeServings;
     private String recipeWriter;
     private int recipeView;
+    private Long reviewCnt; // 댓글 수
+    private Long likeCnt; // 좋아요  수
     private List<String> itemNameList;
     private List<String> recipeImageList;
 

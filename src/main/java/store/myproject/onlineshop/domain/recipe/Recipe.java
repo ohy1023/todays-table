@@ -86,6 +86,8 @@ public class Recipe extends BaseEntity {
                 .recipeServings(this.getRecipeServings())
                 .recipeWriter(this.getCustomer().getNickName())
                 .recipeView(this.getRecipeViewCnt())
+                .likeCnt((long) this.getLikeList().size())
+                .reviewCnt((long) this.getReviewList().size())
                 .itemNameList(this.getItemList().stream()
                         .map(RecipeItem::getItem)
                         .map(Item::getItemName)

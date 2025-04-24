@@ -97,7 +97,7 @@ class LikeControllerTest {
     void count_like_success() throws Exception {
         // given
         Long recipeId = 1L;
-        Integer likeCount = 42;
+        Long likeCount = 42L;
 
         given(recipeService.getLikeCount(any(Long.class)))
                 .willReturn(likeCount);

@@ -11,6 +11,7 @@ import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.customer.CustomerRole;
+import store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto;
 import store.myproject.onlineshop.domain.review.dto.*;
 import store.myproject.onlineshop.repository.customer.CustomerRepository;
 import store.myproject.onlineshop.domain.imagefile.ImageFile;
@@ -85,6 +86,34 @@ public class RecipeService {
         Recipe recipe = findRecipeById(recipeId);
         recipe.addViewCnt();
         return recipe.toDto();
+    }
+
+    /**
+     * 레시피 요약정보를 조회합니다.
+     */
+    public Page<SimpleRecipeDto> getAllRecipe(Pageable pageable) {
+        Page<Recipe> recipes = recipeRepository.findAll(pageable);
+
+        List<Long> recipeIds = recipes.stream().map(Recipe::getId).toList();
+        Map<Long, Long> likeCounts = likeRepository.getLikeCountByRecipeIds(recipeIds);
+        Map<Long, Long> reviewCounts = reviewRepository.getReviewCountByRecipeIds(recipeIds);
+
+        return recipes.map(recipe -> {
+            Long likeCnt = likeCounts.getOrDefault(recipe.getId(), 0L);
+            Long reviewCnt = reviewCounts.getOrDefault(recipe.getId(), 0L);
+
+            return SimpleRecipeDto.builder()
+                    .recipeId(recipe.getId())
+                    .title(recipe.getRecipeTitle())
+                    .writer(recipe.getCustomer().getNickName())
+                    .recipeCookingTime(recipe.getRecipeCookingTime())
+                    .recipeServings(recipe.getRecipeServings())
+                    .recipeView(recipe.getRecipeViewCnt())
+                    .thumbnail(recipe.getImageFileList().isEmpty() ? null : recipe.getImageFileList().get(0).getImageUrl())
+                    .likeCnt(likeCnt)
+                    .reviewCnt(reviewCnt)
+                    .build();
+        });
     }
 
     /**
@@ -267,7 +296,7 @@ public class RecipeService {
     /**
      * 해당 레시피에 대한 좋아요 수를 반환합니다.
      */
-    public Integer getLikeCount(Long recipeId) {
+    public Long getLikeCount(Long recipeId) {
         Recipe recipe = findRecipeById(recipeId);
         return likeRepository.countByRecipe(recipe);
     }

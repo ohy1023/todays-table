@@ -1,11 +1,16 @@
 package store.myproject.onlineshop.repository.like;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.like.Like;
 import store.myproject.onlineshop.domain.recipe.Recipe;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public interface LikeRepository extends JpaRepository<Like, Long> {
 
@@ -24,5 +29,16 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
      * @param recipe 조회하고자 하는 레시피
      * @return Integer 좋아요 개수
      */
-    Integer countByRecipe(Recipe recipe);
+    Long countByRecipe(Recipe recipe);
+
+    @Query("SELECT l.recipe.id, count(l) FROM Like l WHERE l.recipe.id in :recipeIds")
+    List<Object[]> countByRecipeIds(@Param("recipeIds") List<Long> recipeIds);
+
+    default Map<Long,Long> getLikeCountByRecipeIds(List<Long> recipeIds) {
+        return countByRecipeIds(recipeIds).stream().collect(
+                Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> (Long) row[1]
+                ));
+    }
 }

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import store.myproject.onlineshop.domain.recipe.Recipe;
 import store.myproject.onlineshop.domain.review.Review;
 
 import java.util.List;
@@ -27,6 +28,17 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     // 변환 메서드
     default Map<Long, Long> countByParentIds(List<Long> parentReviewIds) {
         return countChildReviews(parentReviewIds).stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> (Long) row[1]
+                ));
+    }
+
+    @Query("SELECT r.recipe.id, count(r) FROM Review r WHERE r.recipe.id in :recipeIds GROUP BY r.recipe.id")
+    List<Object[]> countByRecipeIds(@Param("recipeIds") List<Long> recipeIds);
+
+    default Map<Long, Long> getReviewCountByRecipeIds(List<Long> recipeIds) {
+        return countByRecipeIds(recipeIds).stream()
                 .collect(Collectors.toMap(
                         row -> (Long) row[0],
                         row -> (Long) row[1]

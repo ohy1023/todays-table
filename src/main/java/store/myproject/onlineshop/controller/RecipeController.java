@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +15,7 @@ import store.myproject.onlineshop.domain.Response;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateRequest;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeDto;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeUpdateRequest;
+import store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto;
 import store.myproject.onlineshop.service.RecipeService;
 
 import java.util.List;
@@ -31,7 +34,11 @@ public class RecipeController {
         return Response.success(recipeService.getRecipe(recipeId));
     }
 
-    // recipe page 조회
+    @Operation(summary = "레시피 전체 조회")
+    @GetMapping
+    public Response<Page<SimpleRecipeDto>> viewAllRecipes(Pageable pageable) {
+        return Response.success(recipeService.getAllRecipe(pageable));
+    }
 
     @Operation(summary = "레시피 작성")
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
