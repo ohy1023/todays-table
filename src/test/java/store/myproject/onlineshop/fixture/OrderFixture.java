@@ -4,6 +4,8 @@ package store.myproject.onlineshop.fixture;
 import com.github.javafaker.Faker;
 import store.myproject.onlineshop.domain.order.dto.OrderInfo;
 import store.myproject.onlineshop.domain.order.dto.OrderInfoRequest;
+import store.myproject.onlineshop.domain.order.dto.PostVerificationRequest;
+import store.myproject.onlineshop.domain.order.dto.PreparationRequest;
 
 import java.math.BigDecimal;
 
@@ -41,5 +43,13 @@ public class OrderFixture {
                 .deliveryStatus("COMPLETED")
                 .totalPrice(BigDecimal.valueOf(faker.number().randomDouble(2, 1000, 10000)))
                 .build();
+    }
+
+    public static PreparationRequest createPreparationRequest() {
+        return new PreparationRequest("merchant-" + faker.number().digits(5), new BigDecimal(faker.number().randomNumber()));
+    }
+
+    public static PostVerificationRequest createPostVerificationRequest() {
+        return new PostVerificationRequest("imp_" + faker.number().digits(6), "merchant_" + faker.number().digits(6));
     }
 } 

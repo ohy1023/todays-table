@@ -12,8 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.order.dto.OrderInfo;
-import store.myproject.onlineshop.domain.order.dto.OrderInfoRequest;
+import store.myproject.onlineshop.domain.order.dto.*;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.fixture.OrderFixture;
 import store.myproject.onlineshop.service.OrderService;
@@ -28,6 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static store.myproject.onlineshop.exception.ErrorCode.*;
+import static store.myproject.onlineshop.fixture.ResultCode.*;
 
 @WebMvcTest(OrderController.class)
 @WithMockUser
@@ -231,6 +231,88 @@ class OrderControllerTest {
                             .content("{}"))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.result.errorCode").value(CUSTOMER_NOT_FOUND.name()))
+                    .andDo(print());
+        }
+    }
+
+    @Nested
+    @DisplayName("사전 결제 검증")
+    class PreparePayment {
+
+        @Test
+        @DisplayName("사전 검증 성공")
+        void prepare_valid_success() throws Exception {
+            PreparationRequest request = OrderFixture.createPreparationRequest();
+            PreparationResponse response = new PreparationResponse("merchantUid-123");
+
+            given(orderService.validatePrePayment(any())).willReturn(response);
+
+            mockMvc.perform(post("/api/v1/orders/preparation")
+                            .with(csrf())
+                            .contentType(APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.resultCode").value(SUCCESS))
+                    .andExpect(jsonPath("$.result.merchantUid").value("merchantUid-123"))
+                    .andDo(print());
+        }
+
+        @Test
+        @DisplayName("사전 검증 실패 - 결제 오류")
+        void prepare_valid_fail() throws Exception {
+            PreparationRequest request = OrderFixture.createPreparationRequest();
+
+            given(orderService.validatePrePayment(any()))
+                    .willThrow(new AppException(FAILED_PREPARE_VALID, "검증 실패"));
+
+            mockMvc.perform(post("/api/v1/orders/preparation")
+                            .with(csrf())
+                            .contentType(APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isConflict())
+                    .andExpect(jsonPath("$.resultCode").value(ERROR))
+                    .andExpect(jsonPath("$.result.errorCode").value(FAILED_PREPARE_VALID.name()))
+                    .andDo(print());
+        }
+    }
+
+    @Nested
+    @DisplayName("사후 결제 검증")
+    class PostPayment {
+
+        @Test
+        @DisplayName("사후 검증 성공")
+        void post_verification_success() throws Exception {
+            PostVerificationRequest request = OrderFixture.createPostVerificationRequest();
+            MessageResponse response = new MessageResponse("검증 완료");
+
+            given(orderService.verifyPostPayment(any())).willReturn(response);
+
+            mockMvc.perform(post("/api/v1/orders/verification")
+                            .with(csrf())
+                            .contentType(APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.resultCode").value(SUCCESS))
+                    .andExpect(jsonPath("$.result.message").value("검증 완료"))
+                    .andDo(print());
+        }
+
+        @Test
+        @DisplayName("사후 검증 실패 - 금액 불일치")
+        void post_verification_fail_wrong_amount() throws Exception {
+            PostVerificationRequest request = new PostVerificationRequest("imp_uid_123", "merchantUid-123");
+
+            given(orderService.verifyPostPayment(any()))
+                    .willThrow(new AppException(WRONG_PAYMENT_AMOUNT));
+
+            mockMvc.perform(post("/api/v1/orders/verification")
+                            .with(csrf())
+                            .contentType(APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isConflict())
+                    .andExpect(jsonPath("$.resultCode").value(ERROR))
+                    .andExpect(jsonPath("$.result.errorCode").value(WRONG_PAYMENT_AMOUNT.name()))
                     .andDo(print());
         }
     }
