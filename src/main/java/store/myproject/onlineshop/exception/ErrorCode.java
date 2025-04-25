@@ -29,6 +29,7 @@ public enum ErrorCode {
     DUPLICATE_COMPANY_EMAIL(HttpStatus.CONFLICT, "중복된 회사 이메일입니다."),
     CORPORATION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 회사입니다."),
     CORPORATION_NOT_ACCESS(HttpStatus.UNAUTHORIZED, "기업용 회원은 사용 불가한 기능입니다."),
+    UNSUPPORTED_OBJECT_TPYE(HttpStatus.BAD_REQUEST, "지원하지 않는 객체입니다."),
 
     // Brand
     DUPLICATE_BRAND(HttpStatus.CONFLICT, "중복된 브랜드 이름입니다."),

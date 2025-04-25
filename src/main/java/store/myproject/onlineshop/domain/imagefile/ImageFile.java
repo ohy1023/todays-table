@@ -5,6 +5,8 @@ import lombok.*;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.recipe.Recipe;
+import store.myproject.onlineshop.exception.AppException;
+import store.myproject.onlineshop.exception.ErrorCode;
 
 import static jakarta.persistence.FetchType.LAZY;
 
@@ -36,10 +38,9 @@ public class ImageFile {
 
     // 빌더 메서드에 추가된 생성자를 위한 빌더 메서드
     @Builder(builderMethodName = "createImageBuilder")
-    private ImageFile(String imageUrl, Brand brand, Recipe recipe, Item item) {
+    private ImageFile(String imageUrl, Brand brand, Item item) {
         this.imageUrl = imageUrl;
         this.brand = brand;
-        this.recipe = recipe;
         this.item = item;
     }
 
@@ -48,12 +49,10 @@ public class ImageFile {
         // 브랜드, 레시피, 아이템에 맞게 객체 생성 로직 작성
         if (o instanceof Brand) {
             return createImageBuilder().brand((Brand) o).imageUrl(imageUrl).build();
-        } else if (o instanceof Recipe) {
-            return createImageBuilder().recipe((Recipe) o).imageUrl(imageUrl).build();
         } else if (o instanceof Item) {
             return createImageBuilder().item((Item) o).imageUrl(imageUrl).build();
         } else {
-            throw new IllegalArgumentException("Unsupported object type");
+            throw new AppException(ErrorCode.UNSUPPORTED_OBJECT_TPYE);
         }
     }
 
@@ -69,18 +68,6 @@ public class ImageFile {
             this.brand = null;
         }
     }
-
-//    public void addRecipe(Recipe recipe) {
-//        this.recipe = recipe;
-//        recipe.getImageFileList().add(this); // 레시피에 ImageFile 추가
-//    }
-//
-//    public void removeRecipe(Recipe recipe) {
-//        if (this.recipe != null && this.recipe.equals(recipe)) {
-//            this.recipe = null;
-//            recipe.getImageFileList().remove(this); // 레시피에 연결된 ImageFile 제거
-//        }
-//    }
 
     public void addItem(Item item) {
         this.item = item;
