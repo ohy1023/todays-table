@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class SimpleRecipeDto {
     private Long recipeId;
     private String title; // 제목
+    private String recipeDescription; // 소개
     private String thumbnail; // 썸네일
     private String writer; // 작성자
     private String recipeCookingTime; //조리 시간

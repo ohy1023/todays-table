@@ -6,36 +6,31 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
+import store.myproject.onlineshop.domain.Response;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.customer.CustomerRole;
-import store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto;
+import store.myproject.onlineshop.domain.recipe.dto.*;
+import store.myproject.onlineshop.domain.recipestep.RecipeStep;
 import store.myproject.onlineshop.domain.review.dto.*;
 import store.myproject.onlineshop.repository.customer.CustomerRepository;
-import store.myproject.onlineshop.domain.imagefile.ImageFile;
-import store.myproject.onlineshop.repository.imagefile.ImageFileRepository;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.repository.item.ItemRepository;
 import store.myproject.onlineshop.domain.like.Like;
 import store.myproject.onlineshop.repository.like.LikeRepository;
 import store.myproject.onlineshop.domain.recipe.Recipe;
-import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateRequest;
-import store.myproject.onlineshop.domain.recipe.dto.RecipeDto;
-import store.myproject.onlineshop.domain.recipe.dto.RecipeUpdateRequest;
 import store.myproject.onlineshop.repository.recipe.RecipeRepository;
 import store.myproject.onlineshop.domain.recipeitem.RecipeItem;
 import store.myproject.onlineshop.domain.review.Review;
 import store.myproject.onlineshop.repository.review.ReviewRepository;
 import store.myproject.onlineshop.exception.AppException;
-import store.myproject.onlineshop.global.utils.FileUtils;
 import store.myproject.onlineshop.global.utils.MessageUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static store.myproject.onlineshop.exception.ErrorCode.*;
@@ -50,34 +45,8 @@ public class RecipeService {
     private final RecipeRepository recipeRepository;
     private final ReviewRepository reviewRepository;
     private final ItemRepository itemRepository;
-    private final ImageFileRepository imageFileRepository;
-    private final AwsS3Service awsS3Service;
     private final MessageUtil messageUtil;
-
-    /**
-     * 레시피를 작성하고 저장합니다. 이미지 파일과 레시피 재료도 함께 저장됩니다.
-     */
-    public MessageResponse createRecipe(RecipeCreateRequest request, List<MultipartFile> imageFiles, String email) {
-        Customer customer = findCustomerByEmail(email);
-        validateDuplicateTitle(request);
-        Recipe savedRecipe = recipeRepository.save(request.toEntity(customer));
-
-        if (imageFiles != null) {
-            for (MultipartFile file : imageFiles) {
-                String imageUrl = awsS3Service.uploadRecipeOriginImage(file);
-                ImageFile image = ImageFile.createImage(imageUrl, savedRecipe);
-                image.addRecipe(savedRecipe);
-                imageFileRepository.save(image);
-            }
-        }
-
-        List<RecipeItem> recipeItems = mapRecipeItems(request.getItemIdList());
-        for (RecipeItem item : recipeItems) {
-            item.setRecipeAndItem(savedRecipe, item.getItem());
-        }
-
-        return new MessageResponse(messageUtil.get(MessageCode.RECIPE_ADDED));
-    }
+    private final AwsS3Service awsS3Service;
 
     /**
      * 단일 레시피 정보를 조회하고 조회수를 증가시킵니다.
@@ -105,11 +74,12 @@ public class RecipeService {
             return SimpleRecipeDto.builder()
                     .recipeId(recipe.getId())
                     .title(recipe.getRecipeTitle())
+                    .recipeDescription(recipe.getRecipeDescription())
                     .writer(recipe.getCustomer().getNickName())
                     .recipeCookingTime(recipe.getRecipeCookingTime())
                     .recipeServings(recipe.getRecipeServings())
                     .recipeView(recipe.getRecipeViewCnt())
-                    .thumbnail(recipe.getImageFileList().isEmpty() ? null : recipe.getImageFileList().get(0).getImageUrl())
+                    .thumbnail(recipe.getThumbnailUrl())
                     .likeCnt(likeCnt)
                     .reviewCnt(reviewCnt)
                     .build();
@@ -117,30 +87,82 @@ public class RecipeService {
     }
 
     /**
+     * 레시피를 작성하고 저장합니다. 이미지 파일과 레시피 재료도 함께 저장됩니다.
+     */
+    public MessageResponse createRecipe(RecipeCreateRequest request, String email) {
+        Customer customer = findCustomerByEmail(email);
+
+        Recipe recipe = request.toEntity(customer);
+
+        List<RecipeItem> recipeItems = mapRecipeItems(request.getItemIdList());
+        recipe.addItems(recipeItems);
+
+        List<RecipeStep> steps = request.getSteps().stream()
+                .map(stepReq -> RecipeStep.builder()
+                        .stepOrder(stepReq.getOrder())
+                        .content(stepReq.getContent())
+                        .imageUrl(stepReq.getImageUrl())
+                        .build())
+                .toList();
+
+        recipe.setStepList(steps);
+
+        if (request.getThumbnailUrl() != null) {
+            recipe.setThumbnailUrl(request.getThumbnailUrl());
+        } else {
+            steps.stream()
+                    .map(RecipeStep::getImageUrl)
+                    .filter(url -> url != null && !url.isBlank())
+                    .findFirst()
+                    .ifPresent(recipe::setThumbnailUrl);
+        }
+
+        recipeRepository.save(recipe);
+
+        return new MessageResponse(messageUtil.get(MessageCode.RECIPE_ADDED));
+    }
+
+
+    /**
      * 기존 레시피를 수정합니다. 이미지 파일도 함께 업데이트됩니다.
      */
-    public MessageResponse updateRecipe(Long recipeId, RecipeUpdateRequest request, List<MultipartFile> imageFiles, String email) {
+    public MessageResponse updateRecipe(Long recipeId, RecipeUpdateRequest request, String email) {
         Customer customer = findCustomerByEmail(email);
         Recipe recipe = findRecipeById(recipeId);
 
-        if (hasPermission(customer, recipe.getCustomer())) {
-            imageFileRepository.findAllByRecipe(recipe);
+        if (!hasPermission(customer, recipe.getCustomer())) {
+            throw new AppException(FORBIDDEN_ACCESS); // 권한 없음 예외 처리
+        }
 
-            if (imageFiles != null) {
-                for (MultipartFile file : imageFiles) {
-                    for (ImageFile image : recipe.getImageFileList()) {
-                        String fileName = FileUtils.extractFileName(image.getImageUrl());
-                        image.removeRecipe(recipe);
-                        awsS3Service.deleteBrandImage(fileName);
-                    }
+        // 1. 기본 정보 수정
+        recipe.updateRecipe(request);
 
-                    String newUrl = awsS3Service.uploadRecipeOriginImage(file);
-                    ImageFile newImage = ImageFile.createImage(newUrl, recipe);
-                    newImage.addRecipe(recipe);
-                }
-            }
+        // 2. 기존 재료 및 스텝 초기화
+        recipe.getItemList().clear();     // orphanRemoval = true 로 자동 삭제
+        recipe.getStepList().clear();     // orphanRemoval + cascade 로 자동 삭제
 
-            recipe.updateRecipe(request);
+        // 3. 새로운 RecipeItem 설정
+        List<RecipeItem> recipeItems = mapRecipeItems(request.getItemIdList());
+        recipe.addItems(recipeItems);  // 편의 메서드로 연관관계 설정
+
+        // 4. 새로운 RecipeStep 설정
+        List<RecipeStep> steps = request.getSteps().stream()
+                .map(stepReq -> RecipeStep.builder()
+                        .stepOrder(stepReq.getOrder())
+                        .content(stepReq.getContent())
+                        .imageUrl(stepReq.getImageUrl())
+                        .build())
+                .toList();
+        recipe.setStepList(steps);  // 단방향이므로 리스트만 세팅
+
+        if (request.getThumbnailUrl() != null) {
+            recipe.setThumbnailUrl(request.getThumbnailUrl());
+        } else {
+            steps.stream()
+                    .map(RecipeStep::getImageUrl)
+                    .filter(url -> url != null && !url.isBlank())
+                    .findFirst()
+                    .ifPresent(recipe::setThumbnailUrl);
         }
 
         return new MessageResponse(messageUtil.get(MessageCode.RECIPE_MODIFIED));
@@ -153,9 +175,11 @@ public class RecipeService {
         Customer customer = findCustomerByEmail(email);
         Recipe recipe = findRecipeById(recipeId);
 
-        if (hasPermission(customer, recipe.getCustomer())) {
-            recipeRepository.deleteById(recipe.getId());
+        if (!hasPermission(customer, recipe.getCustomer())) {
+            throw new AppException(FORBIDDEN_ACCESS); // 권한 없음 예외 처리
         }
+
+        recipeRepository.deleteById(recipe.getId());
 
         return new MessageResponse(messageUtil.get(MessageCode.RECIPE_DELETED));
     }
@@ -302,6 +326,13 @@ public class RecipeService {
     }
 
     /**
+     * 레시피 단계 이미지 업로드
+     */
+    public MessageResponse uploadImage(MultipartFile file) {
+        return new MessageResponse(awsS3Service.uploadRecipeOriginImage(file));
+    }
+
+    /**
      * 아이템 ID 리스트를 기반으로 RecipeItem 리스트를 생성합니다.
      */
     private List<RecipeItem> mapRecipeItems(List<Long> itemIds) {
@@ -311,16 +342,6 @@ public class RecipeService {
             items.add(RecipeItem.createRecipeItem(item));
         }
         return items;
-    }
-
-    /**
-     * 레시피 제목 중복 여부를 검증합니다.
-     */
-    private void validateDuplicateTitle(RecipeCreateRequest request) {
-        recipeRepository.findByRecipeTitle(request.getRecipeTitle())
-                .ifPresent(r -> {
-                    throw new AppException(DUPLICATE_RECIPE, DUPLICATE_RECIPE.getMessage());
-                });
     }
 
     /**

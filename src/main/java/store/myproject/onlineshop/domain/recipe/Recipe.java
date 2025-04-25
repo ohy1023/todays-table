@@ -4,12 +4,13 @@ import jakarta.persistence.*;
 import lombok.*;
 import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Customer;
-import store.myproject.onlineshop.domain.imagefile.ImageFile;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.like.Like;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeDto;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeUpdateRequest;
 import store.myproject.onlineshop.domain.recipeitem.RecipeItem;
+import store.myproject.onlineshop.domain.recipestep.RecipeStep;
+import store.myproject.onlineshop.domain.recipestep.dto.RecipeStepDto;
 import store.myproject.onlineshop.domain.review.Review;
 
 import java.util.ArrayList;
@@ -32,9 +33,9 @@ public class Recipe extends BaseEntity {
     // 제목
     private String recipeTitle;
 
-    // 레시피 본문
+    // 레시피 간단 설명
     @Column(columnDefinition = "text")
-    private String recipeContent;
+    private String recipeDescription;
 
     // 레시피 작성자
     @ManyToOne(fetch = FetchType.LAZY)
@@ -51,6 +52,10 @@ public class Recipe extends BaseEntity {
     // 몇인분
     private String recipeServings;
 
+    // 썸네일
+    @Setter
+    private String thumbnailUrl;
+
     // 댓글
     @Builder.Default
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -66,14 +71,17 @@ public class Recipe extends BaseEntity {
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecipeItem> itemList = new ArrayList<>();
 
-    // 레시피 사진의 URL
-    @Builder.Default
-    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ImageFile> imageFileList = new ArrayList<>();
+    // 레시피 단계
+    @Setter
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "recipe_id")
+    @OrderBy("stepOrder ASC")
+    private List<RecipeStep> stepList = new ArrayList<>();
+
 
     public void updateRecipe(RecipeUpdateRequest request) {
         this.recipeTitle = request.getRecipeTitle();
-        this.recipeContent = request.getRecipeContent();
+        this.recipeDescription = request.getRecipeDescription();
         this.recipeCookingTime = request.getRecipeCookingTime();
         this.recipeServings = request.getRecipeServings();
     }
@@ -81,25 +89,40 @@ public class Recipe extends BaseEntity {
     public RecipeDto toDto() {
         return RecipeDto.builder()
                 .recipeTitle(this.getRecipeTitle())
-                .recipeContent(this.getRecipeContent())
+                .recipeDescription(this.getRecipeDescription())
                 .recipeCookingTime(this.getRecipeCookingTime())
                 .recipeServings(this.getRecipeServings())
                 .recipeWriter(this.getCustomer().getNickName())
                 .recipeView(this.getRecipeViewCnt())
+                .thumbnailUrl(this.getThumbnailUrl())
                 .likeCnt((long) this.getLikeList().size())
                 .reviewCnt((long) this.getReviewList().size())
-                .itemNameList(this.getItemList().stream()
+                .itemIdList(this.getItemList().stream()
                         .map(RecipeItem::getItem)
-                        .map(Item::getItemName)
-                        .collect(Collectors.toList()))
-                .recipeImageList(this.getImageFileList().stream()
-                        .map(ImageFile::getImageUrl)
-                        .collect(Collectors.toList()))
+                        .map(Item::getId)
+                        .toList())
+                .steps(this.getStepList().stream()
+                        .map(step -> RecipeStepDto.builder()
+                                .stepOrder(step.getStepOrder())
+                                .content(step.getContent())
+                                .imageUrl(step.getImageUrl())
+                                .build())
+                        .toList())
                 .build();
+    }
+
+    public void addItem(RecipeItem recipeItem) {
+        this.itemList.add(recipeItem);
+        recipeItem.setRecipe(this);  // 연관관계 주인 쪽 세팅
+    }
+
+    public void addItems(List<RecipeItem> recipeItems) {
+        for (RecipeItem recipeItem : recipeItems) {
+            addItem(recipeItem);
+        }
     }
 
     public void addViewCnt() {
         this.recipeViewCnt++;
     }
-
 }

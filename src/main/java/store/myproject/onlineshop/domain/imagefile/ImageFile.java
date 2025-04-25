@@ -70,17 +70,17 @@ public class ImageFile {
         }
     }
 
-    public void addRecipe(Recipe recipe) {
-        this.recipe = recipe;
-        recipe.getImageFileList().add(this); // 레시피에 ImageFile 추가
-    }
-
-    public void removeRecipe(Recipe recipe) {
-        if (this.recipe != null && this.recipe.equals(recipe)) {
-            this.recipe = null;
-            recipe.getImageFileList().remove(this); // 레시피에 연결된 ImageFile 제거
-        }
-    }
+//    public void addRecipe(Recipe recipe) {
+//        this.recipe = recipe;
+//        recipe.getImageFileList().add(this); // 레시피에 ImageFile 추가
+//    }
+//
+//    public void removeRecipe(Recipe recipe) {
+//        if (this.recipe != null && this.recipe.equals(recipe)) {
+//            this.recipe = null;
+//            recipe.getImageFileList().remove(this); // 레시피에 연결된 ImageFile 제거
+//        }
+//    }
 
     public void addItem(Item item) {
         this.item = item;

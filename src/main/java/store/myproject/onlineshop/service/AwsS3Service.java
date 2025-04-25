@@ -57,17 +57,14 @@ public class AwsS3Service {
 
         try (InputStream inputStream = file.getInputStream()) {
             amazonS3Client.putObject(new PutObjectRequest(bucket, key, inputStream, objectMetadata));
-//                    .withCannedAcl(CannedAccessControlList.PublicRead));
         } catch (IOException e) {
             throw new AppException(ErrorCode.FILE_UPLOAD_ERROR);
         }
 
-        String storedFileUrl = amazonS3Client.getUrl(bucket, key).toString();
-
-        return storedFileUrl;
+        return amazonS3Client.getUrl(bucket, key).toString();
     }
 
-    public void deleteProductImage(String originFileName) {
+    public void deleteItemImage(String originFileName) {
         delete(ORIGIN_ITEM_FOLDER + "/" + originFileName, bucket);
     }
 

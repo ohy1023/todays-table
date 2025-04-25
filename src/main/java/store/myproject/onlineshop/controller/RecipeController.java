@@ -6,10 +6,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.Response;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateRequest;
@@ -18,7 +18,6 @@ import store.myproject.onlineshop.domain.recipe.dto.RecipeUpdateRequest;
 import store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto;
 import store.myproject.onlineshop.service.RecipeService;
 
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,17 +40,17 @@ public class RecipeController {
     }
 
     @Operation(summary = "레시피 작성")
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public Response<MessageResponse> writeRecipe(@Valid @RequestPart RecipeCreateRequest request, @RequestPart(required = false) List<MultipartFile> multipartFileList, Authentication authentication) {
+    @PostMapping
+    public Response<MessageResponse> writeRecipe(@Valid @RequestBody RecipeCreateRequest request, Authentication authentication) {
         String email = authentication.getName();
-        return Response.success(recipeService.createRecipe(request, multipartFileList, email));
+        return Response.success(recipeService.createRecipe(request, email));
     }
 
     @Operation(summary = "레시피 수정")
-    @PutMapping(value = "/{recipeId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public Response<MessageResponse> writeRecipe(@PathVariable Long recipeId, @Valid @RequestPart RecipeUpdateRequest request, @RequestPart(required = false) List<MultipartFile> multipartFileList, Authentication authentication) {
+    @PutMapping(value = "/{recipeId}")
+    public Response<MessageResponse> writeRecipe(@PathVariable Long recipeId, @Valid @RequestBody RecipeUpdateRequest request, Authentication authentication) {
         String email = authentication.getName();
-        return Response.success(recipeService.updateRecipe(recipeId, request, multipartFileList, email));
+        return Response.success(recipeService.updateRecipe(recipeId, request, email));
     }
 
     @Operation(summary = "레시피 삭제")
@@ -59,5 +58,10 @@ public class RecipeController {
     public Response<MessageResponse> deleteRecipe(@PathVariable Long recipeId, Authentication authentication) {
         String email = authentication.getName();
         return Response.success(recipeService.deleteRecipe(recipeId, email));
+    }
+
+    @PostMapping("/image")
+    public Response<MessageResponse> uploadImage(@RequestPart("recipeStepImage") MultipartFile file) {
+        return Response.success(recipeService.uploadImage(file));
     }
 }

@@ -1,0 +1,34 @@
+package store.myproject.onlineshop.domain.recipestep;
+
+import jakarta.persistence.*;
+import lombok.*;
+import store.myproject.onlineshop.domain.recipe.Recipe;
+
+@Entity
+@Getter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+public class RecipeStep {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "recipe_step_id")
+    private Long id;
+
+    @Column(nullable = false)
+    private int stepOrder;
+
+    @Column(columnDefinition = "text", nullable = false)
+    private String content;
+
+    private String imageUrl;  // S3 URL (nullable)
+
+    public static RecipeStep create(String content, String imageUrl, int stepOrder) {
+        return RecipeStep.builder()
+                .content(content)
+                .imageUrl(imageUrl)
+                .stepOrder(stepOrder)
+                .build();
+    }
+}

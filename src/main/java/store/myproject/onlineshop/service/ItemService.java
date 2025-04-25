@@ -62,7 +62,7 @@ public class ItemService {
 
         itemRepository.findItemByItemName(request.getItemName())
                 .ifPresent((item -> {
-                    throw new AppException(DUPLICATE_ITEM, DUPLICATE_ITEM.getMessage());
+                    throw new AppException(DUPLICATE_ITEM);
                 }));
 
         Brand findBrand = getBrand(request.getBrandName());
@@ -136,11 +136,11 @@ public class ItemService {
 
     private Item getItem(Long id) {
         return itemRepository.findById(id)
-                .orElseThrow(() -> new AppException(ITEM_NOT_FOUND, ITEM_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
     }
 
     private Brand getBrand(String brandName) {
         return brandRepository.findBrandByName(brandName)
-                .orElseThrow(() -> new AppException(BRAND_NOT_FOUND, BRAND_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new AppException(BRAND_NOT_FOUND));
     }
 }
