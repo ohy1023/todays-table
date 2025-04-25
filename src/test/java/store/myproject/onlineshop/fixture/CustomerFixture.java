@@ -5,9 +5,11 @@ import org.instancio.Instancio;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.customer.Address;
 import store.myproject.onlineshop.domain.customer.Customer;
+import store.myproject.onlineshop.domain.customer.CustomerRole;
 import store.myproject.onlineshop.domain.customer.Gender;
 import store.myproject.onlineshop.domain.customer.dto.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.instancio.Select.field;
@@ -41,6 +43,8 @@ public class CustomerFixture {
                         .detail(faker.address().secondaryAddress())
                         .zipcode(faker.address().zipCode())
                         .build())
+                .customerRole(CustomerRole.ROLE_USER)
+                .totalPurchaseAmount(BigDecimal.ZERO)
                 .build();
 
         customer.setCreatedDate(LocalDateTime.now());

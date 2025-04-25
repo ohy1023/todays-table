@@ -1,5 +1,6 @@
 package store.myproject.onlineshop.repository.membership;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,5 +21,5 @@ public interface MemberShipRepository extends JpaRepository<MemberShip, Long> {
     List<MemberShip> findNextMemberShip(@Param("usedMoney") BigDecimal usedMoney);
 
     @Query("SELECT ms FROM MemberShip ms ORDER BY ms.baseline ASC")
-    Optional<MemberShip> findTopByLowestBaseline();
+    List<MemberShip> findTopByLowestBaseline(Pageable pageable);
 }

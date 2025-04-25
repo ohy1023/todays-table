@@ -1,13 +1,21 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;MODE=MySQL
     username: sa
     password:
+
   jpa:
     hibernate:
-      ddl-auto: create  # 또는 update
+      ddl-auto: create-drop
+      globally_quoted_identifiers: true
+      format_sql: true
     show-sql: true
+    generate-ddl: true
+    database: h2
     properties:
-      hibernate:
-        format_sql: true
+      hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
+
+  h2:
+    console:
+      enabled: true

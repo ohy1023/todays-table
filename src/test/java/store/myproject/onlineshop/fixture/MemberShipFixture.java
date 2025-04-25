@@ -12,10 +12,23 @@ public class MemberShipFixture {
 
     public static MemberShip createBronzeMembership() {
         return MemberShip.builder()
-                .id(1L)
                 .baseline(BigDecimal.ZERO)
                 .discountRate(BigDecimal.ZERO)
                 .level(Level.BRONZE)
+                .build();
+    }
+    public static MemberShip createSilverMembership() {
+        return MemberShip.builder()
+                .baseline(new BigDecimal(100_000))
+                .discountRate(BigDecimal.valueOf(0.1))
+                .level(Level.SILVER)
+                .build();
+    }
+    public static MemberShip createGoldMembership() {
+        return MemberShip.builder()
+                .baseline(new BigDecimal(200_000))
+                .discountRate(BigDecimal.valueOf(0.2))
+                .level(Level.GOLD)
                 .build();
     }
 

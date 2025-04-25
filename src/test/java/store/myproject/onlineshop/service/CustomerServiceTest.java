@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
@@ -20,6 +21,7 @@ import store.myproject.onlineshop.global.utils.JwtUtils;
 import store.myproject.onlineshop.repository.customer.CustomerRepository;
 import store.myproject.onlineshop.global.utils.MessageUtil;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -70,8 +72,8 @@ class CustomerServiceTest {
         given(customerRepository.findByEmail(request.getEmail()))
                 .willReturn(Optional.empty());
 
-        given(memberShipRepository.findTopByLowestBaseline())
-                .willReturn(Optional.of(bronze));
+        given(memberShipRepository.findTopByLowestBaseline(PageRequest.of(0,1)))
+                .willReturn(List.of(bronze));
 
         given(customerRepository.save(any(Customer.class)))
                 .willReturn(customer);
