@@ -1,6 +1,8 @@
 package store.myproject.onlineshop.fixture;
 
 import com.github.javafaker.Faker;
+import store.myproject.onlineshop.domain.customer.Customer;
+import store.myproject.onlineshop.domain.recipe.Recipe;
 import store.myproject.onlineshop.domain.recipe.dto.*;
 import store.myproject.onlineshop.domain.recipestep.dto.RecipeStepDto;
 
@@ -10,6 +12,18 @@ import java.util.Locale;
 public class RecipeFixture {
 
     private static final Faker faker = new Faker(Locale.KOREA);
+
+    public static Recipe createRecipe(Customer customer) {
+        return Recipe.builder()
+                .recipeTitle(faker.food().dish()) // 랜덤 음식 이름
+                .recipeDescription(faker.lorem().sentence()) // 랜덤 문장
+                .recipeServings(faker.number().numberBetween(1, 6) + "인분") // "3인분" 형식
+                .recipeCookingTime(faker.number().numberBetween(10, 120) + "분") // "45분" 형식
+                .customer(customer)
+                .recipeViewCnt(0)
+                .thumbnailUrl(faker.internet().image()) // 랜덤 이미지 URL
+                .build();
+    }
 
     public static RecipeCreateRequest createRecipeCreateRequest() {
         return RecipeCreateRequest.builder()

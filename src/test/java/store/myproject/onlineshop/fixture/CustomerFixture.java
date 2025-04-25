@@ -11,12 +11,13 @@ import store.myproject.onlineshop.domain.customer.dto.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 import static org.instancio.Select.field;
 
 public class CustomerFixture {
 
-    private static final Faker faker = new Faker();
+    private static final Faker faker = new Faker(Locale.KOREA);
 
     /**
      * 고정된 값 기반 Customer 객체 생성

@@ -6,10 +6,11 @@ import store.myproject.onlineshop.domain.cartitem.dto.CartItemResponse;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Locale;
 
 public class CartFixture {
 
-    private static final Faker faker = new Faker();
+    private static final Faker faker = new Faker(Locale.KOREA);
 
     public static CartAddRequest createAddRequest() {
         return new CartAddRequest(1L, 100L);

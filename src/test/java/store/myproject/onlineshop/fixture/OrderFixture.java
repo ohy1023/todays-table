@@ -8,10 +8,11 @@ import store.myproject.onlineshop.domain.order.dto.PostVerificationRequest;
 import store.myproject.onlineshop.domain.order.dto.PreparationRequest;
 
 import java.math.BigDecimal;
+import java.util.Locale;
 
 public class OrderFixture {
 
-    private static final Faker faker = new Faker();
+    private static final Faker faker = new Faker(Locale.KOREA);
 
     public static OrderInfoRequest createOrderInfoRequest() {
         return OrderInfoRequest.builder()

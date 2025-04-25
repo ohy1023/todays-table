@@ -10,10 +10,11 @@ import store.myproject.onlineshop.domain.item.dto.ItemUpdateRequest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class ItemFixture {
 
-    private static final Faker faker = new Faker();
+    private static final Faker faker = new Faker(Locale.KOREA);
 
     public static Item createItem() {
 

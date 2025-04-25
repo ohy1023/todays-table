@@ -4,15 +4,16 @@ import com.github.javafaker.Faker;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.brand.dto.*;
 
+import java.util.Locale;
+
 
 public class BrandFixture {
 
-    private static final Faker faker = new Faker();
+    private static final Faker faker = new Faker(Locale.KOREA);
 
     public static Brand createBrand() {
 
         return Brand.builder()
-                .id(1L)
                 .name(faker.company().name())
                 .build();
     }

@@ -8,10 +8,11 @@ import store.myproject.onlineshop.domain.review.dto.ReviewWriteRequest;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Locale;
 
 public class ReviewFixture {
 
-    private static final Faker faker = new Faker();
+    private static final Faker faker = new Faker(Locale.KOREA);
 
     public static ReviewWriteRequest createReviewWriteRequest() {
         return ReviewWriteRequest.builder()

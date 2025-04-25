@@ -31,7 +31,7 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
      */
     Long countByRecipe(Recipe recipe);
 
-    @Query("SELECT l.recipe.id, count(l) FROM Like l WHERE l.recipe.id in :recipeIds")
+    @Query("SELECT l.recipe.id, count(l) FROM Like l WHERE l.recipe.id in :recipeIds GROUP BY l.recipe.id")
     List<Object[]> countByRecipeIds(@Param("recipeIds") List<Long> recipeIds);
 
     default Map<Long,Long> getLikeCountByRecipeIds(List<Long> recipeIds) {
