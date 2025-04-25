@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,7 +61,7 @@ public class RecipeController {
     }
 
     @Operation(summary = "이미지 업로드 -> s3 저장 -> URL 반환")
-    @PostMapping("/image")
+    @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Response<MessageResponse> uploadImage(@RequestPart("recipeStepImage") MultipartFile file) {
         return Response.success(recipeService.uploadImage(file));
     }
