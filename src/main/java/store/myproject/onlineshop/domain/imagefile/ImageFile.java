@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.item.Item;
-import store.myproject.onlineshop.domain.recipe.Recipe;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.exception.ErrorCode;
 
@@ -27,10 +26,6 @@ public class ImageFile {
     @OneToOne(fetch = LAZY)
     @JoinColumn(name = "brand_id")
     private Brand brand;
-
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "recipe_id")
-    private Recipe recipe;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "item_id")
