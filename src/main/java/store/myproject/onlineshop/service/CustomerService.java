@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -51,10 +52,13 @@ public class CustomerService {
         validateDuplicateEmail(request.getEmail());
         validateDuplicateNickName(request.getNickName());
 
-        MemberShip baseMemberShip = memberShipRepository.findTopByLowestBaseline()
-                .orElseThrow(() -> new AppException(MEMBERSHIP_NOT_FOUND));
+        List<MemberShip> memberShips = memberShipRepository.findTopByLowestBaseline(PageRequest.of(0, 1));
 
-        Customer customer = request.toEntity(encoder.encode(request.getPassword()), baseMemberShip);
+        if (memberShips.isEmpty()) {
+            throw new AppException(MEMBERSHIP_NOT_FOUND);
+        }
+
+        Customer customer = request.toEntity(encoder.encode(request.getPassword()), memberShips.get(0));
         customerRepository.save(customer);
 
         return new MessageResponse(messageUtil.get(MessageCode.CUSTOMER_JOIN));
