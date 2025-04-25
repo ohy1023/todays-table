@@ -27,9 +27,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import store.myproject.onlineshop.domain.item.dto.ItemSearchCond;
 import store.myproject.onlineshop.domain.item.dto.ItemUpdateRequest;
+import store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto;
 import store.myproject.onlineshop.fixture.CommonFixture;
 import store.myproject.onlineshop.fixture.ItemFixture;
+import store.myproject.onlineshop.fixture.RecipeFixture;
 import store.myproject.onlineshop.service.ItemService;
+import store.myproject.onlineshop.service.RecipeService;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -49,6 +52,9 @@ class ItemControllerTest {
 
     @MockBean
     ItemService itemService;
+
+    @MockBean
+    RecipeService recipeService;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -179,4 +185,26 @@ class ItemControllerTest {
                 .andDo(print());
     }
 
+
+    @Test
+    @DisplayName("해당 아이템 사용하는 레시피 목록 조회 성공")
+    void findRecipesByItem_success() throws Exception {
+        // given
+        SimpleRecipeDto recipe = RecipeFixture.createSimpleRecipeDto(); // 테스트용 fixture
+        Page<SimpleRecipeDto> page = new PageImpl<>(List.of(recipe));
+
+        given(recipeService.getRecipesByItem(eq(1L), any(Pageable.class)))
+                .willReturn(page);
+
+        // when & then
+        mockMvc.perform(get("/api/v1/items/{itemId}/recipes", 1L)
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value(SUCCESS))
+                .andExpect(jsonPath("$.result.content[0].recipeId").value(recipe.getRecipeId()))
+                .andExpect(jsonPath("$.result.content[0].title").value(recipe.getTitle()))
+                .andExpect(jsonPath("$.result.content[0].recipeDescription").value(recipe.getRecipeDescription()))
+                .andDo(print());
+    }
 }

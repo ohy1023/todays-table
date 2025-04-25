@@ -59,7 +59,8 @@ public class SecurityConfiguration {
                                 "/api/v1/*/likes",       // 좋아요 수 조회 (GET 기준)
                                 "/api/v1/recipes",
                                 "/api/v1/recipes/*/reviews",
-                                "/api/v1/recipes/*/reviews/*/replies"
+                                "/api/v1/recipes/*/reviews/*/replies",
+                                "/api/v1/items/*/recipes"
                         ).permitAll()
 
                         // ADMIN 전용
@@ -97,6 +98,7 @@ public class SecurityConfiguration {
                                 "/api/v1/customers/logout",
                                 "/api/v1/accounts",
                                 "/api/v1/recipes",
+                                "/api/v1/recipes/image",
                                 "/api/v1/orders",
                                 "/api/v1/orders/cart",
                                 "/api/v1/carts",

@@ -6,12 +6,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.Response;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.customer.CustomerRole;
 import store.myproject.onlineshop.domain.recipe.dto.*;
@@ -30,10 +27,17 @@ import store.myproject.onlineshop.repository.review.ReviewRepository;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.utils.MessageUtil;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static store.myproject.onlineshop.exception.ErrorCode.*;
+import static store.myproject.onlineshop.exception.ErrorCode.CUSTOMER_NOT_FOUND;
+import static store.myproject.onlineshop.exception.ErrorCode.FORBIDDEN_ACCESS;
+import static store.myproject.onlineshop.exception.ErrorCode.INVALID_REVIEW;
+import static store.myproject.onlineshop.exception.ErrorCode.ITEM_NOT_FOUND;
+import static store.myproject.onlineshop.exception.ErrorCode.RECIPE_NOT_FOUND;
+import static store.myproject.onlineshop.exception.ErrorCode.REVIEW_NOT_FOUND;
 
 @Service
 @Transactional
@@ -51,277 +55,144 @@ public class RecipeService {
     /**
      * 단일 레시피 정보를 조회하고 조회수를 증가시킵니다.
      */
-    public RecipeDto getRecipe(Long recipeId) {
-        Recipe recipe = findRecipeById(recipeId);
+    public RecipeDto getRecipeDetail(Long recipeId) {
+        Recipe recipe = getRecipeById(recipeId);
         recipe.addViewCnt();
         return recipe.toDto();
     }
 
     /**
-     * 레시피 요약정보를 조회합니다.
+     * 레시피 요약 정보를 페이지 단위로 조회합니다.
      */
-    public Page<SimpleRecipeDto> getAllRecipe(Pageable pageable) {
+    public Page<SimpleRecipeDto> getAllRecipes(Pageable pageable) {
         Page<Recipe> recipes = recipeRepository.findAll(pageable);
-
-        List<Long> recipeIds = recipes.stream().map(Recipe::getId).toList();
-        Map<Long, Long> likeCounts = likeRepository.getLikeCountByRecipeIds(recipeIds);
-        Map<Long, Long> reviewCounts = reviewRepository.getReviewCountByRecipeIds(recipeIds);
-
-        return recipes.map(recipe -> {
-            Long likeCnt = likeCounts.getOrDefault(recipe.getId(), 0L);
-            Long reviewCnt = reviewCounts.getOrDefault(recipe.getId(), 0L);
-
-            return SimpleRecipeDto.builder()
-                    .recipeId(recipe.getId())
-                    .title(recipe.getRecipeTitle())
-                    .recipeDescription(recipe.getRecipeDescription())
-                    .writer(recipe.getCustomer().getNickName())
-                    .recipeCookingTime(recipe.getRecipeCookingTime())
-                    .recipeServings(recipe.getRecipeServings())
-                    .recipeView(recipe.getRecipeViewCnt())
-                    .thumbnail(recipe.getThumbnailUrl())
-                    .likeCnt(likeCnt)
-                    .reviewCnt(reviewCnt)
-                    .build();
-        });
+        return mapToSimpleRecipePage(recipes);
     }
 
     /**
-     * 레시피를 작성하고 저장합니다. 이미지 파일과 레시피 재료도 함께 저장됩니다.
+     * 레시피를 등록합니다. 재료 및 단계, 썸네일까지 포함됩니다.
      */
     public MessageResponse createRecipe(RecipeCreateRequest request, String email) {
-        Customer customer = findCustomerByEmail(email);
-
+        Customer customer = getCustomerByEmail(email);
         Recipe recipe = request.toEntity(customer);
-
-        List<RecipeItem> recipeItems = mapRecipeItems(request.getItemIdList());
-        recipe.addItems(recipeItems);
-
-        List<RecipeStep> steps = request.getSteps().stream()
-                .map(stepReq -> RecipeStep.builder()
-                        .stepOrder(stepReq.getOrder())
-                        .content(stepReq.getContent())
-                        .imageUrl(stepReq.getImageUrl())
-                        .build())
-                .toList();
-
-        recipe.setStepList(steps);
-
-        if (request.getThumbnailUrl() != null) {
-            recipe.setThumbnailUrl(request.getThumbnailUrl());
-        } else {
-            steps.stream()
-                    .map(RecipeStep::getImageUrl)
-                    .filter(url -> url != null && !url.isBlank())
-                    .findFirst()
-                    .ifPresent(recipe::setThumbnailUrl);
-        }
-
+        recipe.addItems(mapToRecipeItems(request.getItemIdList()));
+        recipe.setStepList(mapToRecipeSteps(request.getSteps()));
+        applyThumbnail(recipe, request.getThumbnailUrl());
         recipeRepository.save(recipe);
-
         return new MessageResponse(messageUtil.get(MessageCode.RECIPE_ADDED));
     }
 
-
     /**
-     * 기존 레시피를 수정합니다. 이미지 파일도 함께 업데이트됩니다.
+     * 레시피를 수정합니다. 모든 정보는 덮어쓰기 방식으로 갱신됩니다.
      */
     public MessageResponse updateRecipe(Long recipeId, RecipeUpdateRequest request, String email) {
-        Customer customer = findCustomerByEmail(email);
-        Recipe recipe = findRecipeById(recipeId);
-
-        if (!hasPermission(customer, recipe.getCustomer())) {
-            throw new AppException(FORBIDDEN_ACCESS); // 권한 없음 예외 처리
-        }
-
-        // 1. 기본 정보 수정
+        Customer customer = getCustomerByEmail(email);
+        Recipe recipe = getRecipeById(recipeId);
+        validatePermission(customer, recipe.getCustomer());
         recipe.updateRecipe(request);
-
-        // 2. 기존 재료 및 스텝 초기화
-        recipe.getItemList().clear();     // orphanRemoval = true 로 자동 삭제
-        recipe.getStepList().clear();     // orphanRemoval + cascade 로 자동 삭제
-
-        // 3. 새로운 RecipeItem 설정
-        List<RecipeItem> recipeItems = mapRecipeItems(request.getItemIdList());
-        recipe.addItems(recipeItems);  // 편의 메서드로 연관관계 설정
-
-        // 4. 새로운 RecipeStep 설정
-        List<RecipeStep> steps = request.getSteps().stream()
-                .map(stepReq -> RecipeStep.builder()
-                        .stepOrder(stepReq.getOrder())
-                        .content(stepReq.getContent())
-                        .imageUrl(stepReq.getImageUrl())
-                        .build())
-                .toList();
-        recipe.setStepList(steps);  // 단방향이므로 리스트만 세팅
-
-        if (request.getThumbnailUrl() != null) {
-            recipe.setThumbnailUrl(request.getThumbnailUrl());
-        } else {
-            steps.stream()
-                    .map(RecipeStep::getImageUrl)
-                    .filter(url -> url != null && !url.isBlank())
-                    .findFirst()
-                    .ifPresent(recipe::setThumbnailUrl);
-        }
-
+        recipe.getItemList().clear();
+        recipe.getStepList().clear();
+        recipe.addItems(mapToRecipeItems(request.getItemIdList()));
+        recipe.setStepList(mapToRecipeSteps(request.getSteps()));
+        applyThumbnail(recipe, request.getThumbnailUrl());
         return new MessageResponse(messageUtil.get(MessageCode.RECIPE_MODIFIED));
     }
 
     /**
-     * 레시피를 삭제합니다. 작성자 또는 관리자만 가능
+     * 레시피를 삭제합니다. 관리자 또는 작성자만 삭제할 수 있습니다.
      */
     public MessageResponse deleteRecipe(Long recipeId, String email) {
-        Customer customer = findCustomerByEmail(email);
-        Recipe recipe = findRecipeById(recipeId);
-
-        if (!hasPermission(customer, recipe.getCustomer())) {
-            throw new AppException(FORBIDDEN_ACCESS); // 권한 없음 예외 처리
-        }
-
-        recipeRepository.deleteById(recipe.getId());
-
+        Customer customer = getCustomerByEmail(email);
+        Recipe recipe = getRecipeById(recipeId);
+        validatePermission(customer, recipe.getCustomer());
+        recipeRepository.delete(recipe);
         return new MessageResponse(messageUtil.get(MessageCode.RECIPE_DELETED));
     }
 
     /**
-     * 해당 레시피의 댓글과 대댓글 미리보기(3개)를 조회합니다.
+     * 해당 레시피에 작성된 댓글과 대댓글 일부를 조회합니다.
      */
-    @Transactional(readOnly = true)
-    public Page<ReviewResponse> getReviewsByRecipe(Long recipeId, Pageable pageable) {
-        Recipe recipe = findRecipeById(recipeId);
-
-        Page<Review> parentReviews = reviewRepository.findParentReviews(recipe.getId(), pageable); // 댓글
-
-        List<Long> parentReviewIds = parentReviews.stream().map(Review::getId).toList();
-
-        Map<Long, List<Review>> childMap = reviewRepository.findTop3ChildReviews(parentReviewIds, PageRequest.of(0, 3)).stream()
-                .collect(Collectors.groupingBy(Review::getParentId));
-
-        // 대댓글 개수 조회
-        Map<Long, Long> childCountMap = reviewRepository.countByParentIds(parentReviewIds);
-
-        return parentReviews.map(parentReview -> {
-            List<ChildReviewResponse> childReviewResponses = Optional.ofNullable(childMap.get(parentReview.getId()))
-                    .orElse(List.of())
-                    .stream()
-                    .map(r -> ChildReviewResponse.builder()
-                            .id(r.getId())
-                            .writer(r.getCustomer().getNickName())
-                            .content(r.getReviewContent())
-                            .build())
-                    .toList();
-
-            long totalChildCount = childCountMap.getOrDefault(parentReview.getId(), 0L);
-            boolean hasMoreChild = totalChildCount > 3;
-
-            return ReviewResponse.builder()
-                    .id(parentReview.getId())
-                    .writer(parentReview.getCustomer().getNickName())
-                    .content(parentReview.getReviewContent())
-                    .childReviews(childReviewResponses)
-                    .hasMoreChildReviews(hasMoreChild)
-                    .build();
-        });
-
+    public Page<ReviewResponse> getRecipeReviews(Long recipeId, Pageable pageable) {
+        Recipe recipe = getRecipeById(recipeId);
+        Page<Review> parents = reviewRepository.findParentReviews(recipe.getId(), pageable);
+        List<Long> parentIds = parents.stream().map(Review::getId).toList();
+        Map<Long, List<Review>> childMap = reviewRepository.findTop3ChildReviews(parentIds, PageRequest.of(0, 3))
+                .stream().collect(Collectors.groupingBy(Review::getParentId));
+        Map<Long, Long> childCountMap = reviewRepository.countByParentIds(parentIds);
+        return parents.map(parent -> toReviewResponse(parent, childMap, childCountMap));
     }
 
     /**
-     * 대댓글 더보기.
+     * 특정 댓글의 모든 대댓글을 조회합니다.
      */
-    @Transactional(readOnly = true)
     public Page<ChildReviewResponse> getChildReviews(Long recipeId, Long parentReviewId, Pageable pageable) {
-        // 레시피 및 부모 댓글 존재 검증
-        findRecipeById(recipeId);
-        Review parentReview = findReviewById(parentReviewId);
-
-        if (!parentReview.getRecipe().getId().equals(recipeId)) {
+        getRecipeById(recipeId);
+        Review parent = getReviewById(parentReviewId);
+        if (!parent.getRecipe().getId().equals(recipeId)) {
             throw new AppException(INVALID_REVIEW);
         }
-
         return reviewRepository.findByParentId(parentReviewId, pageable)
-                .map(review -> ChildReviewResponse.builder()
-                        .id(review.getId())
-                        .writer(review.getCustomer().getNickName())
-                        .content(review.getReviewContent())
-                        .build());
+                .map(this::toChildReviewDto);
     }
 
     /**
-     * 레시피에 댓글 또는 대댓글을 작성합니다.
+     * 댓글 또는 대댓글을 작성합니다.
      */
-    public MessageResponse addReview(String email, Long recipeId, ReviewWriteRequest request) {
-        Customer customer = findCustomerByEmail(email);
-        Recipe recipe = findRecipeById(recipeId);
-
-        Review review = (request.getReviewParentId() == null) ?
-                request.toEntity(0L, request.getReviewContent(), customer, recipe) :
-                request.toEntity(request.getReviewParentId(), request.getReviewContent(), customer, recipe);
-
+    public MessageResponse createReview(String email, Long recipeId, ReviewWriteRequest request) {
+        Customer customer = getCustomerByEmail(email);
+        Recipe recipe = getRecipeById(recipeId);
+        Long parentId = Optional.ofNullable(request.getReviewParentId()).orElse(0L);
+        Review review = request.toEntity(parentId, request.getReviewContent(), customer, recipe);
         review.addReviewToRecipe(recipe);
         reviewRepository.save(review);
-
         return new MessageResponse(messageUtil.get(MessageCode.RECIPE_REVIEW_ADDED));
     }
 
     /**
-     * 댓글 또는 대댓글을 수정합니다. 작성자 또는 관리자만 가능
+     * 댓글을 수정합니다.
      */
     public MessageResponse updateReview(String email, Long recipeId, Long reviewId, ReviewUpdateRequest request) {
-        Customer customer = findCustomerByEmail(email);
-        findRecipeById(recipeId);
-        Review review = findReviewById(reviewId);
-
-        if (hasPermission(customer, review.getCustomer())) {
-            review.updateReview(request);
-        } else {
-            throw new AppException(FORBIDDEN_ACCESS, FORBIDDEN_ACCESS.getMessage());
-        }
-
+        Customer customer = getCustomerByEmail(email);
+        getRecipeById(recipeId);
+        Review review = getReviewById(reviewId);
+        validatePermission(customer, review.getCustomer());
+        review.updateReview(request);
         return new MessageResponse(messageUtil.get(MessageCode.RECIPE_REVIEW_MODIFIED));
     }
 
     /**
-     * 댓글 또는 대댓글을 삭제합니다. 작성자 또는 관리자만 가능
+     * 댓글을 삭제합니다. 작성자 또는 관리자만 가능합니다.
      */
     public MessageResponse deleteReview(String email, Long recipeId, Long reviewId) {
-        Customer customer = findCustomerByEmail(email);
-        findRecipeById(recipeId);
-        Review review = findReviewById(reviewId);
-
-        if (hasPermission(customer, review.getCustomer())) {
-            review.removeReviewToRecipe();
-            reviewRepository.delete(review);
-        } else {
-            throw new AppException(FORBIDDEN_ACCESS, FORBIDDEN_ACCESS.getMessage());
-        }
-
+        Customer customer = getCustomerByEmail(email);
+        getRecipeById(recipeId);
+        Review review = getReviewById(reviewId);
+        validatePermission(customer, review.getCustomer());
+        review.removeReviewToRecipe();
+        reviewRepository.delete(review);
         return new MessageResponse(messageUtil.get(MessageCode.RECIPE_REVIEW_DELETED));
     }
 
     /**
-     * 레시피 좋아요를 토글합니다. 이미 좋아요가 있으면 취소
+     * 좋아요 토글 처리합니다. 이미 눌렀으면 삭제, 아니면 추가.
      */
     public MessageResponse toggleLike(Long recipeId, String email) {
-        Customer customer = findCustomerByEmail(email);
-        Recipe recipe = findRecipeById(recipeId);
-
+        Customer customer = getCustomerByEmail(email);
+        Recipe recipe = getRecipeById(recipeId);
         Optional<Like> like = likeRepository.findByRecipeAndCustomer(recipe, customer);
-
         if (like.isPresent()) {
             likeRepository.delete(like.get());
             return new MessageResponse(messageUtil.get(MessageCode.UNDO_LIKE));
-        } else {
-            likeRepository.save(Like.of(customer, recipe));
-            return new MessageResponse(messageUtil.get(MessageCode.DO_LIKE));
         }
+        likeRepository.save(Like.of(customer, recipe));
+        return new MessageResponse(messageUtil.get(MessageCode.DO_LIKE));
     }
 
     /**
-     * 해당 레시피에 대한 좋아요 수를 반환합니다.
+     * 특정 레시피의 좋아요 수 조회
      */
     public Long getLikeCount(Long recipeId) {
-        Recipe recipe = findRecipeById(recipeId);
+        Recipe recipe = getRecipeById(recipeId);
         return likeRepository.countByRecipe(recipe);
     }
 
@@ -333,53 +204,143 @@ public class RecipeService {
     }
 
     /**
-     * 아이템 ID 리스트를 기반으로 RecipeItem 리스트를 생성합니다.
+     * 특정 아이템을 사용하는 레시피 목록 조회
      */
-    private List<RecipeItem> mapRecipeItems(List<Long> itemIds) {
-        List<RecipeItem> items = new ArrayList<>();
-        for (Long itemId : itemIds) {
-            Item item = findItemById(itemId);
-            items.add(RecipeItem.createRecipeItem(item));
+    public Page<SimpleRecipeDto> getRecipesByItem(Long itemId, Pageable pageable) {
+        Page<Recipe> recipes = recipeRepository.findAllByItemId(itemId, pageable);
+        return mapToSimpleRecipePage(recipes);
+    }
+
+    /**
+     * 아이템 ID 리스트로 RecipeItem 리스트 생성
+     */
+    private List<RecipeItem> mapToRecipeItems(List<Long> itemIds) {
+        return itemIds.stream()
+                .map(this::getItemById)
+                .map(RecipeItem::createRecipeItem)
+                .toList();
+    }
+
+    /**
+     * 요청된 RecipeStepRequest 리스트로 RecipeStep 리스트 생성
+     */
+    private List<RecipeStep> mapToRecipeSteps(List<RecipeStepRequest> steps) {
+        return steps.stream()
+                .map(step -> RecipeStep.builder()
+                        .stepOrder(step.getOrder())
+                        .content(step.getContent())
+                        .imageUrl(step.getImageUrl())
+                        .build())
+                .toList();
+    }
+
+    /**
+     * 썸네일 URL이 있으면 그대로 설정하고, 없으면 첫 이미지로 대체
+     */
+    private void applyThumbnail(Recipe recipe, String thumbnailUrl) {
+        if (thumbnailUrl != null) {
+            recipe.setThumbnailUrl(thumbnailUrl);
+        } else {
+            recipe.getStepList().stream()
+                    .map(RecipeStep::getImageUrl)
+                    .filter(url -> url != null && !url.isBlank())
+                    .findFirst()
+                    .ifPresent(recipe::setThumbnailUrl);
         }
-        return items;
     }
 
     /**
-     * 이메일로 고객을 조회합니다.
+     * 레시피 목록을 SimpleRecipeDto 페이지로 변환
      */
-    private Customer findCustomerByEmail(String email) {
-        return customerRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND, CUSTOMER_NOT_FOUND.getMessage()));
+    private Page<SimpleRecipeDto> mapToSimpleRecipePage(Page<Recipe> recipes) {
+        List<Long> ids = recipes.stream().map(Recipe::getId).toList();
+        Map<Long, Long> likes = likeRepository.getLikeCountByRecipeIds(ids);
+        Map<Long, Long> reviews = reviewRepository.getReviewCountByRecipeIds(ids);
+        return recipes.map(recipe -> toSimpleRecipeDto(recipe, likes, reviews));
     }
 
     /**
-     * 아이디로 품목을 조회합니다.
+     * 단일 레시피를 SimpleRecipeDto로 변환
      */
-    private Item findItemById(Long itemId) {
-        return itemRepository.findById(itemId)
-                .orElseThrow(() -> new AppException(ITEM_NOT_FOUND, ITEM_NOT_FOUND.getMessage()));
+    private SimpleRecipeDto toSimpleRecipeDto(Recipe recipe, Map<Long, Long> likes, Map<Long, Long> reviews) {
+        return SimpleRecipeDto.builder()
+                .recipeId(recipe.getId())
+                .title(recipe.getRecipeTitle())
+                .recipeDescription(recipe.getRecipeDescription())
+                .writer(recipe.getCustomer().getNickName())
+                .recipeCookingTime(recipe.getRecipeCookingTime())
+                .recipeServings(recipe.getRecipeServings())
+                .recipeView(recipe.getRecipeViewCnt())
+                .thumbnail(recipe.getThumbnailUrl())
+                .likeCnt(likes.getOrDefault(recipe.getId(), 0L))
+                .reviewCnt(reviews.getOrDefault(recipe.getId(), 0L))
+                .build();
     }
 
     /**
-     * 아이디로 레시피를 조회합니다.
+     * 댓글을 ReviewResponse로 변환
      */
-    private Recipe findRecipeById(Long recipeId) {
-        return recipeRepository.findById(recipeId)
-                .orElseThrow(() -> new AppException(RECIPE_NOT_FOUND, RECIPE_NOT_FOUND.getMessage()));
+    private ReviewResponse toReviewResponse(Review parent, Map<Long, List<Review>> childMap, Map<Long, Long> countMap) {
+        List<ChildReviewResponse> children = Optional.ofNullable(childMap.get(parent.getId()))
+                .orElse(List.of())
+                .stream()
+                .map(this::toChildReviewDto)
+                .toList();
+        boolean hasMore = countMap.getOrDefault(parent.getId(), 0L) > 3;
+        return ReviewResponse.builder()
+                .id(parent.getId())
+                .writer(parent.getCustomer().getNickName())
+                .content(parent.getReviewContent())
+                .childReviews(children)
+                .hasMoreChildReviews(hasMore)
+                .build();
     }
 
     /**
-     * 아이디로 리뷰를 조회합니다.
+     * 대댓글을 ChildReviewResponse로 변환
      */
-    private Review findReviewById(Long reviewId) {
-        return reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new AppException(REVIEW_NOT_FOUND, REVIEW_NOT_FOUND.getMessage()));
+    private ChildReviewResponse toChildReviewDto(Review review) {
+        return ChildReviewResponse.builder()
+                .id(review.getId())
+                .writer(review.getCustomer().getNickName())
+                .content(review.getReviewContent())
+                .build();
     }
 
     /**
-     * 요청자가 관리자이거나 작성자인지 확인합니다.
+     * 관리자 또는 작성자 여부 확인
      */
-    private boolean hasPermission(Customer requester, Customer target) {
-        return requester.getCustomerRole() == CustomerRole.ROLE_ADMIN || requester == target;
+    private void validatePermission(Customer requester, Customer target) {
+        if (!requester.equals(target) && requester.getCustomerRole() != CustomerRole.ROLE_ADMIN) {
+            throw new AppException(FORBIDDEN_ACCESS);
+        }
+    }
+
+    /**
+     * ID로 레시피 조회
+     */
+    private Recipe getRecipeById(Long id) {
+        return recipeRepository.findById(id).orElseThrow(() -> new AppException(RECIPE_NOT_FOUND));
+    }
+
+    /**
+     * 이메일로 고객 조회
+     */
+    private Customer getCustomerByEmail(String email) {
+        return customerRepository.findByEmail(email).orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND));
+    }
+
+    /**
+     * ID로 아이템 조회
+     */
+    private Item getItemById(Long id) {
+        return itemRepository.findById(id).orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
+    }
+
+    /**
+     * ID로 리뷰 조회
+     */
+    private Review getReviewById(Long id) {
+        return reviewRepository.findById(id).orElseThrow(() -> new AppException(REVIEW_NOT_FOUND));
     }
 }

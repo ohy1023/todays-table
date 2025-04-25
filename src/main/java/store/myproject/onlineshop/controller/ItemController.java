@@ -15,7 +15,9 @@ import store.myproject.onlineshop.domain.item.dto.ItemCreateRequest;
 import store.myproject.onlineshop.domain.item.dto.ItemDto;
 import store.myproject.onlineshop.domain.item.dto.ItemSearchCond;
 import store.myproject.onlineshop.domain.item.dto.ItemUpdateRequest;
+import store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto;
 import store.myproject.onlineshop.service.ItemService;
+import store.myproject.onlineshop.service.RecipeService;
 
 import java.util.List;
 
@@ -27,7 +29,7 @@ import java.util.List;
 public class ItemController {
 
     private final ItemService itemService;
-
+    private final RecipeService recipeService;
 
     @Operation(summary = "품목 단건 조회")
     @GetMapping("/{itemId}")
@@ -66,5 +68,11 @@ public class ItemController {
     @DeleteMapping("/{itemId}")
     public Response<MessageResponse> removeItem(@PathVariable Long itemId) {
         return Response.success(itemService.deleteItem(itemId));
+    }
+
+    @Operation(summary = "해당 아이템 사용하는 레시피 목록 조회")
+    @GetMapping("/{itemId}/recipes")
+    Response<Page<SimpleRecipeDto>> findRecipesByItem(@PathVariable Long itemId, Pageable pageable) {
+        return Response.success(recipeService.getRecipesByItem(itemId, pageable));
     }
 }

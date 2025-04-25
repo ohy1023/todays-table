@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.Response;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateRequest;
@@ -30,13 +29,13 @@ public class RecipeController {
     @Operation(summary = "레시피 단건 조회")
     @GetMapping("/{recipeId}")
     public Response<RecipeDto> viewOneRecipe(@PathVariable Long recipeId) {
-        return Response.success(recipeService.getRecipe(recipeId));
+        return Response.success(recipeService.getRecipeDetail(recipeId));
     }
 
     @Operation(summary = "레시피 전체 조회")
     @GetMapping
     public Response<Page<SimpleRecipeDto>> viewAllRecipes(Pageable pageable) {
-        return Response.success(recipeService.getAllRecipe(pageable));
+        return Response.success(recipeService.getAllRecipes(pageable));
     }
 
     @Operation(summary = "레시피 작성")
@@ -60,6 +59,7 @@ public class RecipeController {
         return Response.success(recipeService.deleteRecipe(recipeId, email));
     }
 
+    @Operation(summary = "이미지 업로드 -> s3 저장 -> URL 반환")
     @PostMapping("/image")
     public Response<MessageResponse> uploadImage(@RequestPart("recipeStepImage") MultipartFile file) {
         return Response.success(recipeService.uploadImage(file));

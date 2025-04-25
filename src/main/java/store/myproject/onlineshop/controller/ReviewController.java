@@ -24,7 +24,7 @@ public class ReviewController {
     @Operation(summary = "댓글 조회")
     @GetMapping("/{recipeId}/reviews")
     public Response<Page<ReviewResponse>> getReview(@PathVariable Long recipeId, Pageable pageable) {
-        return Response.success(recipeService.getReviewsByRecipe(recipeId, pageable));
+        return Response.success(recipeService.getRecipeReviews(recipeId, pageable));
     }
 
     @Operation(summary = "대댓글 더보기")
@@ -41,12 +41,12 @@ public class ReviewController {
     @PostMapping("/{id}/reviews")
     public Response<MessageResponse> writeReview(@PathVariable Long id, @Valid @RequestBody ReviewWriteRequest request, Authentication authentication) {
         String email = authentication.getName();
-        return Response.success(recipeService.addReview(email, id, request));
+        return Response.success(recipeService.createReview(email, id, request));
     }
 
     @Operation(summary = "댓글 수정")
     @PostMapping("/{id}/reviews/{reviewId}")
-    public Response<MessageResponse> writeReview(@PathVariable Long id, @PathVariable Long reviewId, @Valid @RequestBody ReviewUpdateRequest request, Authentication authentication) {
+    public Response<MessageResponse> modifyReview(@PathVariable Long id, @PathVariable Long reviewId, @Valid @RequestBody ReviewUpdateRequest request, Authentication authentication) {
         String email = authentication.getName();
         return Response.success(recipeService.updateReview(email, id, reviewId, request));
     }

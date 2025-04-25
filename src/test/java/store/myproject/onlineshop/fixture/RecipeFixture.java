@@ -1,10 +1,8 @@
 package store.myproject.onlineshop.fixture;
 
 import com.github.javafaker.Faker;
-import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateRequest;
-import store.myproject.onlineshop.domain.recipe.dto.RecipeDto;
-import store.myproject.onlineshop.domain.recipe.dto.RecipeUpdateRequest;
-import store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto;
+import store.myproject.onlineshop.domain.recipe.dto.*;
+import store.myproject.onlineshop.domain.recipestep.dto.RecipeStepDto;
 
 import java.util.List;
 import java.util.Locale;
@@ -16,35 +14,49 @@ public class RecipeFixture {
     public static RecipeCreateRequest createRecipeCreateRequest() {
         return RecipeCreateRequest.builder()
                 .recipeTitle(faker.food().dish())
-                .recipeContent(faker.lorem().paragraph())
+                .recipeDescription(faker.lorem().paragraph())
                 .recipeCookingTime(faker.number().numberBetween(10, 120) + "분")
                 .recipeServings(faker.number().digit() + "인분")
                 .itemIdList(List.of(1L, 2L, 3L))
+                .steps(List.of(RecipeStepRequest.builder()
+                        .order(faker.number().numberBetween(0, 50))
+                        .content(faker.lorem().paragraph())
+                        .imageUrl("https://example.com/thumb.jpg")
+                        .build()))
                 .build();
     }
 
     public static RecipeUpdateRequest createRecipeUpdateRequest() {
         return RecipeUpdateRequest.builder()
                 .recipeTitle(faker.food().dish())
-                .recipeContent(faker.lorem().paragraph())
+                .recipeDescription(faker.lorem().paragraph())
                 .recipeCookingTime(faker.number().numberBetween(10, 120) + "분")
                 .recipeServings(faker.number().digit() + "인분")
                 .itemIdList(List.of(4L, 5L, 6L))
+                .steps(List.of(RecipeStepRequest.builder()
+                        .order(faker.number().numberBetween(0, 50))
+                        .content(faker.lorem().paragraph())
+                        .imageUrl("https://example.com/thumb.jpg")
+                        .build()))
                 .build();
     }
 
     public static RecipeDto createRecipeDto() {
         return RecipeDto.builder()
                 .recipeTitle(faker.food().dish())
-                .recipeContent(faker.lorem().paragraph())
+                .recipeDescription(faker.lorem().paragraph())
                 .recipeCookingTime("30분")
                 .recipeServings("2인분")
                 .recipeWriter(faker.name().fullName())
                 .recipeView(faker.number().numberBetween(100, 10000))
                 .reviewCnt((long) faker.number().numberBetween(0, 50))
                 .likeCnt((long) faker.number().numberBetween(0, 100))
-                .itemNameList(List.of("고기", "채소", "소스"))
-                .recipeImageList(List.of("https://example.com/image1.jpg", "https://example.com/image2.jpg"))
+                .itemIdList(List.of(1L, 2L, 3L))
+                .steps(List.of(RecipeStepDto.builder()
+                                .stepOrder(faker.number().numberBetween(0, 50))
+                                .content(faker.lorem().paragraph())
+                                .imageUrl("https://example.com/thumb.jpg")
+                        .build()))
                 .build();
     }
 
@@ -52,6 +64,7 @@ public class RecipeFixture {
         return SimpleRecipeDto.builder()
                 .recipeId(1L)
                 .title(faker.food().dish())
+                .recipeDescription(faker.lorem().paragraph())
                 .thumbnail("https://example.com/thumb.jpg")
                 .writer(faker.name().fullName())
                 .recipeCookingTime("20분")

@@ -60,7 +60,7 @@ class ReviewControllerTest {
                             .build()
             );
 
-            given(recipeService.getReviewsByRecipe(anyLong(), any())).willReturn(new PageImpl<>(responses));
+            given(recipeService.getRecipeReviews(anyLong(), any())).willReturn(new PageImpl<>(responses));
 
             mockMvc.perform(get("/api/v1/recipes/1/reviews"))
                     .andExpect(status().isOk())
@@ -72,7 +72,7 @@ class ReviewControllerTest {
         @Test
         @DisplayName("실패 - 레시피 없음")
         void get_parent_reviews_recipe_not_found() throws Exception {
-            given(recipeService.getReviewsByRecipe(anyLong(), any())).willThrow(new AppException(RECIPE_NOT_FOUND));
+            given(recipeService.getRecipeReviews(anyLong(), any())).willThrow(new AppException(RECIPE_NOT_FOUND));
 
             mockMvc.perform(get("/api/v1/recipes/999/reviews"))
                     .andExpect(status().isNotFound())
@@ -135,7 +135,7 @@ class ReviewControllerTest {
             ReviewWriteRequest request = ReviewFixture.createReviewWriteRequest();
             MessageResponse response = new MessageResponse("작성 완료");
 
-            given(recipeService.addReview(anyString(), anyLong(), any())).willReturn(response);
+            given(recipeService.createReview(anyString(), anyLong(), any())).willReturn(response);
 
             mockMvc.perform(post("/api/v1/recipes/1/reviews")
                             .with(csrf())
@@ -151,7 +151,7 @@ class ReviewControllerTest {
         void write_recipe_not_found() throws Exception {
             ReviewWriteRequest request = ReviewFixture.createReviewWriteRequest();
 
-            given(recipeService.addReview(anyString(), anyLong(), any()))
+            given(recipeService.createReview(anyString(), anyLong(), any()))
                     .willThrow(new AppException(RECIPE_NOT_FOUND));
 
             mockMvc.perform(post("/api/v1/recipes/999/reviews")
@@ -168,7 +168,7 @@ class ReviewControllerTest {
         void write_customer_not_found() throws Exception {
             ReviewWriteRequest request = ReviewFixture.createReviewWriteRequest();
 
-            given(recipeService.addReview(anyString(), anyLong(), any()))
+            given(recipeService.createReview(anyString(), anyLong(), any()))
                     .willThrow(new AppException(CUSTOMER_NOT_FOUND));
 
             mockMvc.perform(post("/api/v1/recipes/1/reviews")
@@ -187,7 +187,7 @@ class ReviewControllerTest {
 
             ReviewWriteRequest request = ReviewFixture.createReviewWriteRequest();
 
-            given(recipeService.addReview(anyString(), anyLong(), any()))
+            given(recipeService.createReview(anyString(), anyLong(), any()))
                     .willThrow(new AppException(FORBIDDEN_ACCESS));
 
             mockMvc.perform(post("/api/v1/recipes/1/reviews")
