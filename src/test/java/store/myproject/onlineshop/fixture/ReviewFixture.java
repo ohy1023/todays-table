@@ -1,18 +1,35 @@
 package store.myproject.onlineshop.fixture;
 
 import com.github.javafaker.Faker;
-import store.myproject.onlineshop.domain.cart.dto.CartAddRequest;
-import store.myproject.onlineshop.domain.cartitem.dto.CartItemResponse;
+import store.myproject.onlineshop.domain.customer.Customer;
+import store.myproject.onlineshop.domain.recipe.Recipe;
+import store.myproject.onlineshop.domain.review.Review;
 import store.myproject.onlineshop.domain.review.dto.ReviewUpdateRequest;
 import store.myproject.onlineshop.domain.review.dto.ReviewWriteRequest;
 
-import java.math.BigDecimal;
-import java.util.List;
 import java.util.Locale;
 
 public class ReviewFixture {
 
     private static final Faker faker = new Faker(Locale.KOREA);
+
+    public static Review createParentReview(Recipe recipe, Customer customer) {
+        return Review.builder()
+                .parentId(null)
+                .recipe(recipe)
+                .customer(customer)
+                .reviewContent(faker.lorem().sentence())
+                .build();
+    }
+
+    public static Review createChildReview(Recipe recipe, Customer customer,Review review) {
+        return Review.builder()
+                .parentId(review.getId())
+                .recipe(recipe)
+                .customer(customer)
+                .reviewContent(faker.lorem().sentence())
+                .build();
+    }
 
     public static ReviewWriteRequest createReviewWriteRequest() {
         return ReviewWriteRequest.builder()

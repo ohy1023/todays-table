@@ -1,14 +1,13 @@
 package store.myproject.onlineshop.fixture;
 
 import com.github.javafaker.Faker;
-import store.myproject.onlineshop.domain.imagefile.ImageFile;
+import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.item.dto.ItemCreateRequest;
 import store.myproject.onlineshop.domain.item.dto.ItemDto;
 import store.myproject.onlineshop.domain.item.dto.ItemUpdateRequest;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -16,17 +15,13 @@ public class ItemFixture {
 
     private static final Faker faker = new Faker(Locale.KOREA);
 
-    public static Item createItem() {
+    public static Item createItem(Brand brand) {
 
         return Item.builder()
-                .id(1L)
                 .itemName(faker.company().name())
-                .price(BigDecimal.valueOf(faker.number().numberBetween(1000, 100000)))
-                .stock(faker.number().numberBetween(1L, 1000L))
-                .brand(BrandFixture.createBrand())
-                .imageFileList(new ArrayList<>())
-                .recipeItemList(new ArrayList<>())
-                .orderItemList(new ArrayList<>())
+                .price(BigDecimal.valueOf(3000))
+                .stock(40L)
+                .brand(brand)
                 .build();
     }
 

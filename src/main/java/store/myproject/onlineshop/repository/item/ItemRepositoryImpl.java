@@ -33,7 +33,7 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
                 .where(
                         itemNameContains(itemSearchCond.getItemName()),
                         brandNameContains(itemSearchCond.getBrandName()),
-                        priceLoe(itemSearchCond.getStockLoe()),
+                        priceLoe(itemSearchCond.getPriceLoe()),
                         priceGoe(itemSearchCond.getPriceGoe()),
                         stockLoe(itemSearchCond.getStockLoe()),
                         stockGoe(itemSearchCond.getStockGoe()),
@@ -47,9 +47,10 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
                 .select(item.count())
                 .from(item)
                 .where(
+                        item.deletedDate.isNull(),
                         itemNameContains(itemSearchCond.getItemName()),
                         brandNameContains(itemSearchCond.getBrandName()),
-                        priceLoe(itemSearchCond.getStockLoe()),
+                        priceLoe(itemSearchCond.getPriceLoe()),
                         priceGoe(itemSearchCond.getPriceGoe()),
                         stockLoe(itemSearchCond.getStockLoe()),
                         stockGoe(itemSearchCond.getStockGoe()),

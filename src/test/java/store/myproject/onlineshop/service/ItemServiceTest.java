@@ -45,8 +45,8 @@ class ItemServiceTest {
     @Mock private MultipartFile multipartFile;
     @Mock private MessageUtil messageUtil;
 
-    Item item = ItemFixture.createItem();
     Brand brand = BrandFixture.createBrand();
+    Item item = ItemFixture.createItem(brand);
     ImageFile imageFile = ImageFileFixture.withItem(item);
 
     @Test
@@ -101,7 +101,7 @@ class ItemServiceTest {
         given(messageUtil.get(MessageCode.ITEM_MODIFIED)).willReturn("해당 품목이 수정되었습니다.");
 
         // when
-        MessageResponse response = itemService.updateItem(item.getId(), request, List.of(multipartFile));
+        MessageResponse response = itemService.updateItem(1L, request, List.of(multipartFile));
 
         // then
         assertThat(response.getMessage()).isEqualTo("해당 품목이 수정되었습니다.");
