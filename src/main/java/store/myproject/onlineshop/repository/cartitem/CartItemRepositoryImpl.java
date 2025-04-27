@@ -18,8 +18,6 @@ import java.util.List;
 import static store.myproject.onlineshop.domain.cartitem.QCartItem.cartItem;
 import static store.myproject.onlineshop.domain.item.QItem.item;
 
-
-@Slf4j
 @RequiredArgsConstructor
 public class CartItemRepositoryImpl implements CartItemCustomRepository {
 

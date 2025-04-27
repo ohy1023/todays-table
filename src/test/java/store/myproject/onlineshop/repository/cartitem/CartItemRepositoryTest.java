@@ -67,6 +67,29 @@ class CartItemRepositoryTest {
     }
 
     @Test
+    @DisplayName("cart가 null인 경우 장바구니 조회")
+    void find_by_cart_page_with_null_cart_success() {
+        // given
+        Customer customer = customerRepository.save(CustomerFixture.createCustomer());
+        Cart cart = cartRepository.save(Cart.createCart(customer));
+        Brand brand = brandRepository.save(BrandFixture.createBrand());
+        Item item1 = itemRepository.save(ItemFixture.createItem(brand));
+        Item item2 = itemRepository.save(ItemFixture.createItem(brand));
+        cartItemRepository.save(CartItem.createCartItem(item1, 1L, cart));
+        cartItemRepository.save(CartItem.createCartItem(item2, 1L, cart));
+
+        PageRequest pageRequest = PageRequest.of(0, 10);
+
+        // when
+        Page<CartItemResponse> result = cartItemRepository.findByCartPage(null, pageRequest);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).hasSize(2);
+    }
+
+
+    @Test
     @DisplayName("장바구니 비우기 성공")
     void delete_by_cart_success() {
         // given

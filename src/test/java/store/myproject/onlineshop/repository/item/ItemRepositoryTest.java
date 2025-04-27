@@ -67,11 +67,23 @@ class ItemRepositoryTest {
         }
 
         @Test
-        @DisplayName("검색 결과 없음")
-        void search_no_result() {
+        @DisplayName("start 날짜 없는 경우 아이템 검색")
+        void search_without_start_date_success() {
             // given
+            Brand brand = BrandFixture.createBrand();
+            brandRepository.save(brand);
+            Item item = ItemFixture.createItem(brand);
+            itemRepository.save(item);
+
             ItemSearchCond cond = ItemSearchCond.builder()
-                    .itemName("없는이름")
+                    .itemName(item.getItemName())
+                    .brandName(brand.getName())
+                    .priceGoe(1000L)
+                    .priceLoe(10000L)
+                    .stockGoe(1L)
+                    .stockLoe(100L)
+                    .startDate(null)
+                    .endDate(LocalDateTime.now().plusDays(1))
                     .build();
 
             PageRequest pageRequest = PageRequest.of(0, 10);
@@ -80,7 +92,61 @@ class ItemRepositoryTest {
             Page<ItemDto> result = itemRepository.search(cond, pageRequest);
 
             // then
-            assertThat(result.getContent()).isEmpty();
+            assertThat(result.getContent()).hasSize(1);
+            assertThat(result.getContent().get(0).getItemName()).isEqualTo(item.getItemName());
+            assertThat(result.getContent().get(0).getBrandName()).isEqualTo(brand.getName());
+        }
+
+        @Test
+        @DisplayName("end 날짜 없는 경우 아이템 검색")
+        void search_without_end_date_success() {
+            // given
+            Brand brand = BrandFixture.createBrand();
+            brandRepository.save(brand);
+            Item item = ItemFixture.createItem(brand);
+            itemRepository.save(item);
+
+            ItemSearchCond cond = ItemSearchCond.builder()
+                    .itemName(item.getItemName())
+                    .brandName(brand.getName())
+                    .priceGoe(1000L)
+                    .priceLoe(10000L)
+                    .stockGoe(1L)
+                    .stockLoe(100L)
+                    .startDate(LocalDateTime.now().minusDays(1))
+                    .endDate(null)
+                    .build();
+
+            PageRequest pageRequest = PageRequest.of(0, 10);
+
+            // when
+            Page<ItemDto> result = itemRepository.search(cond, pageRequest);
+
+            // then
+            assertThat(result.getContent()).hasSize(1);
+            assertThat(result.getContent().get(0).getItemName()).isEqualTo(item.getItemName());
+            assertThat(result.getContent().get(0).getBrandName()).isEqualTo(brand.getName());
+        }
+
+        @Test
+        @DisplayName("조건 없이 검색")
+        void search_without_cond() {
+            // given
+            Brand brand = BrandFixture.createBrand();
+            brandRepository.save(brand);
+            Item item = ItemFixture.createItem(brand);
+            itemRepository.save(item);
+
+            ItemSearchCond cond = ItemSearchCond.builder()
+                    .build();
+
+            PageRequest pageRequest = PageRequest.of(0, 10);
+
+            // when
+            Page<ItemDto> result = itemRepository.search(cond, pageRequest);
+
+            // then
+            assertThat(result.getContent()).hasSize(1);
         }
     }
 
