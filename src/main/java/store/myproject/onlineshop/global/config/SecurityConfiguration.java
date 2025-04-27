@@ -1,4 +1,4 @@
-package store.myproject.onlineshop.global.security;
+package store.myproject.onlineshop.global.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -9,6 +9,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import store.myproject.onlineshop.global.securityhandler.CustomAccessDeniedHandler;
+import store.myproject.onlineshop.global.securityhandler.CustomAuthenticationEntryPoint;
 import store.myproject.onlineshop.global.token.JwtFilter;
 import store.myproject.onlineshop.global.utils.JwtUtils;
 import store.myproject.onlineshop.service.CustomerService;

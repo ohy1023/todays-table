@@ -11,7 +11,6 @@ ext {
             '**/store/myproject/onlineshop/global/aop',
             '**/store/myproject/onlineshop/global/db',
             '**/store/myproject/onlineshop/global/annotation',
-            '**/store/myproject/onlineshop/global/security/SecurityConfiguration',
             '**/store/myproject/onlineshop/global/init',
             '**/store/myproject/onlineshop/global/event',
             '**/store/myproject/onlineshop/exception/**',

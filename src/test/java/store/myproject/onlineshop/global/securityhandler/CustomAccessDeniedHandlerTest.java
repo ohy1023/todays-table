@@ -1,4 +1,4 @@
-package store.myproject.onlineshop.global.security;
+package store.myproject.onlineshop.global.securityhandler;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
