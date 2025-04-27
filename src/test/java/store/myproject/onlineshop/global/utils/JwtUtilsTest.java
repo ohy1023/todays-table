@@ -98,16 +98,16 @@ class JwtUtilsTest {
     }
 
     @Test
-    @DisplayName("isValid는 서명된 토큰에 대해 false를 반환한다 (isSigned)")
-    void is_valid_returns_false_for_signed_token() {
+    @DisplayName("isInvalid는 서명된 토큰에 대해 false를 반환한다")
+    void is_invalid_returns_false_for_signed_token() {
         // given
         String token = jwtUtils.createAccessToken("test@email.com");
 
         // when
-        boolean result = jwtUtils.isValid(token);
+        boolean result = jwtUtils.isInvalid(token);
 
         // then
-        assertThat(result).isFalse(); // isSigned(token) => true → not → false
+        assertThat(result).isFalse();
     }
 
     @Test

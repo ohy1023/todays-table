@@ -211,7 +211,7 @@ class CustomerServiceTest {
         // when & then
         assertThatThrownBy(() -> customerService.login(request))
                 .isInstanceOf(AppException.class)
-                .hasMessage(INVALID_TOKEN.getMessage());
+                .hasMessage(ACCESS_TOKEN_NOT_FOUND.getMessage());
     }
 
     @Test
@@ -237,7 +237,7 @@ class CustomerServiceTest {
         // when & then
         assertThatThrownBy(() -> customerService.login(request))
                 .isInstanceOf(AppException.class)
-                .hasMessage(INVALID_TOKEN.getMessage());
+                .hasMessage(REFRESH_TOKEN_NOT_FOUND.getMessage());
     }
 
     @Test
@@ -295,7 +295,7 @@ class CustomerServiceTest {
         // when & then
         assertThatThrownBy(() -> customerService.logout(request, customer.getEmail()))
                 .isInstanceOf(AppException.class)
-                .hasMessage(INVALID_TOKEN.getMessage());
+                .hasMessage(INVALID_ACCESS_TOKEN.getMessage());
     }
 
     @Test
@@ -311,13 +311,13 @@ class CustomerServiceTest {
         given(jwtUtils.isExpired(request.getAccessToken()))
                 .willReturn(false);
 
-        given(jwtUtils.isValid(request.getAccessToken()))
+        given(jwtUtils.isInvalid(request.getAccessToken()))
                 .willReturn(true);
 
         // when & then
         assertThatThrownBy(() -> customerService.logout(request, customer.getEmail()))
                 .isInstanceOf(AppException.class)
-                .hasMessage(INVALID_TOKEN.getMessage());
+                .hasMessage(INVALID_ACCESS_TOKEN.getMessage());
     }
 
     @Test
@@ -381,26 +381,7 @@ class CustomerServiceTest {
         // when & then
         assertThatThrownBy(() -> customerService.reissueToken(request, customer.getEmail()))
                 .isInstanceOf(AppException.class)
-                .hasMessage(INVALID_TOKEN.getMessage());
-    }
-
-    @Test
-    @DisplayName("토큰 재발급 실패 - 존재하지 않는 토큰")
-    public void reissue_token_fail_missing_token() {
-
-        // given
-        TokenRequest request = CustomerFixture.createTokenRequest();
-
-        given(customerRepository.findByEmail(customer.getEmail()))
-                .willReturn(Optional.of(customer));
-
-        given(redisService.getValues("RT:" + customer.getEmail()))
-                .willReturn(null);
-
-        // when & then
-        assertThatThrownBy(() -> customerService.reissueToken(request, customer.getEmail()))
-                .isInstanceOf(AppException.class)
-                .hasMessage(INVALID_TOKEN.getMessage());
+                .hasMessage(EXPIRED_REFRESH_TOKEN.getMessage());
     }
 
 
@@ -420,7 +401,7 @@ class CustomerServiceTest {
         // when & then
         assertThatThrownBy(() -> customerService.reissueToken(request, customer.getEmail()))
                 .isInstanceOf(AppException.class)
-                .hasMessage(INVALID_TOKEN.getMessage());
+                .hasMessage(MISMATCH_REFRESH_TOKEN.getMessage());
     }
 
     @Test

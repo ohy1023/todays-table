@@ -162,7 +162,7 @@ class CustomerControllerTest {
         CustomerLoginRequest request = CustomerFixture.createLoginRequest();
 
         given(customerService.login(any(CustomerLoginRequest.class)))
-                .willThrow(new AppException(INVALID_TOKEN, INVALID_TOKEN.getMessage()));
+                .willThrow(new AppException(INVALID_ACCESS_TOKEN, INVALID_ACCESS_TOKEN.getMessage()));
 
         // when & then
         mockMvc.perform(post("/api/v1/customers/login")
@@ -171,8 +171,8 @@ class CustomerControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.resultCode").value(ERROR))
-                .andExpect(jsonPath("$.result.errorCode").value("INVALID_TOKEN"))
-                .andExpect(jsonPath("$.result.message").value(INVALID_TOKEN.getMessage()))
+                .andExpect(jsonPath("$.result.errorCode").value(INVALID_ACCESS_TOKEN.name()))
+                .andExpect(jsonPath("$.result.message").value(INVALID_ACCESS_TOKEN.getMessage()))
                 .andDo(print());
     }
 
@@ -232,7 +232,7 @@ class CustomerControllerTest {
         TokenRequest request = CustomerFixture.createTokenRequest();
 
         given(customerService.logout(any(TokenRequest.class), any(String.class)))
-                .willThrow(new AppException(EXPIRED_TOKEN, EXPIRED_TOKEN.getMessage()));
+                .willThrow(new AppException(EXPIRED_ACCESS_TOKEN, EXPIRED_ACCESS_TOKEN.getMessage()));
 
 
         // when & then
@@ -242,8 +242,8 @@ class CustomerControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.resultCode").value(ERROR))
-                .andExpect(jsonPath("$.result.errorCode").value(EXPIRED_TOKEN.name()))
-                .andExpect(jsonPath("$.result.message").value(EXPIRED_TOKEN.getMessage()))
+                .andExpect(jsonPath("$.result.errorCode").value(EXPIRED_ACCESS_TOKEN.name()))
+                .andExpect(jsonPath("$.result.message").value(EXPIRED_ACCESS_TOKEN.getMessage()))
                 .andDo(print());
 
     }
@@ -256,7 +256,7 @@ class CustomerControllerTest {
         TokenRequest request = CustomerFixture.createTokenRequest();
 
         given(customerService.logout(any(TokenRequest.class), any(String.class)))
-                .willThrow(new AppException(INVALID_TOKEN, INVALID_TOKEN.getMessage()));
+                .willThrow(new AppException(INVALID_ACCESS_TOKEN, INVALID_ACCESS_TOKEN.getMessage()));
 
 
         // when & then
@@ -266,8 +266,8 @@ class CustomerControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.resultCode").value(ERROR))
-                .andExpect(jsonPath("$.result.errorCode").value(INVALID_TOKEN.name()))
-                .andExpect(jsonPath("$.result.message").value(INVALID_TOKEN.getMessage()))
+                .andExpect(jsonPath("$.result.errorCode").value(INVALID_ACCESS_TOKEN.name()))
+                .andExpect(jsonPath("$.result.message").value(INVALID_ACCESS_TOKEN.getMessage()))
                 .andDo(print());
 
     }
@@ -306,7 +306,7 @@ class CustomerControllerTest {
         TokenRequest request = CustomerFixture.createTokenRequest();
 
         given(customerService.reissueToken(any(TokenRequest.class), any(String.class)))
-                .willThrow(new AppException(EXPIRED_TOKEN, EXPIRED_TOKEN.getMessage()));
+                .willThrow(new AppException(MISMATCH_REFRESH_TOKEN, MISMATCH_REFRESH_TOKEN.getMessage()));
 
 
         // when & then
@@ -316,8 +316,8 @@ class CustomerControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.resultCode").value(ERROR))
-                .andExpect(jsonPath("$.result.errorCode").value(EXPIRED_TOKEN.name()))
-                .andExpect(jsonPath("$.result.message").value(EXPIRED_TOKEN.getMessage()))
+                .andExpect(jsonPath("$.result.errorCode").value(MISMATCH_REFRESH_TOKEN.name()))
+                .andExpect(jsonPath("$.result.message").value(MISMATCH_REFRESH_TOKEN.getMessage()))
                 .andDo(print());
 
     }
@@ -331,7 +331,7 @@ class CustomerControllerTest {
         TokenRequest request = CustomerFixture.createTokenRequest();
 
         given(customerService.reissueToken(any(TokenRequest.class), any(String.class)))
-                .willThrow(new AppException(INVALID_TOKEN, INVALID_TOKEN.getMessage()));
+                .willThrow(new AppException(EXPIRED_REFRESH_TOKEN, EXPIRED_REFRESH_TOKEN.getMessage()));
 
 
         // when & then
@@ -341,8 +341,8 @@ class CustomerControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.resultCode").value(ERROR))
-                .andExpect(jsonPath("$.result.errorCode").value(INVALID_TOKEN.name()))
-                .andExpect(jsonPath("$.result.message").value(INVALID_TOKEN.getMessage()))
+                .andExpect(jsonPath("$.result.errorCode").value(EXPIRED_REFRESH_TOKEN.name()))
+                .andExpect(jsonPath("$.result.message").value(EXPIRED_REFRESH_TOKEN.getMessage()))
                 .andDo(print());
 
     }
@@ -356,7 +356,7 @@ class CustomerControllerTest {
         TokenRequest request = CustomerFixture.createTokenRequest();
 
         given(customerService.reissueToken(any(TokenRequest.class), any(String.class)))
-                .willThrow(new AppException(INVALID_REQUEST, INVALID_REQUEST.getMessage()));
+                .willThrow(new AppException(REFRESH_TOKEN_NOT_FOUND, REFRESH_TOKEN_NOT_FOUND.getMessage()));
 
 
         // when & then
@@ -366,8 +366,8 @@ class CustomerControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.resultCode").value(ERROR))
-                .andExpect(jsonPath("$.result.errorCode").value(INVALID_REQUEST.name()))
-                .andExpect(jsonPath("$.result.message").value(INVALID_REQUEST.getMessage()))
+                .andExpect(jsonPath("$.result.errorCode").value(REFRESH_TOKEN_NOT_FOUND.name()))
+                .andExpect(jsonPath("$.result.message").value(REFRESH_TOKEN_NOT_FOUND.getMessage()))
                 .andDo(print());
 
     }

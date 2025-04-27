@@ -1,6 +1,5 @@
 package store.myproject.onlineshop.global.token;
 
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 import store.myproject.onlineshop.domain.customer.Customer;
+import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.utils.CookieUtils;
 import store.myproject.onlineshop.global.utils.JwtUtils;
 import store.myproject.onlineshop.service.CustomerService;
@@ -20,6 +20,8 @@ import store.myproject.onlineshop.service.CustomerService;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+
+import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 
 @Slf4j
@@ -61,17 +63,17 @@ public class JwtFilter extends OncePerRequestFilter {
         Optional<String> refreshTokenAtCookie = CookieUtils.extractRefreshToken(request);
 
         if (accessTokenAtCookie.isEmpty()) {
-            throw new JwtException("AccessToken 없습니다.");
+            throw new AppException(ACCESS_TOKEN_NOT_FOUND);
         }
 
         String accessToken = accessTokenAtCookie.get();
 
-        if (jwtUtils.isValid(accessToken)) {
-            throw new JwtException("잘못된 AccessToken 입니다.");
+        if (jwtUtils.isInvalid(accessToken)) {
+            throw new AppException(INVALID_ACCESS_TOKEN);
         }
 
         if (jwtUtils.isExpired(accessToken)) {
-            throw new JwtException("만료된 AccessToken 입니다.");
+            throw new AppException(EXPIRED_ACCESS_TOKEN);
         }
 
         String info = jwtUtils.getEmail(accessToken);
@@ -79,7 +81,7 @@ public class JwtFilter extends OncePerRequestFilter {
         // refresh Token 존재 여부 확인
         if (refreshTokenAtCookie.isEmpty()) {
             log.error("Refresh Token 없습니다.");
-            throw new JwtException("Refresh Token 없습니다.");
+            throw new AppException(REFRESH_TOKEN_NOT_FOUND);
         }
 
         String refreshToken = refreshTokenAtCookie.get();
@@ -89,7 +91,7 @@ public class JwtFilter extends OncePerRequestFilter {
         if (jwtUtils.isExpired(refreshToken)) {
             // refresh Token 만료된 경우
             log.error("Refresh Token 만료");
-            throw new JwtException("만료된 RefreshToken 입니다. 다시 로그인 해주세요.");
+            throw new AppException(EXPIRED_REFRESH_TOKEN);
         }
 
         // refresh Token 유효한 경우 -> access Token / refresh Token 재발급

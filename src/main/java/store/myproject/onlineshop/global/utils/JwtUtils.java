@@ -67,7 +67,7 @@ public class JwtUtils {
                 .before(new Date());
     }
 
-    public boolean isValid(String token) {
+    public boolean isInvalid(String token) {
         return !Jwts.parserBuilder()
                 .setSigningKey(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)))
                 .build()

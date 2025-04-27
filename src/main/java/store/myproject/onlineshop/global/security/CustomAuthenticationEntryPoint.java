@@ -24,7 +24,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         ErrorCode errorCode = (ErrorCode) request.getAttribute("errorCode");
 
         if (errorCode == null) {
-            errorCode = ErrorCode.TOKEN_NOT_FOUND;
+            errorCode = ErrorCode.ACCESS_TOKEN_NOT_FOUND;
         }
 
         ObjectMapper objectMapper = new ObjectMapper();

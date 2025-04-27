@@ -77,8 +77,10 @@ public class CustomerService {
         String accessToken = jwtUtils.createAccessToken(request.getEmail());
         String refreshToken = jwtUtils.createRefreshToken(request.getEmail());
 
-        if (accessToken == null || refreshToken == null) {
-            throw new AppException(INVALID_TOKEN);
+        if (accessToken == null) {
+            throw new AppException(ACCESS_TOKEN_NOT_FOUND);
+        } else if (refreshToken == null) {
+            throw new AppException(REFRESH_TOKEN_NOT_FOUND);
         }
 
         redisService.setValues("RT:" + customer.getEmail(), refreshToken, refreshTokenMaxAge, TimeUnit.SECONDS);
@@ -93,13 +95,13 @@ public class CustomerService {
         Customer customer = findCustomerByEmail(email);
 
         if (jwtUtils.isExpired(request.getRefreshToken())) {
-            throw new AppException(INVALID_TOKEN);
+            throw new AppException(EXPIRED_REFRESH_TOKEN);
         }
 
         String storedRefreshToken = redisService.getValues("RT:" + email);
 
         if (ObjectUtils.isEmpty(storedRefreshToken) || !storedRefreshToken.equals(request.getRefreshToken())) {
-            throw new AppException(INVALID_TOKEN);
+            throw new AppException(MISMATCH_REFRESH_TOKEN);
         }
 
         String newAccessToken = jwtUtils.createAccessToken(customer.getEmail());
@@ -116,8 +118,8 @@ public class CustomerService {
     public MessageResponse logout(TokenRequest request, String email) {
         Customer customer = findCustomerByEmail(email);
 
-        if (jwtUtils.isExpired(request.getAccessToken()) || jwtUtils.isValid(request.getAccessToken())) {
-            throw new AppException(INVALID_TOKEN);
+        if (jwtUtils.isExpired(request.getAccessToken()) || jwtUtils.isInvalid(request.getAccessToken())) {
+            throw new AppException(INVALID_ACCESS_TOKEN);
         }
 
         redisService.deleteValues("RT:" + customer.getEmail());
