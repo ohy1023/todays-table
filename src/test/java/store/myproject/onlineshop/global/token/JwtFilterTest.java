@@ -2,6 +2,7 @@ package store.myproject.onlineshop.global.token;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,6 +42,10 @@ class JwtFilterTest {
     private final String ACCESS_TOKEN_HEADER = "Authorization";
     private final String REFRESH_TOKEN_HEADER = "Authorization-refresh";
 
+    @AfterEach
+    void clearSecurityContext() {
+        SecurityContextHolder.clearContext();
+    }
 
     @ParameterizedTest
     @ValueSource(strings = {"/", "/api/v1/customers/login", "/api/v1/customers/join", "/swagger-ui/index.html", "/api-docs/v1"})

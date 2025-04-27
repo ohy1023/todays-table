@@ -3,7 +3,6 @@ package store.myproject.onlineshop.global.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -15,7 +14,6 @@ import store.myproject.onlineshop.exception.ErrorCode;
 import java.io.IOException;
 
 @Component
-@Slf4j
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
@@ -29,12 +27,12 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
         ObjectMapper objectMapper = new ObjectMapper();
 
+        ErrorResponse errorResponse = new ErrorResponse(errorCode.name(), errorCode.getMessage());
+        Response<ErrorResponse> body = Response.error(errorResponse);
+
         response.setStatus(errorCode.getHttpStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("utf-8");
-
-        Response errorResponse = Response.error(new ErrorResponse(errorCode.toString(), errorCode.getMessage()));
-
-        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+        objectMapper.writeValue(response.getWriter(), body);
     }
 }
