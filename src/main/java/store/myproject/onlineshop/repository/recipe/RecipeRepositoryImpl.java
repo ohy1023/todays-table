@@ -2,7 +2,6 @@ package store.myproject.onlineshop.repository.recipe;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +9,7 @@ import org.springframework.data.domain.*;
 import org.springframework.data.support.PageableExecutionUtils;
 import store.myproject.onlineshop.domain.recipe.dto.QSimpleRecipeDto;
 import store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto;
+
 
 import java.util.List;
 
@@ -56,7 +56,6 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository {
 
     @Override
     public Page<SimpleRecipeDto> findRecipeUseItem(Long itemId, Pageable pageable) {
-        PathBuilder<?> recipePath = new PathBuilder<>(recipe.getType(), recipe.getMetadata());
 
         List<SimpleRecipeDto> content = queryFactory
                 .select(new QSimpleRecipeDto(

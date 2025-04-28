@@ -17,7 +17,7 @@ public interface RecipeMetaRepository extends JpaRepository<RecipeMeta, Long> {
     void incrementLikeCnt(@Param("id") Long id);
 
     @Modifying
-    @Query("update RecipeMeta rm set rm.likeCnt = rm.likeCnt - 1 where rm.id = :id")
+    @Query("update RecipeMeta rm set rm.likeCnt = rm.likeCnt - 1 where rm.id = :id and rm.likeCnt > 0")
     void decrementLikeCnt(@Param("id") Long id);
 
     @Modifying
@@ -25,7 +25,6 @@ public interface RecipeMetaRepository extends JpaRepository<RecipeMeta, Long> {
     void incrementReviewCnt(@Param("id") Long id);
 
     @Modifying
-    @Query("update RecipeMeta rm set rm.reviewCnt = rm.reviewCnt - 1 where rm.id = :id")
+    @Query("update RecipeMeta rm set rm.reviewCnt = rm.reviewCnt - 1 where rm.id = :id and rm.reviewCnt > 0")
     void decrementReviewCnt(@Param("id") Long id);
-
 }

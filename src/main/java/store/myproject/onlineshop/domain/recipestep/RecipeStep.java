@@ -24,6 +24,11 @@ public class RecipeStep {
 
     private String imageUrl;  // S3 URL (nullable)
 
+    @Setter
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "recipe_id")
+    private Recipe recipe;
+
     public static RecipeStep create(String content, String imageUrl, int stepOrder) {
         return RecipeStep.builder()
                 .content(content)

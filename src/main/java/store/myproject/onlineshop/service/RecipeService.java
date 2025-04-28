@@ -13,7 +13,9 @@ import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.customer.CustomerRole;
 import store.myproject.onlineshop.domain.recipe.dto.*;
+import store.myproject.onlineshop.domain.recipeitem.dto.RecipeItemDto;
 import store.myproject.onlineshop.domain.recipestep.RecipeStep;
+import store.myproject.onlineshop.domain.recipestep.dto.RecipeStepDto;
 import store.myproject.onlineshop.domain.review.dto.*;
 import store.myproject.onlineshop.repository.customer.CustomerRepository;
 import store.myproject.onlineshop.domain.item.Item;
@@ -24,6 +26,8 @@ import store.myproject.onlineshop.domain.recipe.Recipe;
 import store.myproject.onlineshop.repository.recipe.RecipeRepository;
 import store.myproject.onlineshop.domain.recipeitem.RecipeItem;
 import store.myproject.onlineshop.domain.review.Review;
+import store.myproject.onlineshop.repository.recipeitem.RecipeItemRepository;
+import store.myproject.onlineshop.repository.recipestep.RecipeStepRepository;
 import store.myproject.onlineshop.repository.review.ReviewRepository;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.utils.MessageUtil;
@@ -53,20 +57,32 @@ public class RecipeService {
     private final MessageUtil messageUtil;
     private final AwsS3Service awsS3Service;
     private final RecipeMetaService recipeMetaService;
+    private final RecipeStepRepository recipeStepRepository;
+    private final RecipeItemRepository recipeItemRepository;
 
     /**
      * 단일 레시피 정보를 조회하고 조회수를 증가시킵니다.
      */
     @Transactional(readOnly = true)
     public RecipeDto getRecipeDetail(Long recipeId) {
-        Recipe recipe = getRecipeWithMeta(recipeId);
-        recipeMetaService.asyncIncreaseViewCnt(recipe.getRecipeMeta().getId());
-        return recipe.toDto();
+        RecipeDto recipeDto = recipeRepository.findRecipeDtoById(recipeId)
+                .orElseThrow(() -> new AppException(RECIPE_NOT_FOUND));
+
+        List<RecipeStepDto> stepDtos = recipeStepRepository.findStepsByRecipeId(recipeId);
+        List<RecipeItemDto> itemDtos = recipeItemRepository.findItemsByRecipeId(recipeId);
+
+        recipeDto.setSteps(stepDtos);
+        recipeDto.setItems(itemDtos);
+
+        recipeMetaService.asyncIncreaseViewCnt(recipeId);
+
+        return recipeDto;
     }
 
     /**
      * 레시피 요약 정보를 페이지 단위로 조회합니다.
      */
+    @Transactional(readOnly = true)
     public Slice<SimpleRecipeDto> getRecipes(Pageable pageable) {
         return recipeRepository.findAllSimpleRecipes(pageable);
     }
@@ -78,7 +94,7 @@ public class RecipeService {
         Customer customer = getCustomerByEmail(email);
         Recipe recipe = request.toEntity(customer);
         recipe.addItems(mapToRecipeItems(request.getItemIdList()));
-        recipe.setStepList(mapToRecipeSteps(request.getSteps()));
+        recipe.addSteps(mapToRecipeSteps(request.getSteps()));
         applyThumbnail(recipe, request.getThumbnailUrl());
         recipeRepository.save(recipe);
         return new MessageResponse(messageUtil.get(MessageCode.RECIPE_ADDED));
@@ -95,7 +111,7 @@ public class RecipeService {
         recipe.getItemList().clear();
         recipe.getStepList().clear();
         recipe.addItems(mapToRecipeItems(request.getItemIdList()));
-        recipe.setStepList(mapToRecipeSteps(request.getSteps()));
+        recipe.addSteps(mapToRecipeSteps(request.getSteps()));
         applyThumbnail(recipe, request.getThumbnailUrl());
         return new MessageResponse(messageUtil.get(MessageCode.RECIPE_MODIFIED));
     }
@@ -244,24 +260,6 @@ public class RecipeService {
                     .findFirst()
                     .ifPresent(recipe::setThumbnailUrl);
         }
-    }
-
-    /**
-     * 단일 레시피를 SimpleRecipeDto로 변환
-     */
-    private SimpleRecipeDto toSimpleRecipeDto(Recipe recipe) {
-        return SimpleRecipeDto.builder()
-                .recipeId(recipe.getId())
-                .title(recipe.getRecipeTitle())
-                .recipeDescription(recipe.getRecipeDescription())
-                .writer(recipe.getCustomer().getNickName())
-                .recipeCookingTime(recipe.getRecipeCookingTime())
-                .recipeServings(recipe.getRecipeServings())
-                .thumbnail(recipe.getThumbnailUrl())
-                .recipeView(recipe.getRecipeMeta().getViewCnt())
-                .likeCnt(recipe.getRecipeMeta().getLikeCnt())
-                .reviewCnt(recipe.getRecipeMeta().getReviewCnt())
-                .build();
     }
 
     /**

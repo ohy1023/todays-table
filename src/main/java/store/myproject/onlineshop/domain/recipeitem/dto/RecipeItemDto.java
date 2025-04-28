@@ -1,13 +1,11 @@
-package store.myproject.onlineshop.domain.recipeitem;
+package store.myproject.onlineshop.domain.recipeitem.dto;
 
-import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Data
 @Builder
@@ -19,8 +17,6 @@ public class RecipeItemDto {
     private String itemName;
 
     private BigDecimal price;
-
-    private Long stock;
 
     private String itemImage;
 
