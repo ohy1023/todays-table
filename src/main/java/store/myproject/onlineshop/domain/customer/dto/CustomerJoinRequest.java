@@ -10,6 +10,8 @@ import store.myproject.onlineshop.domain.customer.CustomerRole;
 import store.myproject.onlineshop.domain.customer.Gender;
 import store.myproject.onlineshop.domain.membership.MemberShip;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -60,6 +62,7 @@ public class CustomerJoinRequest {
                         .zipcode(this.zipcode)
                         .build()
                 )
+                .totalPurchaseAmount(BigDecimal.ZERO)
                 .memberShip(memberShip)
                 .customerRole(CustomerRole.ROLE_USER)
                 .build();

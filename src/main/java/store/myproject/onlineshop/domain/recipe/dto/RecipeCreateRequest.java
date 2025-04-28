@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.recipe.Recipe;
+import store.myproject.onlineshop.domain.recipemeta.RecipeMeta;
 
 import java.util.List;
 
@@ -42,6 +43,11 @@ public class RecipeCreateRequest {
                 .customer(customer)
                 .recipeCookingTime(recipeCookingTime)
                 .recipeServings(recipeServings)
+                .recipeMeta(RecipeMeta.builder()
+                        .reviewCnt(0L)
+                        .likeCnt(0L)
+                        .viewCnt(0L)
+                        .build())
                 .build();
     }
 

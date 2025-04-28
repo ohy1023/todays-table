@@ -58,7 +58,6 @@ public class SecurityConfiguration {
                                 "/api/v1/memberships",
                                 "/api/v1/memberships/*",
                                 "/api/v1/items/*",       // 품목 단건 조회
-                                "/api/v1/*/likes",       // 좋아요 수 조회 (GET 기준)
                                 "/api/v1/recipes",
                                 "/api/v1/recipes/*/reviews",
                                 "/api/v1/recipes/*/reviews/*/replies",
@@ -92,6 +91,7 @@ public class SecurityConfiguration {
                                 "/api/v1/accounts",
                                 "/api/v1/orders/*",
                                 "/api/v1/orders/search",
+                                "/api/v1/recipes/*",
                                 "/api/v1/carts"
                         ).authenticated()
 
@@ -101,11 +101,12 @@ public class SecurityConfiguration {
                                 "/api/v1/accounts",
                                 "/api/v1/recipes",
                                 "/api/v1/recipes/image",
+                                "/api/v1/recipes/*/reviews",
                                 "/api/v1/orders",
                                 "/api/v1/orders/cart",
                                 "/api/v1/carts",
                                 "/api/v1/carts/*",
-                                "/api/v1/*/likes" // 좋아요 누르기
+                                "/api/v1/recipes/*/likes" // 좋아요 누르기
                         ).authenticated()
 
                         .requestMatchers(HttpMethod.PUT,
