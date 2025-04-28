@@ -2,20 +2,23 @@ package store.myproject.onlineshop.domain.recipe;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
 import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.item.Item;
+import store.myproject.onlineshop.domain.item.dto.ItemDto;
 import store.myproject.onlineshop.domain.like.Like;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeDto;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeUpdateRequest;
 import store.myproject.onlineshop.domain.recipeitem.RecipeItem;
+import store.myproject.onlineshop.domain.recipeitem.RecipeItemDto;
+import store.myproject.onlineshop.domain.recipemeta.RecipeMeta;
 import store.myproject.onlineshop.domain.recipestep.RecipeStep;
 import store.myproject.onlineshop.domain.recipestep.dto.RecipeStepDto;
 import store.myproject.onlineshop.domain.review.Review;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Entity
@@ -23,6 +26,7 @@ import java.util.stream.Collectors;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE Recipe SET deleted_date = CURRENT_TIMESTAMP WHERE recipe_id = ?")
 public class Recipe extends BaseEntity {
 
     @Id
@@ -42,10 +46,6 @@ public class Recipe extends BaseEntity {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    // 조회수
-    @Column(columnDefinition = "integer default 0", nullable = false)
-    private int recipeViewCnt;
-
     // 조리시간
     private String recipeCookingTime;
 
@@ -55,6 +55,11 @@ public class Recipe extends BaseEntity {
     // 썸네일
     @Setter
     private String thumbnailUrl;
+
+    // 통계 테이블
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "recipe_meta_id")
+    private RecipeMeta recipeMeta;
 
     // 댓글
     @Builder.Default
@@ -76,6 +81,7 @@ public class Recipe extends BaseEntity {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "recipe_id")
     @OrderBy("stepOrder ASC")
+    @Builder.Default
     private List<RecipeStep> stepList = new ArrayList<>();
 
 
@@ -88,18 +94,25 @@ public class Recipe extends BaseEntity {
 
     public RecipeDto toDto() {
         return RecipeDto.builder()
+                .recipeId(this.getId())
                 .recipeTitle(this.getRecipeTitle())
                 .recipeDescription(this.getRecipeDescription())
                 .recipeCookingTime(this.getRecipeCookingTime())
                 .recipeServings(this.getRecipeServings())
                 .recipeWriter(this.getCustomer().getNickName())
-                .recipeView(this.getRecipeViewCnt())
                 .thumbnailUrl(this.getThumbnailUrl())
-                .likeCnt((long) this.getLikeList().size())
-                .reviewCnt((long) this.getReviewList().size())
-                .itemIdList(this.getItemList().stream()
-                        .map(RecipeItem::getItem)
-                        .map(Item::getId)
+                .recipeView(this.recipeMeta != null ? this.recipeMeta.getViewCnt() : 0L)
+                .likeCnt(this.recipeMeta != null ? this.recipeMeta.getLikeCnt() : 0L)
+                .reviewCnt(this.recipeMeta != null ? this.recipeMeta.getReviewCnt() : 0L)
+                .items(this.getItemList().stream()
+                        .map(recipeItem -> RecipeItemDto.builder()
+                                .itemId(recipeItem.getItem().getId())
+                                .itemName(recipeItem.getItem().getItemName())
+                                .stock(recipeItem.getItem().getStock())
+                                .price(recipeItem.getItem().getPrice())
+                                .itemImage(recipeItem.getItem().getImageFileList().get(0).getImageUrl())
+                                .brandName(recipeItem.getItem().getBrand().getName())
+                                .build())
                         .toList())
                 .steps(this.getStepList().stream()
                         .map(step -> RecipeStepDto.builder()
@@ -120,9 +133,5 @@ public class Recipe extends BaseEntity {
         for (RecipeItem recipeItem : recipeItems) {
             addItem(recipeItem);
         }
-    }
-
-    public void addViewCnt() {
-        this.recipeViewCnt++;
     }
 }

@@ -18,7 +18,6 @@ import store.myproject.onlineshop.domain.recipe.dto.RecipeDto;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeUpdateRequest;
 import store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto;
 import store.myproject.onlineshop.exception.AppException;
-import store.myproject.onlineshop.fixture.CommonFixture;
 import store.myproject.onlineshop.fixture.RecipeFixture;
 import store.myproject.onlineshop.service.RecipeService;
 
@@ -27,7 +26,6 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -87,7 +85,7 @@ class RecipeControllerTest {
         @DisplayName("성공")
         void get_all_recipes_success() throws Exception {
             List<SimpleRecipeDto> response = List.of(RecipeFixture.createSimpleRecipeDto());
-            given(recipeService.getAllRecipes(any())).willReturn(new PageImpl<>(response));
+            given(recipeService.getRecipes(any())).willReturn(new PageImpl<>(response));
 
             mockMvc.perform(get("/api/v1/recipes"))
                     .andExpect(status().isOk())

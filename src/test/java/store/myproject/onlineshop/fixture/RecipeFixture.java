@@ -4,6 +4,7 @@ import com.github.javafaker.Faker;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.recipe.Recipe;
 import store.myproject.onlineshop.domain.recipe.dto.*;
+import store.myproject.onlineshop.domain.recipemeta.RecipeMeta;
 import store.myproject.onlineshop.domain.recipestep.dto.RecipeStepDto;
 
 import java.util.List;
@@ -14,14 +15,20 @@ public class RecipeFixture {
     private static final Faker faker = new Faker(Locale.KOREA);
 
     public static Recipe createRecipe(Customer customer) {
+        RecipeMeta recipeMeta = RecipeMeta.builder()
+                .reviewCnt(0L)
+                .viewCnt(0L)
+                .likeCnt(0L)
+                .build();
+
         return Recipe.builder()
                 .recipeTitle(faker.food().dish()) // 랜덤 음식 이름
                 .recipeDescription(faker.lorem().sentence()) // 랜덤 문장
                 .recipeServings(faker.number().numberBetween(1, 6) + "인분") // "3인분" 형식
                 .recipeCookingTime(faker.number().numberBetween(10, 120) + "분") // "45분" 형식
                 .customer(customer)
-                .recipeViewCnt(0)
                 .thumbnailUrl(faker.internet().image()) // 랜덤 이미지 URL
+                .recipeMeta(recipeMeta)
                 .build();
     }
 
@@ -62,10 +69,8 @@ public class RecipeFixture {
                 .recipeCookingTime("30분")
                 .recipeServings("2인분")
                 .recipeWriter(faker.name().fullName())
-                .recipeView(faker.number().numberBetween(100, 10000))
                 .reviewCnt((long) faker.number().numberBetween(0, 50))
                 .likeCnt((long) faker.number().numberBetween(0, 100))
-                .itemIdList(List.of(1L, 2L, 3L))
                 .steps(List.of(RecipeStepDto.builder()
                                 .stepOrder(faker.number().numberBetween(0, 50))
                                 .content(faker.lorem().paragraph())
@@ -83,7 +88,6 @@ public class RecipeFixture {
                 .writer(faker.name().fullName())
                 .recipeCookingTime("20분")
                 .recipeServings("1인분")
-                .recipeView(faker.number().numberBetween(50, 500))
                 .reviewCnt(10L)
                 .likeCnt(25L)
                 .build();

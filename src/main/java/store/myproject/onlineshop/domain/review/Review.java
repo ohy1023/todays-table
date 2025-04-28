@@ -46,11 +46,6 @@ public class Review extends BaseEntity {
         this.reviewContent = reviewUpdateRequest.getReviewContent();
     }
 
-    // 리뷰의 유형을 결정 (댓글 또는 답글)
-    private String getReviewType() {
-        return parentId == 0 ? "댓글" : "대댓글";
-    }
-
     // 연관 관계 메서드
     public void addReviewToRecipe(Recipe recipe) {
         this.recipe = recipe;

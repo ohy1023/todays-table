@@ -91,22 +91,5 @@ class LikeControllerTest {
                 .andExpect(jsonPath("$.result.message").value(RECIPE_NOT_FOUND.getMessage()))
                 .andDo(print());
     }
-    
-    @Test
-    @DisplayName("좋아요 개수 조회 성공")
-    void count_like_success() throws Exception {
-        // given
-        Long recipeId = 1L;
-        Long likeCount = 42L;
 
-        given(recipeService.getLikeCount(any(Long.class)))
-                .willReturn(likeCount);
-
-        // when & then
-        mockMvc.perform(get("/api/v1/recipes/{recipeId}/likes", recipeId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value(SUCCESS))
-                .andExpect(jsonPath("$.result").value(likeCount))
-                .andDo(print());
-    }
 }

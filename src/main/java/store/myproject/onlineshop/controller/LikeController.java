@@ -24,13 +24,4 @@ public class LikeController {
 
         return Response.success(recipeService.toggleLike(id, email));
     }
-
-
-    @Operation(summary = "해당 레세피 좋아요 개수 조회")
-    @GetMapping("/{id}/likes")
-    public Response<Long> countLike(@PathVariable Long id) {
-        Long likeCnt = recipeService.getLikeCount(id);
-        return Response.success(likeCnt);
-    }
-
 }

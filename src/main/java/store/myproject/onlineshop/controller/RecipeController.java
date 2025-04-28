@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -33,10 +34,10 @@ public class RecipeController {
         return Response.success(recipeService.getRecipeDetail(recipeId));
     }
 
-    @Operation(summary = "레시피 전체 조회")
+    @Operation(summary = "레시피 페이징 조회")
     @GetMapping
-    public Response<Page<SimpleRecipeDto>> viewAllRecipes(Pageable pageable) {
-        return Response.success(recipeService.getAllRecipes(pageable));
+    public Response<Slice<SimpleRecipeDto>> viewAllRecipes(Pageable pageable) {
+        return Response.success(recipeService.getRecipes(pageable));
     }
 
     @Operation(summary = "레시피 작성")

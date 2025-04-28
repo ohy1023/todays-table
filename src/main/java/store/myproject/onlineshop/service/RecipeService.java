@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,22 +52,23 @@ public class RecipeService {
     private final ItemRepository itemRepository;
     private final MessageUtil messageUtil;
     private final AwsS3Service awsS3Service;
+    private final RecipeMetaService recipeMetaService;
 
     /**
      * 단일 레시피 정보를 조회하고 조회수를 증가시킵니다.
      */
+    @Transactional(readOnly = true)
     public RecipeDto getRecipeDetail(Long recipeId) {
-        Recipe recipe = getRecipeById(recipeId);
-        recipe.addViewCnt();
+        Recipe recipe = getRecipeWithMeta(recipeId);
+        recipeMetaService.asyncIncreaseViewCnt(recipe.getRecipeMeta().getId());
         return recipe.toDto();
     }
 
     /**
      * 레시피 요약 정보를 페이지 단위로 조회합니다.
      */
-    public Page<SimpleRecipeDto> getAllRecipes(Pageable pageable) {
-        Page<Recipe> recipes = recipeRepository.findAll(pageable);
-        return mapToSimpleRecipePage(recipes);
+    public Slice<SimpleRecipeDto> getRecipes(Pageable pageable) {
+        return recipeRepository.findAllSimpleRecipes(pageable);
     }
 
     /**
@@ -140,11 +142,12 @@ public class RecipeService {
      */
     public MessageResponse createReview(String email, Long recipeId, ReviewWriteRequest request) {
         Customer customer = getCustomerByEmail(email);
-        Recipe recipe = getRecipeById(recipeId);
+        Recipe recipe = getRecipeWithMeta(recipeId);
         Long parentId = Optional.ofNullable(request.getReviewParentId()).orElse(0L);
         Review review = request.toEntity(parentId, request.getReviewContent(), customer, recipe);
         review.addReviewToRecipe(recipe);
         reviewRepository.save(review);
+        recipeMetaService.asyncIncreaseReviewCnt(recipe.getRecipeMeta().getId());
         return new MessageResponse(messageUtil.get(MessageCode.RECIPE_REVIEW_ADDED));
     }
 
@@ -165,11 +168,12 @@ public class RecipeService {
      */
     public MessageResponse deleteReview(String email, Long recipeId, Long reviewId) {
         Customer customer = getCustomerByEmail(email);
-        getRecipeById(recipeId);
+        Recipe recipe = getRecipeWithMeta(recipeId);
         Review review = getReviewById(reviewId);
         validatePermission(customer, review.getCustomer());
         review.removeReviewToRecipe();
         reviewRepository.delete(review);
+        recipeMetaService.asyncDecreaseReviewCnt(recipe.getRecipeMeta().getId());
         return new MessageResponse(messageUtil.get(MessageCode.RECIPE_REVIEW_DELETED));
     }
 
@@ -178,22 +182,16 @@ public class RecipeService {
      */
     public MessageResponse toggleLike(Long recipeId, String email) {
         Customer customer = getCustomerByEmail(email);
-        Recipe recipe = getRecipeById(recipeId);
+        Recipe recipe = getRecipeWithMeta(recipeId);
         Optional<Like> like = likeRepository.findByRecipeAndCustomer(recipe, customer);
         if (like.isPresent()) {
             likeRepository.delete(like.get());
+            recipeMetaService.asyncDecreaseLikeCnt(recipe.getRecipeMeta().getId());
             return new MessageResponse(messageUtil.get(MessageCode.UNDO_LIKE));
         }
         likeRepository.save(Like.of(customer, recipe));
+        recipeMetaService.asyncIncreaseLikeCnt(recipe.getRecipeMeta().getId());
         return new MessageResponse(messageUtil.get(MessageCode.DO_LIKE));
-    }
-
-    /**
-     * 특정 레시피의 좋아요 수 조회
-     */
-    public Long getLikeCount(Long recipeId) {
-        Recipe recipe = getRecipeById(recipeId);
-        return likeRepository.countByRecipe(recipe);
     }
 
     /**
@@ -207,8 +205,7 @@ public class RecipeService {
      * 특정 아이템을 사용하는 레시피 목록 조회
      */
     public Page<SimpleRecipeDto> getRecipesByItem(Long itemId, Pageable pageable) {
-        Page<Recipe> recipes = recipeRepository.findAllByItemId(itemId, pageable);
-        return mapToSimpleRecipePage(recipes);
+        return recipeRepository.findRecipeUseItem(itemId, pageable);
     }
 
     /**
@@ -250,19 +247,9 @@ public class RecipeService {
     }
 
     /**
-     * 레시피 목록을 SimpleRecipeDto 페이지로 변환
-     */
-    private Page<SimpleRecipeDto> mapToSimpleRecipePage(Page<Recipe> recipes) {
-        List<Long> ids = recipes.stream().map(Recipe::getId).toList();
-        Map<Long, Long> likes = likeRepository.getLikeCountByRecipeIds(ids);
-        Map<Long, Long> reviews = reviewRepository.getReviewCountByRecipeIds(ids);
-        return recipes.map(recipe -> toSimpleRecipeDto(recipe, likes, reviews));
-    }
-
-    /**
      * 단일 레시피를 SimpleRecipeDto로 변환
      */
-    private SimpleRecipeDto toSimpleRecipeDto(Recipe recipe, Map<Long, Long> likes, Map<Long, Long> reviews) {
+    private SimpleRecipeDto toSimpleRecipeDto(Recipe recipe) {
         return SimpleRecipeDto.builder()
                 .recipeId(recipe.getId())
                 .title(recipe.getRecipeTitle())
@@ -270,10 +257,10 @@ public class RecipeService {
                 .writer(recipe.getCustomer().getNickName())
                 .recipeCookingTime(recipe.getRecipeCookingTime())
                 .recipeServings(recipe.getRecipeServings())
-                .recipeView(recipe.getRecipeViewCnt())
                 .thumbnail(recipe.getThumbnailUrl())
-                .likeCnt(likes.getOrDefault(recipe.getId(), 0L))
-                .reviewCnt(reviews.getOrDefault(recipe.getId(), 0L))
+                .recipeView(recipe.getRecipeMeta().getViewCnt())
+                .likeCnt(recipe.getRecipeMeta().getLikeCnt())
+                .reviewCnt(recipe.getRecipeMeta().getReviewCnt())
                 .build();
     }
 
@@ -342,5 +329,12 @@ public class RecipeService {
      */
     private Review getReviewById(Long id) {
         return reviewRepository.findById(id).orElseThrow(() -> new AppException(REVIEW_NOT_FOUND));
+    }
+
+    /**
+     * 레시피 조회 (with. meta)
+     */
+    private Recipe getRecipeWithMeta(Long recipeId) {
+        return recipeRepository.findByIdWithMeta(recipeId).orElseThrow(() -> new AppException(RECIPE_NOT_FOUND));
     }
 }
