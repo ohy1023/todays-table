@@ -34,6 +34,9 @@ public class RedisCacheConfig {
     @Value("${spring.data.redis.cache.port}")
     private int redisPort;
 
+    @Value("${spring.data.redis.cache.password}")
+    private String redisPassword;
+
     // redis 연결 정보를 통해 캐싱 기능을 연결시킬 Bean
     @Bean(name = "redisCacheConnectionFactory")
     public RedisConnectionFactory redisCacheConnectionFactory() {
@@ -41,6 +44,7 @@ public class RedisCacheConfig {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
         redisStandaloneConfiguration.setPort(redisPort);
         redisStandaloneConfiguration.setHostName(redisHost);
+        redisStandaloneConfiguration.setPassword(redisPassword);
         return new LettuceConnectionFactory(redisStandaloneConfiguration);
     }
 

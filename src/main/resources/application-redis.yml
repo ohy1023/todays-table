@@ -4,6 +4,8 @@ spring:
       auth:
         host: ${REDIS_AUTH_HOST:localhost}
         port: ${REDIS_AUTH_PORT:6379}
+        password: ${REDIS_AUTH_PASSWORD}
       cache:
         host: ${REDIS_CACHE_HOST:localhost}
         port: ${REDIS_CACHE_PORT:6379}
+        password: ${REDIS_CACHE_PASSWORD}
