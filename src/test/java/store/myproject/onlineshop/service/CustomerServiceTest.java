@@ -21,12 +21,15 @@ import store.myproject.onlineshop.global.utils.JwtUtils;
 import store.myproject.onlineshop.repository.customer.CustomerRepository;
 import store.myproject.onlineshop.global.utils.MessageUtil;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.times;
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -72,7 +75,7 @@ class CustomerServiceTest {
         given(customerRepository.findByEmail(request.getEmail()))
                 .willReturn(Optional.empty());
 
-        given(memberShipRepository.findTopByLowestBaseline(PageRequest.of(0,1)))
+        given(memberShipRepository.findTopByLowestBaseline(PageRequest.of(0, 1)))
                 .willReturn(List.of(bronze));
 
         given(customerRepository.save(any(Customer.class)))
@@ -106,6 +109,24 @@ class CustomerServiceTest {
                 .hasMessage(DUPLICATE_NICKNAME.getMessage());
 
     }
+
+    @Test
+    @DisplayName("회원가입 실패 - 멤버쉽 없음")
+    public void join_fail_not_found_membership() {
+
+        // given
+        CustomerJoinRequest request = CustomerFixture.createJoinRequest();
+
+        given(memberShipRepository.findTopByLowestBaseline(PageRequest.of(0, 1)))
+                .willReturn(List.of());
+
+        // when & then
+        assertThatThrownBy(() -> customerService.registerCustomer(request))
+                .isInstanceOf(AppException.class)
+                .hasMessage(MEMBERSHIP_NOT_FOUND.getMessage());
+
+    }
+
 
     @Test
     @DisplayName("회원가입 실패 - 이메일 중복")
@@ -384,6 +405,23 @@ class CustomerServiceTest {
                 .hasMessage(EXPIRED_REFRESH_TOKEN.getMessage());
     }
 
+    @Test
+    @DisplayName("토큰 재발급 실패 - 토큰 없음")
+    public void reissue_token_fail_not_found_token() {
+
+        // given
+        TokenRequest request = CustomerFixture.createTokenRequest();
+
+        given(customerRepository.findByEmail(customer.getEmail()))
+                .willReturn(Optional.of(customer));
+        given(redisService.getValues("RT:" + customer.getEmail())).willReturn(null);
+
+        // when & then
+        assertThatThrownBy(() -> customerService.reissueToken(request, customer.getEmail()))
+                .isInstanceOf(AppException.class)
+                .hasMessage(MISMATCH_REFRESH_TOKEN.getMessage());
+    }
+
 
     @Test
     @DisplayName("토큰 재발급 실패 - 토큰 불일치")
@@ -399,6 +437,7 @@ class CustomerServiceTest {
                 .willReturn("mismatchToken");
 
         // when & then
+        assertThat(request.getRefreshToken()).isNotEqualTo("mismatchToken");
         assertThatThrownBy(() -> customerService.reissueToken(request, customer.getEmail()))
                 .isInstanceOf(AppException.class)
                 .hasMessage(MISMATCH_REFRESH_TOKEN.getMessage());
@@ -563,7 +602,7 @@ class CustomerServiceTest {
         given(messageUtil.get(MessageCode.NICKNAME_AVAILABLE)).willReturn("사용 가능한 닉네임 입니다.");
 
         // when
-        MessageResponse response= customerService.checkNickName(request);
+        MessageResponse response = customerService.checkNickName(request);
 
         // then
         assertThat(response.getMessage()).isEqualTo("사용 가능한 닉네임 입니다.");
@@ -587,5 +626,151 @@ class CustomerServiceTest {
 
     }
 
+    @Test
+    @DisplayName("임시 비밀번호 발급")
+    public void temp_password_success() {
+        // given
+        CustomerTempPasswordRequest request = CustomerFixture.createTempPasswordRequest();
+
+        given(customerRepository.findByEmailAndTel(request.getEmail(),request.getTel())).willReturn(Optional.of(customer));
+
+        // when
+        CustomerTempPasswordResponse response = customerService.sendTempPassword(request);
+
+        // then
+        assertThat(response.getEmail()).isEqualTo(customer.getEmail());
+
+//        assertThat(response).is
+    }
+
+    @Test
+    @DisplayName("임시 비밀번호 실패 - 회원 없음")
+    public void temp_password_fail_customer_not_found() {
+        // given
+        CustomerTempPasswordRequest request = CustomerFixture.createTempPasswordRequest();
+
+        given(customerRepository.findByEmailAndTel(request.getEmail(), request.getTel())).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> customerService.sendTempPassword(request))
+                .isInstanceOf(AppException.class)
+                .hasMessage(CUSTOMER_NOT_FOUND.getMessage());
+
+    }
+
+    @Test
+    @DisplayName("비밀번호 변경 성공")
+    public void modify_password_success() {
+        // given
+        CustomerChangePasswordRequest request = CustomerFixture.createChangePasswordRequest("curPassword");
+
+        given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
+        given(encoder.matches(request.getCurrentPassword(), customer.getPassword())).willReturn(true);
+        given(messageUtil.get(MessageCode.CUSTOMER_PASSWORD_MODIFIED)).willReturn("비밀번호 변경 성공");
+
+        // when
+        MessageResponse response = customerService.updatePassword(request, customer.getEmail());
+
+        // then
+        then(customerRepository).should().findByEmail(customer.getEmail());
+        assertThat(response.getMessage()).isEqualTo("비밀번호 변경 성공");
+    }
+
+    @Test
+    @DisplayName("비밀번호 변경 실패 - 비밀번호 미일치")
+    public void modify_password_fail_mismatch_password() {
+        // given
+        CustomerChangePasswordRequest request = CustomerFixture.createChangePasswordRequest("wrongPassword");
+
+        given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
+        given(encoder.matches(request.getCurrentPassword(), customer.getPassword())).willReturn(false);
+
+        // when & then
+        assertThatThrownBy(() -> customerService.updatePassword(request, customer.getEmail()))
+                .isInstanceOf(AppException.class)
+                .hasMessage(MISMATCH_PASSWORD.getMessage());
+
+    }
+
+    @Test
+    @DisplayName("비밀번호 변경 실패 - 이메일로 고객 조회 실패")
+    public void modify_password_fail_not_found_customer() {
+        // given
+        CustomerChangePasswordRequest request = CustomerFixture.createChangePasswordRequest(customer.getPassword());
+
+        given(customerRepository.findByEmail(customer.getEmail()))
+                .willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> customerService.updatePassword(request, customer.getEmail()))
+                .isInstanceOf(AppException.class)
+                .hasMessage(CUSTOMER_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("전체 멤버십 갱신 - 구매 금액 초과로 멤버십 업그레이드 성공")
+    void refresh_all_memberships_upgrade_success() {
+        // given
+        Customer customer = CustomerFixture.createCustomerWithPurchaseAmount(new BigDecimal("300000"));
+
+        MemberShip gold = MemberShipFixture.createGoldMembership();
+
+        given(customerRepository.findAll())
+                .willReturn(List.of(customer));
+
+        given(memberShipRepository.findNextMemberShip(any()))
+                .willReturn(List.of(gold));
+
+        // when
+        customerService.refreshAllMemberships();
+
+        // then
+        then(customerRepository).should(times(1)).findAll();
+        then(memberShipRepository).should(times(1)).findNextMemberShip(any());
+        assertThat(customer.getMemberShip()).isEqualTo(gold);
+    }
+
+    @Test
+    @DisplayName("전체 멤버십 갱신 - 구매 금액 미달로 멤버십 업그레이드 없음")
+    void refresh_all_memberships_upgrade_fail_due_to_low_purchase() {
+        // given
+        Customer customer = CustomerFixture.createCustomerWithPurchaseAmount(new BigDecimal("1000"));
+
+        MemberShip gold = MemberShipFixture.createGoldMembership();
+
+        given(customerRepository.findAll())
+                .willReturn(List.of(customer));
+
+        given(memberShipRepository.findNextMemberShip(any()))
+                .willReturn(List.of(gold));
+
+        // when
+        customerService.refreshAllMemberships();
+
+        // then
+        then(customerRepository).should(times(1)).findAll();
+        then(memberShipRepository).should(times(1)).findNextMemberShip(any());
+        assertThat(customer.getMemberShip()).isNotEqualTo(gold);
+    }
+
+    @Test
+    @DisplayName("전체 멤버십 갱신 - 멤버십 후보 없음")
+    void refresh_all_memberships_no_membership_found() {
+        // given
+        Customer customer = CustomerFixture.createCustomerWithPurchaseAmount(new BigDecimal("99999999999"));
+
+        given(customerRepository.findAll())
+                .willReturn(List.of(customer));
+
+        given(memberShipRepository.findNextMemberShip(any()))
+                .willReturn(List.of()); // 아예 멤버십 없음
+
+        // when
+        customerService.refreshAllMemberships();
+
+        // then
+        then(customerRepository).should(times(1)).findAll();
+        then(memberShipRepository).should(times(1)).findNextMemberShip(any());
+    }
 
 }

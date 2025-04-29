@@ -2,7 +2,6 @@ package store.myproject.onlineshop.fixture;
 
 import com.github.javafaker.Faker;
 import org.instancio.Instancio;
-import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.customer.Address;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.customer.CustomerRole;
@@ -19,24 +18,21 @@ public class CustomerFixture {
 
     private static final Faker faker = new Faker(Locale.KOREA);
 
-    /**
-     * 고정된 값 기반 Customer 객체 생성
-     */
+    // 기본 Customer 생성 (구매 금액 0)
     public static Customer createCustomer() {
-        Faker faker = new Faker();
+        return createCustomerWithPurchaseAmount(BigDecimal.ZERO);
+    }
 
-        String email = faker.internet().emailAddress();
-        String nickName = faker.name().username();
-        String password = faker.internet().password();
-        Gender gender = faker.options().option(Gender.class); // MALE 또는 FEMALE 랜덤 선택
+    // 구매 금액을 설정할 수 있는 Customer 생성
+    public static Customer createCustomerWithPurchaseAmount(BigDecimal purchaseAmount) {
 
         Customer customer = Customer.builder()
                 .id(1L)
-                .email(email)
-                .password(password)
+                .email(faker.internet().emailAddress())
+                .password(faker.internet().password())
                 .userName(faker.name().firstName())
-                .nickName(nickName)
-                .gender(gender)
+                .nickName(faker.name().username())
+                .gender(faker.options().option(Gender.class))
                 .tel(faker.phoneNumber().cellPhone())
                 .address(Address.builder()
                         .city(faker.address().city())
@@ -45,34 +41,13 @@ public class CustomerFixture {
                         .zipcode(faker.address().zipCode())
                         .build())
                 .customerRole(CustomerRole.ROLE_USER)
-                .totalPurchaseAmount(BigDecimal.ZERO)
+                .totalPurchaseAmount(purchaseAmount)
                 .build();
 
         customer.setCreatedDate(LocalDateTime.now());
 
         return customer;
     }
-
-//    public static Customer createCustomer(String email, String nickName, String password) {
-//        Customer customer = Customer.builder()
-//                .id(1L)
-//                .email(email)
-//                .password(password)
-//                .userName("test")
-//                .nickName(nickName)
-//                .gender(MALE)
-//                .tel("010-1234-5678")
-//                .address(Address.builder()
-//                        .city("서울특별시")
-//                        .street("시흥대로 589-8")
-//                        .detail("1601호")
-//                        .zipcode("07445")
-//                        .build())
-//                .build();
-//
-//        customer.setCreatedDate(LocalDateTime.now());
-//        return customer;
-//    }
 
 
     public static CustomerJoinRequest createJoinRequest() {
@@ -131,8 +106,8 @@ public class CustomerFixture {
         return new CustomerNickNameCheckRequest(faker.name().username());
     }
 
-    public static CustomerChangePasswordRequest createChangePasswordRequest() {
-        return new CustomerChangePasswordRequest("password", "newPassword");
+    public static CustomerChangePasswordRequest createChangePasswordRequest(String curPassword) {
+        return new CustomerChangePasswordRequest(curPassword, "newPassword");
     }
 
     public static CustomerTempPasswordRequest createTempPasswordRequest() {
@@ -166,4 +141,5 @@ public class CustomerFixture {
     public static CustomerTempPasswordResponse createTempPasswordResponse(String email) {
         return new CustomerTempPasswordResponse(email, "tempPassword");
     }
+
 }

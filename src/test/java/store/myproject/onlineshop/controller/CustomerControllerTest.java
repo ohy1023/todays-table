@@ -695,7 +695,7 @@ class CustomerControllerTest {
     public void change_password_success() throws Exception {
 
         // given
-        CustomerChangePasswordRequest request = CustomerFixture.createChangePasswordRequest();
+        CustomerChangePasswordRequest request = CustomerFixture.createChangePasswordRequest("curPassword");
 
         MessageResponse response = new MessageResponse("비밀번호 변경 성공");
 
@@ -719,7 +719,7 @@ class CustomerControllerTest {
     public void change_password_fail_mismatch() throws Exception {
 
         // given
-        CustomerChangePasswordRequest request = CustomerFixture.createChangePasswordRequest();
+        CustomerChangePasswordRequest request = CustomerFixture.createChangePasswordRequest("curPassword");
 
         given(customerService.updatePassword(any(CustomerChangePasswordRequest.class), any(String.class)))
                 .willThrow(new AppException(MISMATCH_PASSWORD, MISMATCH_PASSWORD.getMessage()));

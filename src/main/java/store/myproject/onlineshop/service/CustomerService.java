@@ -171,7 +171,7 @@ public class CustomerService {
         Customer customer = customerRepository.findByEmailAndTel(request.getEmail(), request.getTel())
                 .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND));
 
-        String tempPassword = "SHOPPING_MALL " + UUID.randomUUID();
+        String tempPassword = "TODAY_TABLE " + UUID.randomUUID();
         customer.setTempPassword(encoder.encode(tempPassword));
 
         return customer.toCustomerTempPasswordResponse(tempPassword);
@@ -192,19 +192,19 @@ public class CustomerService {
         return new MessageResponse(messageUtil.get(MessageCode.CUSTOMER_PASSWORD_MODIFIED));
     }
 
-    /**
-     * 회원을 관리자 권한으로 변경
-     */
-    public MessageResponse grantAdminRole(String email) {
-        Customer customer = findCustomerByEmail(email);
-
-        if (customer.getCustomerRole() == ROLE_ADMIN) {
-            throw new AppException(ALREADY_ADMIN);
-        }
-
-        customer.setAdmin();
-        return new MessageResponse(messageUtil.get(MessageCode.CUSTOMER_ROLE_MODIFIED));
-    }
+//    /**
+//     * 회원을 관리자 권한으로 변경
+//     */
+//    public MessageResponse grantAdminRole(String email) {
+//        Customer customer = findCustomerByEmail(email);
+//
+//        if (customer.getCustomerRole() == ROLE_ADMIN) {
+//            throw new AppException(ALREADY_ADMIN);
+//        }
+//
+//        customer.setAdmin();
+//        return new MessageResponse(messageUtil.get(MessageCode.CUSTOMER_ROLE_MODIFIED));
+//    }
 
     /**
      * 매주 월요일 새벽 4시 전체 멤버십 갱신
