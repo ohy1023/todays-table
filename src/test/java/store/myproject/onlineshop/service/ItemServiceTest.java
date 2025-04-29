@@ -5,10 +5,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.brand.Brand;
+import store.myproject.onlineshop.domain.item.dto.ItemSearchCond;
 import store.myproject.onlineshop.repository.brand.BrandRepository;
 import store.myproject.onlineshop.domain.imagefile.ImageFile;
 import store.myproject.onlineshop.repository.imagefile.ImageFileRepository;
@@ -31,6 +36,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 import static store.myproject.onlineshop.exception.ErrorCode.DUPLICATE_ITEM;
+import static store.myproject.onlineshop.exception.ErrorCode.ITEM_NOT_FOUND;
 
 @ExtendWith(MockitoExtension.class)
 class ItemServiceTest {
@@ -38,16 +44,73 @@ class ItemServiceTest {
     @InjectMocks
     private ItemService itemService;
 
-    @Mock private ItemRepository itemRepository;
-    @Mock private BrandRepository brandRepository;
-    @Mock private ImageFileRepository imageFileRepository;
-    @Mock private AwsS3Service awsS3Service;
-    @Mock private MultipartFile multipartFile;
-    @Mock private MessageUtil messageUtil;
+    @Mock
+    private ItemRepository itemRepository;
+    @Mock
+    private BrandRepository brandRepository;
+    @Mock
+    private ImageFileRepository imageFileRepository;
+    @Mock
+    private AwsS3Service awsS3Service;
+    @Mock
+    private MultipartFile multipartFile;
+    @Mock
+    private MessageUtil messageUtil;
 
     Brand brand = BrandFixture.createBrand();
     Item item = ItemFixture.createItem(brand);
     ImageFile imageFile = ImageFileFixture.withItem(item);
+
+    @Test
+    @DisplayName("아이템 ID로 조회 성공")
+    void getItemById_success() {
+        // given
+        Long itemId = 1L;
+
+        given(itemRepository.findById(itemId)).willReturn(Optional.of(item));
+
+        // when
+        ItemDto result = itemService.getItemById(itemId);
+
+        // then
+        assertThat(result.getItemName()).isEqualTo(item.getItemName());
+        assertThat(result.getPrice()).isEqualTo(item.getPrice());
+    }
+
+    @Test
+    @DisplayName("아이템 ID로 조회 실패 - 존재하지 않음")
+    void getItemById_notFound() {
+        // given
+        Long invalidId = 99L;
+        given(itemRepository.findById(invalidId)).willReturn(Optional.empty());
+
+        // expect
+        assertThatThrownBy(() -> itemService.getItemById(invalidId))
+                .isInstanceOf(AppException.class)
+                .hasMessage(ITEM_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("조건 검색으로 아이템 리스트 조회 성공")
+    void searchItem_success() {
+        // given
+        ItemSearchCond cond = ItemSearchCond
+                .builder()
+                .itemName(item.getItemName())
+                .brandName(brand.getName())
+                .build();
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Page<ItemDto> page = new PageImpl<>(List.of(item.toItemDto(item)), pageable, 1);
+        given(itemRepository.search(cond, pageable)).willReturn(page);
+
+        // when
+        Page<ItemDto> result = itemService.searchItem(cond, pageable);
+
+        // then
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).getItemName()).isEqualTo(item.getItemName());
+    }
 
     @Test
     @DisplayName("품목 등록 성공")
@@ -84,7 +147,7 @@ class ItemServiceTest {
                 .willReturn(Optional.of(item));
 
         // when & then
-        assertThatThrownBy(() -> itemService.createItem(request,List.of(multipartFile)))
+        assertThatThrownBy(() -> itemService.createItem(request, List.of(multipartFile)))
                 .isInstanceOf(AppException.class)
                 .hasMessage(DUPLICATE_ITEM.getMessage());
     }
