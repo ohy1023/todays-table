@@ -5,12 +5,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
 import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.brand.dto.BrandCreateRequest;
+import store.myproject.onlineshop.domain.brand.dto.BrandInfo;
 import store.myproject.onlineshop.domain.brand.dto.BrandUpdateRequest;
+import store.myproject.onlineshop.exception.ErrorCode;
 import store.myproject.onlineshop.repository.brand.BrandRepository;
 import store.myproject.onlineshop.domain.imagefile.ImageFile;
 import store.myproject.onlineshop.repository.imagefile.ImageFileRepository;
@@ -20,6 +26,7 @@ import store.myproject.onlineshop.fixture.CommonFixture;
 import store.myproject.onlineshop.fixture.ImageFileFixture;
 import store.myproject.onlineshop.global.utils.MessageUtil;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,6 +54,47 @@ class BrandServiceTest {
     Brand brand = BrandFixture.createBrand();
     ImageFile imageFile = ImageFileFixture.withBrand(brand);
     MockMultipartFile mockFile = CommonFixture.mockMultipartFile();
+
+    @Test
+    @DisplayName("브랜드 단건 조회 성공")
+    void find_brand_info_success() {
+        // given
+        Long brandId = 1L;
+
+        given(brandRepository.findById(brandId)).willReturn(Optional.of(brand));
+
+        // when
+        BrandInfo response = brandService.findBrandInfoById(brandId);
+
+        then(brandRepository).should(times(1)).findById(brandId);
+        assertThat(response.getName()).isEqualTo(brand.getName());
+    }
+
+    @Test
+    @DisplayName("브랜드 검색 성공")
+    void search_brand_success() {
+        // given
+        String brandName = brand.getName();
+        Pageable pageable = PageRequest.of(0, 10);
+
+        List<BrandInfo> content = List.of(
+                BrandInfo.builder()
+                        .id(1L)
+                        .name(brandName)
+                        .build(),
+                BrandFixture.createBrandInfo(2L)
+        );
+
+        Page<BrandInfo> page = new PageImpl<>(content, pageable, content.size());
+        given(brandRepository.search(brandName, pageable)).willReturn(page);
+
+        // when & then
+        Page<BrandInfo> response = brandService.searchBrands(brandName, pageable);
+
+        assertThat(response.getContent()).hasSize(2);
+        assertThat(response.getContent().get(0).getName()).isEqualTo(brandName);
+        then(brandRepository).should(times(1)).search(brandName, pageable);
+    }
 
 
     @Test
@@ -101,8 +149,6 @@ class BrandServiceTest {
     void update_brand_success_name_only() {
         Long brandId = 1L;
         Brand brand = Brand.builder().name("예전이름").build();
-        ImageFile image = ImageFile.createImage("s3://existing", brand);
-//        brand.setImageFile(image);
 
         BrandUpdateRequest request = new BrandUpdateRequest("새이름");
 
@@ -136,5 +182,37 @@ class BrandServiceTest {
 
         assertThatThrownBy(() -> brandService.deleteBrand(id))
                 .isInstanceOf(AppException.class);
+    }
+
+    @Test
+    @DisplayName("브랜드 삭제 성공")
+    void delete_brand_success() {
+        // given
+        Long brandId = 1L;
+
+        given(brandRepository.findById(brandId)).willReturn(Optional.of(brand));
+        given(messageUtil.get(MessageCode.BRAND_DELETED)).willReturn("브랜드 삭제 성공");
+
+        // when
+        MessageResponse response = brandService.deleteBrand(brandId);
+
+        // then
+        then(brandRepository).should(times(1)).deleteById(brandId);
+        then(awsS3Service).should(times(1)).deleteBrandImage(anyString());
+        assertThat(response.getMessage()).isEqualTo("브랜드 삭제 성공");
+    }
+
+    @Test
+    @DisplayName("브랜드 삭제 실패 - 브랜드 없음")
+    void delete_brand_not_found_brand() {
+        // given
+        Long brandId = 1L;
+
+        given(brandRepository.findById(brandId)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> brandService.deleteBrand(brandId))
+                .isInstanceOf(AppException.class)
+                .hasMessage(ErrorCode.BRAND_NOT_FOUND.getMessage());
     }
 }
