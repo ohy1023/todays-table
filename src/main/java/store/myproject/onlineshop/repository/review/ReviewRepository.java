@@ -15,7 +15,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     Page<Review> findByParentId(Long parentId, Pageable pageable);
 
-    @Query("SELECT r FROM Review r WHERE r.recipe.id = :recipeId AND r.parentId IS NULL")
+    @Query("SELECT r FROM Review r WHERE r.recipe.id = :recipeId AND r.parentId = 0")
     Page<Review> findParentReviews(@Param("recipeId") Long recipeId, Pageable pageable);
 
     @Query("SELECT r FROM Review r WHERE r.parentId IN :parentReviewIds ORDER BY r.createdDate ASC")

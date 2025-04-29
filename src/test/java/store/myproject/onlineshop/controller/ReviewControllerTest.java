@@ -212,7 +212,7 @@ class ReviewControllerTest {
 
             given(recipeService.updateReview(anyString(), anyLong(), anyLong(), any())).willReturn(response);
 
-            mockMvc.perform(post("/api/v1/recipes/1/reviews/1")
+            mockMvc.perform(put("/api/v1/recipes/1/reviews/1")
                             .with(csrf())
                             .contentType(APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -229,7 +229,7 @@ class ReviewControllerTest {
             given(recipeService.updateReview(anyString(), anyLong(), anyLong(), any()))
                     .willThrow(new AppException(RECIPE_NOT_FOUND));
 
-            mockMvc.perform(post("/api/v1/recipes/999/reviews/1")
+            mockMvc.perform(put("/api/v1/recipes/999/reviews/1")
                             .with(csrf())
                             .contentType(APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -247,7 +247,7 @@ class ReviewControllerTest {
             given(recipeService.updateReview(anyString(), anyLong(), anyLong(), any()))
                     .willThrow(new AppException(FORBIDDEN_ACCESS));
 
-            mockMvc.perform(post("/api/v1/recipes/1/reviews/1")
+            mockMvc.perform(put("/api/v1/recipes/1/reviews/1")
                             .with(csrf())
                             .contentType(APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -264,7 +264,7 @@ class ReviewControllerTest {
             given(recipeService.updateReview(anyString(), anyLong(), anyLong(), any()))
                     .willThrow(new AppException(CUSTOMER_NOT_FOUND));
 
-            mockMvc.perform(post("/api/v1/recipes/1/reviews/1")
+            mockMvc.perform(put("/api/v1/recipes/1/reviews/1")
                             .with(csrf())
                             .contentType(APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))

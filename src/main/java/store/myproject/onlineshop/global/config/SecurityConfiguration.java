@@ -119,6 +119,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.DELETE,
                                 "/api/v1/customers",
                                 "/api/v1/accounts",
+                                "/api/v1/recipes/*",
                                 "/api/v1/recipes/*/reviews/*",
                                 "/api/v1/orders/*",
                                 "/api/v1/carts",

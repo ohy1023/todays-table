@@ -15,7 +15,7 @@ public class ReviewFixture {
 
     public static Review createParentReview(Recipe recipe, Customer customer) {
         return Review.builder()
-                .parentId(null)
+                .parentId(0L)
                 .recipe(recipe)
                 .customer(customer)
                 .reviewContent(faker.lorem().sentence())

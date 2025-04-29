@@ -45,7 +45,7 @@ public class ReviewController {
     }
 
     @Operation(summary = "댓글 수정")
-    @PostMapping("/{id}/reviews/{reviewId}")
+    @PutMapping("/{id}/reviews/{reviewId}")
     public Response<MessageResponse> modifyReview(@PathVariable Long id, @PathVariable Long reviewId, @Valid @RequestBody ReviewUpdateRequest request, Authentication authentication) {
         String email = authentication.getName();
         return Response.success(recipeService.updateReview(email, id, reviewId, request));
