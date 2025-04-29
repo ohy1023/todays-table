@@ -124,7 +124,7 @@ public class ItemService {
         for (ImageFile imageFile : findItem.getImageFileList()) {
             String extractFileName = FileUtils.extractFileName(imageFile.getImageUrl());
 
-            awsS3Service.deleteBrandImage(extractFileName);
+            awsS3Service.deleteItemImage(extractFileName);
 
             imageFileRepository.deleteById(imageFile.getId());
         }

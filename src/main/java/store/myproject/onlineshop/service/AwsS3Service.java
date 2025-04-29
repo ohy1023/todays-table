@@ -1,6 +1,7 @@
 package store.myproject.onlineshop.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -57,7 +58,7 @@ public class AwsS3Service {
 
         try (InputStream inputStream = file.getInputStream()) {
             amazonS3Client.putObject(new PutObjectRequest(bucket, key, inputStream, objectMetadata));
-        } catch (IOException e) {
+        }  catch (AmazonS3Exception | IOException e) {
             throw new AppException(ErrorCode.FILE_UPLOAD_ERROR);
         }
 
