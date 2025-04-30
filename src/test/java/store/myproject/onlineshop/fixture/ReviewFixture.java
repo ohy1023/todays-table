@@ -13,6 +13,17 @@ public class ReviewFixture {
 
     private static final Faker faker = new Faker(Locale.KOREA);
 
+
+    public static Review createParentReviewEntity(Recipe recipe, Customer customer) {
+        return Review.builder()
+                .id(1L)
+                .parentId(0L)
+                .recipe(recipe)
+                .customer(customer)
+                .reviewContent(faker.lorem().sentence())
+                .build();
+    }
+
     public static Review createParentReview(Recipe recipe, Customer customer) {
         return Review.builder()
                 .parentId(0L)
@@ -22,7 +33,17 @@ public class ReviewFixture {
                 .build();
     }
 
-    public static Review createChildReview(Recipe recipe, Customer customer,Review review) {
+    public static Review createChildReviewEntity(Recipe recipe, Customer customer, Review review) {
+        return Review.builder()
+                .id(2L)
+                .parentId(review.getId())
+                .recipe(recipe)
+                .customer(customer)
+                .reviewContent(faker.lorem().sentence())
+                .build();
+    }
+
+    public static Review createChildReview(Recipe recipe, Customer customer, Review review) {
         return Review.builder()
                 .parentId(review.getId())
                 .recipe(recipe)

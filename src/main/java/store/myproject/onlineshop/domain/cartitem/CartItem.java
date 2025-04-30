@@ -45,20 +45,4 @@ public class CartItem extends BaseEntity {
                 .cart(cart)
                 .build();
     }
-
-//    public CartItemResponse toCartItemResponse() {
-//        return CartItemResponse
-//                .builder()
-//                .itemId(this.item.getId())
-//                .itemName(this.item.getItemName())
-//                .imagePath(this.item.getItemPhotoUrl())
-//                .price(this.item.getPrice())
-//                .stock(this.item.getStock())
-//                .itemCnt(this.cartItemCnt)
-//                .build();
-//    }
-
-    public void setCheck() {
-        this.isChecked = !this.isChecked;
-    }
 }

@@ -38,4 +38,8 @@ public class Cart extends BaseEntity {
                 .customer(customer)
                 .build();
     }
+
+    public void addCartItem(CartItem cartItem) {
+        this.cartItems.add(cartItem);
+    }
 }

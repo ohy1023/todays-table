@@ -120,14 +120,6 @@ public class CartService {
     }
 
     /**
-     * 장바구니 품목 ID로 조회 (없으면 예외 발생)
-     */
-    private CartItem findCartItemById(Long id) {
-        return cartItemRepository.findById(id)
-                .orElseThrow(() -> new AppException(CART_ITEM_NOT_FOUND));
-    }
-
-    /**
      * 기존 장바구니 품목 수량 증가 (재고 초과 여부 검증 포함)
      */
     private void updateItemCount(CartItem cartItem, Long additionalCount, Item item) {

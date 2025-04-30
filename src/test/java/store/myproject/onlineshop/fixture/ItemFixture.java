@@ -15,6 +15,16 @@ public class ItemFixture {
 
     private static final Faker faker = new Faker(Locale.KOREA);
 
+    public static Item createItemEntity(Brand brand) {
+        return Item.builder()
+                .id(1L)
+                .itemName(faker.company().name())
+                .price(BigDecimal.valueOf(3000))
+                .stock(40L)
+                .brand(brand)
+                .build();
+    }
+
     public static Item createItem(Brand brand) {
 
         return Item.builder()

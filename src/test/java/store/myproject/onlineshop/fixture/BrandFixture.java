@@ -11,6 +11,13 @@ public class BrandFixture {
 
     private static final Faker faker = new Faker(Locale.KOREA);
 
+    public static Brand createBrandEntity() {
+        return Brand.builder()
+                .id(1L)
+                .name(faker.company().name())
+                .build();
+    }
+
     public static Brand createBrand() {
 
         return Brand.builder()

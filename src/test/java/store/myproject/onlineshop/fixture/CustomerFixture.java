@@ -2,11 +2,9 @@ package store.myproject.onlineshop.fixture;
 
 import com.github.javafaker.Faker;
 import org.instancio.Instancio;
-import store.myproject.onlineshop.domain.customer.Address;
-import store.myproject.onlineshop.domain.customer.Customer;
-import store.myproject.onlineshop.domain.customer.CustomerRole;
-import store.myproject.onlineshop.domain.customer.Gender;
+import store.myproject.onlineshop.domain.customer.*;
 import store.myproject.onlineshop.domain.customer.dto.*;
+import store.myproject.onlineshop.domain.membership.MemberShip;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -21,6 +19,36 @@ public class CustomerFixture {
     // 기본 Customer 생성 (구매 금액 0)
     public static Customer createCustomer() {
         return createCustomerWithPurchaseAmount(BigDecimal.ZERO);
+    }
+
+    public static Customer createCustomerEntity() {
+        Customer customer = Customer.builder()
+                .id(1L)
+                .email("test@example.com")
+                .password("testPassword123!")
+                .userName("홍길동")
+                .nickName("hong123")
+                .gender(Gender.MALE)
+                .tel("010-1234-5678")
+                .address(Address.builder()
+                        .city("서울")
+                        .street("테스트로")
+                        .detail("123")
+                        .zipcode("04524")
+                        .build())
+                .customerRole(CustomerRole.ROLE_USER)
+                .totalPurchaseAmount(BigDecimal.ZERO)
+                .memberShip(MemberShip.builder()
+                        .id(1L)
+                        .level(Level.BRONZE)
+                        .baseline(BigDecimal.ZERO)
+                        .discountRate(BigDecimal.ZERO)
+                        .build())
+                .build();
+
+        customer.setCreatedDate(LocalDateTime.now());
+
+        return customer;
     }
 
     // 구매 금액을 설정할 수 있는 Customer 생성

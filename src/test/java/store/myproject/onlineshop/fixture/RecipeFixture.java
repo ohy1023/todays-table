@@ -14,6 +14,44 @@ public class RecipeFixture {
 
     private static final Faker faker = new Faker(Locale.KOREA);
 
+    public static Recipe createRecipeEntity(Customer customer) {
+        RecipeMeta recipeMeta = RecipeMeta.builder()
+                .reviewCnt(0L)
+                .viewCnt(0L)
+                .likeCnt(0L)
+                .build();
+
+        return Recipe.builder()
+                .id(1L)
+                .recipeTitle(faker.food().dish()) // 랜덤 음식 이름
+                .recipeDescription(faker.lorem().sentence()) // 랜덤 문장
+                .recipeServings(faker.number().numberBetween(1, 6) + "인분") // "3인분" 형식
+                .recipeCookingTime(faker.number().numberBetween(10, 120) + "분") // "45분" 형식
+                .customer(customer)
+                .thumbnailUrl(faker.internet().image()) // 랜덤 이미지 URL
+                .recipeMeta(recipeMeta)
+                .build();
+    }
+
+    public static Recipe createRecipeEntityWithId(Long id, Customer customer) {
+        RecipeMeta recipeMeta = RecipeMeta.builder()
+                .reviewCnt(0L)
+                .viewCnt(0L)
+                .likeCnt(0L)
+                .build();
+
+        return Recipe.builder()
+                .id(id)
+                .recipeTitle(faker.food().dish()) // 랜덤 음식 이름
+                .recipeDescription(faker.lorem().sentence()) // 랜덤 문장
+                .recipeServings(faker.number().numberBetween(1, 6) + "인분") // "3인분" 형식
+                .recipeCookingTime(faker.number().numberBetween(10, 120) + "분") // "45분" 형식
+                .customer(customer)
+                .thumbnailUrl(faker.internet().image()) // 랜덤 이미지 URL
+                .recipeMeta(recipeMeta)
+                .build();
+    }
+
     public static Recipe createRecipe(Customer customer) {
         RecipeMeta recipeMeta = RecipeMeta.builder()
                 .reviewCnt(0L)
