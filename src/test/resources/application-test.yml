@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;MODE=MySQL
+    url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=true;MODE=MySQL
     username: sa
     password:
 
@@ -14,8 +14,17 @@ spring:
     generate-ddl: true
     database: h2
     properties:
-      hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
 
   h2:
     console:
       enabled: true
+    hikari:
+      jdbc-url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=true;MODE=MySQL
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${S3_ACCESS_KEY:your-access-key}
+      secret-key: ${S3_SECRET_KEY:your-secret-key}
