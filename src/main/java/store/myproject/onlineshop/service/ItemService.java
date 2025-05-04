@@ -58,7 +58,7 @@ public class ItemService {
         return itemRepository.search(itemSearchCond, pageable);
     }
 
-    public ItemDto createItem(ItemCreateRequest request, List<MultipartFile> multipartFileList) {
+    public MessageResponse createItem(ItemCreateRequest request, List<MultipartFile> multipartFileList) {
 
         itemRepository.findItemByItemName(request.getItemName())
                 .ifPresent((item -> {
@@ -80,7 +80,7 @@ public class ItemService {
             imageFileRepository.save(image);
         }
 
-        return savedItem.toItemDto(savedItem);
+        return new MessageResponse(messageUtil.get(MessageCode.ITEM_ADDED));
     }
 
     @CacheEvict(value = "items", allEntries = true)

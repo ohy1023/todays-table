@@ -22,6 +22,7 @@ public enum MessageCode {
     MEMBERSHIP_DELETED("membership.deleted"),
 
     // 상품 관련
+    ITEM_ADDED("item.added"),
     ITEM_MODIFIED("item.modified"),
     ITEM_DELETED("item.deleted"),
 

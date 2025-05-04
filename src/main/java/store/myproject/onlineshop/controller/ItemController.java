@@ -51,11 +51,9 @@ public class ItemController {
 
     @Operation(summary = "품목 추가")
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public Response<ItemDto> createItem(@RequestPart ItemCreateRequest request, @RequestPart List<MultipartFile> multipartFileList) {
+    public Response<MessageResponse> createItem(@RequestPart ItemCreateRequest request, @RequestPart List<MultipartFile> multipartFileList) {
 
-        ItemDto response = itemService.createItem(request, multipartFileList);
-
-        return Response.success(response);
+        return Response.success(itemService.createItem(request, multipartFileList));
     }
 
     @Operation(summary = "품목 수정")
