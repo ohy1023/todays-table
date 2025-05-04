@@ -74,7 +74,7 @@ public class RecipeService {
         recipeDto.setSteps(stepDtos);
         recipeDto.setItems(itemDtos);
 
-        recipeMetaService.asyncIncreaseViewCnt(recipeId);
+        recipeMetaService.asyncIncreaseViewCnt(recipeDto.getRecipeMetaId());
 
         return recipeDto;
     }

@@ -2,112 +2,20 @@
 
 오늘의 식탁은 레시피를 기반으로 식재료를 쉽게 구매할 수 있도록 지원하는 백엔드 API 서비스입니다.
 
-## 📌 주요 기능
-
-### 🥘 **레시피 (Recipe)**
-- **레시피 등록** (`POST /api/v1/recipes`)  
-  사용자가 직접 레시피를 등록할 수 있습니다.
-- **레시피 삭제** (`DELETE /api/v1/recipes/{recipeId}`)  
-  특정 레시피를 삭제할 수 있습니다.
-- **레시피 좋아요** (`POST /api/v1/recipes/{id}/likes`)  
-  특정 레시피에 좋아요를 누를 수 있습니다.
-- **레시피 좋아요 개수 조회** (`GET /api/v1/recipes/{id}/likes`)  
-  특정 레시피의 좋아요 개수를 조회할 수 있습니다.
-
-### 💬 **리뷰 (Review)**
-- **댓글 작성** (`POST /api/v1/recipes/{id}/reviews`)  
-  특정 레시피에 대한 리뷰(댓글)를 작성할 수 있습니다.
-- **댓글 수정** (`POST /api/v1/recipes/{id}/reviews/{reviewId}`)  
-  작성한 댓글을 수정할 수 있습니다.
-- **댓글 삭제** (`DELETE /api/v1/recipes/{id}/reviews/{reviewId}`)  
-  작성한 댓글을 삭제할 수 있습니다.
-
-### 📦 **주문 (Order)**
-- **단건 주문** (`POST /api/v1/orders`)  
-  개별 주문을 등록할 수 있습니다.
-- **장바구니 주문** (`POST /api/v1/orders/cart`)  
-  장바구니 내 모든 품목을 한 번에 주문할 수 있습니다.
-- **주문 조회** (`GET /api/v1/orders/{orderId}`)  
-  사용자의 주문 정보를 조회할 수 있습니다.
-- **주문 취소** (`DELETE /api/v1/orders/{orderItemId}`)  
-  특정 주문을 취소할 수 있습니다.
-
-### 🛒 **장바구니 (Cart)**
-- **장바구니 품목 추가** (`POST /api/v1/carts`)  
-  장바구니에 품목을 추가할 수 있습니다.
-- **장바구니 품목 조회** (`GET /api/v1/carts`)  
-  사용자의 장바구니에 담긴 품목을 조회할 수 있습니다.
-- **장바구니 품목 삭제** (`DELETE /api/v1/carts/{itemId}`)  
-  특정 품목을 장바구니에서 삭제할 수 있습니다.
-- **장바구니 전체 품목 삭제** (`DELETE /api/v1/carts`)  
-  장바구니 내 모든 품목을 삭제할 수 있습니다.
-
-### 🏪 **상품 (Item)**
-- **상품 등록** (`POST /api/v1/items`)  
-  새로운 상품을 추가할 수 있습니다.
-- **상품 수정** (`PUT /api/v1/items/{itemId}`)  
-  기존 상품 정보를 수정할 수 있습니다.
-- **상품 삭제** (`DELETE /api/v1/items/{itemId}`)  
-  특정 상품을 삭제할 수 있습니다.
-- **상품 조회** (`GET /api/v1/items/{itemId}`)  
-  개별 상품 정보를 조회할 수 있습니다.
-
-### 🚚 **배송 (Delivery)**
-- **배송지 변경** (`PUT /api/v1/deliveries/{orderId}`)  
-  주문의 배송지를 변경할 수 있습니다.
-
-### 👤 **회원 (Customer)**
-- **회원 가입** (`POST /api/v1/customers/join`)  
-  신규 회원을 등록할 수 있습니다.
-- **로그인** (`POST /api/v1/customers/login`)  
-  사용자 로그인 기능을 제공합니다.
-- **로그아웃** (`POST /api/v1/customers/logout`)  
-  사용자 로그아웃을 처리합니다.
-- **회원 정보 조회** (`GET /api/v1/customers`)  
-  사용자의 회원 정보를 조회할 수 있습니다.
-- **회원 정보 수정** (`PATCH /api/v1/customers`)  
-  회원 정보를 수정할 수 있습니다.
-- **회원 탈퇴** (`DELETE /api/v1/customers`)  
-  사용자의 계정을 삭제할 수 있습니다.
-
-### 🎟 **멤버십 (Membership)**
-- **멤버십 등록** (`POST /api/v1/memberships`)  
-  멤버십을 등록할 수 있습니다.
-- **멤버십 조회** (`GET /api/v1/memberships/{id}`)  
-  특정 멤버십 정보를 조회할 수 있습니다.
-- **멤버십 삭제** (`DELETE /api/v1/memberships/{id}`)  
-  특정 멤버십을 삭제할 수 있습니다.
-
-### 🔔 **알림 (SSE)**
-- **알림 구독** (`GET /api/v1/subscribe/{id}`)  
-  사용자는 SSE(Server-Sent Events)를 통해 실시간 알림을 받을 수 있습니다.
-
-### 🏢 **브랜드 (Brand)**
-- **브랜드 등록** (`POST /api/v1/brands`)  
-  새로운 브랜드를 등록할 수 있습니다.
-- **브랜드 조회** (`GET /api/v1/brands/{brandId}`)  
-  특정 브랜드 정보를 조회할 수 있습니다.
-- **브랜드 삭제** (`DELETE /api/v1/brands/{brandId}`)  
-  특정 브랜드를 삭제할 수 있습니다.
-
 ---
 
 ## 🛠 기술 스택
 
-**언어 / 툴**
-
-- Java 17
-- Intellij Ultimate
-- Gradle
-
 **Backend**
 
+- Java 17
+- Gradle
 - Spring Boot 3.0.6
 - Spring Data JPA
 - Spring Security
-- QueryDsl
-- MySQL
-- Redis
+- QueryDsl 5.0
+- MySQL 8.0.33
+- Redis 7.0
 
 **배포**
 
@@ -124,9 +32,10 @@
 
 ---
 
-### 배포 흐름
+## 🗄️ ERD
 
-<img src="img/today_table_deploy.png" style="width:60%;"  alt="배포 흐름"/>
+
+---
 
 ## 📡 API 명세서
 
@@ -134,13 +43,27 @@
 
 ---
 
-## 🗄️ ERD
+## 🚀 GitActions을 활용한 배포 자동화
 
-![](img/today_table_erd.png)
+자동화된 배포 파이프라인을 구성하여, GitHub에 코드 푸시 시 Docker 이미지 빌드 및 EC2 서버에 배포가 자동으로 이루어집니다.
 
----
+<img src="img/today_table_deploy.png" style="width:60%;"  alt="배포 흐름"/>
+
+## 🧪 테스트
+
+### ✅ 단위 테스트 (Unit Test)
+- Mockito를 활용해 주요 비즈니스 로직 단위 테스트 수행
+- Fixture 패턴을 도입해 반복적인 테스트 데이터를 효율적으로 관리
+
+### 📈 테스트 커버리지
+
+- 테스트 커버리지를 일정 수준 이상 확보했으나, 의미 없는 테스트 코드도 포함되어 있어 다음 프로젝트에서는 테스트의 질 중심의 작성 전략 개선 예정
+
+![img.png](img.png)
 
 ## 📝 블로그 정리
+
+[좋아요 개수, 댓글 개수, 조회 수 테이블 분리 리팩토링](https://until.blog/@zvyg1023/%EC%A2%8B%EC%95%84%EC%9A%94-%EA%B0%9C%EC%88%98--%EB%8C%93%EA%B8%80-%EA%B0%9C%EC%88%98--%EC%A1%B0%ED%9A%8C-%EC%88%98-%ED%85%8C%EC%9D%B4%EB%B8%94-%EB%B6%84%EB%A6%AC-%EB%A6%AC%ED%8C%A9%ED%86%A0%EB%A7%81)
 
 [Git Actions와 docker-compose를 이용한 자동 배포](https://velog.io/@zvyg1023/CICD-Docker-Github-Action-Spring-Boot)
 
