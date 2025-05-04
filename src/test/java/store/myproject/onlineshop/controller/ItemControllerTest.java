@@ -70,7 +70,7 @@ class ItemControllerTest {
         ItemCreateRequest request = ItemFixture.createRequest();
         String json = objectMapper.writeValueAsString(request);
         List<MockMultipartFile> files = CommonFixture.mockMultipartFileList();
-        ItemDto response = ItemFixture.createItemDto();
+        MessageResponse response = new MessageResponse("품목 추가 성공");
 
         given(itemService.createItem(any(), ArgumentMatchers.<List<MultipartFile>>any()))
                 .willReturn(response);
@@ -90,10 +90,7 @@ class ItemControllerTest {
         // when & then
         mockMvc.perform(builder)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.itemName").value(response.getItemName()))
-                .andExpect(jsonPath("$.result.price").value(response.getPrice()))
-                .andExpect(jsonPath("$.result.stock").value(response.getStock()))
-                .andExpect(jsonPath("$.result.brandName").value(response.getBrandName()))
+                .andExpect(jsonPath("$.result.message").value(response.getMessage()))
                 .andDo(print());
     }
 
