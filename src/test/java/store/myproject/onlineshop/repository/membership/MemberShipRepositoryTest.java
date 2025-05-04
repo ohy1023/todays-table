@@ -14,8 +14,6 @@ import store.myproject.onlineshop.fixture.MemberShipFixture;
 import store.myproject.onlineshop.global.config.TestConfig;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,11 +48,6 @@ class MemberShipRepositoryTest {
             assertThat(result.get().getLevel()).isEqualTo(Level.BRONZE);
             assertThat(result.get().getBaseline()).isEqualTo(membership.getBaseline());
             assertThat(result.get().getDiscountRate()).isEqualTo(membership.getDiscountRate());
-            assertThat(result.get().getCreatedDate())
-                    .isCloseTo(LocalDateTime.now(), within(1, ChronoUnit.SECONDS));
-            assertThat(result.get().getLastModifiedDate())
-                    .isCloseTo(LocalDateTime.now(), within(1, ChronoUnit.SECONDS));
-            assertThat(result.get().getDeletedDate()).isEqualTo(membership.getDeletedDate());
 
         }
 

@@ -2,13 +2,8 @@ package store.myproject.onlineshop.domain.cart;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.cartitem.CartItem;
 import store.myproject.onlineshop.domain.customer.Customer;
-import store.myproject.onlineshop.domain.item.Item;
-import store.myproject.onlineshop.domain.order.Order;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +13,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Cart extends BaseEntity {
+public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "cart_id")

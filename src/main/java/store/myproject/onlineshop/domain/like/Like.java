@@ -14,7 +14,7 @@ import static jakarta.persistence.FetchType.LAZY;
 @Table(name = "LikeCount")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Like extends BaseEntity {
+public class Like {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

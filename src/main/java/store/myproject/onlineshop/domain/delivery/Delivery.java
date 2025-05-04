@@ -2,25 +2,17 @@ package store.myproject.onlineshop.domain.delivery;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Address;
 import store.myproject.onlineshop.domain.delivery.dto.DeliveryInfoRequest;
 import store.myproject.onlineshop.domain.delivery.dto.DeliveryUpdateRequest;
 import store.myproject.onlineshop.domain.order.Order;
-import store.myproject.onlineshop.domain.order.dto.OrderInfoRequest;
-
-import static jakarta.persistence.FetchType.*;
 
 @Entity
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Where(clause = "deleted_date IS NULL")
-@SQLDelete(sql = "UPDATE Delivery SET deleted_date = CURRENT_TIMESTAMP WHERE id = ?")
-public class Delivery extends BaseEntity {
+public class Delivery {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.order.Order;
@@ -20,7 +19,7 @@ import static lombok.AccessLevel.PROTECTED;
 @Builder
 @NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor
-public class OrderItem extends BaseEntity {
+public class OrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

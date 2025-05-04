@@ -2,9 +2,6 @@ package store.myproject.onlineshop.domain.membership;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Level;
 import store.myproject.onlineshop.domain.membership.dto.MemberShipDto;
 import store.myproject.onlineshop.domain.membership.dto.MemberShipUpdateRequest;
@@ -16,9 +13,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Where(clause = "deleted_date IS NULL")
-@SQLDelete(sql = "UPDATE MemberShip SET deleted_date = CURRENT_TIMESTAMP WHERE member_ship_id = ?")
-public class MemberShip extends BaseEntity {
+public class MemberShip {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

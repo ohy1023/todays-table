@@ -13,7 +13,7 @@ import store.myproject.onlineshop.domain.BaseEntity;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RecipeMeta extends BaseEntity {
+public class RecipeMeta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

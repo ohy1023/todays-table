@@ -2,9 +2,6 @@ package store.myproject.onlineshop.domain.brand;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.brand.dto.*;
 import store.myproject.onlineshop.domain.imagefile.ImageFile;
 import store.myproject.onlineshop.domain.item.Item;
@@ -17,14 +14,14 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Where(clause = "deleted_date IS NULL")
-@SQLDelete(sql = "UPDATE Brand SET deleted_date = CURRENT_TIMESTAMP WHERE id = ?")
-public class Brand extends BaseEntity {
+public class Brand {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "brand_id")
     private Long id;
 
+    @Column(unique = true)
     private String name;
 
     @Setter

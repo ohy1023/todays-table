@@ -2,9 +2,7 @@ package store.myproject.onlineshop.domain.cartitem;
 
 import jakarta.persistence.*;
 import lombok.*;
-import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.cart.Cart;
-import store.myproject.onlineshop.domain.cartitem.dto.CartItemResponse;
 import store.myproject.onlineshop.domain.item.Item;
 
 @Entity
@@ -12,7 +10,7 @@ import store.myproject.onlineshop.domain.item.Item;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CartItem extends BaseEntity {
+public class CartItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
