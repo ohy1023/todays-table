@@ -13,7 +13,7 @@
 - Spring Boot 3.0.6
 - Spring Data JPA
 - Spring Security
-- QueryDsl 5.0
+- QueryDsl 5.1.0
 - MySQL 8.0.33
 - Redis 7.0
 
@@ -34,7 +34,7 @@
 
 ## 🗄️ ERD
 
-
+![erd.png](img/today_table_erd.png)
 ---
 
 ## 📡 API 명세서
@@ -59,7 +59,7 @@
 
 - 테스트 커버리지를 일정 수준 이상 확보했으나, 의미 없는 테스트 코드도 포함되어 있어 다음 프로젝트에서는 테스트의 질 중심의 작성 전략 개선 예정
 
-![img.png](img.png)
+![img.png](img/JaCoCo_Report.png)
 
 ## 📝 블로그 정리
 
