@@ -47,7 +47,13 @@
 
 자동화된 배포 파이프라인을 구성하여, GitHub에 코드 푸시 시 Docker 이미지 빌드 및 EC2 서버에 배포가 자동으로 이루어집니다.
 
-<img src="img/today_table_deploy.png" style="width:60%;"  alt="배포 흐름"/>
+<img src="img/today_table_deploy.png" style="width:30%;"  alt="배포 흐름"/>
+
+## 💾 MySQL Master-Slave Replication을 통한 읽기-쓰기 분리
+
+Master-Slave Replication 환경에서 읽기 작업은 Slave 서버에서, 쓰기 작업은 Master 서버에서 처리하도록 구분
+
+![img.png](img/mysql_replication.png)
 
 ## 🧪 테스트
 
