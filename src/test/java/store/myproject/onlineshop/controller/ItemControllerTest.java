@@ -18,15 +18,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.web.multipart.MultipartFile;
 import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.item.dto.ItemCreateRequest;
-import store.myproject.onlineshop.domain.item.dto.ItemDto;
+import store.myproject.onlineshop.domain.item.dto.*;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
-import store.myproject.onlineshop.domain.item.dto.ItemSearchCond;
-import store.myproject.onlineshop.domain.item.dto.ItemUpdateRequest;
 import store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto;
 import store.myproject.onlineshop.fixture.CommonFixture;
 import store.myproject.onlineshop.fixture.ItemFixture;
@@ -115,8 +112,8 @@ class ItemControllerTest {
     @DisplayName("품목 검색 성공")
     void searchItem_success() throws Exception {
         // given
-        ItemDto item = ItemFixture.createItemDto();
-        Page<ItemDto> page = new PageImpl<>(List.of(item));
+        SimpleItemDto item = ItemFixture.createSimpleItemDto();
+        Page<SimpleItemDto> page = new PageImpl<>(List.of(item));
 
         given(itemService.searchItem(any(ItemSearchCond.class), any(Pageable.class)))
                 .willReturn(page);
@@ -129,7 +126,6 @@ class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.content[0].itemName").value(item.getItemName()))
                 .andExpect(jsonPath("$.result.content[0].price").value(item.getPrice().intValue()))
-                .andExpect(jsonPath("$.result.content[0].stock").value(item.getStock()))
                 .andDo(print());
     }
 

@@ -11,18 +11,13 @@ public class BrandInfo {
 
     private Long id;
     private String name;
+    private String brandImgUrl;
 
     @QueryProjection
-    public BrandInfo(Long id, String name) {
+    public BrandInfo(Long id, String name, String brandImgUrl) {
         this.id = id;
         this.name = name;
-    }
-
-    public Brand toEntity() {
-        return Brand.builder()
-                .id(this.id)
-                .name(this.name)
-                .build();
+        this.brandImgUrl = brandImgUrl;
     }
 
 }

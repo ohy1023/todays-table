@@ -9,14 +9,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.util.StringUtils;
-import store.myproject.onlineshop.domain.item.dto.ItemDto;
 import store.myproject.onlineshop.domain.item.dto.ItemSearchCond;
-import store.myproject.onlineshop.domain.item.dto.QItemDto;
+import store.myproject.onlineshop.domain.item.dto.QSimpleItemDto;
+import store.myproject.onlineshop.domain.item.dto.SimpleItemDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static store.myproject.onlineshop.domain.brand.QBrand.brand;
+import static store.myproject.onlineshop.domain.imagefile.QImageFile.*;
 import static store.myproject.onlineshop.domain.item.QItem.item;
 
 
@@ -27,9 +28,11 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<ItemDto> search(ItemSearchCond itemSearchCond, Pageable pageable) {
-        List<ItemDto> itemDtoList = queryFactory.select(new QItemDto(item.itemName, item.price, item.stock, item.brand.name))
+    public Page<SimpleItemDto> search(ItemSearchCond itemSearchCond, Pageable pageable) {
+        List<SimpleItemDto> itemDtoList = queryFactory.select(new QSimpleItemDto(item.id, item.itemName, item.price, imageFile.imageUrl.min(), brand.name))
                 .from(item)
+                .join(item.brand, brand)
+                .leftJoin(item.imageFileList, imageFile)
                 .where(
                         itemNameContains(itemSearchCond.getItemName()),
                         brandNameContains(itemSearchCond.getBrandName()),
@@ -39,6 +42,7 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
                         stockGoe(itemSearchCond.getStockGoe()),
                         betweenCreatedDate(itemSearchCond.getStartDate(), itemSearchCond.getEndDate())
                 )
+                .groupBy(item.id)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -46,6 +50,7 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
         JPAQuery<Long> countQuery = queryFactory
                 .select(item.count())
                 .from(item)
+                .join(item.brand, brand)
                 .where(
                         item.deletedDate.isNull(),
                         itemNameContains(itemSearchCond.getItemName()),

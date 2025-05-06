@@ -20,7 +20,7 @@ public class CartFixture {
 
     public static List<CartItemResponse> createCartItemResponses() {
         return List.of(
-                new CartItemResponse(1L, faker.commerce().productName(), new BigDecimal(15000), 10000L, 1000L)
+                new CartItemResponse(1L, faker.commerce().productName(),  faker.internet().image() ,new BigDecimal(15000), 10000L, 1000L)
         );
     }
 

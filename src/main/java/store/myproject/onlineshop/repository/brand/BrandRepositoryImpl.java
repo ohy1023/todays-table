@@ -11,11 +11,13 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.util.StringUtils;
 import store.myproject.onlineshop.domain.brand.dto.BrandInfo;
 import store.myproject.onlineshop.domain.brand.dto.QBrandInfo;
+import store.myproject.onlineshop.domain.imagefile.QImageFile;
 
 
 import java.util.List;
 
 import static store.myproject.onlineshop.domain.brand.QBrand.brand;
+import static store.myproject.onlineshop.domain.imagefile.QImageFile.*;
 
 
 @Slf4j
@@ -30,7 +32,9 @@ public class BrandRepositoryImpl implements BrandCustomRepository {
         List<BrandInfo> brandInfoList = queryFactory
                 .select(new QBrandInfo(
                         brand.id,
-                        brand.name)
+                        brand.name,
+                        imageFile.imageUrl
+                        )
                 )
                 .from(brand)
                 .where(brandNameEq(brandName))

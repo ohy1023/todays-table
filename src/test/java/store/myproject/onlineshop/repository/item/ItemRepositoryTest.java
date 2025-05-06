@@ -9,13 +9,16 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import store.myproject.onlineshop.domain.brand.Brand;
+import store.myproject.onlineshop.domain.imagefile.ImageFile;
 import store.myproject.onlineshop.domain.item.Item;
-import store.myproject.onlineshop.domain.item.dto.ItemDto;
 import store.myproject.onlineshop.domain.item.dto.ItemSearchCond;
+import store.myproject.onlineshop.domain.item.dto.SimpleItemDto;
 import store.myproject.onlineshop.fixture.BrandFixture;
+import store.myproject.onlineshop.fixture.ImageFileFixture;
 import store.myproject.onlineshop.fixture.ItemFixture;
 import store.myproject.onlineshop.global.config.TestConfig;
 import store.myproject.onlineshop.repository.brand.BrandRepository;
+import store.myproject.onlineshop.repository.imagefile.ImageFileRepository;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -30,6 +33,8 @@ class ItemRepositoryTest {
     private ItemRepository itemRepository;
     @Autowired
     private BrandRepository brandRepository;
+    @Autowired
+    private ImageFileRepository imageFileRepository;
 
     @Nested
     @DisplayName("아이템 검색 테스트")
@@ -41,8 +46,12 @@ class ItemRepositoryTest {
             // given
             Brand brand = BrandFixture.createBrand();
             brandRepository.save(brand);
+            ImageFile brandImage = ImageFileFixture.withBrand(brand);
+            imageFileRepository.save(brandImage);
             Item item = ItemFixture.createItem(brand);
             itemRepository.save(item);
+            ImageFile itemImage = ImageFileFixture.withItem(item);
+            imageFileRepository.save(itemImage);
 
             ItemSearchCond cond = ItemSearchCond.builder()
                     .itemName(item.getItemName())
@@ -58,12 +67,11 @@ class ItemRepositoryTest {
             PageRequest pageRequest = PageRequest.of(0, 10);
 
             // when
-            Page<ItemDto> result = itemRepository.search(cond, pageRequest);
+            Page<SimpleItemDto> result = itemRepository.search(cond, pageRequest);
 
             // then
             assertThat(result.getContent()).hasSize(1);
             assertThat(result.getContent().get(0).getItemName()).isEqualTo(item.getItemName());
-            assertThat(result.getContent().get(0).getBrandName()).isEqualTo(brand.getName());
         }
 
         @Test
@@ -89,12 +97,11 @@ class ItemRepositoryTest {
             PageRequest pageRequest = PageRequest.of(0, 10);
 
             // when
-            Page<ItemDto> result = itemRepository.search(cond, pageRequest);
+            Page<SimpleItemDto> result = itemRepository.search(cond, pageRequest);
 
             // then
             assertThat(result.getContent()).hasSize(1);
             assertThat(result.getContent().get(0).getItemName()).isEqualTo(item.getItemName());
-            assertThat(result.getContent().get(0).getBrandName()).isEqualTo(brand.getName());
         }
 
         @Test
@@ -120,12 +127,11 @@ class ItemRepositoryTest {
             PageRequest pageRequest = PageRequest.of(0, 10);
 
             // when
-            Page<ItemDto> result = itemRepository.search(cond, pageRequest);
+            Page<SimpleItemDto> result = itemRepository.search(cond, pageRequest);
 
             // then
             assertThat(result.getContent()).hasSize(1);
             assertThat(result.getContent().get(0).getItemName()).isEqualTo(item.getItemName());
-            assertThat(result.getContent().get(0).getBrandName()).isEqualTo(brand.getName());
         }
 
         @Test
@@ -143,7 +149,7 @@ class ItemRepositoryTest {
             PageRequest pageRequest = PageRequest.of(0, 10);
 
             // when
-            Page<ItemDto> result = itemRepository.search(cond, pageRequest);
+            Page<SimpleItemDto> result = itemRepository.search(cond, pageRequest);
 
             // then
             assertThat(result.getContent()).hasSize(1);

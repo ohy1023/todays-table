@@ -14,7 +14,6 @@ import java.util.Optional;
 public interface ItemRepository extends JpaRepository<Item, Long>, ItemCustomRepository {
     Optional<Item> findItemByItemName(String itemName);
 
-    @Override
     @Query("select i from Item i join fetch i.brand b where i.id = :itemId")
     Optional<Item> findById(@Param("itemId") Long itemId);
 

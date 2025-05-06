@@ -11,10 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.Response;
-import store.myproject.onlineshop.domain.item.dto.ItemCreateRequest;
-import store.myproject.onlineshop.domain.item.dto.ItemDto;
-import store.myproject.onlineshop.domain.item.dto.ItemSearchCond;
-import store.myproject.onlineshop.domain.item.dto.ItemUpdateRequest;
+import store.myproject.onlineshop.domain.item.dto.*;
 import store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto;
 import store.myproject.onlineshop.service.ItemService;
 import store.myproject.onlineshop.service.RecipeService;
@@ -42,9 +39,9 @@ public class ItemController {
 
     @Operation(summary = "품목 검색")
     @GetMapping
-    public Response<Page<ItemDto>> searchItem(ItemSearchCond itemSearchCond, Pageable pageable) {
+    public Response<Page<SimpleItemDto>> searchItem(ItemSearchCond itemSearchCond, Pageable pageable) {
 
-        Page<ItemDto> response = itemService.searchItem(itemSearchCond, pageable);
+        Page<SimpleItemDto> response = itemService.searchItem(itemSearchCond, pageable);
 
         return Response.success(response);
     }

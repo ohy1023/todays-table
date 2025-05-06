@@ -10,7 +10,6 @@ import java.math.BigDecimal;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
 public class CartItemResponse {
 
@@ -18,7 +17,7 @@ public class CartItemResponse {
 
     private String itemName;
 
-    private String imagePath;
+    private String thumbnail;
 
     private BigDecimal price;
 
@@ -27,9 +26,10 @@ public class CartItemResponse {
     private Long itemCnt;
 
     @QueryProjection
-    public CartItemResponse(Long itemId, String itemName, BigDecimal price, Long stock, Long itemCnt) {
+    public CartItemResponse(Long itemId, String itemName, String thumbnail, BigDecimal price, Long stock, Long itemCnt) {
         this.itemId = itemId;
         this.itemName = itemName;
+        this.thumbnail = thumbnail;
         this.price = price;
         this.stock = stock;
         this.itemCnt = itemCnt;

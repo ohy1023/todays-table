@@ -6,6 +6,7 @@ import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.item.dto.ItemCreateRequest;
 import store.myproject.onlineshop.domain.item.dto.ItemDto;
 import store.myproject.onlineshop.domain.item.dto.ItemUpdateRequest;
+import store.myproject.onlineshop.domain.item.dto.SimpleItemDto;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -15,15 +16,6 @@ public class ItemFixture {
 
     private static final Faker faker = new Faker(Locale.KOREA);
 
-    public static Item createItemEntity(Brand brand) {
-        return Item.builder()
-                .id(1L)
-                .itemName(faker.company().name())
-                .price(BigDecimal.valueOf(3000))
-                .stock(40L)
-                .brand(brand)
-                .build();
-    }
 
     public static Item createItem(Brand brand) {
 
@@ -46,6 +38,15 @@ public class ItemFixture {
                         faker.internet().image(),
                         faker.internet().image()
                 ))
+                .build();
+    }
+
+    public static SimpleItemDto createSimpleItemDto() {
+        return SimpleItemDto.builder()
+                .itemId(faker.number().numberBetween(1L, 1000L))
+                .itemName(faker.company().name())
+                .thumbnail(faker.internet().image())
+                .price(BigDecimal.valueOf(faker.number().numberBetween(1L, 1000L)))
                 .build();
     }
 

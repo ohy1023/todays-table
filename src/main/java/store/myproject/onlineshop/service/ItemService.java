@@ -12,14 +12,11 @@ import org.springframework.web.multipart.MultipartFile;
 import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.brand.Brand;
+import store.myproject.onlineshop.domain.item.dto.*;
 import store.myproject.onlineshop.repository.brand.BrandRepository;
 import store.myproject.onlineshop.domain.imagefile.ImageFile;
 import store.myproject.onlineshop.repository.imagefile.ImageFileRepository;
 import store.myproject.onlineshop.domain.item.Item;
-import store.myproject.onlineshop.domain.item.dto.ItemCreateRequest;
-import store.myproject.onlineshop.domain.item.dto.ItemDto;
-import store.myproject.onlineshop.domain.item.dto.ItemSearchCond;
-import store.myproject.onlineshop.domain.item.dto.ItemUpdateRequest;
 import store.myproject.onlineshop.repository.item.ItemRepository;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.utils.FileUtils;
@@ -54,7 +51,7 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ItemDto> searchItem(ItemSearchCond itemSearchCond, Pageable pageable) {
+    public Page<SimpleItemDto> searchItem(ItemSearchCond itemSearchCond, Pageable pageable) {
         return itemRepository.search(itemSearchCond, pageable);
     }
 

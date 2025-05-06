@@ -92,7 +92,8 @@ public class SecurityConfiguration {
                                 "/api/v1/orders/*",
                                 "/api/v1/orders/search",
                                 "/api/v1/recipes/*",
-                                "/api/v1/carts"
+                                "/api/v1/carts",
+                                "/api/v1/items"
                         ).authenticated()
 
                         .requestMatchers(HttpMethod.POST,

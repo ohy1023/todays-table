@@ -11,8 +11,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.brand.dto.BrandInfo;
+import store.myproject.onlineshop.domain.imagefile.ImageFile;
 import store.myproject.onlineshop.fixture.BrandFixture;
+import store.myproject.onlineshop.fixture.ImageFileFixture;
 import store.myproject.onlineshop.global.config.TestConfig;
+import store.myproject.onlineshop.repository.imagefile.ImageFileRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +29,8 @@ class BrandRepositoryTest {
 
     @Autowired
     BrandRepository brandRepository;
+    @Autowired
+    private ImageFileRepository imageFileRepository;
 
     @Nested
     @DisplayName("브랜드 이름으로 조회")
@@ -96,6 +101,8 @@ class BrandRepositoryTest {
             // given
             Brand brand = BrandFixture.createBrand();
             brandRepository.save(brand);
+            ImageFile imageFile = ImageFileFixture.withBrand(brand);
+            imageFileRepository.save(imageFile);
 
             // when
             Page<BrandInfo> result = brandRepository.search(brand.getName(), PageRequest.of(0, 10));
@@ -123,7 +130,15 @@ class BrandRepositoryTest {
                     BrandFixture.createBrand(),
                     BrandFixture.createBrand()
             );
+
             brandRepository.saveAll(brands);
+
+            List<ImageFile> imageFiles = List.of(
+                    ImageFileFixture.withBrand(brands.get(0)),
+                    ImageFileFixture.withBrand(brands.get(1))
+            );
+
+            imageFileRepository.saveAll(imageFiles);
 
             // when
             Page<BrandInfo> result = brandRepository.search(null, PageRequest.of(0, 10));

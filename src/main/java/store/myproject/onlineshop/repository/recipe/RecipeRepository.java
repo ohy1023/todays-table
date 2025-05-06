@@ -21,8 +21,8 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long>, RecipeCus
                     r.thumbnailUrl,
                     rm.id,
                     rm.viewCnt,
-                    rm.likeCnt,
-                    rm.reviewCnt
+                    rm.reviewCnt,
+                    rm.likeCnt
                 )
                 from Recipe r
                 join r.recipeMeta rm
