@@ -5,12 +5,15 @@ import store.myproject.onlineshop.domain.orderitem.OrderItem;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderInfo {
+
+    private UUID uuid;
 
     private String brandName;
 

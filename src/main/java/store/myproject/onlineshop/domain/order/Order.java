@@ -14,6 +14,8 @@ import store.myproject.onlineshop.domain.delivery.DeliveryStatus;
 import store.myproject.onlineshop.domain.order.dto.OrderInfo;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
 import store.myproject.onlineshop.exception.AppException;
+import store.myproject.onlineshop.global.utils.UUIDBinaryConverter;
+import store.myproject.onlineshop.global.utils.UUIDGenerator;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -21,12 +23,18 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static store.myproject.onlineshop.domain.order.OrderStatus.*;
 import static store.myproject.onlineshop.exception.ErrorCode.ALREADY_ARRIVED;
 
 @Entity
-@Table(name = "Orders")
+@Table(
+        name = "Orders",
+        indexes = {
+                @Index(name = "idx_order_uuid", columnList = "order_uuid"),
+        }
+)
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -37,6 +45,10 @@ public class Order extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "orders_id")
     private Long id;
+
+    @Column(name = "order_uuid", nullable = false, unique = true, columnDefinition = "BINARY(16)")
+    @Convert(converter = UUIDBinaryConverter.class)
+    private UUID uuid;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
@@ -136,6 +148,7 @@ public class Order extends BaseEntity {
         String address = this.delivery.getAddress().getCity() + " " + this.delivery.getAddress().getStreet() + " " + this.delivery.getAddress().getDetail();
 
         return OrderInfo.builder()
+                .uuid(UUIDGenerator.generateUUIDv7())
                 .brandName(this.orderItemList.get(0).getItem().getBrand().getName())
                 .itemName(this.orderItemList.get(0).getItem().getItemName())
                 .orderDate(this.orderDate.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분 ss초")))

@@ -43,7 +43,8 @@ public class CartService {
     public MessageResponse addItemToCart(CartAddRequest request, String email) {
         Customer customer = findCustomerByEmail(email);
         Cart cart = findOrCreateCartByCustomer(customer);
-        Item item = findItemById(request.getItemId());
+        Item item = itemRepository.findByUuid(request.getItemUuid())
+                .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
 
         cartItemRepository.findByCartAndItem(cart, item)
                 .ifPresentOrElse(
@@ -112,14 +113,6 @@ public class CartService {
     private Cart findCartByCustomer(Customer customer) {
         return cartRepository.findByCustomer(customer)
                 .orElseThrow(() -> new AppException(CART_NOT_FOUND));
-    }
-
-    /**
-     * 품목 ID로 조회 (없으면 예외 발생)
-     */
-    private Item findItemById(Long id) {
-        return itemRepository.findById(id)
-                .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
     }
 
     /**

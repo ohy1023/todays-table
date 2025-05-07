@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.Response;
@@ -19,6 +18,7 @@ import store.myproject.onlineshop.service.OrderService;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -30,12 +30,12 @@ public class OrderController {
     private final OrderService orderService;
 
     @Operation(summary = "단건 주문 조회")
-    @GetMapping("/{orderId}")
-    public Response<OrderInfo> findOneOrder(@PathVariable Long orderId, Authentication authentication) {
+    @GetMapping("/{uuid}")
+    public Response<OrderInfo> findOneOrder(@PathVariable UUID uuid, Authentication authentication) {
 
         String email = authentication.getName();
 
-        OrderInfo response = orderService.getOrderById(orderId, email);
+        OrderInfo response = orderService.getOrderByUuid(uuid, email);
 
         return Response.success(response);
     }
@@ -63,9 +63,9 @@ public class OrderController {
     }
 
     @Operation(summary = "해당 주문의 배송지 변경")
-    @PutMapping("/{orderId}")
-    public Response<MessageResponse> changeDeliveryInfo(@PathVariable Long orderId, @RequestBody DeliveryUpdateRequest request) {
-        return Response.success(orderService.updateDeliveryAddress(orderId, request));
+    @PutMapping("/{uuid}")
+    public Response<MessageResponse> changeDeliveryInfo(@PathVariable UUID uuid, @RequestBody DeliveryUpdateRequest request) {
+        return Response.success(orderService.updateDeliveryAddress(uuid, request));
     }
 
     @Operation(summary = "장바구니 내 품목 구매")

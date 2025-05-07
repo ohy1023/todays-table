@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static store.myproject.onlineshop.domain.MessageCode.ORDER_POST_VERIFICATION;
 import static store.myproject.onlineshop.exception.ErrorCode.*;
@@ -78,9 +79,9 @@ public class OrderService {
 
     // 주문 단건 조회
     @Transactional(readOnly = true)
-    public OrderInfo getOrderById(Long orderId, String email) {
+    public OrderInfo getOrderByUuid(UUID uuid, String email) {
         Customer customer = getCustomerByEmail(email);
-        Order order = orderRepository.findMyOrder(orderId, customer)
+        Order order = orderRepository.findMyOrder(uuid, customer)
                 .orElseThrow(() -> new AppException(ORDER_NOT_FOUND));
         return order.toOrderInfo();
     }
@@ -114,8 +115,8 @@ public class OrderService {
     }
 
     // 배송지 수정
-    public MessageResponse updateDeliveryAddress(Long orderId, DeliveryUpdateRequest request) {
-        Order order = orderRepository.findById(orderId)
+    public MessageResponse updateDeliveryAddress(UUID uuid, DeliveryUpdateRequest request) {
+        Order order = orderRepository.findByUuid(uuid)
                 .orElseThrow(() -> new AppException(ORDER_NOT_FOUND));
 
         order.getDelivery().setInfo(request);

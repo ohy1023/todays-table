@@ -8,15 +8,18 @@ import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.order.Order;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long>, OrderCustomRepository {
 
-    @Query("select o from Order o join fetch o.delivery d join fetch o.orderItemList oi join fetch oi.item i join fetch i.brand b where o.id = :orderId and o.customer = :customer")
-    Optional<Order> findMyOrder(@Param("orderId") Long orderId, @Param("customer") Customer customer);
+    @Query("select o from Order o join fetch o.delivery d join fetch o.orderItemList oi join fetch oi.item i join fetch i.brand b where o.uuid = :uuid and o.customer = :customer")
+    Optional<Order> findMyOrder(@Param("uuid") UUID uuid, @Param("customer") Customer customer);
 
     Optional<Order> findByMerchantUid(String merchantUid);
 
     Long countByMerchantUid(String merchantUid);
+
+    Optional<Order> findByUuid(UUID uuid);
 
 }
