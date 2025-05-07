@@ -6,6 +6,7 @@ import lombok.*;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.recipe.Recipe;
 import store.myproject.onlineshop.domain.recipemeta.RecipeMeta;
+import store.myproject.onlineshop.global.utils.UUIDGenerator;
 
 import java.util.List;
 
@@ -38,6 +39,7 @@ public class RecipeCreateRequest {
 
     public Recipe toEntity(Customer customer) {
         return Recipe.builder()
+                .uuid(UUIDGenerator.generateUUIDv7())
                 .recipeTitle(recipeTitle)
                 .recipeDescription(recipeDescription)
                 .customer(customer)

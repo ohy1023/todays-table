@@ -3,8 +3,6 @@ package store.myproject.onlineshop.domain.recipe.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
-import store.myproject.onlineshop.domain.customer.Customer;
-import store.myproject.onlineshop.domain.recipe.Recipe;
 
 import java.util.List;
 
@@ -34,15 +32,5 @@ public class RecipeUpdateRequest {
 
     @NotEmpty
     private List<RecipeStepRequest> steps;
-
-    public Recipe toEntity(Customer customer) {
-        return Recipe.builder()
-                .recipeTitle(recipeTitle)
-                .recipeDescription(recipeDescription)
-                .customer(customer)
-                .recipeCookingTime(recipeCookingTime)
-                .recipeServings(recipeServings)
-                .build();
-    }
 
 }

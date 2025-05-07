@@ -3,11 +3,11 @@ package store.myproject.onlineshop.repository.recipestep;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import store.myproject.onlineshop.domain.recipeitem.dto.RecipeItemDto;
 import store.myproject.onlineshop.domain.recipestep.RecipeStep;
 import store.myproject.onlineshop.domain.recipestep.dto.RecipeStepDto;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface RecipeStepRepository extends JpaRepository<RecipeStep, Long> {
 
@@ -18,8 +18,8 @@ public interface RecipeStepRepository extends JpaRepository<RecipeStep, Long> {
                     s.imageUrl
                 )
                 from RecipeStep s
-                where s.recipe.id = :recipeId
+                where s.recipe.uuid = :recipUuid
                 order by s.stepOrder asc
             """)
-    List<RecipeStepDto> findStepsByRecipeId(@Param("recipeId") Long recipeId);
+    List<RecipeStepDto> findStepsByRecipeUuid(@Param("recipUuid") UUID recipUuid);
 }

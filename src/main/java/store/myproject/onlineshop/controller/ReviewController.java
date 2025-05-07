@@ -13,6 +13,8 @@ import store.myproject.onlineshop.domain.Response;
 import store.myproject.onlineshop.domain.review.dto.*;
 import store.myproject.onlineshop.service.RecipeService;
 
+import java.util.UUID;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/recipes")
@@ -22,39 +24,39 @@ public class ReviewController {
     private final RecipeService recipeService;
 
     @Operation(summary = "댓글 조회")
-    @GetMapping("/{recipeId}/reviews")
-    public Response<Page<ReviewResponse>> getReview(@PathVariable Long recipeId, Pageable pageable) {
-        return Response.success(recipeService.getRecipeReviews(recipeId, pageable));
+    @GetMapping("/{recipeUuid}/reviews")
+    public Response<Page<ReviewResponse>> getReview(@PathVariable UUID recipeUuid, Pageable pageable) {
+        return Response.success(recipeService.getRecipeReviews(recipeUuid, pageable));
     }
 
     @Operation(summary = "대댓글 더보기")
-    @GetMapping("/{recipeId}/reviews/{parentReviewId}/replies")
+    @GetMapping("/{recipeUuid}/reviews/{reviewUuid}/replies")
     public Response<Page<ChildReviewResponse>> getChildReviews(
-            @PathVariable Long recipeId,
-            @PathVariable Long parentReviewId,
+            @PathVariable UUID recipeUuid,
+            @PathVariable UUID reviewUuid,
             Pageable pageable
     ) {
-        return Response.success(recipeService.getChildReviews(recipeId, parentReviewId, pageable));
+        return Response.success(recipeService.getChildReviews(recipeUuid, reviewUuid, pageable));
     }
 
     @Operation(summary = "댓글 작성")
-    @PostMapping("/{id}/reviews")
-    public Response<MessageResponse> writeReview(@PathVariable Long id, @Valid @RequestBody ReviewWriteRequest request, Authentication authentication) {
+    @PostMapping("/{recipeUuid}/reviews")
+    public Response<MessageResponse> writeReview(@PathVariable UUID recipeUuid, @Valid @RequestBody ReviewWriteRequest request, Authentication authentication) {
         String email = authentication.getName();
-        return Response.success(recipeService.createReview(email, id, request));
+        return Response.success(recipeService.createReview(email, recipeUuid, request));
     }
 
     @Operation(summary = "댓글 수정")
-    @PutMapping("/{id}/reviews/{reviewId}")
-    public Response<MessageResponse> modifyReview(@PathVariable Long id, @PathVariable Long reviewId, @Valid @RequestBody ReviewUpdateRequest request, Authentication authentication) {
+    @PutMapping("/{recipeUuid}/reviews/{reviewUuid}")
+    public Response<MessageResponse> modifyReview(@PathVariable UUID recipeUuid, @PathVariable UUID reviewUuid, @Valid @RequestBody ReviewUpdateRequest request, Authentication authentication) {
         String email = authentication.getName();
-        return Response.success(recipeService.updateReview(email, id, reviewId, request));
+        return Response.success(recipeService.updateReview(email, recipeUuid, reviewUuid, request));
     }
 
     @Operation(summary = "댓글 삭제")
-    @DeleteMapping("/{id}/reviews/{reviewId}")
-    public Response<MessageResponse> deleteReview(@PathVariable Long id, @PathVariable Long reviewId, Authentication authentication) {
+    @DeleteMapping("/{recipeUuid}/reviews/{reviewUuid}")
+    public Response<MessageResponse> deleteReview(@PathVariable UUID recipeUuid, @PathVariable UUID reviewUuid, Authentication authentication) {
         String email = authentication.getName();
-        return Response.success(recipeService.deleteReview(email, id, reviewId));
+        return Response.success(recipeService.deleteReview(email, recipeUuid, reviewUuid));
     }
 }

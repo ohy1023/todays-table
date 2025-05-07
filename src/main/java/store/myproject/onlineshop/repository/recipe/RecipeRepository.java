@@ -7,19 +7,19 @@ import store.myproject.onlineshop.domain.recipe.Recipe;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeDto;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public interface RecipeRepository extends JpaRepository<Recipe, Long>, RecipeCustomRepository {
 
     @Query("""
                 select new store.myproject.onlineshop.domain.recipe.dto.RecipeDto(
-                    r.id,
+                    r.uuid,
                     r.recipeTitle,
                     r.recipeDescription,
                     r.recipeCookingTime,
                     r.recipeServings,
                     c.nickName,
                     r.thumbnailUrl,
-                    rm.id,
                     rm.viewCnt,
                     rm.reviewCnt,
                     rm.likeCnt
@@ -27,10 +27,12 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long>, RecipeCus
                 from Recipe r
                 join r.recipeMeta rm
                 join r.customer c
-                where r.id = :recipeId
+                where r.uuid = :recipeUuid
             """)
-    Optional<RecipeDto> findRecipeDtoById(@Param("recipeId") Long recipeId);
+    Optional<RecipeDto> findRecipeDtoByUuid(@Param("recipeUuid") UUID recipeUuid);
 
-    @Query("SELECT r FROM Recipe r JOIN FETCH r.recipeMeta WHERE r.id = :id")
-    Optional<Recipe> findByIdWithMeta(@Param("id") Long id);
+    @Query("SELECT r FROM Recipe r JOIN FETCH r.recipeMeta WHERE r.uuid = :uuid")
+    Optional<Recipe> findByIdWithMeta(@Param("uuid") UUID uuid);
+
+    Optional<Recipe> findByUuid(UUID uuid);
 }

@@ -9,6 +9,8 @@ import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.Response;
 import store.myproject.onlineshop.service.RecipeService;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/recipes")
@@ -18,10 +20,10 @@ public class LikeController {
     private final RecipeService recipeService;
 
     @Operation(summary = "해당 레시피 좋아요/취소 누르기")
-    @PostMapping("/{id}/likes")
-    public Response<MessageResponse> pushLike(@PathVariable Long id, Authentication authentication) {
+    @PostMapping("/{uuid}/likes")
+    public Response<MessageResponse> pushLike(@PathVariable UUID uuid, Authentication authentication) {
         String email = authentication.getName();
 
-        return Response.success(recipeService.toggleLike(id, email));
+        return Response.success(recipeService.toggleLike(uuid, email));
     }
 }

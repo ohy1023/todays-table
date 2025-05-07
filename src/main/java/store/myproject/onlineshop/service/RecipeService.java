@@ -35,6 +35,7 @@ import store.myproject.onlineshop.global.utils.MessageUtil;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static store.myproject.onlineshop.exception.ErrorCode.CUSTOMER_NOT_FOUND;
@@ -64,17 +65,17 @@ public class RecipeService {
      * 단일 레시피 정보를 조회하고 조회수를 증가시킵니다.
      */
     @Transactional(readOnly = true)
-    public RecipeDto getRecipeDetail(Long recipeId) {
-        RecipeDto recipeDto = recipeRepository.findRecipeDtoById(recipeId)
+    public RecipeDto getRecipeDetail(UUID recipeUuid) {
+        RecipeDto recipeDto = recipeRepository.findRecipeDtoByUuid(recipeUuid)
                 .orElseThrow(() -> new AppException(RECIPE_NOT_FOUND));
 
-        List<RecipeStepDto> stepDtos = recipeStepRepository.findStepsByRecipeId(recipeId);
-        List<RecipeItemDto> itemDtos = recipeItemRepository.findItemsByRecipeId(recipeId);
+        List<RecipeStepDto> stepDtos = recipeStepRepository.findStepsByRecipeUuid(recipeUuid);
+        List<RecipeItemDto> itemDtos = recipeItemRepository.findItemsByRecipeUuid(recipeUuid);
 
         recipeDto.setSteps(stepDtos);
         recipeDto.setItems(itemDtos);
 
-        recipeMetaService.asyncIncreaseViewCnt(recipeDto.getRecipeMetaId());
+//        recipeMetaService.asyncIncreaseViewCnt(recipeDto.getRecipeMetaUuid());
 
         return recipeDto;
     }
@@ -97,15 +98,15 @@ public class RecipeService {
         recipe.addSteps(mapToRecipeSteps(request.getSteps()));
         applyThumbnail(recipe, request.getThumbnailUrl());
         recipeRepository.save(recipe);
-        return new MessageResponse(messageUtil.get(MessageCode.RECIPE_ADDED));
+        return new MessageResponse(recipe.getUuid(), messageUtil.get(MessageCode.RECIPE_ADDED));
     }
 
     /**
      * 레시피를 수정합니다. 모든 정보는 덮어쓰기 방식으로 갱신됩니다.
      */
-    public MessageResponse updateRecipe(Long recipeId, RecipeUpdateRequest request, String email) {
+    public MessageResponse updateRecipe(UUID recipeUuid, RecipeUpdateRequest request, String email) {
         Customer customer = getCustomerByEmail(email);
-        Recipe recipe = getRecipeById(recipeId);
+        Recipe recipe = getRecipeByUuid(recipeUuid);
         validatePermission(customer, recipe.getCustomer());
         recipe.updateRecipe(request);
         recipe.getItemList().clear();
@@ -113,25 +114,25 @@ public class RecipeService {
         recipe.addItems(mapToRecipeItems(request.getItemIdList()));
         recipe.addSteps(mapToRecipeSteps(request.getSteps()));
         applyThumbnail(recipe, request.getThumbnailUrl());
-        return new MessageResponse(messageUtil.get(MessageCode.RECIPE_MODIFIED));
+        return new MessageResponse(recipe.getUuid(), messageUtil.get(MessageCode.RECIPE_MODIFIED));
     }
 
     /**
      * 레시피를 삭제합니다. 관리자 또는 작성자만 삭제할 수 있습니다.
      */
-    public MessageResponse deleteRecipe(Long recipeId, String email) {
+    public MessageResponse deleteRecipe(UUID recipeUuid, String email) {
         Customer customer = getCustomerByEmail(email);
-        Recipe recipe = getRecipeById(recipeId);
+        Recipe recipe = getRecipeByUuid(recipeUuid);
         validatePermission(customer, recipe.getCustomer());
         recipeRepository.delete(recipe);
-        return new MessageResponse(messageUtil.get(MessageCode.RECIPE_DELETED));
+        return new MessageResponse(recipe.getUuid(), messageUtil.get(MessageCode.RECIPE_DELETED));
     }
 
     /**
      * 해당 레시피에 작성된 댓글과 대댓글 일부를 조회합니다.
      */
-    public Page<ReviewResponse> getRecipeReviews(Long recipeId, Pageable pageable) {
-        Recipe recipe = getRecipeById(recipeId);
+    public Page<ReviewResponse> getRecipeReviews(UUID recipeUuid, Pageable pageable) {
+        Recipe recipe = getRecipeByUuid(recipeUuid);
         Page<Review> parents = reviewRepository.findParentReviews(recipe.getId(), pageable);
         List<Long> parentIds = parents.stream().map(Review::getId).toList();
         Map<Long, List<Review>> childMap = reviewRepository.findTop3ChildReviews(parentIds, PageRequest.of(0, 3))
@@ -143,62 +144,62 @@ public class RecipeService {
     /**
      * 특정 댓글의 모든 대댓글을 조회합니다.
      */
-    public Page<ChildReviewResponse> getChildReviews(Long recipeId, Long parentReviewId, Pageable pageable) {
-        getRecipeById(recipeId);
-        Review parent = getReviewById(parentReviewId);
-        if (!parent.getRecipe().getId().equals(recipeId)) {
+    public Page<ChildReviewResponse> getChildReviews(UUID recipeUuid, UUID reviewUuid, Pageable pageable) {
+        getRecipeByUuid(recipeUuid);
+        Review parent = getReviewByUuid(reviewUuid);
+        if (!parent.getRecipe().getId().equals(recipeUuid)) {
             throw new AppException(INVALID_REVIEW);
         }
-        return reviewRepository.findByParentId(parentReviewId, pageable)
+        return reviewRepository.findByParentId(parent.getParentId(), pageable)
                 .map(this::toChildReviewDto);
     }
 
     /**
      * 댓글 또는 대댓글을 작성합니다.
      */
-    public MessageResponse createReview(String email, Long recipeId, ReviewWriteRequest request) {
+    public MessageResponse createReview(String email, UUID recipeUuid, ReviewWriteRequest request) {
         Customer customer = getCustomerByEmail(email);
-        Recipe recipe = getRecipeWithMeta(recipeId);
+        Recipe recipe = getRecipeWithMeta(recipeUuid);
         Long parentId = Optional.ofNullable(request.getReviewParentId()).orElse(0L);
         Review review = request.toEntity(parentId, request.getReviewContent(), customer, recipe);
         review.addReviewToRecipe(recipe);
         reviewRepository.save(review);
         recipeMetaService.asyncIncreaseReviewCnt(recipe.getRecipeMeta().getId());
-        return new MessageResponse(messageUtil.get(MessageCode.RECIPE_REVIEW_ADDED));
+        return new MessageResponse(review.getUuid(), messageUtil.get(MessageCode.RECIPE_REVIEW_ADDED));
     }
 
     /**
      * 댓글을 수정합니다.
      */
-    public MessageResponse updateReview(String email, Long recipeId, Long reviewId, ReviewUpdateRequest request) {
+    public MessageResponse updateReview(String email, UUID recipeUuid, UUID reviewUuid, ReviewUpdateRequest request) {
         Customer customer = getCustomerByEmail(email);
-        getRecipeById(recipeId);
-        Review review = getReviewById(reviewId);
+        getRecipeByUuid(recipeUuid);
+        Review review = getReviewByUuid(reviewUuid);
         validatePermission(customer, review.getCustomer());
         review.updateReview(request);
-        return new MessageResponse(messageUtil.get(MessageCode.RECIPE_REVIEW_MODIFIED));
+        return new MessageResponse(review.getUuid(), messageUtil.get(MessageCode.RECIPE_REVIEW_MODIFIED));
     }
 
     /**
      * 댓글을 삭제합니다. 작성자 또는 관리자만 가능합니다.
      */
-    public MessageResponse deleteReview(String email, Long recipeId, Long reviewId) {
+    public MessageResponse deleteReview(String email, UUID recipeUuid, UUID reviewUuid) {
         Customer customer = getCustomerByEmail(email);
-        Recipe recipe = getRecipeWithMeta(recipeId);
-        Review review = getReviewById(reviewId);
+        Recipe recipe = getRecipeWithMeta(recipeUuid);
+        Review review = getReviewByUuid(reviewUuid);
         validatePermission(customer, review.getCustomer());
         review.removeReviewToRecipe();
         reviewRepository.delete(review);
         recipeMetaService.asyncDecreaseReviewCnt(recipe.getRecipeMeta().getId());
-        return new MessageResponse(messageUtil.get(MessageCode.RECIPE_REVIEW_DELETED));
+        return new MessageResponse(review.getUuid(), messageUtil.get(MessageCode.RECIPE_REVIEW_DELETED));
     }
 
     /**
      * 좋아요 토글 처리합니다. 이미 눌렀으면 삭제, 아니면 추가.
      */
-    public MessageResponse toggleLike(Long recipeId, String email) {
+    public MessageResponse toggleLike(UUID recipeUuid, String email) {
         Customer customer = getCustomerByEmail(email);
-        Recipe recipe = getRecipeWithMeta(recipeId);
+        Recipe recipe = getRecipeWithMeta(recipeUuid);
         Optional<Like> like = likeRepository.findByRecipeAndCustomer(recipe, customer);
         if (like.isPresent()) {
             likeRepository.delete(like.get());
@@ -220,8 +221,8 @@ public class RecipeService {
     /**
      * 특정 아이템을 사용하는 레시피 목록 조회
      */
-    public Page<SimpleRecipeDto> getRecipesByItem(Long itemId, Pageable pageable) {
-        return recipeRepository.findRecipeUseItem(itemId, pageable);
+    public Page<SimpleRecipeDto> getRecipesByItem(UUID itemUuid, Pageable pageable) {
+        return recipeRepository.findRecipeUseItem(itemUuid, pageable);
     }
 
     /**
@@ -304,8 +305,8 @@ public class RecipeService {
     /**
      * ID로 레시피 조회
      */
-    private Recipe getRecipeById(Long id) {
-        return recipeRepository.findById(id).orElseThrow(() -> new AppException(RECIPE_NOT_FOUND));
+    private Recipe getRecipeByUuid(UUID uuid) {
+        return recipeRepository.findByUuid(uuid).orElseThrow(() -> new AppException(RECIPE_NOT_FOUND));
     }
 
     /**
@@ -318,21 +319,21 @@ public class RecipeService {
     /**
      * ID로 아이템 조회
      */
-    private Item getItemById(Long id) {
-        return itemRepository.findById(id).orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
+    private Item getItemById(Long itemId) {
+        return itemRepository.findById(itemId).orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
     }
 
     /**
      * ID로 리뷰 조회
      */
-    private Review getReviewById(Long id) {
-        return reviewRepository.findById(id).orElseThrow(() -> new AppException(REVIEW_NOT_FOUND));
+    private Review getReviewByUuid(UUID uuid) {
+        return reviewRepository.findByUuid(uuid).orElseThrow(() -> new AppException(REVIEW_NOT_FOUND));
     }
 
     /**
      * 레시피 조회 (with. meta)
      */
-    private Recipe getRecipeWithMeta(Long recipeId) {
-        return recipeRepository.findByIdWithMeta(recipeId).orElseThrow(() -> new AppException(RECIPE_NOT_FOUND));
+    private Recipe getRecipeWithMeta(UUID recipeUuid) {
+        return recipeRepository.findByIdWithMeta(recipeUuid).orElseThrow(() -> new AppException(RECIPE_NOT_FOUND));
     }
 }

@@ -8,6 +8,9 @@ import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.recipe.Recipe;
 import store.myproject.onlineshop.domain.review.dto.ReviewUpdateRequest;
+import store.myproject.onlineshop.global.utils.UUIDBinaryConverter;
+
+import java.util.UUID;
 
 import static jakarta.persistence.FetchType.*;
 
@@ -19,12 +22,21 @@ import static jakarta.persistence.FetchType.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Where(clause = "deleted_date IS NULL")
 @SQLDelete(sql = "UPDATE Review SET deleted_date = CURRENT_TIMESTAMP WHERE review_id = ?")
+@Table(
+        indexes = {
+                @Index(name = "idx_review_uuid", columnList = "review_uuid"),
+        }
+)
 public class Review extends BaseEntity {
 
     @Id
     @Column(name = "review_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "review_uuid", nullable = false, unique = true, columnDefinition = "BINARY(16)")
+    @Convert(converter = UUIDBinaryConverter.class)
+    private UUID uuid;
 
     @Column(name = "parent_id")
     private Long parentId;

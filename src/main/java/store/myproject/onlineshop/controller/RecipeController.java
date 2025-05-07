@@ -19,6 +19,8 @@ import store.myproject.onlineshop.domain.recipe.dto.RecipeUpdateRequest;
 import store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto;
 import store.myproject.onlineshop.service.RecipeService;
 
+import java.util.UUID;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -29,9 +31,9 @@ public class RecipeController {
     private final RecipeService recipeService;
 
     @Operation(summary = "레시피 단건 조회")
-    @GetMapping("/{recipeId}")
-    public Response<RecipeDto> viewOneRecipe(@PathVariable Long recipeId) {
-        return Response.success(recipeService.getRecipeDetail(recipeId));
+    @GetMapping("/{uuid}")
+    public Response<RecipeDto> viewOneRecipe(@PathVariable UUID uuid) {
+        return Response.success(recipeService.getRecipeDetail(uuid));
     }
 
     @Operation(summary = "레시피 페이징 조회")
@@ -48,17 +50,17 @@ public class RecipeController {
     }
 
     @Operation(summary = "레시피 수정")
-    @PutMapping(value = "/{recipeId}")
-    public Response<MessageResponse> writeRecipe(@PathVariable Long recipeId, @Valid @RequestBody RecipeUpdateRequest request, Authentication authentication) {
+    @PutMapping(value = "/{uuid}")
+    public Response<MessageResponse> writeRecipe(@PathVariable UUID uuid, @Valid @RequestBody RecipeUpdateRequest request, Authentication authentication) {
         String email = authentication.getName();
-        return Response.success(recipeService.updateRecipe(recipeId, request, email));
+        return Response.success(recipeService.updateRecipe(uuid, request, email));
     }
 
     @Operation(summary = "레시피 삭제")
-    @DeleteMapping("/{recipeId}")
-    public Response<MessageResponse> deleteRecipe(@PathVariable Long recipeId, Authentication authentication) {
+    @DeleteMapping("/{uuid}")
+    public Response<MessageResponse> deleteRecipe(@PathVariable UUID uuid, Authentication authentication) {
         String email = authentication.getName();
-        return Response.success(recipeService.deleteRecipe(recipeId, email));
+        return Response.success(recipeService.deleteRecipe(uuid, email));
     }
 
     @Operation(summary = "이미지 업로드 -> s3 저장 -> URL 반환")

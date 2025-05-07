@@ -7,6 +7,7 @@ import store.myproject.onlineshop.domain.recipeitem.RecipeItem;
 import store.myproject.onlineshop.domain.recipeitem.dto.RecipeItemDto;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface RecipeItemRepository extends JpaRepository<RecipeItem, Long> {
     @Query("""
@@ -20,7 +21,7 @@ public interface RecipeItemRepository extends JpaRepository<RecipeItem, Long> {
                 from RecipeItem ri
                 join ri.item i
                 join i.brand b
-                where ri.recipe.id = :recipeId
+                where ri.recipe.uuid = :recipUuid
             """)
-    List<RecipeItemDto> findItemsByRecipeId(@Param("recipeId") Long recipeId);
+    List<RecipeItemDto> findItemsByRecipeUuid(@Param("recipUuid") UUID recipUuid);
 }

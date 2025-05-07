@@ -12,6 +12,7 @@ import store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto;
 
 
 import java.util.List;
+import java.util.UUID;
 
 import static store.myproject.onlineshop.domain.recipe.QRecipe.recipe;
 import static store.myproject.onlineshop.domain.recipeitem.QRecipeItem.recipeItem;
@@ -26,7 +27,7 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository {
     public Slice<SimpleRecipeDto> findAllSimpleRecipes(Pageable pageable) {
         List<SimpleRecipeDto> content = queryFactory
                 .select(new QSimpleRecipeDto(
-                        recipe.id,
+                        recipe.uuid,
                         recipe.recipeTitle,
                         recipe.recipeDescription,
                         recipe.customer.nickName,
@@ -55,11 +56,11 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository {
     }
 
     @Override
-    public Page<SimpleRecipeDto> findRecipeUseItem(Long itemId, Pageable pageable) {
+    public Page<SimpleRecipeDto> findRecipeUseItem(UUID uuid, Pageable pageable) {
 
         List<SimpleRecipeDto> content = queryFactory
                 .select(new QSimpleRecipeDto(
-                        recipe.id,
+                        recipe.uuid,
                         recipe.recipeTitle,
                         recipe.recipeDescription,
                         recipe.customer.nickName,
@@ -74,7 +75,7 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository {
                 .join(recipe.customer)
                 .join(recipe.recipeMeta)
                 .join(recipe.itemList, recipeItem)
-                .where(recipeItem.item.id.eq(itemId))
+                .where(recipeItem.item.uuid.eq(uuid))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(getOrderSpecifier(pageable))
@@ -83,7 +84,7 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository {
         JPAQuery<Long> countQuery = queryFactory
                 .select(recipe.count())
                 .from(recipe)
-                .where(recipe.itemList.any().item.id.eq(itemId));
+                .where(recipe.itemList.any().item.uuid.eq(uuid));
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }

@@ -66,9 +66,9 @@ public class ItemController {
         return Response.success(itemService.deleteItem(uuid));
     }
 
-//    @Operation(summary = "해당 아이템 사용하는 레시피 목록 조회")
-//    @GetMapping("/{uuid}/recipes")
-//    Response<Page<SimpleRecipeDto>> findRecipesByItem(@PathVariable UUID uuid, Pageable pageable) {
-//        return Response.success(recipeService.getRecipesByItem(uuid, pageable));
-//    }
+    @Operation(summary = "해당 아이템 사용하는 레시피 목록 조회")
+    @GetMapping("/{uuid}/recipes")
+    Response<Page<SimpleRecipeDto>> findRecipesByItem(@PathVariable UUID uuid, Pageable pageable) {
+        return Response.success(recipeService.getRecipesByItem(uuid, pageable));
+    }
 }

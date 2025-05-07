@@ -9,11 +9,15 @@ import store.myproject.onlineshop.domain.review.Review;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     Page<Review> findByParentId(Long parentId, Pageable pageable);
+
+    Optional<Review> findByUuid(UUID uuid);
 
     @Query("SELECT r FROM Review r WHERE r.recipe.id = :recipeId AND r.parentId = 0")
     Page<Review> findParentReviews(@Param("recipeId") Long recipeId, Pageable pageable);

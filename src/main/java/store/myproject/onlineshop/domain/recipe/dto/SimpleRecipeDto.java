@@ -5,11 +5,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Getter
 @NoArgsConstructor
 @Builder
 public class SimpleRecipeDto {
-    private Long recipeId;
+    private UUID recipeUuid;
     private String title; // 제목
     private String recipeDescription; // 소개
     private String thumbnail; // 썸네일
@@ -21,10 +23,10 @@ public class SimpleRecipeDto {
     private Long likeCnt; // 좋아요  수
 
     @QueryProjection
-    public SimpleRecipeDto(Long recipeId, String title, String recipeDescription, String thumbnail,
+    public SimpleRecipeDto(UUID recipeUuid, String title, String recipeDescription, String thumbnail,
                            String writer, String recipeCookingTime, String recipeServings,
                            Long recipeView, Long reviewCnt, Long likeCnt) {
-        this.recipeId = recipeId;
+        this.recipeUuid = recipeUuid;
         this.title = title;
         this.recipeDescription = recipeDescription;
         this.thumbnail = thumbnail;
