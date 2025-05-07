@@ -35,12 +35,7 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
                 .leftJoin(item.imageFileList, imageFile)
                 .where(
                         itemNameContains(itemSearchCond.getItemName()),
-                        brandNameContains(itemSearchCond.getBrandName()),
-                        priceLoe(itemSearchCond.getPriceLoe()),
-                        priceGoe(itemSearchCond.getPriceGoe()),
-                        stockLoe(itemSearchCond.getStockLoe()),
-                        stockGoe(itemSearchCond.getStockGoe()),
-                        betweenCreatedDate(itemSearchCond.getStartDate(), itemSearchCond.getEndDate())
+                        brandNameContains(itemSearchCond.getBrandName())
                 )
                 .groupBy(item.id)
                 .offset(pageable.getOffset())
@@ -52,14 +47,9 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
                 .from(item)
                 .join(item.brand, brand)
                 .where(
-                        item.deletedDate.isNull(),
+//                        item.deletedDate.isNull(),
                         itemNameContains(itemSearchCond.getItemName()),
-                        brandNameContains(itemSearchCond.getBrandName()),
-                        priceLoe(itemSearchCond.getPriceLoe()),
-                        priceGoe(itemSearchCond.getPriceGoe()),
-                        stockLoe(itemSearchCond.getStockLoe()),
-                        stockGoe(itemSearchCond.getStockGoe()),
-                        betweenCreatedDate(itemSearchCond.getStartDate(), itemSearchCond.getEndDate())
+                        brandNameContains(itemSearchCond.getBrandName())
                 );
 
         return PageableExecutionUtils.getPage(itemDtoList, pageable, countQuery::fetchOne);
@@ -71,29 +61,5 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
 
     private BooleanExpression itemNameContains(String itemName) {
         return StringUtils.hasText(itemName) ? item.itemName.contains(itemName) : null;
-    }
-
-    private BooleanExpression priceGoe(Long priceGoe) {
-        return priceGoe == null ? null : item.price.goe(priceGoe);
-    }
-
-    private BooleanExpression priceLoe(Long priceLoe) {
-        return priceLoe == null ? null : item.price.loe(priceLoe);
-    }
-
-    private BooleanExpression stockGoe(Long stockGoe) {
-        return stockGoe == null ? null : item.stock.goe(stockGoe);
-    }
-
-    private BooleanExpression stockLoe(Long stockLoe) {
-        return stockLoe == null ? null : item.stock.loe(stockLoe);
-    }
-
-    private BooleanExpression betweenCreatedDate(LocalDateTime start, LocalDateTime end) {
-
-        if (start == null || end == null) {
-            return null;
-        }
-        return item.createdDate.between(start, end);
     }
 }

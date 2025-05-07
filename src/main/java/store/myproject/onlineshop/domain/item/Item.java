@@ -15,7 +15,6 @@ import store.myproject.onlineshop.domain.recipeitem.RecipeItem;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.utils.UUIDBinaryConverter;
 
-import java.awt.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
