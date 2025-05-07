@@ -20,6 +20,8 @@ import store.myproject.onlineshop.global.utils.FileUtils;
 import store.myproject.onlineshop.repository.brand.BrandRepository;
 import store.myproject.onlineshop.global.utils.MessageUtil;
 
+import java.util.UUID;
+
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 @Slf4j
@@ -37,9 +39,9 @@ public class BrandService {
      * 브랜드 단건 조회 (캐싱 적용)
      */
     @Transactional(readOnly = true)
-    @Cacheable(value = "brands", key = "#id")
-    public BrandInfo findBrandInfoById(Long id) {
-        return findBrandOrThrow(id).toBrandInfo();
+    @Cacheable(value = "brands", key = "#uuid")
+    public BrandInfo findBrandInfoById(UUID uuid) {
+        return findBrandOrThrow(uuid).toBrandInfo();
     }
 
     /**
@@ -63,15 +65,15 @@ public class BrandService {
         image.addBrand(savedBrand);
         imageFileRepository.save(image);
 
-        return new MessageResponse(messageUtil.get(MessageCode.BRAND_ADDED));
+        return new MessageResponse(savedBrand.getUuid(), messageUtil.get(MessageCode.BRAND_ADDED));
     }
 
     /**
      * 브랜드 수정 (이미지 변경 포함, 캐시 초기화)
      */
     @CacheEvict(value = "brands", allEntries = true)
-    public MessageResponse updateBrand(Long id, BrandUpdateRequest request, MultipartFile multipartFile) {
-        Brand brand = findBrandOrThrow(id);
+    public MessageResponse updateBrand(UUID uuid, BrandUpdateRequest request, MultipartFile multipartFile) {
+        Brand brand = findBrandOrThrow(uuid);
 
         if (multipartFile != null) {
             String oldFileName = FileUtils.extractFileName(brand.getImageFile().getImageUrl());
@@ -89,29 +91,29 @@ public class BrandService {
 
         brand.update(request);
 
-        return new MessageResponse(messageUtil.get(MessageCode.BRAND_MODIFIED));
+        return new MessageResponse(brand.getUuid(), messageUtil.get(MessageCode.BRAND_MODIFIED));
     }
 
     /**
      * 브랜드 삭제 (캐시 초기화 및 이미지 삭제 포함)
      */
     @CacheEvict(value = "brands", allEntries = true)
-    public MessageResponse deleteBrand(Long id) {
-        Brand brand = findBrandOrThrow(id);
+    public MessageResponse deleteBrand(UUID uuid) {
+        Brand brand = findBrandOrThrow(uuid);
 
         ImageFile image = brand.getImageFile();
         String fileName = FileUtils.extractFileName(image.getImageUrl());
         awsS3Service.deleteBrandImage(fileName);
 
-        brandRepository.deleteById(id);
-        return new MessageResponse(messageUtil.get(MessageCode.BRAND_DELETED));
+        brandRepository.deleteById(brand.getId());
+        return new MessageResponse(brand.getUuid(), messageUtil.get(MessageCode.BRAND_DELETED));
     }
 
     /**
-     * 브랜드 ID로 조회 (없으면 예외 발생)
+     * 브랜드 UUID로 조회 (없으면 예외 발생)
      */
-    private Brand findBrandOrThrow(Long id) {
-        return brandRepository.findById(id)
+    private Brand findBrandOrThrow(UUID uuid) {
+        return brandRepository.findByUuid(uuid)
                 .orElseThrow(() -> new AppException(BRAND_NOT_FOUND, BRAND_NOT_FOUND.getMessage()));
     }
 

@@ -3,6 +3,9 @@ package store.myproject.onlineshop.domain.brand.dto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import store.myproject.onlineshop.domain.brand.Brand;
+import store.myproject.onlineshop.global.utils.UUIDGenerator;
+
+import java.util.UUID;
 
 @Data
 @Builder
@@ -16,6 +19,7 @@ public class BrandCreateRequest {
     public Brand toEntity() {
         return Brand.builder()
                 .name(this.name)
+                .uuid(UUIDGenerator.generateUUIDv7())
                 .build();
     }
 }

@@ -21,6 +21,8 @@ import store.myproject.onlineshop.domain.Response;
 import store.myproject.onlineshop.domain.brand.dto.*;
 import store.myproject.onlineshop.service.BrandService;
 
+import java.util.UUID;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -35,11 +37,11 @@ public class BrandController {
             @ApiResponse(responseCode = "200", description = "정상적으로 조회됨"),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 브랜드 ID")
     })
-    @GetMapping("/{brandId}")
+    @GetMapping("/{uuid}")
     public Response<BrandInfo> getBrandById(
-            @Parameter(description = "브랜드 ID", example = "1")
-            @PathVariable Long brandId) {
-        BrandInfo brandInfo = brandService.findBrandInfoById(brandId);
+            @Parameter(description = "브랜드 UUID", example = "1")
+            @PathVariable UUID uuid) {
+        BrandInfo brandInfo = brandService.findBrandInfoById(uuid);
         return Response.success(brandInfo);
     }
 
@@ -78,13 +80,13 @@ public class BrandController {
             @ApiResponse(responseCode = "200", description = "브랜드 수정 성공"),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 브랜드 ID")
     })
-    @PutMapping(value = "/{brandId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{uuid}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Response<MessageResponse> updateBrand(
             @Parameter(description = "브랜드 ID", example = "1")
-            @PathVariable Long brandId,
+            @PathVariable UUID uuid,
             @Valid @RequestPart BrandUpdateRequest request,
             @RequestPart(required = false) MultipartFile multipartFile) {
-        return Response.success(brandService.updateBrand(brandId, request, multipartFile));
+        return Response.success(brandService.updateBrand(uuid, request, multipartFile));
     }
 
     @Operation(
@@ -95,10 +97,10 @@ public class BrandController {
             @ApiResponse(responseCode = "200", description = "브랜드 삭제 성공"),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 브랜드 ID")
     })
-    @DeleteMapping("/{brandId}")
+    @DeleteMapping("/{uuid}")
     public Response<MessageResponse> deleteBrand(
             @Parameter(description = "브랜드 ID", example = "1")
-            @PathVariable Long brandId) {
-        return Response.success(brandService.deleteBrand(brandId));
+            @PathVariable UUID uuid) {
+        return Response.success(brandService.deleteBrand(uuid));
     }
 }

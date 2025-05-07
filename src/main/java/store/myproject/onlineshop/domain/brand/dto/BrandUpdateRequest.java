@@ -3,6 +3,7 @@ package store.myproject.onlineshop.domain.brand.dto;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import store.myproject.onlineshop.domain.brand.Brand;
+import store.myproject.onlineshop.global.utils.UUIDGenerator;
 
 @Data
 @Builder
@@ -16,6 +17,7 @@ public class BrandUpdateRequest {
     public Brand toEntity() {
         return Brand.builder()
                 .name(this.name)
+                .uuid(UUIDGenerator.generateUUIDv7())
                 .build();
     }
 

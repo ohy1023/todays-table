@@ -31,7 +31,7 @@ public class BrandRepositoryImpl implements BrandCustomRepository {
 
         List<BrandInfo> brandInfoList = queryFactory
                 .select(new QBrandInfo(
-                        brand.id,
+                        brand.uuid,
                         brand.name,
                         imageFile.imageUrl
                         )

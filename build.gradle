@@ -161,6 +161,9 @@ dependencies {
 
     // 포트원 REST API
     implementation 'com.github.iamport:iamport-rest-client-java:0.2.23'
+
+    // uuid v7
+    implementation 'com.github.f4b6a3:uuid-creator:5.3.2'
 }
 
 
