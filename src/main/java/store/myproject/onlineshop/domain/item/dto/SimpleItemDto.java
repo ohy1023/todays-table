@@ -6,20 +6,21 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Data
 @Builder
 @NoArgsConstructor
 public class SimpleItemDto {
-    private Long itemId;
+    private UUID uuid;
     private String itemName;
     private BigDecimal price;
     private String thumbnail;
     private String brandName;
 
     @QueryProjection
-    public SimpleItemDto(Long itemId, String itemName, BigDecimal price, String thumbnail, String brandName) {
-        this.itemId = itemId;
+    public SimpleItemDto(UUID uuid, String itemName, BigDecimal price, String thumbnail, String brandName) {
+        this.uuid = uuid;
         this.itemName = itemName;
         this.price = price;
         this.thumbnail = thumbnail;

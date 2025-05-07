@@ -29,7 +29,7 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
 
     @Override
     public Page<SimpleItemDto> search(ItemSearchCond itemSearchCond, Pageable pageable) {
-        List<SimpleItemDto> itemDtoList = queryFactory.select(new QSimpleItemDto(item.id, item.itemName, item.price, imageFile.imageUrl.min(), brand.name))
+        List<SimpleItemDto> itemDtoList = queryFactory.select(new QSimpleItemDto(item.uuid, item.itemName, item.price, imageFile.imageUrl.min(), brand.name))
                 .from(item)
                 .join(item.brand, brand)
                 .leftJoin(item.imageFileList, imageFile)

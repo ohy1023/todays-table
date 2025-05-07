@@ -17,6 +17,7 @@ import store.myproject.onlineshop.service.ItemService;
 import store.myproject.onlineshop.service.RecipeService;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -29,10 +30,10 @@ public class ItemController {
     private final RecipeService recipeService;
 
     @Operation(summary = "품목 단건 조회")
-    @GetMapping("/{itemId}")
-    public Response<ItemDto> findItem(@PathVariable Long itemId) {
+    @GetMapping("/{uuid}")
+    public Response<ItemDto> findItem(@PathVariable UUID uuid) {
 
-        ItemDto response = itemService.getItemById(itemId);
+        ItemDto response = itemService.getItem(uuid);
 
         return Response.success(response);
     }
@@ -54,20 +55,20 @@ public class ItemController {
     }
 
     @Operation(summary = "품목 수정")
-    @PutMapping(value = "/{itemId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public Response<MessageResponse> changeItem(@PathVariable Long itemId, @RequestPart ItemUpdateRequest request, @RequestPart(required = false) List<MultipartFile> multipartFileList) {
-        return Response.success(itemService.updateItem(itemId, request, multipartFileList));
+    @PutMapping(value = "/{uuid}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public Response<MessageResponse> changeItem(@PathVariable UUID uuid, @RequestPart ItemUpdateRequest request, @RequestPart(required = false) List<MultipartFile> multipartFileList) {
+        return Response.success(itemService.updateItem(uuid, request, multipartFileList));
     }
 
     @Operation(summary = "품목 삭제")
-    @DeleteMapping("/{itemId}")
-    public Response<MessageResponse> removeItem(@PathVariable Long itemId) {
-        return Response.success(itemService.deleteItem(itemId));
+    @DeleteMapping("/{uuid}")
+    public Response<MessageResponse> removeItem(@PathVariable UUID uuid) {
+        return Response.success(itemService.deleteItem(uuid));
     }
 
-    @Operation(summary = "해당 아이템 사용하는 레시피 목록 조회")
-    @GetMapping("/{itemId}/recipes")
-    Response<Page<SimpleRecipeDto>> findRecipesByItem(@PathVariable Long itemId, Pageable pageable) {
-        return Response.success(recipeService.getRecipesByItem(itemId, pageable));
-    }
+//    @Operation(summary = "해당 아이템 사용하는 레시피 목록 조회")
+//    @GetMapping("/{uuid}/recipes")
+//    Response<Page<SimpleRecipeDto>> findRecipesByItem(@PathVariable UUID uuid, Pageable pageable) {
+//        return Response.success(recipeService.getRecipesByItem(uuid, pageable));
+//    }
 }

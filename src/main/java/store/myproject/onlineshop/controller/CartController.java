@@ -19,6 +19,8 @@ import store.myproject.onlineshop.domain.cart.dto.CartAddRequest;
 import store.myproject.onlineshop.domain.cartitem.dto.CartItemResponse;
 import store.myproject.onlineshop.service.CartService;
 
+import java.util.UUID;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/carts")
@@ -64,13 +66,13 @@ public class CartController {
             @ApiResponse(responseCode = "200", description = "품목 삭제 성공"),
             @ApiResponse(responseCode = "404", description = "해당 품목이 존재하지 않음")
     })
-    @DeleteMapping("/{itemId}")
+    @DeleteMapping("/{uuid}")
     public Response<MessageResponse> deleteItemFromCart(
-            @Parameter(description = "삭제할 품목 ID", example = "1")
-            @PathVariable Long itemId,
+            @Parameter(description = "삭제할 품목 UUID")
+            @PathVariable UUID uuid,
             Authentication authentication) {
         String email = authentication.getName();
-        MessageResponse response = cartService.deleteItemFromCart(itemId, email);
+        MessageResponse response = cartService.deleteItemFromCart(uuid, email);
         return Response.success(response);
     }
 

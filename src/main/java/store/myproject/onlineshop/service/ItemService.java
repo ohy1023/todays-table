@@ -23,6 +23,7 @@ import store.myproject.onlineshop.global.utils.FileUtils;
 import store.myproject.onlineshop.global.utils.MessageUtil;
 
 import java.util.List;
+import java.util.UUID;
 
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
@@ -42,12 +43,12 @@ public class ItemService {
     private final MessageUtil messageUtil;
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "items", key = "#id")
-    public ItemDto getItemById(Long id) {
+    @Cacheable(value = "items", key = "#uuid")
+    public ItemDto getItem(UUID uuid) {
 
-        Item item = getItem(id);
+        Item item = getItemByUuid(uuid);
 
-        return item.toItemDto(getItem(id));
+        return item.toItemDto();
     }
 
     @Transactional(readOnly = true)
@@ -77,13 +78,13 @@ public class ItemService {
             imageFileRepository.save(image);
         }
 
-        return new MessageResponse(messageUtil.get(MessageCode.ITEM_ADDED));
+        return new MessageResponse(savedItem.getUuid(), messageUtil.get(MessageCode.ITEM_ADDED));
     }
 
     @CacheEvict(value = "items", allEntries = true)
-    public MessageResponse updateItem(Long id, ItemUpdateRequest request, List<MultipartFile> multipartFileList) {
+    public MessageResponse updateItem(UUID uuid, ItemUpdateRequest request, List<MultipartFile> multipartFileList) {
 
-        Item findItem = getItem(id);
+        Item findItem = getItemByUuid(uuid);
 
         Brand findBrand = getBrand(request.getBrandName());
 
@@ -109,14 +110,14 @@ public class ItemService {
 
         }
 
-        return new MessageResponse(messageUtil.get(MessageCode.ITEM_MODIFIED));
+        return new MessageResponse(findItem.getUuid(), messageUtil.get(MessageCode.ITEM_MODIFIED));
 
     }
 
     @CacheEvict(value = "items", allEntries = true)
-    public MessageResponse deleteItem(Long id) {
+    public MessageResponse deleteItem(UUID uuid) {
 
-        Item findItem = getItem(id);
+        Item findItem = getItemByUuid(uuid);
 
         for (ImageFile imageFile : findItem.getImageFileList()) {
             String extractFileName = FileUtils.extractFileName(imageFile.getImageUrl());
@@ -128,11 +129,11 @@ public class ItemService {
 
         itemRepository.deleteById(findItem.getId());
 
-        return new MessageResponse(messageUtil.get(MessageCode.ITEM_DELETED));
+        return new MessageResponse(findItem.getUuid(), messageUtil.get(MessageCode.ITEM_DELETED));
     }
 
-    private Item getItem(Long id) {
-        return itemRepository.findById(id)
+    private Item getItemByUuid(UUID uuid) {
+        return itemRepository.findByUuid(uuid)
                 .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
     }
 

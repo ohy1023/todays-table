@@ -21,6 +21,8 @@ import store.myproject.onlineshop.repository.item.ItemRepository;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.utils.MessageUtil;
 
+import java.util.UUID;
+
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 @Slf4j
@@ -77,9 +79,10 @@ public class CartService {
     /**
      * 장바구니에서 특정 품목 삭제
      */
-    public MessageResponse deleteItemFromCart(Long itemId, String email) {
+    public MessageResponse deleteItemFromCart(UUID uuid, String email) {
         findCustomerByEmail(email); // 고객 존재 여부 확인
-        Item item = findItemById(itemId);
+        Item item = itemRepository.findByUuid(uuid)
+                .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
 
         cartItemRepository.deleteByItem(item);
         return new MessageResponse(messageUtil.get(MessageCode.CART_ITEM_DELETED));

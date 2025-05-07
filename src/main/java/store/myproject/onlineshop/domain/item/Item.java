@@ -13,11 +13,13 @@ import store.myproject.onlineshop.domain.item.dto.ItemUpdateRequest;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
 import store.myproject.onlineshop.domain.recipeitem.RecipeItem;
 import store.myproject.onlineshop.exception.AppException;
+import store.myproject.onlineshop.global.utils.UUIDBinaryConverter;
 
 import java.awt.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static jakarta.persistence.FetchType.*;
@@ -31,12 +33,22 @@ import static store.myproject.onlineshop.exception.ErrorCode.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Where(clause = "deleted_date IS NULL")
 @SQLDelete(sql = "UPDATE Item SET deleted_date = CURRENT_TIMESTAMP WHERE item_id = ?")
+@Table(
+        indexes = {
+                @Index(name = "idx_item_uuid", columnList = "item_uuid"),
+                @Index(name = "idx_item_name", columnList = "item_name")
+        }
+)
 public class Item extends BaseEntity {
     // Item 엔티티의 기본 키
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "item_id")
     private Long id;
+
+    @Column(name = "item_uuid", nullable = false, unique = true, columnDefinition = "BINARY(16)")
+    @Convert(converter = UUIDBinaryConverter.class)
+    private UUID uuid;
 
     // 상품의 이름
     @Column(name = "item_name")
@@ -68,7 +80,6 @@ public class Item extends BaseEntity {
     private List<RecipeItem> recipeItemList = new ArrayList<>();
 
 
-
     // 상품의 재고를 감소시키는 메서드
     public void decrease(Long count) {
         if (stock < count) {
@@ -93,13 +104,14 @@ public class Item extends BaseEntity {
     }
 
     // 상품을 DTO로 변환하는 메서드
-    public ItemDto toItemDto(Item item) {
+    public ItemDto toItemDto() {
         return ItemDto.builder()
+                .uuid(this.uuid)
                 .itemName(this.itemName)
                 .price(this.price)
                 .stock(this.stock)
                 .brandName(this.brand.getName())
-                .imageList(item.getImageFileList().stream()
+                .imageList(this.getImageFileList().stream()
                         .map(ImageFile::getImageUrl)
                         .collect(Collectors.toList()))
                 .build();
