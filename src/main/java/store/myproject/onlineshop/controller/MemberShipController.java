@@ -14,6 +14,7 @@ import store.myproject.onlineshop.domain.membership.dto.MemberShipUpdateRequest;
 import store.myproject.onlineshop.service.MemberShipService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,9 +25,9 @@ public class MemberShipController {
     private final MemberShipService memberShipService;
 
     @Operation(summary = "단건 조회")
-    @GetMapping("/{id}")
-    public Response<MemberShipDto> findOneMemberShip(@PathVariable Long id) {
-        MemberShipDto memberShipDto = memberShipService.getMemberShipById(id);
+    @GetMapping("/{uuid}")
+    public Response<MemberShipDto> findOneMemberShip(@PathVariable UUID uuid) {
+        MemberShipDto memberShipDto = memberShipService.getMemberShip(uuid);
 
         return Response.success(memberShipDto);
     }
@@ -48,14 +49,14 @@ public class MemberShipController {
     }
 
     @Operation(summary = "멤버쉽 수정")
-    @PutMapping("/{id}")
-    public Response<MessageResponse> changeMemberShip(@PathVariable Long id, @Valid @RequestBody MemberShipUpdateRequest request) {
-        return Response.success(memberShipService.updateMemberShip(id, request));
+    @PutMapping("/{uuid}")
+    public Response<MessageResponse> changeMemberShip(@PathVariable UUID uuid, @Valid @RequestBody MemberShipUpdateRequest request) {
+        return Response.success(memberShipService.updateMemberShip(uuid, request));
     }
 
     @Operation(summary = "멤버쉽 삭제")
-    @DeleteMapping("/{id}")
-    public Response<MessageResponse> removeMemberShip(@PathVariable Long id) {
-        return Response.success(memberShipService.deleteMemberShip(id));
+    @DeleteMapping("/{uuid}")
+    public Response<MessageResponse> removeMemberShip(@PathVariable UUID uuid) {
+        return Response.success(memberShipService.deleteMemberShip(uuid));
     }
 }

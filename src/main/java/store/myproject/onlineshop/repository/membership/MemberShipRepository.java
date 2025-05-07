@@ -10,6 +10,7 @@ import store.myproject.onlineshop.domain.membership.MemberShip;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface MemberShipRepository extends JpaRepository<MemberShip, Long> {
 
@@ -22,4 +23,6 @@ public interface MemberShipRepository extends JpaRepository<MemberShip, Long> {
 
     @Query("SELECT ms FROM MemberShip ms ORDER BY ms.baseline ASC")
     List<MemberShip> findTopByLowestBaseline(Pageable pageable);
+
+    Optional<MemberShip> findByUuid(UUID uuid);
 }

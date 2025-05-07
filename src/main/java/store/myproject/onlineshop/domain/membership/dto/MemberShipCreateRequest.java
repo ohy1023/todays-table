@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import store.myproject.onlineshop.domain.customer.Level;
 import store.myproject.onlineshop.domain.membership.MemberShip;
+import store.myproject.onlineshop.global.utils.UUIDGenerator;
 
 import java.math.BigDecimal;
 
@@ -25,6 +26,7 @@ public class MemberShipCreateRequest {
 
     public MemberShip toEntity() {
         return MemberShip.builder()
+                .uuid(UUIDGenerator.generateUUIDv7())
                 .level(this.level)
                 .baseline(this.baseline)
                 .discountRate(this.discountRate)

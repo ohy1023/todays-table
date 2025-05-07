@@ -18,6 +18,7 @@ import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.utils.MessageUtil;
 
 import java.util.List;
+import java.util.UUID;
 
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
@@ -33,10 +34,10 @@ public class MemberShipService {
     /**
      * 멤버십 단건 조회 (캐시 적용)
      */
-    @Cacheable(value = "memberships", key = "#id")
+    @Cacheable(value = "memberships", key = "#uuid")
     @Transactional(readOnly = true)
-    public MemberShipDto getMemberShipById(Long id) {
-        MemberShip memberShip = findMemberShipById(id);
+    public MemberShipDto getMemberShip(UUID uuid) {
+        MemberShip memberShip = findMemberShipByUuid(uuid);
         return memberShip.toDto();
     }
 
@@ -68,35 +69,35 @@ public class MemberShipService {
                     throw new AppException(DUPLICATE_MEMBERSHIP, DUPLICATE_MEMBERSHIP.getMessage());
                 });
 
-        memberShipRepository.save(request.toEntity());
-        return new MessageResponse(messageUtil.get(MessageCode.MEMBERSHIP_ADDED));
+        MemberShip memberShip = memberShipRepository.save(request.toEntity());
+        return new MessageResponse(memberShip.getUuid(), messageUtil.get(MessageCode.MEMBERSHIP_ADDED));
     }
 
     /**
      * 멤버십 수정 (캐시 초기화)
      */
     @CacheEvict(value = "memberships", allEntries = true)
-    public MessageResponse updateMemberShip(Long id, MemberShipUpdateRequest request) {
-        MemberShip memberShip = findMemberShipById(id);
+    public MessageResponse updateMemberShip(UUID uuid, MemberShipUpdateRequest request) {
+        MemberShip memberShip = findMemberShipByUuid(uuid);
         memberShip.updateMemberShip(request);
-        return new MessageResponse(messageUtil.get(MessageCode.MEMBERSHIP_MODIFIED));
+        return new MessageResponse(memberShip.getUuid(), messageUtil.get(MessageCode.MEMBERSHIP_MODIFIED));
     }
 
     /**
      * 멤버십 삭제 (캐시 초기화)
      */
     @CacheEvict(value = "memberships", allEntries = true)
-    public MessageResponse deleteMemberShip(Long id) {
-        MemberShip memberShip = findMemberShipById(id);
+    public MessageResponse deleteMemberShip(UUID uuid) {
+        MemberShip memberShip = findMemberShipByUuid(uuid);
         memberShipRepository.deleteById(memberShip.getId());
-        return new MessageResponse(messageUtil.get(MessageCode.MEMBERSHIP_DELETED));
+        return new MessageResponse(memberShip.getUuid(), messageUtil.get(MessageCode.MEMBERSHIP_DELETED));
     }
 
     /**
      * ID로 멤버십 조회 (없으면 예외 발생)
      */
-    private MemberShip findMemberShipById(Long id) {
-        return memberShipRepository.findById(id)
+    private MemberShip findMemberShipByUuid(UUID uuid) {
+        return memberShipRepository.findByUuid(uuid)
                 .orElseThrow(() -> new AppException(MEMBERSHIP_NOT_FOUND, MEMBERSHIP_NOT_FOUND.getMessage()));
     }
 }
