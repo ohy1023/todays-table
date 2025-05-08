@@ -85,7 +85,7 @@ public class CustomerController {
             @ApiResponse(responseCode = "200", description = "회원 정보 수정 성공"),
             @ApiResponse(responseCode = "401", description = "인증 정보 없음")
     })
-    @PatchMapping
+    @PutMapping
     public Response<MessageResponse> modify(@RequestBody CustomerModifyRequest customerModifyRequest, Authentication authentication) {
 
         String email = authentication.getName();
