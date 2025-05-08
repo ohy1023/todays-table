@@ -30,12 +30,12 @@ public class OrderController {
     private final OrderService orderService;
 
     @Operation(summary = "단건 주문 조회")
-    @GetMapping("/{uuid}")
-    public Response<OrderInfo> findOneOrder(@PathVariable UUID uuid, Authentication authentication) {
+    @GetMapping("/{merchantUid}")
+    public Response<OrderInfo> findOneOrder(@PathVariable UUID merchantUid, Authentication authentication) {
 
         String email = authentication.getName();
 
-        OrderInfo response = orderService.getOrderByUuid(uuid, email);
+        OrderInfo response = orderService.getOrderByUuid(merchantUid, email);
 
         return Response.success(response);
     }
@@ -63,9 +63,9 @@ public class OrderController {
     }
 
     @Operation(summary = "해당 주문의 배송지 변경")
-    @PutMapping("/{uuid}")
-    public Response<MessageResponse> changeDeliveryInfo(@PathVariable UUID uuid, @RequestBody DeliveryUpdateRequest request) {
-        return Response.success(orderService.updateDeliveryAddress(uuid, request));
+    @PutMapping("/{merchantUid}")
+    public Response<MessageResponse> changeDeliveryInfo(@PathVariable UUID merchantUid, @RequestBody DeliveryUpdateRequest request) {
+        return Response.success(orderService.updateDeliveryAddress(merchantUid, request));
     }
 
     @Operation(summary = "장바구니 내 품목 구매")
@@ -80,9 +80,9 @@ public class OrderController {
     }
 
     @Operation(summary = "주문 취소")
-    @DeleteMapping("/{orderItemId}")
-    public Response<MessageResponse> cancel(@PathVariable Long orderItemId) throws IamportResponseException, IOException {
-        return Response.success(orderService.cancelOrder(orderItemId));
+    @DeleteMapping("/{merchantUid}")
+    public Response<MessageResponse> cancel(@PathVariable UUID merchantUid, @RequestBody CancelItemRequest request) throws IamportResponseException, IOException {
+        return Response.success(orderService.cancelOrder(merchantUid, request));
     }
 
     @Operation(summary = "사전 검증")

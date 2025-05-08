@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderInfo {
 
-    private UUID uuid;
+    private UUID merchantUid;
 
     private String brandName;
 

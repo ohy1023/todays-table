@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -28,7 +29,7 @@ public class RecipeUpdateRequest {
     private String thumbnailUrl;
 
     @NotEmpty
-    private List<Long> itemIdList;
+    private List<UUID> itemUuidList;
 
     @NotEmpty
     private List<RecipeStepRequest> steps;

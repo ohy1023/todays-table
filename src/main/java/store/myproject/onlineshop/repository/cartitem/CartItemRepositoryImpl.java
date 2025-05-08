@@ -29,7 +29,7 @@ public class CartItemRepositoryImpl implements CartItemCustomRepository {
     public Page<CartItemResponse> findByCartPage(Cart findCart, Pageable pageable) {
         List<CartItemResponse> cartItemResponses = queryFactory
                 .select(new QCartItemResponse(
-                        item.id,
+                        item.uuid,
                         item.itemName,
                         imageFile.imageUrl.min(),
                         item.price,

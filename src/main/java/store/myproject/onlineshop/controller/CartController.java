@@ -66,13 +66,13 @@ public class CartController {
             @ApiResponse(responseCode = "200", description = "품목 삭제 성공"),
             @ApiResponse(responseCode = "404", description = "해당 품목이 존재하지 않음")
     })
-    @DeleteMapping("/{uuid}")
+    @DeleteMapping("/{cartUuid}")
     public Response<MessageResponse> deleteItemFromCart(
             @Parameter(description = "삭제할 품목 UUID")
-            @PathVariable UUID uuid,
+            @PathVariable UUID cartUuid,
             Authentication authentication) {
         String email = authentication.getName();
-        MessageResponse response = cartService.deleteItemFromCart(uuid, email);
+        MessageResponse response = cartService.deleteItemFromCart(cartUuid, email);
         return Response.success(response);
     }
 

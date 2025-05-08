@@ -25,9 +25,9 @@ public class MemberShipController {
     private final MemberShipService memberShipService;
 
     @Operation(summary = "단건 조회")
-    @GetMapping("/{uuid}")
-    public Response<MemberShipDto> findOneMemberShip(@PathVariable UUID uuid) {
-        MemberShipDto memberShipDto = memberShipService.getMemberShip(uuid);
+    @GetMapping("/{membershipUuid}")
+    public Response<MemberShipDto> findOneMemberShip(@PathVariable UUID membershipUuid) {
+        MemberShipDto memberShipDto = memberShipService.getMemberShip(membershipUuid);
 
         return Response.success(memberShipDto);
     }
@@ -49,14 +49,14 @@ public class MemberShipController {
     }
 
     @Operation(summary = "멤버쉽 수정")
-    @PutMapping("/{uuid}")
-    public Response<MessageResponse> changeMemberShip(@PathVariable UUID uuid, @Valid @RequestBody MemberShipUpdateRequest request) {
-        return Response.success(memberShipService.updateMemberShip(uuid, request));
+    @PutMapping("/{membershipUuid}")
+    public Response<MessageResponse> changeMemberShip(@PathVariable UUID membershipUuid, @Valid @RequestBody MemberShipUpdateRequest request) {
+        return Response.success(memberShipService.updateMemberShip(membershipUuid, request));
     }
 
     @Operation(summary = "멤버쉽 삭제")
-    @DeleteMapping("/{uuid}")
-    public Response<MessageResponse> removeMemberShip(@PathVariable UUID uuid) {
-        return Response.success(memberShipService.deleteMemberShip(uuid));
+    @DeleteMapping("/{membershipUuid}")
+    public Response<MessageResponse> removeMemberShip(@PathVariable UUID membershipUuid) {
+        return Response.success(memberShipService.deleteMemberShip(membershipUuid));
     }
 }

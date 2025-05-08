@@ -7,13 +7,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Data
 @Builder
 @NoArgsConstructor
 public class CartItemResponse {
 
-    private Long itemId;
+    private UUID itemUuid;
 
     private String itemName;
 
@@ -26,8 +27,8 @@ public class CartItemResponse {
     private Long itemCnt;
 
     @QueryProjection
-    public CartItemResponse(Long itemId, String itemName, String thumbnail, BigDecimal price, Long stock, Long itemCnt) {
-        this.itemId = itemId;
+    public CartItemResponse(UUID itemUuid, String itemName, String thumbnail, BigDecimal price, Long stock, Long itemCnt) {
+        this.itemUuid = itemUuid;
         this.itemName = itemName;
         this.thumbnail = thumbnail;
         this.price = price;

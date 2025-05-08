@@ -6,8 +6,6 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import org.springframework.context.ApplicationEventPublisher;
 import store.myproject.onlineshop.domain.BaseEntity;
-import store.myproject.onlineshop.domain.alert.AlertType;
-import store.myproject.onlineshop.domain.alert.dto.AlertRequestDto;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.delivery.Delivery;
 import store.myproject.onlineshop.domain.delivery.DeliveryStatus;
@@ -18,10 +16,8 @@ import store.myproject.onlineshop.global.utils.UUIDBinaryConverter;
 import store.myproject.onlineshop.global.utils.UUIDGenerator;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,13 +28,16 @@ import static store.myproject.onlineshop.exception.ErrorCode.ALREADY_ARRIVED;
 @Table(
         name = "Orders",
         indexes = {
-                @Index(name = "idx_order_uuid", columnList = "order_uuid"),
+                @Index(name = "idx_merchant_uid", columnList = "merchant_uid"),
+                @Index(name = "idx_deleted_date", columnList = "deleted_date")
         }
 )
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Where(clause = "deleted_date IS NULL")
+@SQLDelete(sql = "UPDATE Orders SET deleted_date = CURRENT_TIMESTAMP WHERE orders_id = ?")
 public class Order extends BaseEntity {
 
     @Id
@@ -46,22 +45,20 @@ public class Order extends BaseEntity {
     @Column(name = "orders_id")
     private Long id;
 
-    @Column(name = "order_uuid", nullable = false, unique = true, columnDefinition = "BINARY(16)")
+    @Column(name = "merchant_uid", nullable = false, unique = true, columnDefinition = "BINARY(16)")
     @Convert(converter = UUIDBinaryConverter.class)
-    private UUID uuid;
+    private UUID merchantUid;
+
+    @Setter
+    @Column(name = "imp_uid", unique = true, nullable = false)
+    private String impUid;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @Column(name = "order_date")
-    private LocalDateTime orderDate; //주문시간
-
-    @Column(name = "merchant_uid")
-    private String merchantUid;
-
-    @Column(name = "imp_uid")
-    private String impUid;
+    @Column(name = "total_price")
+    private BigDecimal totalPrice;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status")
@@ -85,10 +82,9 @@ public class Order extends BaseEntity {
         orderItem.addOrder(this);
     }
 
-    public void setImpUid(String impUid) {
-        this.impUid = impUid;
+    public void updateOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
     }
-
 
     public void cancel() {
         if (delivery.getStatus().equals(DeliveryStatus.COMP)) {
@@ -101,14 +97,14 @@ public class Order extends BaseEntity {
         }
     }
 
-    public static Order createOrder(String merchantUid, Customer customer, Delivery delivery, OrderItem orderItem) {
+    public static Order createOrder(Customer customer, Delivery delivery, OrderItem orderItem) {
 
         Order order = Order.builder()
                 .customer(customer)
                 .delivery(delivery)
-                .orderDate(LocalDateTime.now())
-                .orderStatus(ORDER)
-                .merchantUid(merchantUid)
+                .totalPrice(orderItem.getTotalPrice())
+                .orderStatus(READY)
+                .merchantUid(UUIDGenerator.generateUUIDv7())
                 .build();
 
         order.setDelivery(delivery);
@@ -118,14 +114,20 @@ public class Order extends BaseEntity {
         return order;
     }
 
-    public static Order createOrders(String merchantUid, Customer customer, Delivery delivery, List<OrderItem> orderItems) {
+    public static Order createOrders(Customer customer, Delivery delivery, List<OrderItem> orderItems) {
+
+        BigDecimal totalPrice = BigDecimal.ZERO;
+
+        for (OrderItem orderItem : orderItems) {
+            totalPrice = totalPrice.add(orderItem.getTotalPrice());
+        }
 
         Order order = Order.builder()
                 .customer(customer)
                 .delivery(delivery)
-                .orderDate(LocalDateTime.now())
-                .orderStatus(ORDER)
-                .merchantUid(merchantUid)
+                .totalPrice(totalPrice)
+                .orderStatus(READY)
+                .merchantUid(UUIDGenerator.generateUUIDv7())
                 .build();
 
         order.setDelivery(delivery);
@@ -139,19 +141,14 @@ public class Order extends BaseEntity {
 
     public OrderInfo toOrderInfo() {
 
-        BigDecimal totalPrice = new BigDecimal(0);
-
-        for (OrderItem orderItem : orderItemList) {
-            totalPrice = totalPrice.add(orderItem.getTotalPrice());
-        }
-
         String address = this.delivery.getAddress().getCity() + " " + this.delivery.getAddress().getStreet() + " " + this.delivery.getAddress().getDetail();
 
         return OrderInfo.builder()
-                .uuid(UUIDGenerator.generateUUIDv7())
+                .merchantUid(this.merchantUid)
                 .brandName(this.orderItemList.get(0).getItem().getBrand().getName())
                 .itemName(this.orderItemList.get(0).getItem().getItemName())
-                .orderDate(this.orderDate.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분 ss초")))
+                .totalPrice(this.totalPrice)
+                .orderDate(this.getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분 ss초")))
                 .orderCustomerName(this.customer.getUserName())
                 .orderCustomerTel(this.customer.getTel())
                 .orderStatus(this.orderStatus.name())
@@ -160,18 +157,7 @@ public class Order extends BaseEntity {
                 .recipientTel(this.delivery.getRecipientTel())
                 .recipientAddress(address)
                 .zipcode(this.delivery.getAddress().getZipcode())
-                .totalPrice(totalPrice)
                 .build();
     }
 
-    public void sendAlertOrderComplete(ApplicationEventPublisher eventPublisher, AlertType alertType) {
-        AlertRequestDto alertRequestDto = AlertRequestDto.builder()
-                .receiver(this.customer)
-                .alertType(alertType)
-                .content("주문이 완료되었습니다.")
-                .url("/order/detail/" + this.id)
-                .build();
-
-        eventPublisher.publishEvent(alertRequestDto);
-    }
 }

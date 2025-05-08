@@ -1,10 +1,7 @@
 package store.myproject.onlineshop.domain.orderitem;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.order.Order;
@@ -19,6 +16,11 @@ import static lombok.AccessLevel.PROTECTED;
 @Builder
 @NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor
+@Table(
+        indexes = {
+                @Index(name = "idx_order_item_order_item", columnList = "order_id, item_id")
+        }
+)
 public class OrderItem {
 
     @Id
@@ -30,6 +32,7 @@ public class OrderItem {
     @JoinColumn(name = "item_id")
     private Item item; //주문 상품
 
+    @Setter
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "order_id")
     private Order order; //주문
@@ -56,10 +59,6 @@ public class OrderItem {
     }
 
     public void addOrder(Order order) {
-        this.order = order;
-    }
-
-    public void setOrder(Order order) {
         this.order = order;
     }
 

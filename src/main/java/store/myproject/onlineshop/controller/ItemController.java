@@ -30,10 +30,10 @@ public class ItemController {
     private final RecipeService recipeService;
 
     @Operation(summary = "품목 단건 조회")
-    @GetMapping("/{uuid}")
-    public Response<ItemDto> findItem(@PathVariable UUID uuid) {
+    @GetMapping("/{itemUuid}")
+    public Response<ItemDto> findItem(@PathVariable UUID itemUuid) {
 
-        ItemDto response = itemService.getItem(uuid);
+        ItemDto response = itemService.getItem(itemUuid);
 
         return Response.success(response);
     }
@@ -55,20 +55,20 @@ public class ItemController {
     }
 
     @Operation(summary = "품목 수정")
-    @PutMapping(value = "/{uuid}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public Response<MessageResponse> changeItem(@PathVariable UUID uuid, @RequestPart ItemUpdateRequest request, @RequestPart(required = false) List<MultipartFile> multipartFileList) {
-        return Response.success(itemService.updateItem(uuid, request, multipartFileList));
+    @PutMapping(value = "/{itemUuid}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public Response<MessageResponse> changeItem(@PathVariable UUID itemUuid, @RequestPart ItemUpdateRequest request, @RequestPart(required = false) List<MultipartFile> multipartFileList) {
+        return Response.success(itemService.updateItem(itemUuid, request, multipartFileList));
     }
 
     @Operation(summary = "품목 삭제")
-    @DeleteMapping("/{uuid}")
-    public Response<MessageResponse> removeItem(@PathVariable UUID uuid) {
-        return Response.success(itemService.deleteItem(uuid));
+    @DeleteMapping("/{itemUuid}")
+    public Response<MessageResponse> removeItem(@PathVariable UUID itemUuid) {
+        return Response.success(itemService.deleteItem(itemUuid));
     }
 
     @Operation(summary = "해당 아이템 사용하는 레시피 목록 조회")
-    @GetMapping("/{uuid}/recipes")
-    Response<Page<SimpleRecipeDto>> findRecipesByItem(@PathVariable UUID uuid, Pageable pageable) {
-        return Response.success(recipeService.getRecipesByItem(uuid, pageable));
+    @GetMapping("/{itemUuid}/recipes")
+    Response<Page<SimpleRecipeDto>> findRecipesByItem(@PathVariable UUID itemUuid, Pageable pageable) {
+        return Response.success(recipeService.getRecipesByItem(itemUuid, pageable));
     }
 }

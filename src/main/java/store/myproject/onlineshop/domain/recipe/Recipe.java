@@ -3,6 +3,7 @@ package store.myproject.onlineshop.domain.recipe;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.like.Like;
@@ -23,10 +24,12 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Where(clause = "deleted_date IS NULL")
 @SQLDelete(sql = "UPDATE Recipe SET deleted_date = CURRENT_TIMESTAMP WHERE recipe_id = ?")
 @Table(
         indexes = {
                 @Index(name = "idx_recipe_uuid", columnList = "recipe_uuid"),
+                @Index(name = "idx_deleted_date", columnList = "deleted_date")
         }
 )
 public class Recipe extends BaseEntity {

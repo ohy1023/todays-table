@@ -23,8 +23,6 @@ public class CartOrderRequest {
 
     private String recipientZipcode;
 
-    private String merchantUid;
-
     public DeliveryInfoRequest toDeliveryInfoRequest() {
         return DeliveryInfoRequest
                 .builder()

@@ -11,14 +11,12 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.alert.AlertType;
 import store.myproject.onlineshop.domain.cart.Cart;
 import store.myproject.onlineshop.domain.cart.dto.CartOrderRequest;
 import store.myproject.onlineshop.repository.cart.CartRepository;
@@ -47,6 +45,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static store.myproject.onlineshop.domain.MessageCode.ORDER_POST_VERIFICATION;
+import static store.myproject.onlineshop.domain.order.OrderStatus.*;
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 @Slf4j
@@ -61,7 +60,6 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
     private final ItemRepository itemRepository;
-    private final ApplicationEventPublisher eventPublisher;
     private final MessageUtil messageUtil;
 
     @Value("${payment.rest.api.key}")
@@ -79,9 +77,9 @@ public class OrderService {
 
     // 주문 단건 조회
     @Transactional(readOnly = true)
-    public OrderInfo getOrderByUuid(UUID uuid, String email) {
+    public OrderInfo getOrderByUuid(UUID merchantUid, String email) {
         Customer customer = getCustomerByEmail(email);
-        Order order = orderRepository.findMyOrder(uuid, customer)
+        Order order = orderRepository.findMyOrder(merchantUid, customer)
                 .orElseThrow(() -> new AppException(ORDER_NOT_FOUND));
         return order.toOrderInfo();
     }
@@ -97,7 +95,7 @@ public class OrderService {
     public OrderInfo placeSingleOrder(OrderInfoRequest request, String email) {
         Customer customer = getCustomerByEmail(email);
         MemberShip memberShip = customer.getMemberShip();
-        Item item = itemRepository.findPessimisticLockById(request.getItemId())
+        Item item = itemRepository.findPessimisticLockByUuid(request.getItemUuid())
                 .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
 
         BigDecimal discountedPrice = memberShip.applyDiscount(item.getPrice());
@@ -107,7 +105,7 @@ public class OrderService {
         delivery.createDeliveryStatus(DeliveryStatus.READY);
 
         OrderItem orderItem = OrderItem.createOrderItem(customer, item, discountedPrice, request.getItemCnt());
-        Order order = Order.createOrder(request.getMerchantUid(), customer, delivery, orderItem);
+        Order order = Order.createOrder(customer, delivery, orderItem);
         orderItem.setOrder(orderRepository.save(order));
 
         log.info("Total Price : {}", orderItem.getTotalPrice());
@@ -115,8 +113,8 @@ public class OrderService {
     }
 
     // 배송지 수정
-    public MessageResponse updateDeliveryAddress(UUID uuid, DeliveryUpdateRequest request) {
-        Order order = orderRepository.findByUuid(uuid)
+    public MessageResponse updateDeliveryAddress(UUID merchantUid, DeliveryUpdateRequest request) {
+        Order order = orderRepository.findByMerchantUid(merchantUid)
                 .orElseThrow(() -> new AppException(ORDER_NOT_FOUND));
 
         order.getDelivery().setInfo(request);
@@ -124,15 +122,20 @@ public class OrderService {
     }
 
     // 주문 취소
-    public MessageResponse cancelOrder(Long orderItemId) throws IamportResponseException, IOException {
-        OrderItem orderItem = orderItemRepository.findById(orderItemId)
+    public MessageResponse cancelOrder(UUID merchantUid, CancelItemRequest request) throws IamportResponseException, IOException {
+        Order order = orderRepository.findByMerchantUid(merchantUid)
                 .orElseThrow(() -> new AppException(ORDER_NOT_FOUND));
 
-        Order order = orderItem.getOrder();
+        Item item = itemRepository.findByUuid(request.getItemUuid())
+                .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
+
+        OrderItem orderItem = orderItemRepository.findByOrderAndItem(order, item)
+                .orElseThrow(() -> new AppException(ORDER_ITEM_NOT_FOUND));
+
         order.cancel();
         cancelReservation(new CancelRequest(order.getImpUid(), orderItem.getTotalPrice()));
 
-        return new MessageResponse(messageUtil.get(MessageCode.ORDER_CANCEL));
+        return new MessageResponse(order.getMerchantUid(), messageUtil.get(MessageCode.ORDER_CANCEL));
     }
 
     // 장바구니 주문
@@ -148,7 +151,7 @@ public class OrderService {
         delivery.createDeliveryStatus(DeliveryStatus.READY);
 
         List<OrderItem> orderItems = createOrderItemsFromCart(cart.getCartItems(), memberShip, customer);
-        Order order = Order.createOrders(request.getMerchantUid(), customer, delivery, orderItems);
+        Order order = Order.createOrders(customer, delivery, orderItems);
         orderRepository.save(order);
 
         orderItems.forEach(orderItem -> {
@@ -171,22 +174,32 @@ public class OrderService {
 
     // 결제 사후 검증
     public MessageResponse verifyPostPayment(PostVerificationRequest request) throws IamportResponseException, IOException {
+
+        Payment payment = getPayment(request.getImpUid());
+
+        // 주문 정보 검증 (merchant_uid로 조회)
         Order order = validateOrderByMerchantUid(request.getMerchantUid());
 
+        // 주문 금액과 결제 금액 비교
         BigDecimal expectedAmount = calculateTotalAmount(order.getOrderItemList());
-        BigDecimal actualAmount = iamportClient.paymentByImpUid(request.getImpUid()).getResponse().getAmount();
+        BigDecimal actualAmount = payment.getAmount();
 
+        // 금액 불일치 시 결제 취소 및 예외 발생
         if (expectedAmount.compareTo(actualAmount) != 0) {
-            CancelData cancelData = createCancelData(iamportClient.paymentByImpUid(request.getImpUid()), BigDecimal.ZERO);
+            CancelData cancelData = createCancelData(payment, BigDecimal.ZERO);
             iamportClient.cancelPaymentByImpUid(cancelData);
+            order.updateOrderStatus(CANCEL);
             throw new AppException(WRONG_PAYMENT_AMOUNT);
         }
 
+        // 결제 정보가 일치하면 주문에 imp_uid 설정 및 주문 상태 변경
         order.setImpUid(request.getImpUid());
-        order.sendAlertOrderComplete(eventPublisher, AlertType.ORDER_COMPLETE);
+        order.updateOrderStatus(ORDER);
 
+        // 성공 메시지 응답
         return new MessageResponse(messageUtil.get(ORDER_POST_VERIFICATION));
     }
+
 
     // === private utils ===
 
@@ -195,13 +208,26 @@ public class OrderService {
                 .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND));
     }
 
-    private Order validateOrderByMerchantUid(String merchantUid) {
+    private Order validateOrderByMerchantUid(UUID merchantUid) {
         long count = orderRepository.countByMerchantUid(merchantUid);
         if (count >= 2) {
             throw new AppException(DUPLICATE_MERCHANT_UID);
         }
         return orderRepository.findByMerchantUid(merchantUid)
                 .orElseThrow(() -> new AppException(ORDER_NOT_FOUND));
+    }
+
+    private Payment getPayment(String impUid) throws IOException {
+        IamportResponse<Payment> paymentIamportResponse = null;
+        try {
+            // 포트원 서버에서 imp_uid로 결제 정보 조회
+            paymentIamportResponse = iamportClient.paymentByImpUid(impUid);
+        } catch (IamportResponseException e) {
+            // 포트원 서버에서 imp_uid로 결제 정보 조회 실패 시 커스텀 예외 던지기
+            throw new AppException(PAYMENT_NOT_FOUND);
+        }
+
+        return paymentIamportResponse.getResponse();
     }
 
     private BigDecimal calculateTotalAmount(List<OrderItem> items) {
@@ -211,16 +237,16 @@ public class OrderService {
     }
 
     private void cancelReservation(CancelRequest request) throws IamportResponseException, IOException {
-        IamportResponse<Payment> response = iamportClient.paymentByImpUid(request.getImpUid());
-        CancelData cancelData = createCancelData(response, request.getRefundAmount());
+        Payment payment = getPayment(request.getImpUid());
+        CancelData cancelData = createCancelData(payment, request.getRefundAmount());
         iamportClient.cancelPaymentByImpUid(cancelData);
     }
 
-    private CancelData createCancelData(IamportResponse<Payment> response, BigDecimal refundAmount) {
+    private CancelData createCancelData(Payment payment, BigDecimal refundAmount) {
         if (refundAmount.compareTo(BigDecimal.ZERO) == 0) {
-            return new CancelData(response.getResponse().getImpUid(), true);
+            return new CancelData(payment.getImpUid(), true);
         }
-        return new CancelData(response.getResponse().getImpUid(), true, refundAmount);
+        return new CancelData(payment.getImpUid(), true, refundAmount);
     }
 
     private void validateCartItems(List<CartItem> cartItems) {
@@ -237,7 +263,7 @@ public class OrderService {
 
         for (CartItem cartItem : cartItems) {
             if (cartItem.isChecked()) {
-                Item item = itemRepository.findPessimisticLockById(cartItem.getItem().getId())
+                Item item = itemRepository.findPessimisticLockByUuid(cartItem.getItem().getUuid())
                         .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
                 BigDecimal discountedPrice = memberShip.applyDiscount(cartItem.getItem().getPrice());
                 orderItemList.add(OrderItem.createOrderItem(customer, item, discountedPrice, cartItem.getCartItemCnt()));

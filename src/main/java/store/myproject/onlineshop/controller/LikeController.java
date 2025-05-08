@@ -20,10 +20,10 @@ public class LikeController {
     private final RecipeService recipeService;
 
     @Operation(summary = "해당 레시피 좋아요/취소 누르기")
-    @PostMapping("/{uuid}/likes")
-    public Response<MessageResponse> pushLike(@PathVariable UUID uuid, Authentication authentication) {
+    @PostMapping("/{recipeUuid}/likes")
+    public Response<MessageResponse> pushLike(@PathVariable UUID recipeUuid, Authentication authentication) {
         String email = authentication.getName();
 
-        return Response.success(recipeService.toggleLike(uuid, email));
+        return Response.success(recipeService.toggleLike(recipeUuid, email));
     }
 }

@@ -75,7 +75,8 @@ public class RecipeService {
         recipeDto.setSteps(stepDtos);
         recipeDto.setItems(itemDtos);
 
-//        recipeMetaService.asyncIncreaseViewCnt(recipeDto.getRecipeMetaUuid());
+        Long recipeMetaId = recipeRepository.findRecipeMetaIdByRecipeUuid(recipeUuid);
+        recipeMetaService.asyncIncreaseViewCnt(recipeMetaId);
 
         return recipeDto;
     }
@@ -94,7 +95,7 @@ public class RecipeService {
     public MessageResponse createRecipe(RecipeCreateRequest request, String email) {
         Customer customer = getCustomerByEmail(email);
         Recipe recipe = request.toEntity(customer);
-        recipe.addItems(mapToRecipeItems(request.getItemIdList()));
+        recipe.addItems(mapToRecipeItems(request.getItemUuidList()));
         recipe.addSteps(mapToRecipeSteps(request.getSteps()));
         applyThumbnail(recipe, request.getThumbnailUrl());
         recipeRepository.save(recipe);
@@ -111,7 +112,7 @@ public class RecipeService {
         recipe.updateRecipe(request);
         recipe.getItemList().clear();
         recipe.getStepList().clear();
-        recipe.addItems(mapToRecipeItems(request.getItemIdList()));
+        recipe.addItems(mapToRecipeItems(request.getItemUuidList()));
         recipe.addSteps(mapToRecipeSteps(request.getSteps()));
         applyThumbnail(recipe, request.getThumbnailUrl());
         return new MessageResponse(recipe.getUuid(), messageUtil.get(MessageCode.RECIPE_MODIFIED));
@@ -228,9 +229,9 @@ public class RecipeService {
     /**
      * 아이템 ID 리스트로 RecipeItem 리스트 생성
      */
-    private List<RecipeItem> mapToRecipeItems(List<Long> itemIds) {
-        return itemIds.stream()
-                .map(this::getItemById)
+    private List<RecipeItem> mapToRecipeItems(List<UUID> itemUuids) {
+        return itemUuids.stream()
+                .map(this::getItemByUuid)
                 .map(RecipeItem::createRecipeItem)
                 .toList();
     }
@@ -319,8 +320,8 @@ public class RecipeService {
     /**
      * ID로 아이템 조회
      */
-    private Item getItemById(Long itemId) {
-        return itemRepository.findById(itemId).orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
+    private Item getItemByUuid(UUID uuid) {
+        return itemRepository.findByUuid(uuid).orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
     }
 
     /**

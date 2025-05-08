@@ -9,6 +9,7 @@ import store.myproject.onlineshop.domain.recipemeta.RecipeMeta;
 import store.myproject.onlineshop.global.utils.UUIDGenerator;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -30,7 +31,7 @@ public class RecipeCreateRequest {
     private String recipeServings;
 
     @NotEmpty
-    private List<Long> itemIdList;
+    private List<UUID> itemUuidList;
 
     @NotEmpty
     private List<RecipeStepRequest> steps;

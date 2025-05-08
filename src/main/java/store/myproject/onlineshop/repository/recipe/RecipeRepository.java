@@ -34,5 +34,8 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long>, RecipeCus
     @Query("SELECT r FROM Recipe r JOIN FETCH r.recipeMeta WHERE r.uuid = :uuid")
     Optional<Recipe> findByIdWithMeta(@Param("uuid") UUID uuid);
 
+    @Query("SELECT r.recipeMeta.id FROM Recipe r WHERE r.uuid = :recipeUuid")
+    Long findRecipeMetaIdByRecipeUuid(@Param("recipeUuid") UUID recipeUuid);
+
     Optional<Recipe> findByUuid(UUID uuid);
 }

@@ -25,6 +25,7 @@ import static jakarta.persistence.FetchType.*;
 @Table(
         indexes = {
                 @Index(name = "idx_review_uuid", columnList = "review_uuid"),
+                @Index(name = "idx_deleted_date", columnList = "deleted_date")
         }
 )
 public class Review extends BaseEntity {

@@ -31,9 +31,9 @@ public class RecipeController {
     private final RecipeService recipeService;
 
     @Operation(summary = "레시피 단건 조회")
-    @GetMapping("/{uuid}")
-    public Response<RecipeDto> viewOneRecipe(@PathVariable UUID uuid) {
-        return Response.success(recipeService.getRecipeDetail(uuid));
+    @GetMapping("/{recipeUuid}")
+    public Response<RecipeDto> viewOneRecipe(@PathVariable UUID recipeUuid) {
+        return Response.success(recipeService.getRecipeDetail(recipeUuid));
     }
 
     @Operation(summary = "레시피 페이징 조회")
@@ -50,17 +50,17 @@ public class RecipeController {
     }
 
     @Operation(summary = "레시피 수정")
-    @PutMapping(value = "/{uuid}")
-    public Response<MessageResponse> writeRecipe(@PathVariable UUID uuid, @Valid @RequestBody RecipeUpdateRequest request, Authentication authentication) {
+    @PutMapping(value = "/{recipeUuid}")
+    public Response<MessageResponse> writeRecipe(@PathVariable UUID recipeUuid, @Valid @RequestBody RecipeUpdateRequest request, Authentication authentication) {
         String email = authentication.getName();
-        return Response.success(recipeService.updateRecipe(uuid, request, email));
+        return Response.success(recipeService.updateRecipe(recipeUuid, request, email));
     }
 
     @Operation(summary = "레시피 삭제")
-    @DeleteMapping("/{uuid}")
-    public Response<MessageResponse> deleteRecipe(@PathVariable UUID uuid, Authentication authentication) {
+    @DeleteMapping("/{recipeUuid}")
+    public Response<MessageResponse> deleteRecipe(@PathVariable UUID recipeUuid, Authentication authentication) {
         String email = authentication.getName();
-        return Response.success(recipeService.deleteRecipe(uuid, email));
+        return Response.success(recipeService.deleteRecipe(recipeUuid, email));
     }
 
     @Operation(summary = "이미지 업로드 -> s3 저장 -> URL 반환")

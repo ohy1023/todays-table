@@ -12,7 +12,7 @@ import java.util.UUID;
 public interface RecipeItemRepository extends JpaRepository<RecipeItem, Long> {
     @Query("""
                 select new store.myproject.onlineshop.domain.recipeitem.dto.RecipeItemDto(
-                    i.id,
+                    i.uuid,
                     i.itemName,
                     i.price,
                     b.name,

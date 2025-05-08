@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +12,6 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import store.myproject.onlineshop.domain.MessageResponse;
@@ -37,11 +35,11 @@ public class BrandController {
             @ApiResponse(responseCode = "200", description = "정상적으로 조회됨"),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 브랜드 ID")
     })
-    @GetMapping("/{uuid}")
+    @GetMapping("/{brandUuid}")
     public Response<BrandInfo> getBrandById(
             @Parameter(description = "브랜드 UUID", example = "1")
-            @PathVariable UUID uuid) {
-        BrandInfo brandInfo = brandService.findBrandInfoById(uuid);
+            @PathVariable UUID brandUuid) {
+        BrandInfo brandInfo = brandService.findBrandInfoById(brandUuid);
         return Response.success(brandInfo);
     }
 
@@ -80,13 +78,13 @@ public class BrandController {
             @ApiResponse(responseCode = "200", description = "브랜드 수정 성공"),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 브랜드 ID")
     })
-    @PutMapping(value = "/{uuid}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{brandUuid}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Response<MessageResponse> updateBrand(
-            @Parameter(description = "브랜드 ID", example = "1")
-            @PathVariable UUID uuid,
+            @Parameter(description = "브랜드 UUID")
+            @PathVariable UUID brandUuid,
             @Valid @RequestPart BrandUpdateRequest request,
             @RequestPart(required = false) MultipartFile multipartFile) {
-        return Response.success(brandService.updateBrand(uuid, request, multipartFile));
+        return Response.success(brandService.updateBrand(brandUuid, request, multipartFile));
     }
 
     @Operation(
@@ -97,10 +95,10 @@ public class BrandController {
             @ApiResponse(responseCode = "200", description = "브랜드 삭제 성공"),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 브랜드 ID")
     })
-    @DeleteMapping("/{uuid}")
+    @DeleteMapping("/{brandUuid}")
     public Response<MessageResponse> deleteBrand(
-            @Parameter(description = "브랜드 ID", example = "1")
-            @PathVariable UUID uuid) {
-        return Response.success(brandService.deleteBrand(uuid));
+            @Parameter(description = "브랜드 UUID")
+            @PathVariable UUID brandUuid) {
+        return Response.success(brandService.deleteBrand(brandUuid));
     }
 }

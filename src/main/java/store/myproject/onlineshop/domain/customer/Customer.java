@@ -24,6 +24,12 @@ import static store.myproject.onlineshop.domain.customer.CustomerRole.*;
 @AllArgsConstructor
 @Where(clause = "deleted_date IS NULL")
 @SQLDelete(sql = "UPDATE Customer SET deleted_date = CURRENT_TIMESTAMP WHERE customer_id = ?")
+@Table(
+        indexes = {
+                @Index(name = "idx_email", columnList = "email"),
+                @Index(name = "idx_deleted_date", columnList = "deleted_date")
+        }
+)
 public class Customer extends BaseEntity {
 
     @Id

@@ -19,5 +19,5 @@ public interface ItemRepository extends JpaRepository<Item, Long>, ItemCustomRep
     Optional<Item> findByUuid(@Param("uuid") UUID uuid);
 
     @Lock(LockModeType.PESSIMISTIC_READ)
-    Optional<Item> findPessimisticLockById(@Param("id") Long id);
+    Optional<Item> findPessimisticLockByUuid(@Param("uuid") UUID uuid);
 }

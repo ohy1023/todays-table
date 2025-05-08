@@ -3,7 +3,7 @@ package store.myproject.onlineshop.domain.order.dto;
 import lombok.*;
 import store.myproject.onlineshop.domain.delivery.dto.DeliveryInfoRequest;
 
-import java.math.BigDecimal;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderInfoRequest {
 
-    private Long itemId;
+    private UUID itemUuid;
 
     private Long itemCnt;
 
@@ -26,10 +26,6 @@ public class OrderInfoRequest {
     private String recipientDetail;
 
     private String recipientZipcode;
-
-    private String merchantUid;
-
-    private BigDecimal totalPrice;
 
     public DeliveryInfoRequest toDeliveryInfoRequest() {
         return DeliveryInfoRequest
