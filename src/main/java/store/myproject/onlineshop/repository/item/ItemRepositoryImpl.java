@@ -13,7 +13,6 @@ import store.myproject.onlineshop.domain.item.dto.ItemSearchCond;
 import store.myproject.onlineshop.domain.item.dto.QSimpleItemDto;
 import store.myproject.onlineshop.domain.item.dto.SimpleItemDto;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static store.myproject.onlineshop.domain.brand.QBrand.brand;
@@ -47,7 +46,6 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
                 .from(item)
                 .join(item.brand, brand)
                 .where(
-//                        item.deletedDate.isNull(),
                         itemNameContains(itemSearchCond.getItemName()),
                         brandNameContains(itemSearchCond.getBrandName())
                 );

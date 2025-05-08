@@ -11,7 +11,6 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.util.StringUtils;
 import store.myproject.onlineshop.domain.brand.dto.BrandInfo;
 import store.myproject.onlineshop.domain.brand.dto.QBrandInfo;
-import store.myproject.onlineshop.domain.imagefile.QImageFile;
 
 
 import java.util.List;
@@ -37,20 +36,20 @@ public class BrandRepositoryImpl implements BrandCustomRepository {
                         )
                 )
                 .from(brand)
-                .where(brandNameEq(brandName))
+                .where(brandNameContains(brandName))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
         JPAQuery<Long> countQuery = queryFactory.select(brand.count())
                 .from(brand)
-                .where(brandNameEq(brandName));
+                .where(brandNameContains(brandName));
 
         return PageableExecutionUtils.getPage(brandInfoList, pageable, countQuery::fetchOne);
 
     }
 
-    private BooleanExpression brandNameEq(String brandName) {
-        return StringUtils.hasText(brandName) ? brand.name.eq(brandName) : null;
+    private BooleanExpression brandNameContains(String brandName) {
+        return StringUtils.hasText(brandName) ? brand.name.contains(brandName) : null;
     }
 }

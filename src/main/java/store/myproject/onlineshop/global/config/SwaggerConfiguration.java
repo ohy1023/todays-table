@@ -24,7 +24,18 @@ public class SwaggerConfiguration {
                 .addServersItem(new Server().url("/"))
                 .info(new Info()
                         .title("오늘의 식탁 ")
-                        .description("오늘의 식탁은 레시피를 기반으로 사용자가 식재료를 쉽게 구매할 수 있도록 지원하는 백엔드 API 서비스입니다.")
+                        .description("오늘의 식탁은 레시피를 기반으로 사용자가 식재료를 쉽게 구매할 수 있도록 지원하는 백엔드 API 서비스입니다.\n\n"
+                                + "### ADMIN 테스트 계정 정보\n"
+                                + "Email: zvyg1023@naver.com\n"
+                                + "Password: 1Q2w3e4r!!\n"
+                                + "권한: ROLE_ADMIN\n\n"
+                                + "### 주문 순서\n"
+                                + "1. 단건 주문.\n"
+                                + "2. 사전 검증.\n"
+                                + "3. 사후 검증.\n"
+                                + "### 주의 사항\n"
+                                + "IMP_UID는 포트원에서 발급받은 고유 ID로, 프론트엔드에서 받아서 백엔드로 전달해야 합니다.\n"
+                                + "이에 따라 IMP_UID가 사용되는 API(사후 검증, 주문 취소)는 테스트가 불가합니다.\n\n")
                         .version(" 1.0.0 ")
                 )
                 .addSecurityItem(new SecurityRequirement().addList(defaultHeader))

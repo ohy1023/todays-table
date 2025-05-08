@@ -1,5 +1,6 @@
 package store.myproject.onlineshop.domain.customer.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import store.myproject.onlineshop.domain.customer.Address;
 import store.myproject.onlineshop.domain.customer.Customer;
@@ -11,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "회원 정보 응답 DTO")
 public class CustomerInfoResponse {
 
     private String email;

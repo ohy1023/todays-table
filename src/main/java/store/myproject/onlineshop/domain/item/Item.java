@@ -34,9 +34,8 @@ import static store.myproject.onlineshop.exception.ErrorCode.*;
 @SQLDelete(sql = "UPDATE Item SET deleted_date = CURRENT_TIMESTAMP WHERE item_id = ?")
 @Table(
         indexes = {
-                @Index(name = "idx_item_uuid", columnList = "item_uuid"),
-                @Index(name = "idx_item_name", columnList = "item_name"),
-                @Index(name = "idx_deleted_date", columnList = "deleted_date")
+                @Index(name = "idx_deleted_date_item_name", columnList = "deleted_date, item_name"),
+                @Index(name = "idx_deleted_date_brand_id", columnList = "deleted_date, brand_id")
         }
 )
 public class Item extends BaseEntity {

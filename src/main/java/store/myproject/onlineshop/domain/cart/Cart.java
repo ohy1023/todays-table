@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Cart {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "cart_id")
@@ -34,7 +35,4 @@ public class Cart {
                 .build();
     }
 
-    public void addCartItem(CartItem cartItem) {
-        this.cartItems.add(cartItem);
-    }
 }

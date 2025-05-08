@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +34,7 @@ public class CartController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "장바구니에 품목 추가 성공"),
-            @ApiResponse(responseCode = "409", description = "재고 부족 또는 기타 충돌")
+            @ApiResponse(responseCode = "409", description = "재고 부족")
     })
     @PostMapping
     public Response<MessageResponse> addItemToCart(
@@ -64,15 +63,15 @@ public class CartController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "품목 삭제 성공"),
-            @ApiResponse(responseCode = "404", description = "해당 품목이 존재하지 않음")
+            @ApiResponse(responseCode = "404", description = "해당 고객 또는 품목이 존재하지 않음")
     })
-    @DeleteMapping("/{cartUuid}")
+    @DeleteMapping("/{itemUuid}")
     public Response<MessageResponse> deleteItemFromCart(
-            @Parameter(description = "삭제할 품목 UUID")
-            @PathVariable UUID cartUuid,
+            @Parameter(description = "삭제할 품목 UUID", example = "a497a803-2b32-11f0-9178-1583b134d536")
+            @PathVariable UUID itemUuid,
             Authentication authentication) {
         String email = authentication.getName();
-        MessageResponse response = cartService.deleteItemFromCart(cartUuid, email);
+        MessageResponse response = cartService.deleteItemFromCart(itemUuid, email);
         return Response.success(response);
     }
 

@@ -16,12 +16,6 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(
-        indexes = {
-                @Index(name = "idx_brand_uuid", columnList = "brand_uuid"), // uuid에 인덱스!
-                @Index(name = "idx_brand_name", columnList = "name") // name에 인덱스!
-        }
-)
 public class Brand {
 
     @Id

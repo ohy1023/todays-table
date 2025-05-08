@@ -1,5 +1,6 @@
 package store.myproject.onlineshop.domain.recipe.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,17 +11,38 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @Builder
+@Schema(description = "레시피 간략 정보 DTO")
 public class SimpleRecipeDto {
+
+    @Schema(description = "레시피 고유 ID", example = "a9dc96bf-2b1b-11f0-b1f0-5b9e0b864120")
     private UUID recipeUuid;
-    private String title; // 제목
-    private String recipeDescription; // 소개
-    private String thumbnail; // 썸네일
-    private String writer; // 작성자
-    private String recipeCookingTime; //조리 시간
-    private String recipeServings; // 몇인분
-    private Long recipeView; // 조회 수
-    private Long reviewCnt; // 댓글 수
-    private Long likeCnt; // 좋아요  수
+
+    @Schema(description = "레시피 제목", example = "맛있는 떡볶이")
+    private String title;
+
+    @Schema(description = "레시피 소개", example = "매운 떡볶이를 만드는 방법")
+    private String recipeDescription;
+
+    @Schema(description = "레시피 썸네일 이미지 URL", example = "https://example.com/thumbnail.jpg")
+    private String thumbnail;
+
+    @Schema(description = "레시피 작성자", example = "홍길동")
+    private String writer;
+
+    @Schema(description = "레시피 조리 시간", example = "30분")
+    private String recipeCookingTime;
+
+    @Schema(description = "레시피 인분", example = "2인분")
+    private String recipeServings;
+
+    @Schema(description = "레시피 조회 수", example = "1500")
+    private Long recipeView;
+
+    @Schema(description = "레시피 댓글 수", example = "20")
+    private Long reviewCnt;
+
+    @Schema(description = "레시피 좋아요 수", example = "100")
+    private Long likeCnt;
 
     @QueryProjection
     public SimpleRecipeDto(UUID recipeUuid, String title, String recipeDescription, String thumbnail,

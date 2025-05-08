@@ -109,8 +109,6 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository {
                 return new OrderSpecifier<>(direction, recipe.recipeMeta.reviewCnt);
             case "recipeTitle":
                 return new OrderSpecifier<>(direction, recipe.recipeTitle);
-            case "createdDate":
-                return new OrderSpecifier<>(direction, recipe.createdDate);
             default:
                 return new OrderSpecifier<>(direction, recipe.createdDate);
         }

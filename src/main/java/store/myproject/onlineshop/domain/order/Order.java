@@ -28,7 +28,6 @@ import static store.myproject.onlineshop.exception.ErrorCode.ALREADY_ARRIVED;
 @Table(
         name = "Orders",
         indexes = {
-                @Index(name = "idx_merchant_uid", columnList = "merchant_uid"),
                 @Index(name = "idx_deleted_date", columnList = "deleted_date")
         }
 )

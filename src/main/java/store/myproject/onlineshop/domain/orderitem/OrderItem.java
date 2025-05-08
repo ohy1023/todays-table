@@ -18,7 +18,7 @@ import static lombok.AccessLevel.PROTECTED;
 @AllArgsConstructor
 @Table(
         indexes = {
-                @Index(name = "idx_order_item_order_item", columnList = "order_id, item_id")
+                @Index(name = "idx_order_item_order_item", columnList = "orders_id, item_id")
         }
 )
 public class OrderItem {
@@ -34,7 +34,7 @@ public class OrderItem {
 
     @Setter
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "order_id")
+    @JoinColumn(name = "orders_id")
     private Order order; //주문
 
     @Column(name = "order_price")

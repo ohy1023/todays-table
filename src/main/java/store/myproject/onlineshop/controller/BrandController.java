@@ -37,7 +37,7 @@ public class BrandController {
     })
     @GetMapping("/{brandUuid}")
     public Response<BrandInfo> getBrandById(
-            @Parameter(description = "브랜드 UUID", example = "1")
+            @Parameter(description = "브랜드 UUID", example = "a9dc96bf-2b1b-11f0-b1f0-5b9e0b864120")
             @PathVariable UUID brandUuid) {
         BrandInfo brandInfo = brandService.findBrandInfoById(brandUuid);
         return Response.success(brandInfo);
@@ -80,7 +80,7 @@ public class BrandController {
     })
     @PutMapping(value = "/{brandUuid}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Response<MessageResponse> updateBrand(
-            @Parameter(description = "브랜드 UUID")
+            @Parameter(description = "브랜드 UUID", example = "a9dc96bf-2b1b-11f0-b1f0-5b9e0b864120")
             @PathVariable UUID brandUuid,
             @Valid @RequestPart BrandUpdateRequest request,
             @RequestPart(required = false) MultipartFile multipartFile) {
@@ -97,7 +97,7 @@ public class BrandController {
     })
     @DeleteMapping("/{brandUuid}")
     public Response<MessageResponse> deleteBrand(
-            @Parameter(description = "브랜드 UUID")
+            @Parameter(description = "브랜드 UUID", example = "a9dc96bf-2b1b-11f0-b1f0-5b9e0b864120")
             @PathVariable UUID brandUuid) {
         return Response.success(brandService.deleteBrand(brandUuid));
     }

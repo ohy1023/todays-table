@@ -28,8 +28,7 @@ import java.util.UUID;
 @SQLDelete(sql = "UPDATE Recipe SET deleted_date = CURRENT_TIMESTAMP WHERE recipe_id = ?")
 @Table(
         indexes = {
-                @Index(name = "idx_recipe_uuid", columnList = "recipe_uuid"),
-                @Index(name = "idx_deleted_date", columnList = "deleted_date")
+                @Index(name = "idx_recipe_deleted_created", columnList = "deleted_date, created_date")
         }
 )
 public class Recipe extends BaseEntity {
@@ -98,34 +97,6 @@ public class Recipe extends BaseEntity {
         this.recipeCookingTime = request.getRecipeCookingTime();
         this.recipeServings = request.getRecipeServings();
     }
-
-//    public RecipeDto toDto() {
-//        return RecipeDto.builder()
-//                .recipeUuid(this.getUuid())
-//                .recipeTitle(this.getRecipeTitle())
-//                .recipeDescription(this.getRecipeDescription())
-//                .recipeCookingTime(this.getRecipeCookingTime())
-//                .recipeServings(this.getRecipeServings())
-//                .recipeWriter(this.getCustomer().getNickName())
-//                .thumbnailUrl(this.getThumbnailUrl())
-//                .recipeView(this.recipeMeta != null ? this.recipeMeta.getViewCnt() : 0L)
-//                .likeCnt(this.recipeMeta != null ? this.recipeMeta.getLikeCnt() : 0L)
-//                .reviewCnt(this.recipeMeta != null ? this.recipeMeta.getReviewCnt() : 0L)
-//                .steps(this.getStepList().stream()
-//                        .map(step -> {
-//                            int stepOrder = step.getStepOrder(); // 프록시 초기화
-//                            String content = step.getContent(); // 프록시 초기화
-//                            String imageUrl = step.getImageUrl(); // 프록시 초기화
-//
-//                            return RecipeStepDto.builder()
-//                                    .stepOrder(stepOrder)
-//                                    .content(content)
-//                                    .imageUrl(imageUrl)
-//                                    .build();
-//                        })
-//                        .toList())
-//                .build();
-//    }
 
     public void addItem(RecipeItem recipeItem) {
         this.itemList.add(recipeItem);
