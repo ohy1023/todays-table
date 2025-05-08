@@ -12,10 +12,10 @@ import lombok.*;
 public class TokenRequest {
 
     @NotBlank
-    @Schema(description = "Access Token", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Access Token", example = "eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Inp2eWcxMDIzQG5hdmVyLmNvbSIsImlhdCI6MTc0NjY5MDA5MywiZXhwIjoxNzQ2NzAwODkzfQ.iZlPQwUQZrS_9xIzCnuz3XdlgJ5sTdARGLNDiJm-1mY", requiredMode = Schema.RequiredMode.REQUIRED)
     private String accessToken;
 
     @NotBlank
-    @Schema(description = "Refresh Token", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Refresh Token",example = "eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Inp2eWcxMDIzQG5hdmVyLmNvbSIsImlhdCI6MTc0NjY5MDA5MywiZXhwIjoxNzQ3ODk5NjkzfQ.h575wijXHBzcq9KslmKtxHr0yaYC346bYKd-jONLETc", requiredMode = Schema.RequiredMode.REQUIRED)
     private String refreshToken;
 }
