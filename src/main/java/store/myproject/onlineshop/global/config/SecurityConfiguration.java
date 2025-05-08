@@ -50,10 +50,10 @@ public class SecurityConfiguration {
                         .requestMatchers(
                                 "/api/v1/customers/join",
                                 "/api/v1/customers/login",
+                                "/api/v1/customers/email",
+                                "/api/v1/customers/nickname",
                                 "/api/v1/corporations/join",
                                 "/api/v1/corporations/login",
-                                "/api/v1/customers/email",
-                                "/api/v1/customers/nickName",
                                 "/api/v1/brands/*",
                                 "/api/v1/memberships",
                                 "/api/v1/memberships/*",
@@ -93,7 +93,8 @@ public class SecurityConfiguration {
                                 "/api/v1/orders/search",
                                 "/api/v1/recipes/*",
                                 "/api/v1/carts",
-                                "/api/v1/items"
+                                "/api/v1/items",
+                                "/api/v1/customers"
                         ).authenticated()
 
                         .requestMatchers(HttpMethod.POST,
@@ -112,6 +113,8 @@ public class SecurityConfiguration {
 
                         .requestMatchers(HttpMethod.PUT,
                                 "/api/v1/customers",
+                                "/api/v1/customers/password",
+                                "/api/v1/customers/temp-password",
                                 "/api/v1/accounts",
                                 "/api/v1/recipes/*/reviews/*",
                                 "/api/v1/orders/*"
