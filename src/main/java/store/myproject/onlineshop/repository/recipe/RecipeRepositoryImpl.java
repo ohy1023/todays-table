@@ -35,8 +35,8 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository {
                         recipe.recipeServings,
                         recipe.thumbnailUrl,
                         recipe.recipeMeta.viewCnt,
-                        recipe.recipeMeta.likeCnt,
-                        recipe.recipeMeta.reviewCnt
+                        recipe.recipeMeta.reviewCnt,
+                        recipe.recipeMeta.likeCnt
                 ))
                 .from(recipe)
                 .join(recipe.customer)

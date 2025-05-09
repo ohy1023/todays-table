@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -62,7 +63,7 @@ public class OrderController {
     public Response<Page<OrderInfo>> searchOrder(
             @Parameter(description = "주문 검색 조건") OrderSearchCond orderSearchCond,
             Authentication authentication,
-            @PageableDefault(page = 5) Pageable pageable
+            @ParameterObject @PageableDefault(page = 5) Pageable pageable
     ) {
 
         String email = authentication.getName();

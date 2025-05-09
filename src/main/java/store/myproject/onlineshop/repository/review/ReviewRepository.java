@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
-    @Query("SELECT r FROM Review r WHERE r.parentId =: parentId")
-    Page<Review> findByParentId(Long parentId, Pageable pageable);
+    @Query("SELECT r FROM Review r WHERE r.parentId = :reviewId")
+    Page<Review> findByParentId(@Param("reviewId") Long reviewId, Pageable pageable);
 
     Optional<Review> findByUuid(UUID uuid);
 

@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -51,7 +52,7 @@ public class RecipeController {
             @ApiResponse(responseCode = "200", description = "레시피 목록 조회 성공")
     })
     @GetMapping
-    public Response<Slice<SimpleRecipeDto>> viewAllRecipes(@PageableDefault(page = 15, sort = "created_date,desc") Pageable pageable) {
+    public Response<Slice<SimpleRecipeDto>> viewAllRecipes(@ParameterObject Pageable pageable) {
         return Response.success(recipeService.getRecipes(pageable));
     }
 

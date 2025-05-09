@@ -7,8 +7,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,7 @@ import store.myproject.onlineshop.domain.review.dto.*;
 import store.myproject.onlineshop.service.RecipeService;
 
 import java.util.UUID;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -39,9 +42,10 @@ public class ReviewController {
     public Response<Page<ReviewResponse>> getReview(
             @Parameter(description = "조회할 레시피 UUID", example = "13dd3e84-2b3a-11f0-9aef-59f7f88a8400", required = true)
             @PathVariable UUID recipeUuid,
-            Pageable pageable) {
+            @ParameterObject @PageableDefault(sort = "createdDate", direction = Sort.Direction.ASC) Pageable pageable) {
         return Response.success(recipeService.getRecipeReviews(recipeUuid, pageable));
     }
+
 
     @Operation(summary = "대댓글 더보기", description = "특정 댓글에 대한 대댓글 목록을 조회합니다.")
     @ApiResponses(value = {
@@ -54,7 +58,7 @@ public class ReviewController {
             @PathVariable UUID recipeUuid,
             @Parameter(description = "조회할 댓글 UUID", example = "88dd3e84-2b3a-11f0-9aef-59f7f88a8410", required = true)
             @PathVariable UUID reviewUuid,
-            Pageable pageable
+            @ParameterObject @PageableDefault(sort = "createdDate", direction = Sort.Direction.ASC) Pageable pageable
     ) {
         return Response.success(recipeService.getChildReviews(recipeUuid, reviewUuid, pageable));
     }

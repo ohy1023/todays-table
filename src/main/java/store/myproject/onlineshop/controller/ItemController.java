@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -61,8 +62,8 @@ public class ItemController {
     public Response<Page<SimpleItemDto>> searchItem(
             ItemSearchCond itemSearchCond,
             @Parameter(description = "페이지 정보 (예: page=0&size=10&sort=name,asc)")
-            Pageable pageable
-    ) {
+            @ParameterObject Pageable pageable
+            ) {
 
         Page<SimpleItemDto> response = itemService.searchItem(itemSearchCond, pageable);
 
