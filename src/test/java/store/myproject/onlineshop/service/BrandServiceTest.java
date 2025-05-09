@@ -28,6 +28,7 @@ import store.myproject.onlineshop.global.utils.MessageUtil;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -59,14 +60,14 @@ class BrandServiceTest {
     @DisplayName("브랜드 단건 조회 성공")
     void find_brand_info_success() {
         // given
-        Long brandId = 1L;
+        UUID brandUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
-        given(brandRepository.findById(brandId)).willReturn(Optional.of(brand));
+        given(brandRepository.findByUuid(brandUuid)).willReturn(Optional.of(brand));
 
         // when
-        BrandInfo response = brandService.findBrandInfoById(brandId);
+        BrandInfo response = brandService.findBrandInfoById(brandUuid);
 
-        then(brandRepository).should(times(1)).findById(brandId);
+        then(brandRepository).should(times(1)).findByUuid(brandUuid);
         assertThat(response.getName()).isEqualTo(brand.getName());
     }
 
@@ -77,12 +78,12 @@ class BrandServiceTest {
         String brandName = brand.getName();
         Pageable pageable = PageRequest.of(0, 10);
 
+        UUID brand1Uuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+        UUID brand2Uuid = UUID.fromString("d290f1ee-6c54-4b01-90e6-d701748f0851");
+
         List<BrandInfo> content = List.of(
-                BrandInfo.builder()
-                        .id(1L)
-                        .name(brandName)
-                        .build(),
-                BrandFixture.createBrandInfo(2L)
+                BrandInfo.builder().uuid(brand1Uuid).name(brandName).build(),
+                BrandFixture.createBrandInfo(brand2Uuid)
         );
 
         Page<BrandInfo> page = new PageImpl<>(content, pageable, content.size());
@@ -129,16 +130,16 @@ class BrandServiceTest {
     @Test
     @DisplayName("브랜드 수정 성공 - 이미지, 이름 포함")
     void update_brand_success_with_image_and_name() {
-        Long brandId = 1L;
+        UUID brandUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
         BrandUpdateRequest request = BrandFixture.updateRequest();
         String newImageUrl = "s3://new-image";
 
-        given(brandRepository.findById(brandId)).willReturn(Optional.of(brand));
+        given(brandRepository.findByUuid(brandUuid)).willReturn(Optional.of(brand));
         given(awsS3Service.uploadBrandOriginImage(mockFile)).willReturn(newImageUrl);
         given(messageUtil.get(MessageCode.BRAND_MODIFIED)).willReturn("브랜드 수정 완료");
 
-        MessageResponse response = brandService.updateBrand(brandId, request, mockFile);
+        MessageResponse response = brandService.updateBrand(brandUuid, request, mockFile);
 
         assertThat(response.getMessage()).isEqualTo("브랜드 수정 완료");
         then(imageFileRepository).should().deleteById(imageFile.getId());
@@ -147,15 +148,15 @@ class BrandServiceTest {
     @Test
     @DisplayName("브랜드 수정 성공 - 이미지 없이 이름만")
     void update_brand_success_name_only() {
-        Long brandId = 1L;
+        UUID brandUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
         Brand brand = Brand.builder().name("예전이름").build();
 
         BrandUpdateRequest request = new BrandUpdateRequest("새이름");
 
-        given(brandRepository.findById(brandId)).willReturn(Optional.of(brand));
+        given(brandRepository.findByUuid(brandUuid)).willReturn(Optional.of(brand));
         given(messageUtil.get(MessageCode.BRAND_MODIFIED)).willReturn("브랜드 수정 완료");
 
-        MessageResponse response = brandService.updateBrand(brandId, request, null);
+        MessageResponse response = brandService.updateBrand(brandUuid, request, null);
 
         assertThat(response.getMessage()).isEqualTo("브랜드 수정 완료");
         assertThat(brand.getName()).isEqualTo("새이름");
@@ -165,22 +166,24 @@ class BrandServiceTest {
     @Test
     @DisplayName("브랜드 수정 실패 - 존재하지 않음")
     void update_brand_fail_not_found() {
-        Long id = 1L;
+        UUID brandUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+
         BrandUpdateRequest request = BrandFixture.updateRequest();
 
-        given(brandRepository.findById(id)).willReturn(Optional.empty());
+        given(brandRepository.findByUuid(brandUuid)).willReturn(Optional.empty());
 
-        assertThatThrownBy(() -> brandService.updateBrand(id, request, null))
+        assertThatThrownBy(() -> brandService.updateBrand(brandUuid, request, null))
                 .isInstanceOf(AppException.class);
     }
 
     @Test
     @DisplayName("브랜드 삭제 실패 - 존재하지 않음")
     void delete_brand_fail_not_found() {
-        Long id = 1L;
-        given(brandRepository.findById(id)).willReturn(Optional.empty());
+        UUID brandUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
-        assertThatThrownBy(() -> brandService.deleteBrand(id))
+        given(brandRepository.findByUuid(brandUuid)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> brandService.deleteBrand(brandUuid))
                 .isInstanceOf(AppException.class);
     }
 
@@ -188,16 +191,17 @@ class BrandServiceTest {
     @DisplayName("브랜드 삭제 성공")
     void delete_brand_success() {
         // given
-        Long brandId = 1L;
+        UUID brandUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
-        given(brandRepository.findById(brandId)).willReturn(Optional.of(brand));
+
+        given(brandRepository.findByUuid(brandUuid)).willReturn(Optional.of(brand));
         given(messageUtil.get(MessageCode.BRAND_DELETED)).willReturn("브랜드 삭제 성공");
 
         // when
-        MessageResponse response = brandService.deleteBrand(brandId);
+        MessageResponse response = brandService.deleteBrand(brandUuid);
 
         // then
-        then(brandRepository).should(times(1)).deleteById(brandId);
+        then(brandRepository).should(times(1)).deleteById(brand.getId());
         then(awsS3Service).should(times(1)).deleteBrandImage(anyString());
         assertThat(response.getMessage()).isEqualTo("브랜드 삭제 성공");
     }
@@ -206,12 +210,13 @@ class BrandServiceTest {
     @DisplayName("브랜드 삭제 실패 - 브랜드 없음")
     void delete_brand_not_found_brand() {
         // given
-        Long brandId = 1L;
+        UUID brandUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
-        given(brandRepository.findById(brandId)).willReturn(Optional.empty());
+
+        given(brandRepository.findByUuid(brandUuid)).willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> brandService.deleteBrand(brandId))
+        assertThatThrownBy(() -> brandService.deleteBrand(brandUuid))
                 .isInstanceOf(AppException.class)
                 .hasMessage(ErrorCode.BRAND_NOT_FOUND.getMessage());
     }

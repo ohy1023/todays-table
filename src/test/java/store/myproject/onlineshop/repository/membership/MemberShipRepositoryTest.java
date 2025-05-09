@@ -16,6 +16,7 @@ import store.myproject.onlineshop.global.config.TestConfig;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -158,6 +159,40 @@ class MemberShipRepositoryTest {
         void find_lowest_baseline_empty() {
             // when
             List<MemberShip> result = memberShipRepository.findTopByLowestBaseline(PageRequest.of(0,1));
+
+            // then
+            assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("UUID 기반 멤버십 조회")
+    class FindByUuid {
+
+        @Test
+        @DisplayName("성공")
+        void find_by_uuid_success() {
+            // given
+            MemberShip membership = MemberShipFixture.createBronzeMembership();
+            MemberShip saved = memberShipRepository.save(membership);
+
+            // when
+            Optional<MemberShip> result = memberShipRepository.findByUuid(saved.getUuid());
+
+            // then
+            assertThat(result).isPresent();
+            assertThat(result.get().getUuid()).isEqualTo(saved.getUuid());
+            assertThat(result.get().getLevel()).isEqualTo(saved.getLevel());
+        }
+
+        @Test
+        @DisplayName("실패 - 존재하지 않음")
+        void find_by_uuid_fail() {
+            // given
+            UUID randomUuid = UUID.randomUUID();
+
+            // when
+            Optional<MemberShip> result = memberShipRepository.findByUuid(randomUuid);
 
             // then
             assertThat(result).isEmpty();

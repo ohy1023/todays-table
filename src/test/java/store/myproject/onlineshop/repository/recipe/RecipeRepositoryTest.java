@@ -27,6 +27,7 @@ import store.myproject.onlineshop.repository.customer.CustomerRepository;
 import store.myproject.onlineshop.repository.item.ItemRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -60,7 +61,7 @@ class RecipeRepositoryTest {
             Recipe savedRecipe = recipeRepository.save(recipe);
 
             // when
-            Recipe result = recipeRepository.findByIdWithMeta(savedRecipe.getId())
+            Recipe result = recipeRepository.findByIdWithMeta(savedRecipe.getUuid())
                     .orElseThrow(() -> new RuntimeException("Recipe not found"));
 
             // then
@@ -72,7 +73,7 @@ class RecipeRepositoryTest {
         @DisplayName("실패 - 존재하지 않는 ID 조회 시 empty")
         void find_by_id_with_meta_empty() {
             // when
-            Optional<Recipe> result = recipeRepository.findByIdWithMeta(9999L); // 존재하지 않는 ID
+            Optional<Recipe> result = recipeRepository.findByIdWithMeta(UUID.randomUUID()); // 존재하지 않는 ID
 
             // then
             assertThat(result).isEmpty();
@@ -228,11 +229,11 @@ class RecipeRepositoryTest {
             PageRequest pageRequest = PageRequest.of(0, 10);
 
             // when
-            Page<SimpleRecipeDto> result = recipeRepository.findRecipeUseItem(item.getId(), pageRequest);
+            Page<SimpleRecipeDto> result = recipeRepository.findRecipeUseItem(item.getUuid(), pageRequest);
 
             // then
             assertThat(result.getContent()).hasSize(1);
-            assertThat(result.getContent().get(0).getRecipeId()).isEqualTo(recipe.getId());
+            assertThat(result.getContent().get(0).getRecipeUuid()).isEqualTo(recipe.getUuid());
         }
 
         @Test
@@ -244,7 +245,7 @@ class RecipeRepositoryTest {
             PageRequest pageRequest = PageRequest.of(0, 10);
 
             // when
-            Page<SimpleRecipeDto> result = recipeRepository.findRecipeUseItem(item.getId(), pageRequest);
+            Page<SimpleRecipeDto> result = recipeRepository.findRecipeUseItem(item.getUuid(), pageRequest);
 
             // then
             assertThat(result.getContent()).isEmpty();
@@ -267,7 +268,7 @@ class RecipeRepositoryTest {
             PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Order.desc("wrongField"))); // 잘못된 필드 정렬
 
             // when
-            Page<SimpleRecipeDto> result = recipeRepository.findRecipeUseItem(item.getId(), pageRequest);
+            Page<SimpleRecipeDto> result = recipeRepository.findRecipeUseItem(item.getUuid(), pageRequest);
 
             // then
             assertThat(result.getContent()).hasSize(1);

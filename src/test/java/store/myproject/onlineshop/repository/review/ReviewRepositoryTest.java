@@ -54,7 +54,7 @@ class ReviewRepositoryTest {
             PageRequest pageRequest = PageRequest.of(0, 10);
 
             // when
-            Page<Review> result = reviewRepository.findParentReviews(recipe.getId(), pageRequest);
+            Page<Review> result = reviewRepository.findParentReviews(recipe, pageRequest);
 
             // then
             assertThat(result.getContent()).hasSize(1);

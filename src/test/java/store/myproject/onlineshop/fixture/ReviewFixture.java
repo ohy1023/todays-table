@@ -8,6 +8,7 @@ import store.myproject.onlineshop.domain.review.dto.ReviewUpdateRequest;
 import store.myproject.onlineshop.domain.review.dto.ReviewWriteRequest;
 
 import java.util.Locale;
+import java.util.UUID;
 
 public class ReviewFixture {
 
@@ -16,8 +17,9 @@ public class ReviewFixture {
 
     public static Review createParentReviewEntity(Recipe recipe, Customer customer) {
         return Review.builder()
+                .uuid(UUID.randomUUID())
                 .id(1L)
-                .parentId(0L)
+                .parentId(null)
                 .recipe(recipe)
                 .customer(customer)
                 .reviewContent(faker.lorem().sentence())
@@ -26,7 +28,8 @@ public class ReviewFixture {
 
     public static Review createParentReview(Recipe recipe, Customer customer) {
         return Review.builder()
-                .parentId(0L)
+                .parentId(null)
+                .uuid(UUID.randomUUID())
                 .recipe(recipe)
                 .customer(customer)
                 .reviewContent(faker.lorem().sentence())
@@ -36,6 +39,7 @@ public class ReviewFixture {
     public static Review createChildReviewEntity(Recipe recipe, Customer customer, Review review) {
         return Review.builder()
                 .id(2L)
+                .uuid(UUID.randomUUID())
                 .parentId(review.getId())
                 .recipe(recipe)
                 .customer(customer)
@@ -45,6 +49,7 @@ public class ReviewFixture {
 
     public static Review createChildReview(Recipe recipe, Customer customer, Review review) {
         return Review.builder()
+                .uuid(UUID.randomUUID())
                 .parentId(review.getId())
                 .recipe(recipe)
                 .customer(customer)
@@ -54,7 +59,7 @@ public class ReviewFixture {
 
     public static ReviewWriteRequest createReviewWriteRequest() {
         return ReviewWriteRequest.builder()
-                .reviewParentId(null)
+                .reviewUuid(null)
                 .reviewContent(faker.lorem().sentence())
                 .build();
     }

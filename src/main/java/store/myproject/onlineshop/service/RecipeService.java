@@ -134,7 +134,7 @@ public class RecipeService {
      */
     public Page<ReviewResponse> getRecipeReviews(UUID recipeUuid, Pageable pageable) {
         Recipe recipe = getRecipeByUuid(recipeUuid);
-        Page<Review> parents = reviewRepository.findParentReviews(recipe.getId(), pageable);
+        Page<Review> parents = reviewRepository.findParentReviews(recipe, pageable);
         List<Long> parentIds = parents.stream().map(Review::getId).toList();
         Map<Long, List<Review>> childMap = reviewRepository.findTop3ChildReviews(parentIds, PageRequest.of(0, 3))
                 .stream().collect(Collectors.groupingBy(Review::getParentId));
@@ -148,10 +148,10 @@ public class RecipeService {
     public Page<ChildReviewResponse> getChildReviews(UUID recipeUuid, UUID reviewUuid, Pageable pageable) {
         getRecipeByUuid(recipeUuid);
         Review parent = getReviewByUuid(reviewUuid);
-        if (!parent.getRecipe().getId().equals(recipeUuid)) {
+        if (!parent.getRecipe().getUuid().equals(recipeUuid)) {
             throw new AppException(INVALID_REVIEW);
         }
-        return reviewRepository.findByParentId(parent.getParentId(), pageable)
+        return reviewRepository.findByParentId(parent.getId(), pageable)
                 .map(this::toChildReviewDto);
     }
 
@@ -161,7 +161,14 @@ public class RecipeService {
     public MessageResponse createReview(String email, UUID recipeUuid, ReviewWriteRequest request) {
         Customer customer = getCustomerByEmail(email);
         Recipe recipe = getRecipeWithMeta(recipeUuid);
-        Long parentId = Optional.ofNullable(request.getReviewParentId()).orElse(0L);
+
+        Long parentId = null;
+        if (request.getReviewUuid() != null) {
+            Review parentReview = reviewRepository.findByUuid(request.getReviewUuid())
+                    .orElseThrow(() -> new AppException(REVIEW_NOT_FOUND));
+            parentId = parentReview.getId();
+        }
+
         Review review = request.toEntity(parentId, request.getReviewContent(), customer, recipe);
         review.addReviewToRecipe(recipe);
         reviewRepository.save(review);
@@ -275,7 +282,7 @@ public class RecipeService {
                 .toList();
         boolean hasMore = countMap.getOrDefault(parent.getId(), 0L) > 3;
         return ReviewResponse.builder()
-                .id(parent.getId())
+                .uuid(parent.getUuid())
                 .writer(parent.getCustomer().getNickName())
                 .content(parent.getReviewContent())
                 .childReviews(children)
@@ -288,7 +295,7 @@ public class RecipeService {
      */
     private ChildReviewResponse toChildReviewDto(Review review) {
         return ChildReviewResponse.builder()
-                .id(review.getId())
+                .uuid(review.getUuid())
                 .writer(review.getCustomer().getNickName())
                 .content(review.getReviewContent())
                 .build();

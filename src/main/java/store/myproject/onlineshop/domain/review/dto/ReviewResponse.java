@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -13,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ReviewResponse {
 
-    private Long id;
+    private UUID uuid;
     private String content;
     private String writer;
     private List<ChildReviewResponse> childReviews;

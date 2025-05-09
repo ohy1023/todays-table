@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import store.myproject.onlineshop.domain.recipe.Recipe;
 import store.myproject.onlineshop.domain.review.Review;
 
 import java.util.List;
@@ -15,12 +16,13 @@ import java.util.stream.Collectors;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
+    @Query("SELECT r FROM Review r WHERE r.parentId =: parentId")
     Page<Review> findByParentId(Long parentId, Pageable pageable);
 
     Optional<Review> findByUuid(UUID uuid);
 
-    @Query("SELECT r FROM Review r WHERE r.recipe.id = :recipeId AND r.parentId = 0")
-    Page<Review> findParentReviews(@Param("recipeId") Long recipeId, Pageable pageable);
+    @Query("SELECT r FROM Review r WHERE r.recipe = :recipe AND r.parentId IS NULL")
+    Page<Review> findParentReviews(@Param("recipe") Recipe recipe, Pageable pageable);
 
     @Query("SELECT r FROM Review r WHERE r.parentId IN :parentReviewIds ORDER BY r.createdDate ASC")
     List<Review> findTop3ChildReviews(@Param("parentReviewIds") List<Long> parentReviewIds, Pageable pageable);

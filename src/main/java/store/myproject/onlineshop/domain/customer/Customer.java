@@ -24,6 +24,17 @@ import static store.myproject.onlineshop.domain.customer.CustomerRole.*;
 @AllArgsConstructor
 @Where(clause = "deleted_date IS NULL")
 @SQLDelete(sql = "UPDATE Customer SET deleted_date = CURRENT_TIMESTAMP WHERE customer_id = ?")
+@Table(
+        uniqueConstraints = {
+                // email과 deleted_date 컬럼을 묶어서 복합 유니크 제약 조건 추가
+                @UniqueConstraint(
+                        name = "uq_customer_email_deleted_date", // 제약 조건 이름 (맘대로 지어도 되지만 관례 따르는 게 좋음)
+                        // 복합 유니크 걸 컬럼 이름들. DB 테이블의 실제 컬럼명으로!
+                        // email 필드는 @Column name 없으니 email, deleted_date는 BaseEntity에서 created_at처럼 기본 스네이크케이스일 가능성 높음
+                        columnNames = {"email", "deleted_date"}
+                )
+        }
+)
 public class Customer extends BaseEntity {
 
     @Id
@@ -31,7 +42,6 @@ public class Customer extends BaseEntity {
     @Column(name = "customer_id")
     private Long id;
 
-    @Column(unique = true)
     private String email;
 
     @Column(name = "nick_name")

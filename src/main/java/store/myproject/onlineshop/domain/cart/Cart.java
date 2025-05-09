@@ -35,4 +35,8 @@ public class Cart {
                 .build();
     }
 
+    public void addCartItem(CartItem cartItem) {
+        this.cartItems.add(cartItem);
+    }
+
 }

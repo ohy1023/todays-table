@@ -28,6 +28,7 @@ import store.myproject.onlineshop.repository.orderitem.OrderItemRepository;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -64,13 +65,13 @@ class OrderRepositoryTest {
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
         OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(customer, item, discountedPrice, 1L));
-        Order order = orderRepository.save(Order.createOrder("merchantUid", customer, delivery, orderItem));
+        Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
         orderItem.setOrder(order);
 
         // 검색 조건 생성
         OrderSearchCond condition = OrderSearchCond.builder()
                 .brandName(brand.getName())
-                .orderStatus(OrderStatus.ORDER)
+                .orderStatus(OrderStatus.READY)
                 .build();
 
         PageRequest pageRequest = PageRequest.of(0, 10);
@@ -95,7 +96,7 @@ class OrderRepositoryTest {
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
         OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(customer, item, discountedPrice, 1L));
-        Order order = orderRepository.save(Order.createOrder("merchantUid", customer, delivery, orderItem));
+        Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
         orderItem.setOrder(order);
 
         // 검색 조건 생성
@@ -124,7 +125,7 @@ class OrderRepositoryTest {
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
         OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(customer, item, discountedPrice, 1L));
-        Order order = orderRepository.save(Order.createOrder("merchantUid", customer, delivery, orderItem));
+        Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
         orderItem.setOrder(order);
 
         // 검색 조건 (itemName만 설정)
@@ -155,13 +156,13 @@ class OrderRepositoryTest {
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
         OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(customer, item, discountedPrice, 1L));
-        Order order = orderRepository.save(Order.createOrder("merchantUid", customer, delivery, orderItem));
+        Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
         orderItem.setOrder(order);
 
         // 검색 조건 (brandName만 null)
         OrderSearchCond condition = OrderSearchCond.builder()
                 .itemName(item.getItemName())
-                .orderStatus(OrderStatus.ORDER)
+                .orderStatus(OrderStatus.READY)
                 .build();
 
         PageRequest pageRequest = PageRequest.of(0, 10);
@@ -187,7 +188,7 @@ class OrderRepositoryTest {
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
         OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(customer, item, discountedPrice, 1L));
-        Order order = orderRepository.save(Order.createOrder("merchantUid", customer, delivery, orderItem));
+        Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
         orderItem.setOrder(order);
 
         // 검색 조건 (orderStatus만 null)
@@ -218,11 +219,11 @@ class OrderRepositoryTest {
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
         OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(customer, item, discountedPrice, 1L));
-        Order order = orderRepository.save(Order.createOrder("merchantUid", customer, delivery, orderItem));
+        Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
         orderItem.setOrder(order);
 
         // when
-        Optional<Order> result = orderRepository.findMyOrder(order.getId(), customer);
+        Optional<Order> result = orderRepository.findMyOrder(order.getMerchantUid(), customer);
 
         // then
         assertThat(result).isPresent();
@@ -243,7 +244,7 @@ class OrderRepositoryTest {
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
         OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(customer, item, discountedPrice, 1L));
-        Order order = orderRepository.save(Order.createOrder("merchantUid", customer, delivery, orderItem));
+        Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
         orderItem.setOrder(order);
 
         // when
@@ -258,7 +259,7 @@ class OrderRepositoryTest {
     @DisplayName("존재하지 않는 주문 조회 시 빈 값")
     void find_by_merchant_uid_no_result() {
         // when
-        Optional<Order> result = orderRepository.findByMerchantUid("non-existent-uid");
+        Optional<Order> result = orderRepository.findByMerchantUid(UUID.randomUUID());
 
         // then
         assertThat(result).isEmpty();
@@ -277,7 +278,7 @@ class OrderRepositoryTest {
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
         OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(customer, item, discountedPrice, 1L));
-        Order order = orderRepository.save(Order.createOrder("merchantUid", customer, delivery, orderItem));
+        Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
         orderItem.setOrder(order);
 
         // when
@@ -291,7 +292,7 @@ class OrderRepositoryTest {
     @DisplayName("존재하지 않는 MerchantUid에 대해 count는 0을 반환")
     void count_by_merchant_uid_zero() {
         // when
-        Long count = orderRepository.countByMerchantUid("no-such-uid");
+        Long count = orderRepository.countByMerchantUid(UUID.randomUUID());
 
         // then
         assertThat(count).isZero();

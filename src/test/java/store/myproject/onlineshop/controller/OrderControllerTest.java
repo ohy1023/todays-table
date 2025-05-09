@@ -12,12 +12,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import store.myproject.onlineshop.domain.MessageResponse;
+import store.myproject.onlineshop.domain.cart.dto.CartOrderRequest;
 import store.myproject.onlineshop.domain.order.dto.*;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.fixture.OrderFixture;
 import store.myproject.onlineshop.service.OrderService;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -87,10 +89,12 @@ class OrderControllerTest {
         @Test
         @DisplayName("주문 단건 조회 성공")
         void findOneOrder_success() throws Exception {
-            OrderInfo orderInfo = OrderFixture.createOrderInfo();
-            given(orderService.getOrderById(anyLong(), anyString())).willReturn(orderInfo);
+            UUID orderUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
-            mockMvc.perform(get("/api/v1/orders/1"))
+            OrderInfo orderInfo = OrderFixture.createOrderInfo();
+            given(orderService.getOrderByUuid(any(UUID.class), anyString())).willReturn(orderInfo);
+
+            mockMvc.perform(get("/api/v1/orders/{orderUuid}", orderUuid))
                     .andExpect(status().isOk())
                     .andDo(print());
         }
@@ -98,10 +102,12 @@ class OrderControllerTest {
         @Test
         @DisplayName("주문 단건 조회 실패 - 고객 없음")
         void findOneOrder_fail_customer_not_found() throws Exception {
-            given(orderService.getOrderById(anyLong(), anyString()))
+            UUID orderUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+
+            given(orderService.getOrderByUuid(any(UUID.class), anyString()))
                     .willThrow(new AppException(CUSTOMER_NOT_FOUND));
 
-            mockMvc.perform(get("/api/v1/orders/1"))
+            mockMvc.perform(get("/api/v1/orders/{orderUuid}", orderUuid))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.result.errorCode").value(CUSTOMER_NOT_FOUND.name()))
                     .andDo(print());
@@ -143,10 +149,16 @@ class OrderControllerTest {
         @Test
         @DisplayName("주문 취소 성공")
         void cancel_success() throws Exception {
-            given(orderService.cancelOrder(anyLong())).willReturn(new MessageResponse("주문이 취소되었습니다."));
+            UUID orderUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+            CancelItemRequest request = OrderFixture.createCancelItemRequest(orderUuid);
 
-            mockMvc.perform(delete("/api/v1/orders/1")
-                            .with(csrf()))
+            given(orderService.cancelOrder(any(UUID.class), any(CancelItemRequest.class))).willReturn(new MessageResponse("주문이 취소되었습니다."));
+
+            mockMvc.perform(delete("/api/v1/orders/{orderUuid}", orderUuid)
+                            .with(csrf())
+                            .contentType(APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request))
+                    )
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.result.message").value("주문이 취소되었습니다."))
                     .andDo(print());
@@ -155,11 +167,17 @@ class OrderControllerTest {
         @Test
         @DisplayName("주문 취소 실패 - 주문 없음")
         void cancel_fail_order_not_found() throws Exception {
-            given(orderService.cancelOrder(anyLong()))
+            UUID orderUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+            CancelItemRequest request = OrderFixture.createCancelItemRequest(orderUuid);
+
+            given(orderService.cancelOrder(any(UUID.class), any(CancelItemRequest.class)))
                     .willThrow(new AppException(ORDER_NOT_FOUND));
 
-            mockMvc.perform(delete("/api/v1/orders/999")
-                            .with(csrf()))
+            mockMvc.perform(delete("/api/v1/orders/{orderUuid}", orderUuid)
+                            .with(csrf())
+                            .contentType(APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request))
+                    )
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.result.errorCode").value(ORDER_NOT_FOUND.name()))
                     .andDo(print());
@@ -173,14 +191,17 @@ class OrderControllerTest {
         @Test
         @DisplayName("배송지 변경 성공")
         void updateDelivery_success() throws Exception {
-            MessageResponse response = new MessageResponse("배송지 수정 완료");
-            given(orderService.updateDeliveryAddress(anyLong(), any())).willReturn(response);
+            UUID orderUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
-            mockMvc.perform(put("/api/v1/orders/1")
+            MessageResponse response = new MessageResponse(orderUuid, "배송지 수정 완료");
+            given(orderService.updateDeliveryAddress(any(UUID.class), any())).willReturn(response);
+
+            mockMvc.perform(put("/api/v1/orders/{orderUuid}", orderUuid)
                             .with(csrf())
                             .contentType(APPLICATION_JSON)
                             .content("{}"))
                     .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.result.uuid").value(orderUuid.toString()))
                     .andExpect(jsonPath("$.result.message").value("배송지 수정 완료"))
                     .andDo(print());
         }
@@ -188,10 +209,12 @@ class OrderControllerTest {
         @Test
         @DisplayName("배송지 변경 실패 - 주문 없음")
         void updateDelivery_fail_order_not_found() throws Exception {
-            given(orderService.updateDeliveryAddress(anyLong(), any()))
+            UUID wrongOrderUuid = UUID.randomUUID();
+
+            given(orderService.updateDeliveryAddress(any(UUID.class), any()))
                     .willThrow(new AppException(ORDER_NOT_FOUND));
 
-            mockMvc.perform(put("/api/v1/orders/999")
+            mockMvc.perform(put("/api/v1/orders/{wrongOrderUuid}", wrongOrderUuid)
                             .with(csrf())
                             .contentType(APPLICATION_JSON)
                             .content("{}"))
@@ -208,13 +231,15 @@ class OrderControllerTest {
         @Test
         @DisplayName("장바구니 주문 성공")
         void orderByCart_success() throws Exception {
+            CartOrderRequest request = OrderFixture.createCartOrderRequest();
             List<OrderInfo> response = List.of(OrderFixture.createOrderInfo());
+
             given(orderService.placeCartOrder(any(), anyString())).willReturn(response);
 
             mockMvc.perform(post("/api/v1/orders/cart")
                             .with(csrf())
                             .contentType(APPLICATION_JSON)
-                            .content("{}"))
+                            .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
                     .andDo(print());
         }
@@ -222,13 +247,15 @@ class OrderControllerTest {
         @Test
         @DisplayName("장바구니 주문 실패 - 고객 없음")
         void orderByCart_fail_customer_not_found() throws Exception {
+            CartOrderRequest request = OrderFixture.createCartOrderRequest();
+
             given(orderService.placeCartOrder(any(), anyString()))
                     .willThrow(new AppException(CUSTOMER_NOT_FOUND));
 
             mockMvc.perform(post("/api/v1/orders/cart")
                             .with(csrf())
                             .contentType(APPLICATION_JSON)
-                            .content("{}"))
+                            .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.result.errorCode").value(CUSTOMER_NOT_FOUND.name()))
                     .andDo(print());
@@ -301,7 +328,7 @@ class OrderControllerTest {
         @Test
         @DisplayName("사후 검증 실패 - 금액 불일치")
         void post_verification_fail_wrong_amount() throws Exception {
-            PostVerificationRequest request = new PostVerificationRequest("imp_uid_123", "merchantUid-123");
+            PostVerificationRequest request = OrderFixture.createPostVerificationRequest();
 
             given(orderService.verifyPostPayment(any()))
                     .willThrow(new AppException(WRONG_PAYMENT_AMOUNT));

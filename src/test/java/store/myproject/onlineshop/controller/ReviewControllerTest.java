@@ -20,6 +20,7 @@ import store.myproject.onlineshop.fixture.ReviewFixture;
 import store.myproject.onlineshop.service.RecipeService;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -50,9 +51,11 @@ class ReviewControllerTest {
         @Test
         @DisplayName("성공")
         void get_parent_reviews_success() throws Exception {
+            UUID recipeUuid = UUID.randomUUID();
+
             List<ReviewResponse> responses = List.of(
                     ReviewResponse.builder()
-                            .id(1L)
+                            .uuid(UUID.randomUUID())
                             .writer("작성자")
                             .content("내용")
                             .childReviews(List.of())
@@ -60,9 +63,9 @@ class ReviewControllerTest {
                             .build()
             );
 
-            given(recipeService.getRecipeReviews(anyLong(), any())).willReturn(new PageImpl<>(responses));
+            given(recipeService.getRecipeReviews(any(), any())).willReturn(new PageImpl<>(responses));
 
-            mockMvc.perform(get("/api/v1/recipes/1/reviews"))
+            mockMvc.perform(get("/api/v1/recipes/{recipeUuid}/reviews", recipeUuid))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.result.content[0].writer").value("작성자"))
                     .andExpect(jsonPath("$.result.content[0].content").value("내용"))
@@ -72,9 +75,11 @@ class ReviewControllerTest {
         @Test
         @DisplayName("실패 - 레시피 없음")
         void get_parent_reviews_recipe_not_found() throws Exception {
-            given(recipeService.getRecipeReviews(anyLong(), any())).willThrow(new AppException(RECIPE_NOT_FOUND));
+            UUID recipeUuid = UUID.randomUUID();
 
-            mockMvc.perform(get("/api/v1/recipes/999/reviews"))
+            given(recipeService.getRecipeReviews(any(), any())).willThrow(new AppException(RECIPE_NOT_FOUND));
+
+            mockMvc.perform(get("/api/v1/recipes/{recipeUuid}/reviews", recipeUuid))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.result.errorCode").value(RECIPE_NOT_FOUND.name()))
                     .andDo(print());
@@ -88,13 +93,16 @@ class ReviewControllerTest {
         @Test
         @DisplayName("성공")
         void get_child_reviews_success() throws Exception {
+            UUID recipeUuid = UUID.randomUUID();
+            UUID reviewUuid = UUID.randomUUID();
+
             List<ChildReviewResponse> childResponses = List.of(
-                    ChildReviewResponse.builder().id(1L).writer("답글작성자").content("답글 내용").build()
+                    ChildReviewResponse.builder().uuid(UUID.randomUUID()).writer("답글작성자").content("답글 내용").build()
             );
 
-            given(recipeService.getChildReviews(anyLong(), anyLong(), any())).willReturn(new PageImpl<>(childResponses));
+            given(recipeService.getChildReviews(any(), any(), any())).willReturn(new PageImpl<>(childResponses));
 
-            mockMvc.perform(get("/api/v1/recipes/1/reviews/1/replies"))
+            mockMvc.perform(get("/api/v1/recipes/{recipeUuid}/reviews/{reviewUuid}/replies", recipeUuid, reviewUuid))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.result.content[0].writer").value("답글작성자"))
                     .andExpect(jsonPath("$.result.content[0].content").value("답글 내용"))
@@ -104,9 +112,12 @@ class ReviewControllerTest {
         @Test
         @DisplayName("실패 - 레시피 없음")
         void get_child_reviews_recipe_not_found() throws Exception {
-            given(recipeService.getChildReviews(anyLong(), anyLong(), any())).willThrow(new AppException(RECIPE_NOT_FOUND));
+            UUID recipeUuid = UUID.randomUUID();
+            UUID reviewUuid = UUID.randomUUID();
 
-            mockMvc.perform(get("/api/v1/recipes/999/reviews/1/replies"))
+            given(recipeService.getChildReviews(any(), any(), any())).willThrow(new AppException(RECIPE_NOT_FOUND));
+
+            mockMvc.perform(get("/api/v1/recipes/{recipeUuid}/reviews/{reviewUuid}/replies", recipeUuid, reviewUuid))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.result.errorCode").value(RECIPE_NOT_FOUND.name()))
                     .andDo(print());
@@ -115,9 +126,12 @@ class ReviewControllerTest {
         @Test
         @DisplayName("실패 - 레시피 불일치")
         void get_child_reviews_customer_not_found() throws Exception {
-            given(recipeService.getChildReviews(anyLong(), anyLong(), any())).willThrow(new AppException(INVALID_REVIEW));
+            UUID recipeUuid = UUID.randomUUID();
+            UUID reviewUuid = UUID.randomUUID();
 
-            mockMvc.perform(get("/api/v1/recipes/1/reviews/1/replies"))
+            given(recipeService.getChildReviews(any(), any(), any())).willThrow(new AppException(INVALID_REVIEW));
+
+            mockMvc.perform(get("/api/v1/recipes/{recipeUuid}/reviews/{reviewUuid}/replies", recipeUuid, reviewUuid))
                     .andExpect(status().isConflict())
                     .andExpect(jsonPath("$.result.errorCode").value(INVALID_REVIEW.name()))
                     .andDo(print());
@@ -132,12 +146,14 @@ class ReviewControllerTest {
         @Test
         @DisplayName("성공")
         void write_success() throws Exception {
+            UUID recipeUuid = UUID.randomUUID();
+
             ReviewWriteRequest request = ReviewFixture.createReviewWriteRequest();
             MessageResponse response = new MessageResponse("작성 완료");
 
-            given(recipeService.createReview(anyString(), anyLong(), any())).willReturn(response);
+            given(recipeService.createReview(anyString(), any(), any())).willReturn(response);
 
-            mockMvc.perform(post("/api/v1/recipes/1/reviews")
+            mockMvc.perform(post("/api/v1/recipes/{recipeUuid}/reviews", recipeUuid)
                             .with(csrf())
                             .contentType(APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -149,12 +165,14 @@ class ReviewControllerTest {
         @Test
         @DisplayName("실패 - 레시피 없음")
         void write_recipe_not_found() throws Exception {
+            UUID recipeUuid = UUID.randomUUID();
+
             ReviewWriteRequest request = ReviewFixture.createReviewWriteRequest();
 
-            given(recipeService.createReview(anyString(), anyLong(), any()))
+            given(recipeService.createReview(anyString(), any(), any()))
                     .willThrow(new AppException(RECIPE_NOT_FOUND));
 
-            mockMvc.perform(post("/api/v1/recipes/999/reviews")
+            mockMvc.perform(post("/api/v1/recipes/{recipeUuid}/reviews", recipeUuid)
                             .with(csrf())
                             .contentType(APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -166,12 +184,13 @@ class ReviewControllerTest {
         @Test
         @DisplayName("실패 - 고객 없음")
         void write_customer_not_found() throws Exception {
+            UUID recipeUuid = UUID.randomUUID();
             ReviewWriteRequest request = ReviewFixture.createReviewWriteRequest();
 
-            given(recipeService.createReview(anyString(), anyLong(), any()))
+            given(recipeService.createReview(anyString(), any(), any()))
                     .willThrow(new AppException(CUSTOMER_NOT_FOUND));
 
-            mockMvc.perform(post("/api/v1/recipes/1/reviews")
+            mockMvc.perform(post("/api/v1/recipes/{recipeUuid}/reviews", recipeUuid)
                             .with(csrf())
                             .contentType(APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -184,13 +203,14 @@ class ReviewControllerTest {
         @DisplayName("실패 - 권한 없음")
         @WithMockUser(roles = "ADMIN")
         void write_forbidden() throws Exception {
+            UUID recipeUuid = UUID.randomUUID();
 
             ReviewWriteRequest request = ReviewFixture.createReviewWriteRequest();
 
-            given(recipeService.createReview(anyString(), anyLong(), any()))
+            given(recipeService.createReview(anyString(), any(), any()))
                     .willThrow(new AppException(FORBIDDEN_ACCESS));
 
-            mockMvc.perform(post("/api/v1/recipes/1/reviews")
+            mockMvc.perform(post("/api/v1/recipes/{recipeUuid}/reviews", recipeUuid)
                             .with(csrf())
                             .contentType(APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -207,12 +227,15 @@ class ReviewControllerTest {
         @Test
         @DisplayName("성공")
         void update_success() throws Exception {
+            UUID recipeUuid = UUID.randomUUID();
+            UUID reviewUuid = UUID.randomUUID();
+
             ReviewUpdateRequest request = ReviewFixture.createReviewUpdateRequest();
             MessageResponse response = new MessageResponse("수정 완료");
 
-            given(recipeService.updateReview(anyString(), anyLong(), anyLong(), any())).willReturn(response);
+            given(recipeService.updateReview(anyString(), any(), any(), any())).willReturn(response);
 
-            mockMvc.perform(put("/api/v1/recipes/1/reviews/1")
+            mockMvc.perform(put("/api/v1/recipes/{recipeUuid}/reviews/{reviewUuid}", recipeUuid, reviewUuid)
                             .with(csrf())
                             .contentType(APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -224,12 +247,15 @@ class ReviewControllerTest {
         @Test
         @DisplayName("실패 - 레시피 없음")
         void update_recipe_not_found() throws Exception {
+            UUID recipeUuid = UUID.randomUUID();
+            UUID reviewUuid = UUID.randomUUID();
+
             ReviewUpdateRequest request = ReviewFixture.createReviewUpdateRequest();
 
-            given(recipeService.updateReview(anyString(), anyLong(), anyLong(), any()))
+            given(recipeService.updateReview(anyString(), any(), any(), any()))
                     .willThrow(new AppException(RECIPE_NOT_FOUND));
 
-            mockMvc.perform(put("/api/v1/recipes/999/reviews/1")
+            mockMvc.perform(put("/api/v1/recipes/{recipeUuid}/reviews/{reviewUuid}", recipeUuid, reviewUuid)
                             .with(csrf())
                             .contentType(APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -242,12 +268,15 @@ class ReviewControllerTest {
         @DisplayName("실패 - 권한 없음")
         @WithMockUser(roles = "ADMIN")
         void update_forbidden() throws Exception {
+            UUID recipeUuid = UUID.randomUUID();
+            UUID reviewUuid = UUID.randomUUID();
+
             ReviewUpdateRequest request = ReviewFixture.createReviewUpdateRequest();
 
-            given(recipeService.updateReview(anyString(), anyLong(), anyLong(), any()))
+            given(recipeService.updateReview(anyString(), any(), any(), any()))
                     .willThrow(new AppException(FORBIDDEN_ACCESS));
 
-            mockMvc.perform(put("/api/v1/recipes/1/reviews/1")
+            mockMvc.perform(put("/api/v1/recipes/{recipeUuid}/reviews/{reviewUuid}", recipeUuid, reviewUuid)
                             .with(csrf())
                             .contentType(APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -259,12 +288,15 @@ class ReviewControllerTest {
         @Test
         @DisplayName("실패 - 고객 없음")
         void update_customer_not_found() throws Exception {
+            UUID recipeUuid = UUID.randomUUID();
+            UUID reviewUuid = UUID.randomUUID();
+
             ReviewUpdateRequest request = ReviewFixture.createReviewUpdateRequest();
 
-            given(recipeService.updateReview(anyString(), anyLong(), anyLong(), any()))
+            given(recipeService.updateReview(anyString(), any(), any(), any()))
                     .willThrow(new AppException(CUSTOMER_NOT_FOUND));
 
-            mockMvc.perform(put("/api/v1/recipes/1/reviews/1")
+            mockMvc.perform(put("/api/v1/recipes/{recipeUuid}/reviews/{reviewUuid}", recipeUuid, reviewUuid)
                             .with(csrf())
                             .contentType(APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -281,11 +313,13 @@ class ReviewControllerTest {
         @Test
         @DisplayName("성공")
         void delete_success() throws Exception {
+            UUID recipeUuid = UUID.randomUUID();
+            UUID reviewUuid = UUID.randomUUID();
             MessageResponse response = new MessageResponse("삭제 완료");
 
-            given(recipeService.deleteReview(anyString(), anyLong(), anyLong())).willReturn(response);
+            given(recipeService.deleteReview(anyString(), any(), any())).willReturn(response);
 
-            mockMvc.perform(delete("/api/v1/recipes/1/reviews/1")
+            mockMvc.perform(delete("/api/v1/recipes/{recipeUuid}/reviews/{reviewUuid}", recipeUuid, reviewUuid)
                             .with(csrf()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.result.message").value("삭제 완료"))
@@ -295,10 +329,12 @@ class ReviewControllerTest {
         @Test
         @DisplayName("실패 - 레시피 없음")
         void delete_recipe_not_found() throws Exception {
-            given(recipeService.deleteReview(anyString(), anyLong(), anyLong()))
+            UUID recipeUuid = UUID.randomUUID();
+            UUID reviewUuid = UUID.randomUUID();
+            given(recipeService.deleteReview(anyString(), any(), any()))
                     .willThrow(new AppException(RECIPE_NOT_FOUND));
 
-            mockMvc.perform(delete("/api/v1/recipes/999/reviews/1")
+            mockMvc.perform(delete("/api/v1/recipes/{recipeUuid}/reviews/{reviewUuid}", recipeUuid, reviewUuid)
                             .with(csrf()))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.result.errorCode").value(RECIPE_NOT_FOUND.name()))
@@ -309,10 +345,12 @@ class ReviewControllerTest {
         @DisplayName("실패 - 권한 없음")
         @WithMockUser(roles = "ADMIN")
         void delete_forbidden() throws Exception {
-            given(recipeService.deleteReview(anyString(), anyLong(), anyLong()))
+            UUID recipeUuid = UUID.randomUUID();
+            UUID reviewUuid = UUID.randomUUID();
+            given(recipeService.deleteReview(anyString(), any(), any()))
                     .willThrow(new AppException(FORBIDDEN_ACCESS));
 
-            mockMvc.perform(delete("/api/v1/recipes/1/reviews/1")
+            mockMvc.perform(delete("/api/v1/recipes/{recipeUuid}/reviews/{reviewUuid}", recipeUuid, reviewUuid)
                             .with(csrf()))
                     .andExpect(status().isForbidden())
                     .andExpect(jsonPath("$.result.errorCode").value(FORBIDDEN_ACCESS.name()))
@@ -322,10 +360,12 @@ class ReviewControllerTest {
         @Test
         @DisplayName("실패 - 고객 없음")
         void delete_customer_not_found() throws Exception {
-            given(recipeService.deleteReview(anyString(), anyLong(), anyLong()))
+            UUID recipeUuid = UUID.randomUUID();
+            UUID reviewUuid = UUID.randomUUID();
+            given(recipeService.deleteReview(anyString(), any(), any()))
                     .willThrow(new AppException(CUSTOMER_NOT_FOUND));
 
-            mockMvc.perform(delete("/api/v1/recipes/1/reviews/1")
+            mockMvc.perform(delete("/api/v1/recipes/{recipeUuid}/reviews/{reviewUuid}", recipeUuid, reviewUuid)
                             .with(csrf()))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.result.errorCode").value(CUSTOMER_NOT_FOUND.name()))

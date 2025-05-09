@@ -22,6 +22,7 @@ import store.myproject.onlineshop.fixture.RecipeFixture;
 import store.myproject.onlineshop.service.RecipeService;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -54,11 +55,13 @@ class RecipeControllerTest {
         @Test
         @DisplayName("성공")
         void get_recipe_success() throws Exception {
-            RecipeDto response = RecipeFixture.createRecipeDto();
+            UUID recipeUuid = UUID.randomUUID();
 
-            given(recipeService.getRecipeDetail(anyLong())).willReturn(response);
+            RecipeDto response = RecipeFixture.createRecipeDto(recipeUuid);
 
-            mockMvc.perform(get("/api/v1/recipes/1"))
+            given(recipeService.getRecipeDetail(any())).willReturn(response);
+
+            mockMvc.perform(get("/api/v1/recipes/{recipeUuid}", recipeUuid))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.resultCode").value(SUCCESS))
                     .andDo(print());
@@ -67,9 +70,11 @@ class RecipeControllerTest {
         @Test
         @DisplayName("실패 - 레시피 없음")
         void get_recipe_fail_not_found() throws Exception {
-            given(recipeService.getRecipeDetail(anyLong())).willThrow(new AppException(RECIPE_NOT_FOUND));
+            UUID recipeUuid = UUID.randomUUID();
 
-            mockMvc.perform(get("/api/v1/recipes/1"))
+            given(recipeService.getRecipeDetail(any())).willThrow(new AppException(RECIPE_NOT_FOUND));
+
+            mockMvc.perform(get("/api/v1/recipes/{recipeUuid}", recipeUuid))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.resultCode").value(ERROR))
                     .andExpect(jsonPath("$.result.errorCode").value(RECIPE_NOT_FOUND.name()))
@@ -124,14 +129,16 @@ class RecipeControllerTest {
         @Test
         @DisplayName("성공")
         void update_recipe_success() throws Exception {
+            UUID recipeUuid = UUID.randomUUID();
+
             RecipeUpdateRequest recipeUpdateRequest = RecipeFixture.createRecipeUpdateRequest();
 
             String request = objectMapper.writeValueAsString(recipeUpdateRequest);
 
-            given(recipeService.updateRecipe(anyLong(), any(), anyString()))
+            given(recipeService.updateRecipe(any(), any(), anyString()))
                     .willReturn(new MessageResponse("수정 성공"));
 
-            mockMvc.perform(put("/api/v1/recipes/{recipeId}", 1L)
+            mockMvc.perform(put("/api/v1/recipes/{recipeUuid}", recipeUuid)
                             .contentType(APPLICATION_JSON)
                             .content(request)
                             .with(csrf()))
@@ -145,14 +152,16 @@ class RecipeControllerTest {
         @Test
         @DisplayName("실패 - 권한 없음")
         void update_recipe_fail_forbidden() throws Exception {
+            UUID recipeUuid = UUID.randomUUID();
+
             RecipeUpdateRequest recipeUpdateRequest = RecipeFixture.createRecipeUpdateRequest();
 
             String request = objectMapper.writeValueAsString(recipeUpdateRequest);
 
-            given(recipeService.updateRecipe(anyLong(), any(), anyString()))
+            given(recipeService.updateRecipe(any(), any(), anyString()))
                     .willThrow(new AppException(FORBIDDEN_ACCESS));
 
-            mockMvc.perform(put("/api/v1/recipes/{recipeId}", 1L)
+            mockMvc.perform(put("/api/v1/recipes/{recipeUuid}", recipeUuid)
                             .contentType(APPLICATION_JSON)
                             .content(request)
                             .with(csrf()))
@@ -171,10 +180,12 @@ class RecipeControllerTest {
         @Test
         @DisplayName("성공")
         void delete_recipe_success() throws Exception {
-            given(recipeService.deleteRecipe(anyLong(), anyString()))
+            UUID recipeUuid = UUID.randomUUID();
+
+            given(recipeService.deleteRecipe(any(), anyString()))
                     .willReturn(new MessageResponse("삭제 성공"));
 
-            mockMvc.perform(delete("/api/v1/recipes/1").with(csrf()))
+            mockMvc.perform(delete("/api/v1/recipes/{recipeUuid}", recipeUuid).with(csrf()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.resultCode").value(SUCCESS))
                     .andExpect(jsonPath("$.result.message").value("삭제 성공"))
@@ -184,10 +195,12 @@ class RecipeControllerTest {
         @Test
         @DisplayName("실패 - 권한 없음")
         void delete_recipe_fail_forbidden() throws Exception {
-            given(recipeService.deleteRecipe(anyLong(), anyString()))
+            UUID recipeUuid = UUID.randomUUID();
+
+            given(recipeService.deleteRecipe(any(), anyString()))
                     .willThrow(new AppException(FORBIDDEN_ACCESS));
 
-            mockMvc.perform(delete("/api/v1/recipes/1").with(csrf()))
+            mockMvc.perform(delete("/api/v1/recipes/{recipeUuid}",recipeUuid).with(csrf()))
                     .andExpect(status().isForbidden())
                     .andExpect(jsonPath("$.resultCode").value(ERROR))
                     .andExpect(jsonPath("$.result.errorCode").value(FORBIDDEN_ACCESS.name()))

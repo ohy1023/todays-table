@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static store.myproject.onlineshop.domain.order.OrderStatus.*;
@@ -49,7 +50,7 @@ public class Order extends BaseEntity {
     private UUID merchantUid;
 
     @Setter
-    @Column(name = "imp_uid", unique = true, nullable = false)
+    @Column(name = "imp_uid", unique = true)
     private String impUid;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -147,7 +148,11 @@ public class Order extends BaseEntity {
                 .brandName(this.orderItemList.get(0).getItem().getBrand().getName())
                 .itemName(this.orderItemList.get(0).getItem().getItemName())
                 .totalPrice(this.totalPrice)
-                .orderDate(this.getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분 ss초")))
+                .orderDate(
+                        Optional.ofNullable(this.getCreatedDate())
+                                .map(d -> d.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분 ss초")))
+                                .orElse("날짜 없음")
+                )
                 .orderCustomerName(this.customer.getUserName())
                 .orderCustomerTel(this.customer.getTel())
                 .orderStatus(this.orderStatus.name())

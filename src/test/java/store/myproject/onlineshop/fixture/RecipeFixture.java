@@ -9,6 +9,7 @@ import store.myproject.onlineshop.domain.recipestep.dto.RecipeStepDto;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class RecipeFixture {
 
@@ -23,6 +24,7 @@ public class RecipeFixture {
 
         return Recipe.builder()
                 .id(1L)
+                .uuid(UUID.randomUUID())
                 .recipeTitle(faker.food().dish()) // 랜덤 음식 이름
                 .recipeDescription(faker.lorem().sentence()) // 랜덤 문장
                 .recipeServings(faker.number().numberBetween(1, 6) + "인분") // "3인분" 형식
@@ -42,6 +44,7 @@ public class RecipeFixture {
 
         return Recipe.builder()
                 .id(id)
+                .uuid(UUID.randomUUID())
                 .recipeTitle(faker.food().dish()) // 랜덤 음식 이름
                 .recipeDescription(faker.lorem().sentence()) // 랜덤 문장
                 .recipeServings(faker.number().numberBetween(1, 6) + "인분") // "3인분" 형식
@@ -60,6 +63,7 @@ public class RecipeFixture {
                 .build();
 
         return Recipe.builder()
+                .uuid(UUID.randomUUID())
                 .recipeTitle(faker.food().dish()) // 랜덤 음식 이름
                 .recipeDescription(faker.lorem().sentence()) // 랜덤 문장
                 .recipeServings(faker.number().numberBetween(1, 6) + "인분") // "3인분" 형식
@@ -76,7 +80,7 @@ public class RecipeFixture {
                 .recipeDescription(faker.lorem().paragraph())
                 .recipeCookingTime(faker.number().numberBetween(10, 120) + "분")
                 .recipeServings(faker.number().digit() + "인분")
-                .itemIdList(List.of(1L, 2L, 3L))
+                .itemUuidList(List.of(UUID.fromString(faker.internet().uuid()), UUID.fromString(faker.internet().uuid()), UUID.fromString(faker.internet().uuid())))
                 .steps(List.of(RecipeStepRequest.builder()
                         .order(faker.number().numberBetween(0, 50))
                         .content(faker.lorem().paragraph())
@@ -91,7 +95,7 @@ public class RecipeFixture {
                 .recipeDescription(faker.lorem().paragraph())
                 .recipeCookingTime(faker.number().numberBetween(10, 120) + "분")
                 .recipeServings(faker.number().digit() + "인분")
-                .itemIdList(List.of(4L, 5L, 6L))
+                .itemUuidList(List.of(UUID.fromString(faker.internet().uuid()), UUID.fromString(faker.internet().uuid()), UUID.fromString(faker.internet().uuid())))
                 .steps(List.of(RecipeStepRequest.builder()
                         .order(faker.number().numberBetween(0, 50))
                         .content(faker.lorem().paragraph())
@@ -100,8 +104,9 @@ public class RecipeFixture {
                 .build();
     }
 
-    public static RecipeDto createRecipeDto() {
+    public static RecipeDto createRecipeDto(UUID uuid) {
         return RecipeDto.builder()
+                .recipeUuid(uuid)
                 .recipeTitle(faker.food().dish())
                 .recipeDescription(faker.lorem().paragraph())
                 .recipeCookingTime("30분")
@@ -110,19 +115,19 @@ public class RecipeFixture {
                 .reviewCnt((long) faker.number().numberBetween(0, 50))
                 .likeCnt((long) faker.number().numberBetween(0, 100))
                 .steps(List.of(RecipeStepDto.builder()
-                                .stepOrder(faker.number().numberBetween(0, 50))
-                                .content(faker.lorem().paragraph())
-                                .imageUrl("https://example.com/thumb.jpg")
+                        .stepOrder(faker.number().numberBetween(0, 50))
+                        .content(faker.lorem().paragraph())
+                        .imageUrl(faker.internet().image())
                         .build()))
                 .build();
     }
 
     public static SimpleRecipeDto createSimpleRecipeDto() {
         return SimpleRecipeDto.builder()
-                .recipeId(1L)
+                .recipeUuid(UUID.fromString(faker.internet().uuid()))
                 .title(faker.food().dish())
                 .recipeDescription(faker.lorem().paragraph())
-                .thumbnail("https://example.com/thumb.jpg")
+                .thumbnail(faker.internet().image())
                 .writer(faker.name().fullName())
                 .recipeCookingTime("20분")
                 .recipeServings("1인분")

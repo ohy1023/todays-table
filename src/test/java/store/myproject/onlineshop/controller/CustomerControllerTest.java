@@ -435,7 +435,7 @@ class CustomerControllerTest {
                 .willReturn(response);
 
         // when & then
-        mockMvc.perform(patch("/api/v1/customers")
+        mockMvc.perform(put("/api/v1/customers")
                         .with(csrf())
                         .content(objectMapper.writeValueAsBytes(request))
                         .contentType(MediaType.APPLICATION_JSON))
@@ -457,7 +457,7 @@ class CustomerControllerTest {
                 .willThrow(new AppException(EMAIL_NOT_FOUND, EMAIL_NOT_FOUND.getMessage()));
 
         // when & then
-        mockMvc.perform(patch("/api/v1/customers")
+        mockMvc.perform(put("/api/v1/customers")
                         .with(csrf())
                         .content(objectMapper.writeValueAsBytes(request))
                         .contentType(MediaType.APPLICATION_JSON))
@@ -605,43 +605,6 @@ class CustomerControllerTest {
 
     }
 
-//    @Test
-//    @DisplayName("admin 변경 성공")
-//    public void change_to_admin_success() throws Exception {
-//
-//        // given
-//        given(customerService.settingAdmin(any(String.class)))
-//                .willReturn(new MessageResponse("회원의 권한을 Admin으로 설정하였습니다."));
-//
-//        // when & then
-//        mockMvc.perform(put("/api/v1/customers/admin")
-//                        .with(csrf()))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.resultCode").value(SUCCESS))
-//                .andExpect(jsonPath("$.result.msg").value("회원의 권한을 Admin으로 설정하였습니다."))
-//                .andDo(print());
-//
-//    }
-
-//    @Test
-//    @DisplayName("admin 변경 실패- 이미 admin인 경우")
-//    public void change_to_admin_fail_already_admin() throws Exception {
-//
-//        // given
-//        given(customerService.settingAdmin(any(String.class)))
-//                .willThrow(new AppException(ALREADY_ADMIN, ALREADY_ADMIN.getMessage()));
-//
-//        // when & then
-//        mockMvc.perform(put("/api/v1/customers/admin")
-//                        .with(csrf()))
-//                .andExpect(status().isConflict())
-//                .andExpect(jsonPath("$.resultCode").value(ERROR))
-//                .andExpect(jsonPath("$.result.errorCode").value("ALREADY_ADMIN"))
-//                .andExpect(jsonPath("$.result.message").value(ALREADY_ADMIN.getMessage()))
-//                .andDo(print());
-//
-//    }
-
     @Test
     @DisplayName("임시 비밀번호 발급 성공")
     public void set_temp_password_success() throws Exception {
@@ -695,7 +658,7 @@ class CustomerControllerTest {
     public void change_password_success() throws Exception {
 
         // given
-        CustomerChangePasswordRequest request = CustomerFixture.createChangePasswordRequest("curPassword");
+        CustomerChangePasswordRequest request = CustomerFixture.createChangePasswordRequest("curPassword12!!");
 
         MessageResponse response = new MessageResponse("비밀번호 변경 성공");
 
@@ -719,7 +682,7 @@ class CustomerControllerTest {
     public void change_password_fail_mismatch() throws Exception {
 
         // given
-        CustomerChangePasswordRequest request = CustomerFixture.createChangePasswordRequest("curPassword");
+        CustomerChangePasswordRequest request = CustomerFixture.createChangePasswordRequest("curPassword12!!");
 
         given(customerService.updatePassword(any(CustomerChangePasswordRequest.class), any(String.class)))
                 .willThrow(new AppException(MISMATCH_PASSWORD, MISMATCH_PASSWORD.getMessage()));

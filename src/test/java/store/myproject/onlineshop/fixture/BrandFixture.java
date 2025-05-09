@@ -5,6 +5,7 @@ import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.brand.dto.*;
 
 import java.util.Locale;
+import java.util.UUID;
 
 
 public class BrandFixture {
@@ -14,13 +15,14 @@ public class BrandFixture {
     public static Brand createBrandEntity() {
         return Brand.builder()
                 .id(1L)
+                .uuid(UUID.randomUUID())
                 .name(faker.company().name())
                 .build();
     }
 
     public static Brand createBrand() {
-
         return Brand.builder()
+                .uuid(UUID.randomUUID())
                 .name(faker.company().name())
                 .build();
     }
@@ -37,10 +39,11 @@ public class BrandFixture {
                 .build();
     }
 
-    public static BrandInfo createBrandInfo(Long id) {
+    public static BrandInfo createBrandInfo(UUID uuid) {
         return BrandInfo.builder()
-                .id(id)
+                .uuid(uuid)
                 .name(faker.company().name())
+                .brandImgUrl(faker.internet().image())
                 .build();
     }
 

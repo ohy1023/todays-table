@@ -20,8 +20,8 @@ import store.myproject.onlineshop.global.config.TestConfig;
 import store.myproject.onlineshop.repository.brand.BrandRepository;
 import store.myproject.onlineshop.repository.imagefile.ImageFileRepository;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,72 +56,6 @@ class ItemRepositoryTest {
             ItemSearchCond cond = ItemSearchCond.builder()
                     .itemName(item.getItemName())
                     .brandName(brand.getName())
-                    .priceGoe(1000L)
-                    .priceLoe(10000L)
-                    .stockGoe(1L)
-                    .stockLoe(100L)
-                    .startDate(LocalDateTime.now().minusDays(1))
-                    .endDate(LocalDateTime.now().plusDays(1))
-                    .build();
-
-            PageRequest pageRequest = PageRequest.of(0, 10);
-
-            // when
-            Page<SimpleItemDto> result = itemRepository.search(cond, pageRequest);
-
-            // then
-            assertThat(result.getContent()).hasSize(1);
-            assertThat(result.getContent().get(0).getItemName()).isEqualTo(item.getItemName());
-        }
-
-        @Test
-        @DisplayName("start 날짜 없는 경우 아이템 검색")
-        void search_without_start_date_success() {
-            // given
-            Brand brand = BrandFixture.createBrand();
-            brandRepository.save(brand);
-            Item item = ItemFixture.createItem(brand);
-            itemRepository.save(item);
-
-            ItemSearchCond cond = ItemSearchCond.builder()
-                    .itemName(item.getItemName())
-                    .brandName(brand.getName())
-                    .priceGoe(1000L)
-                    .priceLoe(10000L)
-                    .stockGoe(1L)
-                    .stockLoe(100L)
-                    .startDate(null)
-                    .endDate(LocalDateTime.now().plusDays(1))
-                    .build();
-
-            PageRequest pageRequest = PageRequest.of(0, 10);
-
-            // when
-            Page<SimpleItemDto> result = itemRepository.search(cond, pageRequest);
-
-            // then
-            assertThat(result.getContent()).hasSize(1);
-            assertThat(result.getContent().get(0).getItemName()).isEqualTo(item.getItemName());
-        }
-
-        @Test
-        @DisplayName("end 날짜 없는 경우 아이템 검색")
-        void search_without_end_date_success() {
-            // given
-            Brand brand = BrandFixture.createBrand();
-            brandRepository.save(brand);
-            Item item = ItemFixture.createItem(brand);
-            itemRepository.save(item);
-
-            ItemSearchCond cond = ItemSearchCond.builder()
-                    .itemName(item.getItemName())
-                    .brandName(brand.getName())
-                    .priceGoe(1000L)
-                    .priceLoe(10000L)
-                    .stockGoe(1L)
-                    .stockLoe(100L)
-                    .startDate(LocalDateTime.now().minusDays(1))
-                    .endDate(null)
                     .build();
 
             PageRequest pageRequest = PageRequest.of(0, 10);
@@ -156,43 +90,56 @@ class ItemRepositoryTest {
         }
     }
 
-    @Nested
-    @DisplayName("아이템 조회 테스트")
-    class FindItem {
+    @Test
+    @DisplayName("아이템 ID 조회 성공")
+    void find_by_uuid_success() {
+        // given
+        Brand brand = BrandFixture.createBrand();
+        brandRepository.save(brand);
+        Item item = ItemFixture.createItem(brand);
+        Item savedItem = itemRepository.save(item);
 
-        @Test
-        @DisplayName("아이템 ID 조회 성공")
-        void find_by_id_success() {
-            // given
-            Brand brand = BrandFixture.createBrand();
-            brandRepository.save(brand);
-            Item item = ItemFixture.createItem(brand);
-            Item savedItem = itemRepository.save(item);
+        // when
+        Optional<Item> result = itemRepository.findByUuid(savedItem.getUuid());
 
-            // when
-            Optional<Item> result = itemRepository.findById(savedItem.getId());
-
-            // then
-            assertThat(result).isPresent();
-            assertThat(result.get().getItemName()).isEqualTo(savedItem.getItemName());
-            assertThat(result.get().getBrand().getName()).isEqualTo(brand.getName());
-        }
-
-        @Test
-        @DisplayName("아이템 이름 조회 성공")
-        void find_by_name_success() {
-            // given
-            Brand brand = BrandFixture.createBrand();
-            brandRepository.save(brand);
-            Item item = ItemFixture.createItem(brand);
-            itemRepository.save(item);
-
-            // when
-            Optional<Item> result = itemRepository.findItemByItemName(item.getItemName());
-
-            // then
-            assertThat(result).isPresent();
-            assertThat(result.get().getItemName()).isEqualTo(item.getItemName());
-        }
+        // then
+        assertThat(result).isPresent();
+        assertThat(result.get().getItemName()).isEqualTo(savedItem.getItemName());
+        assertThat(result.get().getBrand().getName()).isEqualTo(brand.getName());
     }
+
+    @Test
+    @DisplayName("아이템 이름 조회 성공")
+    void find_by_name_success() {
+        // given
+        Brand brand = BrandFixture.createBrand();
+        brandRepository.save(brand);
+        Item item = ItemFixture.createItem(brand);
+        itemRepository.save(item);
+
+        // when
+        Optional<Item> result = itemRepository.findItemByItemName(item.getItemName());
+
+        // then
+        assertThat(result).isPresent();
+        assertThat(result.get().getItemName()).isEqualTo(item.getItemName());
+    }
+
+    @Test
+    @DisplayName("Pessimistic Lock을 이용한 아이템 조회 성공")
+    void find_pessimistic_lock_by_uuid_success() {
+        // given
+        Brand brand = brandRepository.save(BrandFixture.createBrand());
+        Item item = ItemFixture.createItem(brand);
+        itemRepository.save(item);
+        UUID uuid = item.getUuid();
+
+        // when
+        Optional<Item> lockedItem = itemRepository.findPessimisticLockByUuid(uuid);
+
+        // then
+        assertThat(lockedItem).isPresent();
+        assertThat(lockedItem.get().getUuid()).isEqualTo(uuid);
+    }
+
 }

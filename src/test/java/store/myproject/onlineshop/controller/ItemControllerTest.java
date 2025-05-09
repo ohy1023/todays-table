@@ -33,6 +33,7 @@ import store.myproject.onlineshop.service.RecipeService;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -95,11 +96,12 @@ class ItemControllerTest {
     @DisplayName("품목 단건 조회 성공")
     void find_item_success() throws Exception {
         // given
+        UUID itemUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
         ItemDto itemDto = ItemFixture.createItemDto();
-        given(itemService.getItemById(1L)).willReturn(itemDto);
+        given(itemService.getItem(itemUuid)).willReturn(itemDto);
 
         // when & then
-        mockMvc.perform(get("/api/v1/items/{itemId}", 1L))
+        mockMvc.perform(get("/api/v1/items/{itemUuid}", itemUuid))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value(SUCCESS))
                 .andExpect(jsonPath("$.result.itemName").value(itemDto.getItemName()))
@@ -133,17 +135,17 @@ class ItemControllerTest {
     @DisplayName("품목 수정 성공")
     void changeItem_success() throws Exception {
         // given
-        Long itemId = 1L;
+        UUID itemUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
         ItemUpdateRequest request = ItemFixture.updateRequest();
         String json = objectMapper.writeValueAsString(request);
         List<MockMultipartFile> files = CommonFixture.mockMultipartFileList();
 
         MessageResponse response = new MessageResponse("수정 성공");
 
-        given(itemService.updateItem(eq(itemId), any(ItemUpdateRequest.class), ArgumentMatchers.<List<MultipartFile>>any()))
+        given(itemService.updateItem(eq(itemUuid), any(ItemUpdateRequest.class), ArgumentMatchers.<List<MultipartFile>>any()))
                 .willReturn(response);
 
-        MockMultipartHttpServletRequestBuilder builder = (MockMultipartHttpServletRequestBuilder) multipart(HttpMethod.PUT, "/api/v1/items/{itemId}", itemId)
+        MockMultipartHttpServletRequestBuilder builder = (MockMultipartHttpServletRequestBuilder) multipart(HttpMethod.PUT, "/api/v1/items/{itemUuid}", itemUuid)
                 .file(new MockMultipartFile("request", "", "application/json", json.getBytes(StandardCharsets.UTF_8)))
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(MediaType.APPLICATION_JSON)
@@ -166,11 +168,12 @@ class ItemControllerTest {
     @DisplayName("품목 삭제 성공")
     void remove_item_success() throws Exception {
         // given
+        UUID itemUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
         MessageResponse response = new MessageResponse("삭제 완료");
-        given(itemService.deleteItem(1L)).willReturn(response);
+        given(itemService.deleteItem(itemUuid)).willReturn(response);
 
         // when & then
-        mockMvc.perform(delete("/api/v1/items/{itemId}", 1L)
+        mockMvc.perform(delete("/api/v1/items/{itemUuid}", itemUuid)
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value(SUCCESS))
@@ -183,19 +186,20 @@ class ItemControllerTest {
     @DisplayName("해당 아이템 사용하는 레시피 목록 조회 성공")
     void findRecipesByItem_success() throws Exception {
         // given
+        UUID itemUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
         SimpleRecipeDto recipe = RecipeFixture.createSimpleRecipeDto(); // 테스트용 fixture
         Page<SimpleRecipeDto> page = new PageImpl<>(List.of(recipe));
 
-        given(recipeService.getRecipesByItem(eq(1L), any(Pageable.class)))
+        given(recipeService.getRecipesByItem(eq(itemUuid), any(Pageable.class)))
                 .willReturn(page);
 
         // when & then
-        mockMvc.perform(get("/api/v1/items/{itemId}/recipes", 1L)
+        mockMvc.perform(get("/api/v1/items/{itemUuid}/recipes", itemUuid)
                         .param("page", "0")
                         .param("size", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value(SUCCESS))
-                .andExpect(jsonPath("$.result.content[0].recipeId").value(recipe.getRecipeId()))
+                .andExpect(jsonPath("$.result.content[0].recipeUuid").value(recipe.getRecipeUuid().toString()))
                 .andExpect(jsonPath("$.result.content[0].title").value(recipe.getTitle()))
                 .andExpect(jsonPath("$.result.content[0].recipeDescription").value(recipe.getRecipeDescription()))
                 .andDo(print());

@@ -19,6 +19,7 @@ import store.myproject.onlineshop.repository.imagefile.ImageFileRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -30,7 +31,7 @@ class BrandRepositoryTest {
     @Autowired
     BrandRepository brandRepository;
     @Autowired
-    private ImageFileRepository imageFileRepository;
+    ImageFileRepository imageFileRepository;
 
     @Nested
     @DisplayName("브랜드 이름으로 조회")
@@ -147,4 +148,35 @@ class BrandRepositoryTest {
             assertThat(result.getTotalElements()).isEqualTo(2);
         }
     }
+
+    @Nested
+    @DisplayName("UUID 조회")
+    class FindByUuid {
+
+        @Test
+        @DisplayName("존재하는 브랜드 UUID 조회 성공")
+        void find_brand_by_uuid_success() {
+            // given
+            Brand brand = BrandFixture.createBrand();
+            brandRepository.save(brand);
+
+            // when
+            Optional<Brand> result = brandRepository.findByUuid(brand.getUuid());
+
+            // then
+            assertThat(result).isPresent();
+            assertThat(result.get().getName()).isEqualTo(brand.getName());
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 브랜드 UUID 조회")
+        void find_brand_by_uuid_fail() {
+            // when
+            Optional<Brand> result = brandRepository.findByUuid(UUID.randomUUID());
+
+            // then
+            assertThat(result).isEmpty();
+        }
+    }
+
 }

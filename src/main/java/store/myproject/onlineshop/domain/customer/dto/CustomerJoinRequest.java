@@ -55,11 +55,11 @@ public class CustomerJoinRequest {
     private String street;
 
     @NotBlank
-    @Pattern(regexp = "\\d{5}", message = "우편번호는 5자리 숫자여야 합니다.")
     @Schema(description = "상세 주소", example = "101동 202호", requiredMode = Schema.RequiredMode.REQUIRED)
     private String detail;
 
     @NotBlank
+    @Pattern(regexp = "\\d{5}", message = "우편번호는 5자리 숫자여야 합니다.")
     @Schema(description = "우편번호", example = "12345", requiredMode = Schema.RequiredMode.REQUIRED)
     private String zipcode;
 

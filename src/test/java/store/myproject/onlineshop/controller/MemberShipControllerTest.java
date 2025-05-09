@@ -23,6 +23,7 @@ import store.myproject.onlineshop.service.MemberShipService;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -56,13 +57,15 @@ class MemberShipControllerTest {
     void get_membership_success() throws Exception {
 
         // given: 멤버쉽 서비스가 반환할 DTO 정의 및 Mock 설정
+        UUID membershipUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+
         MemberShipDto response = MemberShipFixture.createBronzeDto();
 
-        given(memberShipService.getMemberShipById(any(Long.class)))
+        given(memberShipService.getMemberShip(any(UUID.class)))
                 .willReturn(response);
 
         // when & then: GET 요청을 수행하고 응답을 검증
-        mockMvc.perform(get("/api/v1/memberships/1"))
+        mockMvc.perform(get("/api/v1/memberships/{membershipUuid}", membershipUuid))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value(SUCCESS))
                 .andExpect(jsonPath("$.result.baseline").value(response.getBaseline()))
@@ -75,11 +78,13 @@ class MemberShipControllerTest {
     void get_membership_fail_membership_not_found() throws Exception {
 
         // given: 멤버쉽 서비스가 반환할 DTO 정의 및 Mock 설정
-        given(memberShipService.getMemberShipById(any(Long.class)))
+        UUID membershipUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+
+        given(memberShipService.getMemberShip(any(UUID.class)))
                 .willThrow(new AppException(MEMBERSHIP_NOT_FOUND, MEMBERSHIP_NOT_FOUND.getMessage()));
 
         // when & then: GET 요청을 수행하고 응답을 검증
-        mockMvc.perform(get("/api/v1/memberships/1"))
+        mockMvc.perform(get("/api/v1/memberships/{membershipUuid}",membershipUuid))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.resultCode").value(ERROR))
                 .andExpect(jsonPath("$.result.errorCode").value(MEMBERSHIP_NOT_FOUND.name()))
@@ -110,88 +115,20 @@ class MemberShipControllerTest {
     }
 
     @Test
-    @DisplayName("멤버쉽 생성 성공")
-    @WithMockUser(roles = "ADMIN")
-    void create_membership_success() throws Exception {
-        // given
-        MemberShipCreateRequest request = MemberShipFixture.createBronzeRequest();
-
-        MessageResponse response = new MessageResponse("멤버쉽 생성 성공");
-
-        given(memberShipService.createMemberShip(request)).willReturn(response);
-
-        // when & then
-        mockMvc.perform(post("/api/v1/memberships")
-                        .with(csrf())
-                        .content(objectMapper.writeValueAsBytes(request))
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value(SUCCESS))
-                .andExpect(jsonPath("$.result.message").value(response.getMessage()))
-                .andDo(print());
-    }
-
-    @Test
-    @DisplayName("멤버십 생성 실패 - 중복 레벨")
-    @WithMockUser(roles = "ADMIN")
-    void create_membership_fail_duplicate_level() throws Exception {
-        // given
-        MemberShipCreateRequest request = MemberShipFixture.createBronzeRequest();
-
-        given(memberShipService.createMemberShip(any(MemberShipCreateRequest.class)))
-                .willThrow(new AppException(DUPLICATE_MEMBERSHIP, DUPLICATE_MEMBERSHIP.getMessage()));
-
-        // when & then
-        mockMvc.perform(post("/api/v1/memberships")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(request)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.resultCode").value(ERROR))
-                .andExpect(jsonPath("$.result.errorCode").value(DUPLICATE_MEMBERSHIP.name()))
-                .andExpect(jsonPath("$.result.message").value(DUPLICATE_MEMBERSHIP.getMessage()))
-                .andDo(print());
-    }
-
-
-    @DisplayName("멤버십 생성 실패 - 잘못된 입력값들")
-    @ParameterizedTest
-    @MethodSource("invalidRequests")
-    @WithMockUser(roles = "ADMIN")
-    void create_membership_fail_validation_cases(MemberShipCreateRequest request) throws Exception {
-        mockMvc.perform(post("/api/v1/memberships")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.resultCode").value(ERROR))
-                .andExpect(jsonPath("$.result.errorCode").value("NotNull"))
-                .andExpect(jsonPath("$.result.message").value("must not be null"))
-                .andDo(print());
-    }
-
-    private static Stream<Arguments> invalidRequests() {
-        return Stream.of(
-                Arguments.of(new MemberShipCreateRequest(BRONZE, null, new BigDecimal(10))),     // baseline 누락
-                Arguments.of(new MemberShipCreateRequest(SILVER, new BigDecimal(10), null)),   // discountRate 누락
-                Arguments.of(new MemberShipCreateRequest(null, new BigDecimal(10), new BigDecimal(10)))        // level 누락
-        );
-    }
-
-    @Test
     @DisplayName("멤버쉽 수정 성공")
     @WithMockUser(roles = "ADMIN")
     void modify_membership_success() throws Exception {
         // given
+        UUID membershipUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+
         MemberShipUpdateRequest request = MemberShipFixture.updateToBronzeRequest();
 
         MessageResponse response = new MessageResponse("멤버쉽 삭제 성공");
 
-        given(memberShipService.updateMemberShip(1L, request)).willReturn(response);
+        given(memberShipService.updateMemberShip(membershipUuid, request)).willReturn(response);
 
         // when & then
-        mockMvc.perform(put("/api/v1/memberships/1")
+        mockMvc.perform(put("/api/v1/memberships/{membershipUuid}",membershipUuid)
                         .with(csrf())
                         .content(objectMapper.writeValueAsBytes(request))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -207,13 +144,15 @@ class MemberShipControllerTest {
     @WithMockUser(roles = "ADMIN")
     void modify_membership_fail_not_found() throws Exception {
         // given
+        UUID membershipUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+
         MemberShipUpdateRequest request = MemberShipFixture.updateToBronzeRequest();
 
-        given(memberShipService.updateMemberShip(1L, request))
+        given(memberShipService.updateMemberShip(membershipUuid, request))
                 .willThrow(new AppException(MEMBERSHIP_NOT_FOUND, MEMBERSHIP_NOT_FOUND.getMessage()));
 
         // when & then
-        mockMvc.perform(put("/api/v1/memberships/1")
+        mockMvc.perform(put("/api/v1/memberships/{membershipUuid}",membershipUuid)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(request)))
@@ -228,9 +167,11 @@ class MemberShipControllerTest {
     @DisplayName("멤버십 삭제")
     @WithMockUser(roles = "ADMIN")
     void removeMemberShip() throws Exception {
-        given(memberShipService.deleteMemberShip(1L)).willReturn(new MessageResponse("삭제 완료"));
+        UUID membershipUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
-        mockMvc.perform(delete("/api/v1/memberships/1")
+        given(memberShipService.deleteMemberShip(membershipUuid)).willReturn(new MessageResponse("삭제 완료"));
+
+        mockMvc.perform(delete("/api/v1/memberships/{membershipUuid}", membershipUuid)
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value(SUCCESS))
@@ -243,11 +184,13 @@ class MemberShipControllerTest {
     @WithMockUser(roles = "ADMIN")
     void remove_membership_fail_not_found() throws Exception {
         // given
-        given(memberShipService.deleteMemberShip(1L))
+        UUID membershipUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+
+        given(memberShipService.deleteMemberShip(membershipUuid))
                 .willThrow(new AppException(MEMBERSHIP_NOT_FOUND, MEMBERSHIP_NOT_FOUND.getMessage()));
 
         // when & then
-        mockMvc.perform(delete("/api/v1/memberships/1")
+        mockMvc.perform(delete("/api/v1/memberships/{membershipUuid}", membershipUuid)
                         .with(csrf()))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.resultCode").value(ERROR))

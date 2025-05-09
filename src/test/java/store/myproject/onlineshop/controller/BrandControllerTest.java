@@ -24,6 +24,7 @@ import store.myproject.onlineshop.service.BrandService;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static org.springframework.http.MediaType.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -55,19 +56,19 @@ class BrandControllerTest {
     @DisplayName("브랜드 단건 조회 성공")
     public void get_brand_success() throws Exception {
 
-        long brandId = 1L;
-
         // given
-        BrandInfo response = BrandFixture.createBrandInfo(brandId);
+        UUID brandUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
-        given(brandService.findBrandInfoById(any(Long.class)))
+        BrandInfo response = BrandFixture.createBrandInfo(brandUuid);
+
+        given(brandService.findBrandInfoById(any(UUID.class)))
                 .willReturn(response);
 
         // when & then
-        mockMvc.perform(get("/api/v1/brands/1"))
+        mockMvc.perform(get("/api/v1/brands/{brandUuid}", brandUuid))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value(SUCCESS))
-                .andExpect(jsonPath("$.result.id").value(brandId))
+                .andExpect(jsonPath("$.result.uuid").value(brandUuid.toString()))
                 .andExpect(jsonPath("$.result.name").exists())
                 .andDo(print());
 
@@ -78,11 +79,13 @@ class BrandControllerTest {
     public void get_brand_fail_not_found() throws Exception {
 
         // given
-        given(brandService.findBrandInfoById(any(Long.class)))
+        UUID brandUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+
+        given(brandService.findBrandInfoById(any(UUID.class)))
                 .willThrow(new AppException(BRAND_NOT_FOUND, BRAND_NOT_FOUND.getMessage()));
 
         // when & then
-        mockMvc.perform(get("/api/v1/brands/1"))
+        mockMvc.perform(get("/api/v1/brands/{brandUuid}", brandUuid))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.resultCode").value(ERROR))
                 .andExpect(jsonPath("$.result.errorCode").value(BRAND_NOT_FOUND.name()))
@@ -128,7 +131,7 @@ class BrandControllerTest {
     public void update_brand_success() throws Exception {
 
         // given
-        Long brandId = 1L;
+        UUID brandUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
         BrandUpdateRequest brandUpdateRequest = BrandFixture.updateRequest();
 
@@ -138,11 +141,11 @@ class BrandControllerTest {
 
         MessageResponse response = new MessageResponse("브랜드 수정 성공");
 
-        given(brandService.updateBrand(any(Long.class), any(BrandUpdateRequest.class), any(MockMultipartFile.class)))
+        given(brandService.updateBrand(any(UUID.class), any(BrandUpdateRequest.class), any(MockMultipartFile.class)))
                 .willReturn(response);
 
         // when & then
-        mockMvc.perform(multipart(HttpMethod.PUT, "/api/v1/brands/{brandId}", brandId)
+        mockMvc.perform(multipart(HttpMethod.PUT, "/api/v1/brands/{brandId}", brandUuid)
                         .file(new MockMultipartFile("request", "", "application/json", request.getBytes(StandardCharsets.UTF_8)))
                         .file(multipartFile)
                         .contentType(MULTIPART_FORM_DATA)
@@ -161,7 +164,7 @@ class BrandControllerTest {
     public void update_brand_fail_not_found() throws Exception {
 
         // given
-        Long brandId = 1L;
+        UUID brandUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
         BrandUpdateRequest brandUpdateRequest = BrandFixture.updateRequest();
 
@@ -169,11 +172,11 @@ class BrandControllerTest {
 
         MockMultipartFile multipartFile = setMockMultipartFile();
 
-        given(brandService.updateBrand(any(Long.class), any(BrandUpdateRequest.class), any(MockMultipartFile.class)))
+        given(brandService.updateBrand(any(UUID.class), any(BrandUpdateRequest.class), any(MockMultipartFile.class)))
                 .willThrow(new AppException(BRAND_NOT_FOUND, BRAND_NOT_FOUND.getMessage()));
 
         // when & then
-        mockMvc.perform(multipart(HttpMethod.PUT, "/api/v1/brands/{brandId}", brandId)
+        mockMvc.perform(multipart(HttpMethod.PUT, "/api/v1/brands/{brandUuid}", brandUuid)
                         .file(new MockMultipartFile("request", "", "application/json", request.getBytes(StandardCharsets.UTF_8)))
                         .file(multipartFile)
                         .contentType(MULTIPART_FORM_DATA)
@@ -193,15 +196,16 @@ class BrandControllerTest {
     public void delete_brand_success() throws Exception {
 
         // given
-        Long brandId = 1L;
+        UUID brandUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+
 
         MessageResponse response = new MessageResponse("브랜드 삭제 성공");
 
-        given(brandService.deleteBrand(any(Long.class)))
+        given(brandService.deleteBrand(any(UUID.class)))
                 .willReturn(response);
 
         // when & then
-        mockMvc.perform(delete("/api/v1/brands/{brandId}", brandId)
+        mockMvc.perform(delete("/api/v1/brands/{brandUuid}", brandUuid)
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value(SUCCESS))
@@ -215,13 +219,13 @@ class BrandControllerTest {
     public void delete_brand_fail_not_found() throws Exception {
 
         // given
-        Long brandId = 1L;
+        UUID brandUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
-        given(brandService.deleteBrand(any(Long.class)))
+        given(brandService.deleteBrand(any(UUID.class)))
                 .willThrow(new AppException(BRAND_NOT_FOUND, BRAND_NOT_FOUND.getMessage()));
 
         // when & then
-        mockMvc.perform(delete("/api/v1/brands/{brandId}", brandId)
+        mockMvc.perform(delete("/api/v1/brands/{brandUuid}", brandUuid)
                         .with(csrf()))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.resultCode").value(ERROR))
@@ -239,8 +243,11 @@ class BrandControllerTest {
         String brandName = "brand";
         Pageable pageable = PageRequest.of(0, 10); // 0번째 페이지, 한 페이지당 10개의 아이템
 
-        BrandInfo brand1 = BrandFixture.createBrandInfo(1L);
-        BrandInfo brand2 = BrandFixture.createBrandInfo(2L);
+        UUID brand1Uuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+        UUID brand2Uuid = UUID.fromString("d290f1ee-6c54-4b01-90e6-d701748f0851");
+
+        BrandInfo brand1 = BrandFixture.createBrandInfo(brand1Uuid);
+        BrandInfo brand2 = BrandFixture.createBrandInfo(brand2Uuid);
 
         List<BrandInfo> mockBrandList = Arrays.asList(brand1, brand2);
 
@@ -255,9 +262,9 @@ class BrandControllerTest {
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value(SUCCESS))
-                .andExpect(jsonPath("$.result.content[0].id").value(brand1.getId()))
+                .andExpect(jsonPath("$.result.content[0].uuid").value(brand1.getUuid().toString()))
                 .andExpect(jsonPath("$.result.content[0].name").value(brand1.getName()))
-                .andExpect(jsonPath("$.result.content[1].id").value(brand2.getId()))
+                .andExpect(jsonPath("$.result.content[1].uuid").value(brand2.getUuid().toString()))
                 .andExpect(jsonPath("$.result.content[1].name").value(brand2.getName()))
                 .andDo(print());
     }

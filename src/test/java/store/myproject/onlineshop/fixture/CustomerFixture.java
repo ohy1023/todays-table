@@ -81,7 +81,7 @@ public class CustomerFixture {
     public static CustomerJoinRequest createJoinRequest() {
         return Instancio.of(CustomerJoinRequest.class)
                 .set(field("email"), faker.internet().emailAddress())
-                .set(field("password"), faker.internet().password())
+                .set(field("password"), "1Q2w3e4r!!")
                 .set(field("userName"), faker.name().fullName())
                 .set(field("nickName"), faker.name().username())
                 .set(field("gender"), Gender.MALE)
@@ -96,7 +96,7 @@ public class CustomerFixture {
     public static CustomerJoinRequest createInvalidJoinRequest(String email) {
         return Instancio.of(CustomerJoinRequest.class)
                 .set(field("email"), email)
-                .set(field("password"), faker.internet().password())
+                .set(field("password"), "1Q2w3e4r!!")
                 .set(field("userName"), faker.name().fullName())
                 .set(field("nickName"), faker.name().username())
                 .set(field("gender"), Gender.MALE)
@@ -111,7 +111,7 @@ public class CustomerFixture {
     public static CustomerLoginRequest createLoginRequest() {
         return Instancio.of(CustomerLoginRequest.class)
                 .set(field("email"), faker.internet().emailAddress())
-                .set(field("password"), faker.internet().password())
+                .set(field("password"), "1Q2w3e4r!!")
                 .create();
     }
 
@@ -135,7 +135,7 @@ public class CustomerFixture {
     }
 
     public static CustomerChangePasswordRequest createChangePasswordRequest(String curPassword) {
-        return new CustomerChangePasswordRequest(curPassword, "newPassword");
+        return new CustomerChangePasswordRequest(curPassword, "newPassword12!!");
     }
 
     public static CustomerTempPasswordRequest createTempPasswordRequest() {

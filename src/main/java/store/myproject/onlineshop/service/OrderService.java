@@ -118,7 +118,7 @@ public class OrderService {
                 .orElseThrow(() -> new AppException(ORDER_NOT_FOUND));
 
         order.getDelivery().setInfo(request);
-        return new MessageResponse(messageUtil.get(MessageCode.ORDER_DELIVERY_MODIFIED));
+        return new MessageResponse(order.getMerchantUid(), messageUtil.get(MessageCode.ORDER_DELIVERY_MODIFIED));
     }
 
     // 주문 취소

@@ -20,6 +20,7 @@ import store.myproject.onlineshop.fixture.CartFixture;
 import store.myproject.onlineshop.service.CartService;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -49,10 +50,12 @@ class CartControllerTest {
         @Test
         @DisplayName("성공")
         void add_success() throws Exception {
-            CartAddRequest request = CartFixture.createAddRequest();
+            UUID itemUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+
+            CartAddRequest request = CartFixture.createAddRequest(itemUuid, 10L);
             MessageResponse response = new MessageResponse("장바구니에 품목 추가 완료");
 
-            given(cartService.addItemToCart(any(), anyString()))
+            given(cartService.addItemToCart(any(CartAddRequest.class), anyString()))
                     .willReturn(response);
 
             mockMvc.perform(post("/api/v1/carts")
@@ -67,7 +70,9 @@ class CartControllerTest {
         @Test
         @DisplayName("실패 - 고객 없음")
         void fail_customer_not_found() throws Exception {
-            CartAddRequest request = CartFixture.createAddRequest();
+            UUID itemUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+
+            CartAddRequest request = CartFixture.createAddRequest(itemUuid, 10L);
 
             given(cartService.addItemToCart(any(), anyString()))
                     .willThrow(new AppException(ErrorCode.CUSTOMER_NOT_FOUND));
@@ -84,8 +89,9 @@ class CartControllerTest {
         @Test
         @DisplayName("실패 - 재고 부족")
         void fail_stock_not_enough() throws Exception {
-            CartAddRequest request = CartFixture.createAddRequest();
+            UUID itemUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
+            CartAddRequest request = CartFixture.createAddRequest(itemUuid, 10L);
             given(cartService.addItemToCart(any(), anyString()))
                     .willThrow(new AppException(ErrorCode.NOT_ENOUGH_STOCK));
 
@@ -115,10 +121,12 @@ class CartControllerTest {
     @Test
     @DisplayName("장바구니 품목 삭제 성공")
     void deleteItem_success() throws Exception {
-        given(cartService.deleteItemFromCart(anyLong(), anyString()))
+        UUID itemUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+
+        given(cartService.deleteItemFromCart(any(UUID.class), anyString()))
                 .willReturn(new MessageResponse("삭제 완료"));
 
-        mockMvc.perform(delete("/api/v1/carts/1")
+        mockMvc.perform(delete("/api/v1/carts/{itemUuid}", itemUuid)
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.message").value("삭제 완료"))

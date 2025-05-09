@@ -162,7 +162,7 @@ class CartItemRepositoryTest {
 
         // then
         assertThat(result.getContent()).hasSize(2);
-        assertThat(result.getContent()).extracting("itemId")
-                .containsExactlyInAnyOrder(item1.getId(), item2.getId());
+        assertThat(result.getContent()).extracting("itemUuid")
+                .containsExactlyInAnyOrder(item1.getUuid(), item2.getUuid());
     }
 }
