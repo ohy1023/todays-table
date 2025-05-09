@@ -39,7 +39,7 @@
 
 ## 📡 API 명세서
 
-- [Swagger](http://mystudyproject.store:8080/swagger-ui/index.html)
+- [Demo Swagger](https://port-0-todays-table-m7plej378a04f632.sel4.cloudtype.app/swagger-ui/index.html)
 
 ---
 
