@@ -58,6 +58,7 @@ Master-Slave Replication 환경에서 읽기 작업은 Slave 서버에서, 쓰�
 ## 🧪 테스트
 
 ### ✅ 단위 테스트 (Unit Test)
+
 - Mockito를 활용해 주요 비즈니스 로직 단위 테스트 수행
 - Fixture 패턴을 도입해 반복적인 테스트 데이터를 효율적으로 관리
 
@@ -68,6 +69,8 @@ Master-Slave Replication 환경에서 읽기 작업은 Slave 서버에서, 쓰�
 ![img.png](img/JaCoCo_Report.png)
 
 ## 📝 블로그 정리
+
+[API에서 PK 노출로 인한 보안 강화 (feat. UUID v7 & BINARY(16))](https://until.blog/@zvyg1023/%EB%B0%B1%EC%A4%80-2018%EB%B2%88--%EC%A2%8B%EB%8B%A4)
 
 [좋아요 개수, 댓글 개수, 조회 수 테이블 분리 리팩토링](https://until.blog/@zvyg1023/%EC%A2%8B%EC%95%84%EC%9A%94-%EA%B0%9C%EC%88%98--%EB%8C%93%EA%B8%80-%EA%B0%9C%EC%88%98--%EC%A1%B0%ED%9A%8C-%EC%88%98-%ED%85%8C%EC%9D%B4%EB%B8%94-%EB%B6%84%EB%A6%AC-%EB%A6%AC%ED%8C%A9%ED%86%A0%EB%A7%81)
 
