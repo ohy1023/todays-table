@@ -24,11 +24,11 @@ public class RecipeDto {
     @Schema(description = "레시피 설명", example = "매운 떡볶이를 만드는 방법")
     private String recipeDescription;
 
-    @Schema(description = "조리 시간", example = "30분")
-    private String recipeCookingTime;
+    @Schema(description = "조리 시간", example = "30")
+    private Integer recipeCookingTime;
 
-    @Schema(description = "레시피 인분", example = "2인분")
-    private String recipeServings;
+    @Schema(description = "레시피 인분", example = "2")
+    private Integer recipeServings;
 
     @Schema(description = "레시피 작성자", example = "홍길동")
     private String recipeWriter;
@@ -51,7 +51,7 @@ public class RecipeDto {
     @Schema(description = "레시피 단계들")
     private List<RecipeStepDto> steps;
 
-    public RecipeDto(UUID recipeUuid, String recipeTitle, String recipeDescription, String recipeCookingTime, String recipeServings, String recipeWriter, String thumbnailUrl, Long recipeView, Long reviewCnt, Long likeCnt) {
+    public RecipeDto(UUID recipeUuid, String recipeTitle, String recipeDescription, Integer recipeCookingTime, Integer recipeServings, String recipeWriter, String thumbnailUrl, Long recipeView, Long reviewCnt, Long likeCnt) {
         this.recipeUuid = recipeUuid;
         this.recipeTitle = recipeTitle;
         this.recipeDescription = recipeDescription;

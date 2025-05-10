@@ -36,7 +36,7 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
                         itemNameContains(itemSearchCond.getItemName()),
                         brandNameContains(itemSearchCond.getBrandName())
                 )
-                .groupBy(item.id)
+                .groupBy(item.uuid)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();

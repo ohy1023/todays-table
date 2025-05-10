@@ -3,6 +3,7 @@ package store.myproject.onlineshop.domain.recipe.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.recipe.Recipe;
@@ -27,13 +28,13 @@ public class RecipeCreateRequest {
     @Schema(description = "레시피 설명", example = "쫄깃한 떡과 매콤한 소스의 조화")
     private String recipeDescription;
 
-    @NotBlank
-    @Schema(description = "조리 시간", example = "30분")
-    private String recipeCookingTime;
+    @NotNull
+    @Schema(description = "조리 시간", example = "30")
+    private Integer recipeCookingTime;
 
-    @NotBlank
-    @Schema(description = "인분 수", example = "2인분")
-    private String recipeServings;
+    @NotNull
+    @Schema(description = "인분 수", example = "2")
+    private Integer recipeServings;
 
     @NotEmpty
     @Schema(description = "사용되는 아이템 UUID 목록", example = "[\"f47ac10b-58cc-4372-a567-0e02b2c3d479\"]")

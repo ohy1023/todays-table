@@ -29,11 +29,11 @@ public class SimpleRecipeDto {
     @Schema(description = "레시피 작성자", example = "홍길동")
     private String writer;
 
-    @Schema(description = "레시피 조리 시간", example = "30분")
-    private String recipeCookingTime;
+    @Schema(description = "레시피 조리 시간", example = "30")
+    private Integer recipeCookingTime;
 
-    @Schema(description = "레시피 인분", example = "2인분")
-    private String recipeServings;
+    @Schema(description = "레시피 인분", example = "2")
+    private Integer recipeServings;
 
     @Schema(description = "레시피 조회 수", example = "1500")
     private Long recipeView;
@@ -46,7 +46,7 @@ public class SimpleRecipeDto {
 
     @QueryProjection
     public SimpleRecipeDto(UUID recipeUuid, String title, String recipeDescription, String thumbnail,
-                           String writer, String recipeCookingTime, String recipeServings,
+                           String writer, Integer recipeCookingTime, Integer recipeServings,
                            Long recipeView, Long reviewCnt, Long likeCnt) {
         this.recipeUuid = recipeUuid;
         this.title = title;

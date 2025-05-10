@@ -3,6 +3,7 @@ package store.myproject.onlineshop.domain.recipe.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.List;
@@ -23,13 +24,13 @@ public class RecipeUpdateRequest {
     @Schema(description = "레시피 설명", example = "된장과 채소로 만든 한국 전통 국물 요리")
     private String recipeDescription;
 
-    @NotBlank
-    @Schema(description = "조리 시간", example = "30분")
-    private String recipeCookingTime;
+    @NotNull
+    @Schema(description = "조리 시간", example = "30")
+    private Integer recipeCookingTime;
 
-    @NotBlank
+    @NotNull
     @Schema(description = "인분 수", example = "2")
-    private String recipeServings;
+    private Integer recipeServings;
 
     @Schema(description = "썸네일 이미지 URL", example = "https://s3.bucket/thumbnail.jpg")
     private String thumbnailUrl;

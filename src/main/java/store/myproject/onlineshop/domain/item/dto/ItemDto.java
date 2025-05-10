@@ -1,6 +1,5 @@
 package store.myproject.onlineshop.domain.item.dto;
 
-import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -33,12 +32,4 @@ public class ItemDto {
     @Schema(description = "브랜드 이름", example = "풀무원", required = true)
     private String brandName;
 
-    @QueryProjection
-    public ItemDto(UUID uuid, String itemName, BigDecimal price, Long stock, String brandName) {
-        this.uuid = uuid;
-        this.itemName = itemName;
-        this.price = price;
-        this.stock = stock;
-        this.brandName = brandName;
-    }
 }

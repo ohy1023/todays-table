@@ -55,10 +55,10 @@ public class Recipe extends BaseEntity {
     private Customer customer;
 
     // 조리시간
-    private String recipeCookingTime;
+    private Integer recipeCookingTime;
 
     // 몇인분
-    private String recipeServings;
+    private Integer recipeServings;
 
     // 썸네일
     @Setter
