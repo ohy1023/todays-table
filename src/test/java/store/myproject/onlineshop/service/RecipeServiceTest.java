@@ -381,6 +381,6 @@ class RecipeServiceTest {
 
         // then
         assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).getRecipeServings()).isEqualTo("1인분");
+        assertThat(result.getContent().get(0).getRecipeServings()).isEqualTo(1);
     }
 }

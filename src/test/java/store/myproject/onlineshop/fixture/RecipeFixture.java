@@ -27,8 +27,8 @@ public class RecipeFixture {
                 .uuid(UUID.randomUUID())
                 .recipeTitle(faker.food().dish()) // 랜덤 음식 이름
                 .recipeDescription(faker.lorem().sentence()) // 랜덤 문장
-                .recipeServings(faker.number().numberBetween(1, 6) + "인분") // "3인분" 형식
-                .recipeCookingTime(faker.number().numberBetween(10, 120) + "분") // "45분" 형식
+                .recipeServings(faker.number().numberBetween(1, 6)) // "3인분" 형식
+                .recipeCookingTime(faker.number().numberBetween(10, 120) ) // "45분" 형식
                 .customer(customer)
                 .thumbnailUrl(faker.internet().image()) // 랜덤 이미지 URL
                 .recipeMeta(recipeMeta)
@@ -47,8 +47,8 @@ public class RecipeFixture {
                 .uuid(UUID.randomUUID())
                 .recipeTitle(faker.food().dish()) // 랜덤 음식 이름
                 .recipeDescription(faker.lorem().sentence()) // 랜덤 문장
-                .recipeServings(faker.number().numberBetween(1, 6) + "인분") // "3인분" 형식
-                .recipeCookingTime(faker.number().numberBetween(10, 120) + "분") // "45분" 형식
+                .recipeServings(faker.number().numberBetween(1, 6)) // "3인분" 형식
+                .recipeCookingTime(faker.number().numberBetween(10, 120)) // "45분" 형식
                 .customer(customer)
                 .thumbnailUrl(faker.internet().image()) // 랜덤 이미지 URL
                 .recipeMeta(recipeMeta)
@@ -66,8 +66,8 @@ public class RecipeFixture {
                 .uuid(UUID.randomUUID())
                 .recipeTitle(faker.food().dish()) // 랜덤 음식 이름
                 .recipeDescription(faker.lorem().sentence()) // 랜덤 문장
-                .recipeServings(faker.number().numberBetween(1, 6) + "인분") // "3인분" 형식
-                .recipeCookingTime(faker.number().numberBetween(10, 120) + "분") // "45분" 형식
+                .recipeServings(faker.number().numberBetween(1, 6)) // "3인분" 형식
+                .recipeCookingTime(faker.number().numberBetween(10, 120)) // "45분" 형식
                 .customer(customer)
                 .thumbnailUrl(faker.internet().image()) // 랜덤 이미지 URL
                 .recipeMeta(recipeMeta)
@@ -78,8 +78,9 @@ public class RecipeFixture {
         return RecipeCreateRequest.builder()
                 .recipeTitle(faker.food().dish())
                 .recipeDescription(faker.lorem().paragraph())
-                .recipeCookingTime(faker.number().numberBetween(10, 120) + "분")
-                .recipeServings(faker.number().digit() + "인분")
+                .recipeCookingTime(faker.number().numberBetween(10, 120))
+                .recipeServings(faker.number().numberBetween(1, 6))
+                .thumbnailUrl(faker.internet().image())
                 .itemUuidList(List.of(UUID.fromString(faker.internet().uuid()), UUID.fromString(faker.internet().uuid()), UUID.fromString(faker.internet().uuid())))
                 .steps(List.of(RecipeStepRequest.builder()
                         .order(faker.number().numberBetween(0, 50))
@@ -93,8 +94,9 @@ public class RecipeFixture {
         return RecipeUpdateRequest.builder()
                 .recipeTitle(faker.food().dish())
                 .recipeDescription(faker.lorem().paragraph())
-                .recipeCookingTime(faker.number().numberBetween(10, 120) + "분")
-                .recipeServings(faker.number().digit() + "인분")
+                .thumbnailUrl(faker.internet().image())
+                .recipeCookingTime(faker.number().numberBetween(10, 120))
+                .recipeServings(faker.number().numberBetween(1, 6))
                 .itemUuidList(List.of(UUID.fromString(faker.internet().uuid()), UUID.fromString(faker.internet().uuid()), UUID.fromString(faker.internet().uuid())))
                 .steps(List.of(RecipeStepRequest.builder()
                         .order(faker.number().numberBetween(0, 50))
@@ -109,8 +111,8 @@ public class RecipeFixture {
                 .recipeUuid(uuid)
                 .recipeTitle(faker.food().dish())
                 .recipeDescription(faker.lorem().paragraph())
-                .recipeCookingTime("30분")
-                .recipeServings("2인분")
+                .recipeCookingTime(30)
+                .recipeServings(2)
                 .recipeWriter(faker.name().fullName())
                 .reviewCnt((long) faker.number().numberBetween(0, 50))
                 .likeCnt((long) faker.number().numberBetween(0, 100))
@@ -129,8 +131,8 @@ public class RecipeFixture {
                 .recipeDescription(faker.lorem().paragraph())
                 .thumbnail(faker.internet().image())
                 .writer(faker.name().fullName())
-                .recipeCookingTime("20분")
-                .recipeServings("1인분")
+                .recipeCookingTime(20)
+                .recipeServings(1)
                 .reviewCnt(10L)
                 .likeCnt(25L)
                 .build();
