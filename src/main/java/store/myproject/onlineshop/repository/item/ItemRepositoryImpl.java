@@ -16,7 +16,6 @@ import store.myproject.onlineshop.domain.item.dto.SimpleItemDto;
 import java.util.List;
 
 import static store.myproject.onlineshop.domain.brand.QBrand.brand;
-import static store.myproject.onlineshop.domain.imagefile.QImageFile.*;
 import static store.myproject.onlineshop.domain.item.QItem.item;
 
 
@@ -28,15 +27,13 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
 
     @Override
     public Page<SimpleItemDto> search(ItemSearchCond itemSearchCond, Pageable pageable) {
-        List<SimpleItemDto> itemDtoList = queryFactory.select(new QSimpleItemDto(item.uuid, item.itemName, item.price, imageFile.imageUrl.min(), brand.name))
+        List<SimpleItemDto> itemDtoList = queryFactory.select(new QSimpleItemDto(item.uuid, item.itemName, item.price, item.thumbnail, brand.name))
                 .from(item)
                 .join(item.brand, brand)
-                .leftJoin(item.imageFileList, imageFile)
                 .where(
                         itemNameContains(itemSearchCond.getItemName()),
                         brandNameContains(itemSearchCond.getBrandName())
                 )
-                .groupBy(item.uuid)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();

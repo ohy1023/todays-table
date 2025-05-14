@@ -67,7 +67,9 @@ public class ItemService {
 
         Item savedItem = itemRepository.save(request.toEntity(findBrand));
 
-        for (MultipartFile multipartFile : multipartFileList) {
+        for (int i = 0; i < multipartFileList.size(); i++) {
+            MultipartFile multipartFile = multipartFileList.get(i);
+
             String originImageUrl = awsS3Service.uploadItemOriginImage(multipartFile);
 
             ImageFile image = ImageFile.createImage(originImageUrl, savedItem);
@@ -76,6 +78,8 @@ public class ItemService {
             image.addItem(savedItem);
 
             imageFileRepository.save(image);
+
+            if (i == 0) savedItem.setThumbnail(originImageUrl);
         }
 
         return new MessageResponse(savedItem.getUuid(), messageUtil.get(MessageCode.ITEM_ADDED));
@@ -90,25 +94,30 @@ public class ItemService {
 
         findItem.updateItem(request, findBrand);
 
-        if (multipartFileList != null) {
-            for (MultipartFile multipartFile : multipartFileList) {
-                for (ImageFile imageFile : findItem.getImageFileList()) {
+        if (multipartFileList != null && !multipartFileList.isEmpty()) {
 
-                    String extractFileName = FileUtils.extractFileName(imageFile.getImageUrl());
-                    // 연관관계 제거
-                    imageFile.removeItem(findItem);
+            // 1. 기존 이미지 삭제
+            for (ImageFile imageFile : findItem.getImageFileList()) {
+                String extractFileName = FileUtils.extractFileName(imageFile.getImageUrl());
 
-                    awsS3Service.deleteBrandImage(extractFileName);
-                }
+                imageFile.removeItem(findItem);  // 연관관계 제거
+                awsS3Service.deleteBrandImage(extractFileName);
+            }
 
+            // 2. 새로운 이미지 업로드 및 저장
+            for (int i = 0; i < multipartFileList.size(); i++) {
+                MultipartFile multipartFile = multipartFileList.get(i);
                 String newUrl = awsS3Service.uploadItemOriginImage(multipartFile);
 
                 ImageFile image = ImageFile.createImage(newUrl, findItem);
-
                 image.addItem(findItem);
-            }
+                imageFileRepository.save(image); // 저장 누락되어 있던 부분
 
+                // 3. 첫 번째 이미지면 썸네일로 지정
+                if (i == 0) findItem.setThumbnail(newUrl);
+            }
         }
+
 
         return new MessageResponse(findItem.getUuid(), messageUtil.get(MessageCode.ITEM_MODIFIED));
 

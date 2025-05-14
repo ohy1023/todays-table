@@ -59,6 +59,10 @@ public class Item extends BaseEntity {
     // 상품의 재고 수량
     private Long stock;
 
+    // 썸네일
+    @Setter
+    private String thumbnail;
+
     // Brand 엔티티와의 다대일 관계
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "brand_id")
