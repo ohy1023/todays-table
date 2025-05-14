@@ -8,23 +8,15 @@ import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.cache.RedisCacheConfiguration;
-import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-import java.time.Duration;
-
-import static org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair.fromSerializer;
-
-@EnableCaching
 @Configuration
 public class RedisCacheConfig {
 
@@ -37,10 +29,9 @@ public class RedisCacheConfig {
     @Value("${spring.data.redis.cache.password}")
     private String redisPassword;
 
-    // redis 연결 정보를 통해 캐싱 기능을 연결시킬 Bean
-    @Bean(name = "redisCacheConnectionFactory")
-    public RedisConnectionFactory redisCacheConnectionFactory() {
-
+    // Redis 연결 정보를 통해 RedisTemplate을 설정하는 Bean
+    @Bean(name = "redisConnectionFactory")
+    public RedisConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
         redisStandaloneConfiguration.setPort(redisPort);
         redisStandaloneConfiguration.setHostName(redisHost);
@@ -48,28 +39,20 @@ public class RedisCacheConfig {
         return new LettuceConnectionFactory(redisStandaloneConfiguration);
     }
 
-    // 설정 객체 default 설정 -- key/value를 어떻게 직렬화해서 redis에 저장할지를 정의함
-    private RedisCacheConfiguration defaultCacheConfiguration() {
-        return RedisCacheConfiguration
-                .defaultCacheConfig()
-                .disableCachingNullValues()
-                .serializeKeysWith(fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper())))
-                .entryTtl(Duration.ofDays(1L));
+    // RedisTemplate 설정 -- 캐시 데이터 직렬화 방식 설정
+    @Bean(name = "cacheRedisTemplate")
+    public RedisTemplate<String, Object> redisTemplate(@Qualifier("redisConnectionFactory") RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer(objectMapper()));
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer(objectMapper()));
+        return redisTemplate;
     }
 
-    // 캐시에서 redis 사용하기 위한 Bean
-    @Bean
-    public CacheManager redisCacheManager(@Qualifier("redisCacheConnectionFactory") RedisConnectionFactory connectionFactory) {
-        return RedisCacheManager
-                .RedisCacheManagerBuilder
-                .fromConnectionFactory(connectionFactory)    // connection 적용
-                .cacheDefaults(defaultCacheConfiguration())  //  캐시 설정 적용
-                .build();
-    }
-
+    // ObjectMapper 설정 -- Redis에 저장할 때 객체 직렬화 및 역직렬화 처리
     private ObjectMapper objectMapper() {
-
         PolymorphicTypeValidator typeValidator = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(Object.class)
                 .build();

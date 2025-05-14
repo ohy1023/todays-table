@@ -22,6 +22,7 @@ import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateRequest;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeDto;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeUpdateRequest;
 import store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto;
+import store.myproject.onlineshop.domain.recipemeta.dto.RecipeMetaDto;
 import store.myproject.onlineshop.service.RecipeService;
 
 import java.util.UUID;
@@ -45,6 +46,14 @@ public class RecipeController {
             @Parameter(description = "조회할 레시피 UUID", example = "13dd3e84-2b3a-11f0-9aef-59f7f88a8400", required = true)
             @PathVariable UUID recipeUuid) {
         return Response.success(recipeService.getRecipeDetail(recipeUuid));
+    }
+
+    @Operation(summary = "레시피 단건 통계 정보 조회", description = "특정 레시피의 통계 정보를 조회합니다.")
+    @GetMapping("/meta/{recipeUuid}")
+    public Response<RecipeMetaDto> viewOneRecipeMeta(
+            @Parameter(description = "조회할 레시피 UUID", example = "13dd3e84-2b3a-11f0-9aef-59f7f88a8400", required = true)
+            @PathVariable UUID recipeUuid) {
+        return Response.success(recipeService.getRecipeMeta(recipeUuid));
     }
 
     @Operation(summary = "레시피 페이징 조회", description = "레시피 목록을 페이징하여 조회합니다.")

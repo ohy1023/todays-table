@@ -36,18 +36,6 @@ public class AsyncConfiguration implements AsyncConfigurer {
         return executor;
     }
 
-    // 알림 작업을 위한 새로운 메서드
-    @Bean(name = "alertExecutor")
-    public Executor getAlertExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(3);
-        executor.setMaxPoolSize(10);
-        executor.setQueueCapacity(50);
-        executor.setThreadNamePrefix("alertExecutor-");
-        executor.initialize();
-        return executor;
-    }
-
     // 비동기 작업 중 발생한 예외 처리 (ex. 스레드 대기 큐에 설정한 값을 초과하는 경우..등)
     @Override
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {

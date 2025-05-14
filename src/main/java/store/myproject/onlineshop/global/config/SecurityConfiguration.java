@@ -92,6 +92,7 @@ public class SecurityConfiguration {
                                 "/api/v1/orders/*",
                                 "/api/v1/orders/search",
                                 "/api/v1/recipes/*",
+                                "/api/v1/recipes/meta/*",
                                 "/api/v1/carts",
                                 "/api/v1/items",
                                 "/api/v1/customers"

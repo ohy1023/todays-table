@@ -36,22 +36,13 @@ public class RecipeDto {
     @Schema(description = "레시피 썸네일 URL", example = "https://example.com/thumbnail.jpg")
     private String thumbnailUrl;
 
-    @Schema(description = "레시피 조회 수", example = "1200")
-    private Long recipeView;
-
-    @Schema(description = "레시피 댓글 수", example = "50")
-    private Long reviewCnt;
-
-    @Schema(description = "레시피 좋아요 수", example = "300")
-    private Long likeCnt;
-
     @Schema(description = "레시피에 포함된 아이템들")
     private List<RecipeItemDto> items;
 
     @Schema(description = "레시피 단계들")
     private List<RecipeStepDto> steps;
 
-    public RecipeDto(UUID recipeUuid, String recipeTitle, String recipeDescription, Integer recipeCookingTime, Integer recipeServings, String recipeWriter, String thumbnailUrl, Long recipeView, Long reviewCnt, Long likeCnt) {
+    public RecipeDto(UUID recipeUuid, String recipeTitle, String recipeDescription, Integer recipeCookingTime, Integer recipeServings, String recipeWriter, String thumbnailUrl) {
         this.recipeUuid = recipeUuid;
         this.recipeTitle = recipeTitle;
         this.recipeDescription = recipeDescription;
@@ -59,8 +50,5 @@ public class RecipeDto {
         this.recipeServings = recipeServings;
         this.recipeWriter = recipeWriter;
         this.thumbnailUrl = thumbnailUrl;
-        this.recipeView = recipeView;
-        this.reviewCnt = reviewCnt;
-        this.likeCnt = likeCnt;
     }
 }

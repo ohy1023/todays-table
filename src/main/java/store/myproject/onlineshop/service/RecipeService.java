@@ -1,10 +1,13 @@
 package store.myproject.onlineshop.service;
 
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,9 +17,11 @@ import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.customer.CustomerRole;
 import store.myproject.onlineshop.domain.recipe.dto.*;
 import store.myproject.onlineshop.domain.recipeitem.dto.RecipeItemDto;
+import store.myproject.onlineshop.domain.recipemeta.dto.RecipeMetaDto;
 import store.myproject.onlineshop.domain.recipestep.RecipeStep;
 import store.myproject.onlineshop.domain.recipestep.dto.RecipeStepDto;
 import store.myproject.onlineshop.domain.review.dto.*;
+import store.myproject.onlineshop.global.utils.RedisKeyHelper;
 import store.myproject.onlineshop.repository.customer.CustomerRepository;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.repository.item.ItemRepository;
@@ -27,11 +32,13 @@ import store.myproject.onlineshop.repository.recipe.RecipeRepository;
 import store.myproject.onlineshop.domain.recipeitem.RecipeItem;
 import store.myproject.onlineshop.domain.review.Review;
 import store.myproject.onlineshop.repository.recipeitem.RecipeItemRepository;
+import store.myproject.onlineshop.repository.recipemeta.RecipeMetaRepository;
 import store.myproject.onlineshop.repository.recipestep.RecipeStepRepository;
 import store.myproject.onlineshop.repository.review.ReviewRepository;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.utils.MessageUtil;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,25 +67,93 @@ public class RecipeService {
     private final RecipeMetaService recipeMetaService;
     private final RecipeStepRepository recipeStepRepository;
     private final RecipeItemRepository recipeItemRepository;
+    private final RedisTemplate<String, Object> cacheRedisTemplate;
+    private final RedissonClient redisson;
+    private final RecipeMetaRepository recipeMetaRepository;
+
 
     /**
      * 단일 레시피 정보를 조회하고 조회수를 증가시킵니다.
      */
     @Transactional(readOnly = true)
     public RecipeDto getRecipeDetail(UUID recipeUuid) {
-        RecipeDto recipeDto = recipeRepository.findRecipeDtoByUuid(recipeUuid)
-                .orElseThrow(() -> new AppException(RECIPE_NOT_FOUND));
+        String recipeCacheKey = RedisKeyHelper.getRecipeKey(recipeUuid);
 
-        List<RecipeStepDto> stepDtos = recipeStepRepository.findStepsByRecipeUuid(recipeUuid);
-        List<RecipeItemDto> itemDtos = recipeItemRepository.findItemsByRecipeUuid(recipeUuid);
-
-        recipeDto.setSteps(stepDtos);
-        recipeDto.setItems(itemDtos);
-
+        // 조회수 증가 비동기 처리
         Long recipeMetaId = recipeRepository.findRecipeMetaIdByRecipeUuid(recipeUuid);
         recipeMetaService.asyncIncreaseViewCnt(recipeMetaId);
 
-        return recipeDto;
+        // 1. 캐시에서 데이터 조회
+        RecipeDto cachedRecipe = (RecipeDto) cacheRedisTemplate.opsForValue().get(recipeCacheKey);
+        if (cachedRecipe != null) {
+            increaseRecipeViewCount(recipeUuid);
+            return cachedRecipe;
+        }
+
+        // 2. 캐시에 없으면 락 획득 후 다시 확인 및 저장
+        String recipeLockKey = RedisKeyHelper.getRecipeLockKey(recipeUuid);
+        RLock lock = redisson.getLock(recipeLockKey);
+
+        try {
+            boolean isLocked = lock.tryLock(); // 기본 대기시간과 임계시간은 0
+
+            if (isLocked) {
+                try {
+                    // 캐시 재확인 (다른 스레드가 락을 선점하여 캐싱했을 수도 있음)
+                    RecipeDto doubleCheckCache = (RecipeDto) cacheRedisTemplate.opsForValue().get(recipeCacheKey);
+                    if (doubleCheckCache != null) {
+                        increaseRecipeViewCount(recipeUuid);
+                        return doubleCheckCache;
+                    }
+
+                    // DB 조회
+                    RecipeDto recipeDto = recipeRepository.findRecipeDtoByUuid(recipeUuid)
+                            .orElseThrow(() -> new AppException(RECIPE_NOT_FOUND));
+
+                    List<RecipeStepDto> stepDtos = recipeStepRepository.findStepsByRecipeUuid(recipeUuid);
+                    List<RecipeItemDto> itemDtos = recipeItemRepository.findItemsByRecipeUuid(recipeUuid);
+
+                    recipeDto.setSteps(stepDtos);
+                    recipeDto.setItems(itemDtos);
+
+                    // 캐시에 저장 (1일 유지)
+                    cacheRedisTemplate.opsForValue().set(recipeCacheKey, recipeDto, Duration.ofDays(1L));
+
+                    increaseRecipeViewCount(recipeUuid);
+
+                    return recipeDto;
+                } finally {
+                    lock.unlock();
+                }
+            } else {
+                // 락 획득 실패 시: 잠시 대기 후 캐시 재조회 (간단한 폴링 처리)
+                Thread.sleep(100); // 100ms 대기
+                RecipeDto retryCache = (RecipeDto) cacheRedisTemplate.opsForValue().get(recipeCacheKey);
+                if (retryCache != null) {
+                    increaseRecipeViewCount(recipeUuid);
+                    return retryCache;
+                } else {
+                    // 끝까지 실패 시 fallback
+                    throw new AppException(RECIPE_NOT_FOUND);
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Thread interrupted during lock acquisition", e);
+        }
+
+
+    }
+
+    /**
+     * 레시피 통계 정보(조회수, 좋아요 수, 댓글 수) 조회
+     */
+    @Transactional(readOnly = true)
+    public RecipeMetaDto getRecipeMeta(UUID recipeUuid) {
+        Recipe recipe = recipeRepository.findByUuid(recipeUuid)
+                .orElseThrow(() -> new AppException(RECIPE_NOT_FOUND));
+
+        return recipeMetaRepository.findRecipeMetaDto(recipe.getId());
     }
 
     /**
@@ -115,6 +190,11 @@ public class RecipeService {
         recipe.addItems(mapToRecipeItems(request.getItemUuidList()));
         recipe.addSteps(mapToRecipeSteps(request.getSteps()));
         applyThumbnail(recipe, request.getThumbnailUrl());
+
+        // 캐시 무효화
+        String recipeCacheKey = RedisKeyHelper.getRecipeKey(recipeUuid);
+        cacheRedisTemplate.delete(recipeCacheKey);
+
         return new MessageResponse(recipe.getUuid(), messageUtil.get(MessageCode.RECIPE_MODIFIED));
     }
 
@@ -126,6 +206,11 @@ public class RecipeService {
         Recipe recipe = getRecipeByUuid(recipeUuid);
         validatePermission(customer, recipe.getCustomer());
         recipeRepository.delete(recipe);
+
+        // 캐시 무효화
+        String recipeCacheKey = RedisKeyHelper.getRecipeKey(recipeUuid);
+        cacheRedisTemplate.delete(recipeCacheKey);
+
         return new MessageResponse(recipe.getUuid(), messageUtil.get(MessageCode.RECIPE_DELETED));
     }
 
@@ -343,5 +428,13 @@ public class RecipeService {
      */
     private Recipe getRecipeWithMeta(UUID recipeUuid) {
         return recipeRepository.findByIdWithMeta(recipeUuid).orElseThrow(() -> new AppException(RECIPE_NOT_FOUND));
+    }
+
+    /**
+     * 레시피 조회 수 증가
+     */
+    private void increaseRecipeViewCount(UUID recipeUuid) {
+        Long recipeMetaId = recipeRepository.findRecipeMetaIdByRecipeUuid(recipeUuid);
+        recipeMetaService.asyncIncreaseViewCnt(recipeMetaId);
     }
 }
