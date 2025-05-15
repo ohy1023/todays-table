@@ -6,7 +6,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.domain.*;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.mock.web.MockMultipartFile;
 import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
@@ -27,6 +31,7 @@ import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.exception.ErrorCode;
 import store.myproject.onlineshop.fixture.*;
 import store.myproject.onlineshop.global.utils.MessageUtil;
+import store.myproject.onlineshop.global.utils.RedisKeyHelper;
 import store.myproject.onlineshop.repository.customer.CustomerRepository;
 import store.myproject.onlineshop.repository.item.ItemRepository;
 import store.myproject.onlineshop.repository.like.LikeRepository;
@@ -42,10 +47,11 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class RecipeServiceTest {
@@ -73,7 +79,14 @@ class RecipeServiceTest {
     private RecipeStepRepository recipeStepRepository;
     @Mock
     private RecipeItemRepository recipeItemRepository;
-
+    @Mock
+    private RedisTemplate<String, Object> cacheRedisTemplate;
+    @Mock
+    private ValueOperations<String, Object> valueOperations;
+    @Mock
+    private RedissonClient redisson;
+    @Mock
+    private RLock rLock;
 
     Customer customer = CustomerFixture.createCustomer();
     Brand brand = BrandFixture.createBrandEntity();
@@ -82,12 +95,43 @@ class RecipeServiceTest {
     Review review = ReviewFixture.createParentReviewEntity(recipe, customer);
 
     @Test
-    @DisplayName("레시피 상세 조회 성공")
-    void get_recipe_detail_success() {
+    @DisplayName("레시피 상세 조회 성공 - 캐시 히트")
+    void get_recipe_detail_success_by_cache_hit() {
         // given
         Long recipeId = 1L;
         UUID recipeUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
         RecipeDto dto = RecipeFixture.createRecipeDto(recipeUuid);
+        String recipeCacheKey = RedisKeyHelper.getRecipeKey(recipeUuid);
+        given(cacheRedisTemplate.opsForValue()).willReturn(valueOperations);
+        given(cacheRedisTemplate.opsForValue().get(recipeCacheKey)).willReturn(dto);
+        given(recipeRepository.findRecipeMetaIdByRecipeUuid(recipeUuid)).willReturn(recipeId);
+
+        // when
+        RecipeDto result = recipeService.getRecipeDetail(recipeUuid);
+
+        // then
+        assertThat(result).isEqualTo(dto);
+        then(recipeMetaService).should(times(1)).asyncIncreaseViewCnt(recipeId);
+        then(recipeRepository).should(never()).findRecipeDtoByUuid(any());
+        then(recipeStepRepository).shouldHaveNoInteractions();
+        then(recipeItemRepository).shouldHaveNoInteractions();
+        then(redisson).should(never()).getLock(anyString());
+    }
+
+    @Test
+    @DisplayName("레시피 상세 조회 성공 - 캐시 미스")
+    void get_recipe_detail_success_by_cache_miss() {
+        // given
+        Long recipeId = 1L;
+        UUID recipeUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+        RecipeDto dto = RecipeFixture.createRecipeDto(recipeUuid);
+        String recipeCacheKey = RedisKeyHelper.getRecipeKey(recipeUuid);
+        String recipeLockKey = RedisKeyHelper.getRecipeLockKey(recipeUuid);
+        given(cacheRedisTemplate.opsForValue()).willReturn(valueOperations);
+        given(cacheRedisTemplate.opsForValue().get(recipeCacheKey)).willReturn(null);
+        given(redisson.getLock(recipeLockKey)).willReturn(rLock);
+        given(rLock.tryLock()).willReturn(true);
+        given(cacheRedisTemplate.opsForValue().get(recipeCacheKey)).willReturn(null);
         given(recipeRepository.findRecipeDtoByUuid(recipeUuid)).willReturn(Optional.of(dto));
         given(recipeStepRepository.findStepsByRecipeUuid(recipeUuid)).willReturn(List.of());
         given(recipeItemRepository.findItemsByRecipeUuid(recipeUuid)).willReturn(List.of());
@@ -97,8 +141,10 @@ class RecipeServiceTest {
         RecipeDto result = recipeService.getRecipeDetail(recipeUuid);
 
         // then
-        assertThat(result).isNotNull();
-        then(recipeMetaService).should().asyncIncreaseViewCnt(recipeId);
+        assertThat(result).isEqualTo(dto);
+        then(recipeMetaService).should(times(1)).asyncIncreaseViewCnt(recipeId);
+        then(cacheRedisTemplate.opsForValue()).should().set(eq(recipeCacheKey), eq(dto), any());
+        then(rLock).should().unlock();
     }
 
     @Test

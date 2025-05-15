@@ -114,8 +114,6 @@ public class RecipeFixture {
                 .recipeCookingTime(30)
                 .recipeServings(2)
                 .recipeWriter(faker.name().fullName())
-                .reviewCnt((long) faker.number().numberBetween(0, 50))
-                .likeCnt((long) faker.number().numberBetween(0, 100))
                 .steps(List.of(RecipeStepDto.builder()
                         .stepOrder(faker.number().numberBetween(0, 50))
                         .content(faker.lorem().paragraph())
