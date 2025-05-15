@@ -63,7 +63,7 @@ public class OrderController {
     public Response<Page<OrderInfo>> searchOrder(
             @Parameter(description = "주문 검색 조건") OrderSearchCond orderSearchCond,
             Authentication authentication,
-            @ParameterObject @PageableDefault(page = 5) Pageable pageable
+            @ParameterObject @PageableDefault(size = 5) Pageable pageable
     ) {
 
         String email = authentication.getName();

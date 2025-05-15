@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-import org.springframework.context.ApplicationEventPublisher;
 import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.delivery.Delivery;
@@ -27,10 +26,7 @@ import static store.myproject.onlineshop.exception.ErrorCode.ALREADY_ARRIVED;
 
 @Entity
 @Table(
-        name = "Orders",
-        indexes = {
-                @Index(name = "idx_deleted_date", columnList = "deleted_date")
-        }
+        name = "Orders"
 )
 @Getter
 @Builder

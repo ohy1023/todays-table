@@ -43,7 +43,6 @@ public class ItemFixture {
         return ItemDto.builder()
                 .uuid(UUID.fromString(faker.internet().uuid()))
                 .itemName(faker.commerce().productName())
-                .stock(faker.number().numberBetween(1L, 1000L))
                 .price(BigDecimal.valueOf(faker.number().numberBetween(1000, 100000)))
                 .brandName(faker.company().name())
                 .imageList(List.of(

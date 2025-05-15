@@ -106,7 +106,6 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.resultCode").value(SUCCESS))
                 .andExpect(jsonPath("$.result.itemName").value(itemDto.getItemName()))
                 .andExpect(jsonPath("$.result.price").value(itemDto.getPrice()))
-                .andExpect(jsonPath("$.result.stock").value(itemDto.getStock()))
                 .andDo(print());
     }
 

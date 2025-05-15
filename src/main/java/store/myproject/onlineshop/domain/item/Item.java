@@ -112,7 +112,6 @@ public class Item extends BaseEntity {
                 .uuid(this.uuid)
                 .itemName(this.itemName)
                 .price(this.price)
-                .stock(this.stock)
                 .brandName(this.brand.getName())
                 .imageList(this.getImageFileList().stream()
                         .map(ImageFile::getImageUrl)
