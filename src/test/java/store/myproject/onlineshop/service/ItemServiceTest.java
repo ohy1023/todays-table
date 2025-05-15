@@ -5,15 +5,22 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.web.multipart.MultipartFile;
 import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.item.dto.*;
+import store.myproject.onlineshop.domain.recipe.dto.RecipeDto;
+import store.myproject.onlineshop.fixture.RecipeFixture;
+import store.myproject.onlineshop.global.utils.RedisKeyHelper;
 import store.myproject.onlineshop.repository.brand.BrandRepository;
 import store.myproject.onlineshop.domain.imagefile.ImageFile;
 import store.myproject.onlineshop.repository.imagefile.ImageFileRepository;
@@ -29,6 +36,7 @@ import store.myproject.onlineshop.global.utils.MessageUtil;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -54,17 +62,52 @@ class ItemServiceTest {
     private MultipartFile multipartFile;
     @Mock
     private MessageUtil messageUtil;
+    @Mock
+    private RedisTemplate<String, Object> cacheRedisTemplate;
+    @Mock
+    private ValueOperations<String, Object> valueOperations;
+    @Mock
+    private RedissonClient redisson;
+    @Mock
+    private RLock rLock;
 
     Brand brand = BrandFixture.createBrand();
     Item item = ItemFixture.createItem(brand);
     ImageFile imageFile = ImageFileFixture.withItem(item);
 
     @Test
-    @DisplayName("아이템 ID로 조회 성공")
-    void getItemById_success() {
+    @DisplayName("아이템 ID로 조회 성공 - 캐시 히트")
+    void getItemById_success_by_cache_hit() {
+        // given
+        ItemDto cachedItemDto = ItemFixture.createItemDto();
+        UUID itemUuid = cachedItemDto.getUuid();
+        String itemCacheKey = RedisKeyHelper.getItemCacheKey(itemUuid);
+
+        given(cacheRedisTemplate.opsForValue()).willReturn(valueOperations);
+        given(cacheRedisTemplate.opsForValue().get(itemCacheKey)).willReturn(cachedItemDto);
+
+        // when
+        ItemDto result = itemService.getItem(itemUuid);
+
+        // then
+        assertThat(result.getItemName()).isEqualTo(cachedItemDto.getItemName());
+        assertThat(result.getPrice()).isEqualTo(cachedItemDto.getPrice());
+    }
+
+    @Test
+    @DisplayName("아이템 ID로 조회 성공 - 캐시 미스")
+    void getItemById_success_by_cache_miss() throws InterruptedException {
         // given
         UUID itemUuid = item.getUuid();
+        ItemDto dto = item.toItemDto();
+        String itemCacheKey = RedisKeyHelper.getItemCacheKey(itemUuid);
+        String itemLockKey = RedisKeyHelper.getItemLockKey(itemUuid);
 
+        given(cacheRedisTemplate.opsForValue()).willReturn(valueOperations);
+        given(cacheRedisTemplate.opsForValue().get(itemCacheKey)).willReturn(null);
+        given(redisson.getLock(itemLockKey)).willReturn(rLock);
+        given(rLock.tryLock(300,2000, TimeUnit.MILLISECONDS)).willReturn(true);
+        given(cacheRedisTemplate.opsForValue().get(itemCacheKey)).willReturn(null);
         given(itemRepository.findByUuid(itemUuid)).willReturn(Optional.of(item));
 
         // when
@@ -73,13 +116,23 @@ class ItemServiceTest {
         // then
         assertThat(result.getItemName()).isEqualTo(item.getItemName());
         assertThat(result.getPrice()).isEqualTo(item.getPrice());
+        then(cacheRedisTemplate.opsForValue()).should().set(eq(itemCacheKey), eq(dto), any());
+        then(rLock).should().unlock();
     }
 
     @Test
     @DisplayName("아이템 ID로 조회 실패 - 존재하지 않음")
-    void getItemById_notFound() {
+    void getItemById_notFound() throws InterruptedException {
         // given
         UUID invalidUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+        String itemCacheKey = RedisKeyHelper.getItemCacheKey(invalidUuid);
+        String itemLockKey = RedisKeyHelper.getItemLockKey(invalidUuid);
+
+        given(cacheRedisTemplate.opsForValue()).willReturn(valueOperations);
+        given(cacheRedisTemplate.opsForValue().get(itemCacheKey)).willReturn(null);
+        given(redisson.getLock(itemLockKey)).willReturn(rLock);
+        given(rLock.tryLock(300,2000, TimeUnit.MILLISECONDS)).willReturn(true);
+        given(cacheRedisTemplate.opsForValue().get(itemCacheKey)).willReturn(null);
         given(itemRepository.findByUuid(invalidUuid)).willReturn(Optional.empty());
 
         // expect

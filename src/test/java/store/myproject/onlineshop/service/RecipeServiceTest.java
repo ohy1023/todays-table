@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -120,7 +121,7 @@ class RecipeServiceTest {
 
     @Test
     @DisplayName("레시피 상세 조회 성공 - 캐시 미스")
-    void get_recipe_detail_success_by_cache_miss() {
+    void get_recipe_detail_success_by_cache_miss() throws InterruptedException {
         // given
         Long recipeId = 1L;
         UUID recipeUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
@@ -130,7 +131,7 @@ class RecipeServiceTest {
         given(cacheRedisTemplate.opsForValue()).willReturn(valueOperations);
         given(cacheRedisTemplate.opsForValue().get(recipeCacheKey)).willReturn(null);
         given(redisson.getLock(recipeLockKey)).willReturn(rLock);
-        given(rLock.tryLock()).willReturn(true);
+        given(rLock.tryLock(300,2000, TimeUnit.MILLISECONDS)).willReturn(true);
         given(cacheRedisTemplate.opsForValue().get(recipeCacheKey)).willReturn(null);
         given(recipeRepository.findRecipeDtoByUuid(recipeUuid)).willReturn(Optional.of(dto));
         given(recipeStepRepository.findStepsByRecipeUuid(recipeUuid)).willReturn(List.of());
