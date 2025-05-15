@@ -79,10 +79,6 @@ public class RecipeService {
     public RecipeDto getRecipeDetail(UUID recipeUuid) {
         String recipeCacheKey = RedisKeyHelper.getRecipeKey(recipeUuid);
 
-        // 조회수 증가 비동기 처리
-        Long recipeMetaId = recipeRepository.findRecipeMetaIdByRecipeUuid(recipeUuid);
-        recipeMetaService.asyncIncreaseViewCnt(recipeMetaId);
-
         // 1. 캐시에서 데이터 조회
         RecipeDto cachedRecipe = (RecipeDto) cacheRedisTemplate.opsForValue().get(recipeCacheKey);
         if (cachedRecipe != null) {
