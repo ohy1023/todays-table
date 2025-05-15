@@ -23,9 +23,6 @@ public class ItemDto {
     @Schema(description = "가격", example = "3200", required = true)
     private BigDecimal price;
 
-    @Schema(description = "재고 수량", example = "10000", required = true)
-    private Long stock;
-
     @Schema(description = "이미지 목록", example = "[\"image1.jpg\", \"image2.jpg\"]")
     private List<String> imageList;
 

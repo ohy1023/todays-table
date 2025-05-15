@@ -2,8 +2,6 @@ package store.myproject.onlineshop.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -39,7 +37,6 @@ public class BrandService {
      * 브랜드 단건 조회 (캐싱 적용)
      */
     @Transactional(readOnly = true)
-    @Cacheable(value = "brands", key = "#uuid")
     public BrandInfo findBrandInfoById(UUID uuid) {
         return findBrandOrThrow(uuid).toBrandInfo();
     }
@@ -71,7 +68,6 @@ public class BrandService {
     /**
      * 브랜드 수정 (이미지 변경 포함, 캐시 초기화)
      */
-    @CacheEvict(value = "brands", allEntries = true)
     public MessageResponse updateBrand(UUID uuid, BrandUpdateRequest request, MultipartFile multipartFile) {
         Brand brand = findBrandOrThrow(uuid);
 
@@ -97,7 +93,6 @@ public class BrandService {
     /**
      * 브랜드 삭제 (캐시 초기화 및 이미지 삭제 포함)
      */
-    @CacheEvict(value = "brands", allEntries = true)
     public MessageResponse deleteBrand(UUID uuid) {
         Brand brand = findBrandOrThrow(uuid);
 

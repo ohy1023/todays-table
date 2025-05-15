@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static store.myproject.onlineshop.exception.ErrorCode.CUSTOMER_NOT_FOUND;
@@ -91,7 +92,7 @@ public class RecipeService {
         RLock lock = redisson.getLock(recipeLockKey);
 
         try {
-            boolean isLocked = lock.tryLock(); // 기본 대기시간과 임계시간은 0
+            boolean isLocked = lock.tryLock(300, 2000, TimeUnit.MILLISECONDS);
 
             if (isLocked) {
                 try {
@@ -122,16 +123,15 @@ public class RecipeService {
                     lock.unlock();
                 }
             } else {
-                // 락 획득 실패 시: 잠시 대기 후 캐시 재조회 (간단한 폴링 처리)
-                Thread.sleep(100); // 100ms 대기
-                RecipeDto retryCache = (RecipeDto) cacheRedisTemplate.opsForValue().get(recipeCacheKey);
-                if (retryCache != null) {
-                    increaseRecipeViewCount(recipeUuid);
-                    return retryCache;
-                } else {
-                    // 끝까지 실패 시 fallback
-                    throw new AppException(RECIPE_NOT_FOUND);
+                for (int i = 0; i < 3; i++) {
+                    Thread.sleep(100); // 100ms 대기
+                    RecipeDto retryCache = (RecipeDto) cacheRedisTemplate.opsForValue().get(recipeCacheKey);
+                    if (retryCache != null) {
+                        increaseRecipeViewCount(recipeUuid);
+                        return retryCache;
+                    }
                 }
+                throw new AppException(RECIPE_NOT_FOUND);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

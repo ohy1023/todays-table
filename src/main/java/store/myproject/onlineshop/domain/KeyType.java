@@ -8,6 +8,10 @@ public enum KeyType {
     // Recipe Lock
     RECIPE_DETAIL_CACHE_LOCK("recipe:detail:%s:lock"),
 
+    // Item
+    ITEM_DETAIL_CACHE("item:detail:%s"),
+
+    ITEM_DETAIL_CACHE_LOCK("item:detail:%s:lock"),
     ;
 
     private final String keyPattern;

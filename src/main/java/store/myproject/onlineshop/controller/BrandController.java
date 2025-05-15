@@ -47,7 +47,7 @@ public class BrandController {
     @ApiResponse(responseCode = "200", description = "브랜드 검색 성공")
     @GetMapping("/search")
     public Response<Page<BrandInfo>> searchBrands(
-            @Parameter(description = "브랜드 이름", example = "풀무원")
+            @Parameter(description = "브랜드 이름", example = "유한")
             @RequestParam(required = false) String brandName,
             @ParameterObject Pageable pageable) {
         Page<BrandInfo> brands = brandService.searchBrands(brandName, pageable);

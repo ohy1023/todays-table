@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 @Schema(description = "아이템 검색 조건 DTO")
 public class ItemSearchCond {
 
-    @Schema(description = "아이템 이름", example = "대파")
+    @Schema(description = "아이템 이름", example = "Salt")
     private String itemName;
 
-    @Schema(description = "브랜드 이름", example = "풀무원")
+    @Schema(description = "브랜드 이름", example = "유한")
     private String brandName;
 
 }

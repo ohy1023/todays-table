@@ -15,4 +15,12 @@ public class RedisKeyHelper {
     public String getRecipeLockKey(UUID recipeUuid) {
         return KeyType.RECIPE_DETAIL_CACHE_LOCK.format(recipeUuid);
     }
+
+    public String getItemCacheKey(UUID itemUuid) {
+        return KeyType.ITEM_DETAIL_CACHE.format(itemUuid);
+    }
+
+    public String getItemLockKey(UUID itemUuid) {
+        return KeyType.ITEM_DETAIL_CACHE_LOCK.format(itemUuid);
+    }
 }
