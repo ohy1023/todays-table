@@ -165,229 +165,6 @@ class RecipeServiceTest {
     }
 
     @Test
-    @DisplayName("레시피 삭제 성공")
-    void delete_recipe_success() {
-        // given
-        UUID recipeUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-        given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
-        given(recipeRepository.findByUuid(recipeUuid)).willReturn(Optional.of(recipe));
-        given(messageUtil.get(MessageCode.RECIPE_DELETED)).willReturn("삭제 성공");
-
-        // when
-        MessageResponse response = recipeService.deleteRecipe(recipeUuid, customer.getEmail());
-
-        // then
-        then(recipeRepository).should().delete(recipe);
-        assertThat(response.getMessage()).isEqualTo("삭제 성공");
-    }
-
-    @Test
-    @DisplayName("레시피 좋아요 성공 → 좋아요가 없을 때")
-    void toggle_like_add_success() {
-        // given
-        given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
-        given(recipeRepository.findByIdWithMeta(recipe.getUuid())).willReturn(Optional.of(recipe));
-        given(likeRepository.findByRecipeAndCustomer(recipe, customer)).willReturn(Optional.empty());
-        given(messageUtil.get(MessageCode.DO_LIKE)).willReturn("좋아요 등록");
-
-        // when
-        MessageResponse response = recipeService.toggleLike(recipe.getUuid(), customer.getEmail());
-
-        // then
-        then(likeRepository).should().save(any());
-        then(recipeMetaService).should().asyncIncreaseLikeCnt(recipe.getRecipeMeta().getId());
-        assertThat(response.getMessage()).isEqualTo("좋아요 등록");
-    }
-
-    @Test
-    @DisplayName("레시피 좋아요 취소 성공 → 좋아요가 이미 있을 때")
-    void toggle_like_remove_success() {
-        // given
-        Like like = Like.of(customer, recipe);
-        given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
-        given(recipeRepository.findByIdWithMeta(recipe.getUuid())).willReturn(Optional.of(recipe));
-        given(likeRepository.findByRecipeAndCustomer(recipe, customer)).willReturn(Optional.of(like));
-        given(messageUtil.get(MessageCode.UNDO_LIKE)).willReturn("좋아요 취소");
-
-        // when
-        MessageResponse response = recipeService.toggleLike(recipe.getUuid(), customer.getEmail());
-
-        // then
-        then(likeRepository).should().delete(like);
-        then(recipeMetaService).should().asyncDecreaseLikeCnt(recipe.getRecipeMeta().getId());
-        assertThat(response.getMessage()).isEqualTo("좋아요 취소");
-    }
-
-    @Test
-    @DisplayName("대댓글 조회 성공")
-    void get_child_reviews_success() {
-        // given
-        Pageable pageable = PageRequest.of(0, 5);
-        Review parent = ReviewFixture.createParentReviewEntity(recipe, customer);
-        Review child1 = ReviewFixture.createChildReviewEntity(recipe, customer, parent);
-        Page<Review> children = new PageImpl<>(List.of(child1));
-
-        given(recipeRepository.findByUuid(recipe.getUuid())).willReturn(Optional.of(recipe));
-        given(reviewRepository.findByUuid(parent.getUuid())).willReturn(Optional.of(parent));
-        given(reviewRepository.findByParentId(parent.getId(), pageable)).willReturn(children);
-
-        // when
-        Page<ChildReviewResponse> result = recipeService.getChildReviews(
-                recipe.getUuid(), parent.getUuid(), pageable);
-
-        // then
-        assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).getContent()).isEqualTo(child1.getReviewContent());
-    }
-
-    @Test
-    @DisplayName("대댓글 조회 실패 - 부모 리뷰가 레시피에 속하지 않음")
-    void get_child_reviews_fail_if_review_not_belongs_to_recipe() {
-        // given
-        Recipe otherRecipe = RecipeFixture.createRecipeEntityWithId(2L, customer);
-        Review invalidParent = ReviewFixture.createParentReviewEntity(otherRecipe, customer);
-        given(recipeRepository.findByUuid(recipe.getUuid())).willReturn(Optional.of(recipe));
-        given(reviewRepository.findByUuid(invalidParent.getUuid())).willReturn(Optional.of(invalidParent));
-
-        // when & then
-        assertThatThrownBy(() -> recipeService.getChildReviews(
-                recipe.getUuid(), invalidParent.getUuid(), PageRequest.of(0, 5)))
-                .isInstanceOf(AppException.class)
-                .hasMessage(ErrorCode.INVALID_REVIEW.getMessage());
-    }
-
-    @Test
-    @DisplayName("리뷰 수정 성공")
-    void update_review_success() {
-        // given
-        ReviewUpdateRequest request = ReviewFixture.createReviewUpdateRequest();
-
-        given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
-        given(recipeRepository.findByUuid(recipe.getUuid())).willReturn(Optional.of(recipe));
-        given(reviewRepository.findByUuid(review.getUuid())).willReturn(Optional.of(review));
-        given(messageUtil.get(MessageCode.RECIPE_REVIEW_MODIFIED)).willReturn("리뷰 수정 성공");
-
-        // when
-        MessageResponse response = recipeService.updateReview(customer.getEmail(), recipe.getUuid(), review.getUuid(), request);
-
-        // then
-        assertThat(response.getMessage()).isEqualTo("리뷰 수정 성공");
-    }
-
-    @Test
-    @DisplayName("리뷰 수정 실패 - 작성자 불일치")
-    void update_review_fail_if_not_author() {
-        // given
-        Customer other = CustomerFixture.createCustomer();
-        Review otherReview = ReviewFixture.createParentReviewEntity(recipe, other);
-        ReviewUpdateRequest request = new ReviewUpdateRequest("불법 수정 시도");
-
-        given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
-        given(recipeRepository.findByUuid(recipe.getUuid())).willReturn(Optional.of(recipe));
-        given(reviewRepository.findByUuid(otherReview.getUuid())).willReturn(Optional.of(otherReview));
-
-        // when & then
-        assertThatThrownBy(() -> recipeService.updateReview(customer.getEmail(), recipe.getUuid(), otherReview.getUuid(), request))
-                .isInstanceOf(AppException.class)
-                .hasMessage(ErrorCode.FORBIDDEN_ACCESS.getMessage());
-    }
-
-    @Test
-    @DisplayName("리뷰 작성 성공")
-    void create_review_success() {
-        // given
-        ReviewWriteRequest request = ReviewFixture.createReviewWriteRequest();
-        given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
-        given(recipeRepository.findByIdWithMeta(recipe.getUuid())).willReturn(Optional.of(recipe));
-        given(messageUtil.get(MessageCode.RECIPE_REVIEW_ADDED)).willReturn("리뷰 등록");
-
-        // when
-        MessageResponse response = recipeService.createReview(customer.getEmail(), recipe.getUuid(), request);
-
-        // then
-        then(reviewRepository).should().save(any(Review.class));
-        then(recipeMetaService).should().asyncIncreaseReviewCnt(recipe.getRecipeMeta().getId());
-        assertThat(response.getMessage()).isEqualTo("리뷰 등록");
-    }
-
-    @Test
-    @DisplayName("리뷰 삭제 성공")
-    void delete_review_success() {
-        // given
-        given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
-        given(recipeRepository.findByIdWithMeta(recipe.getUuid())).willReturn(Optional.of(recipe));
-        given(reviewRepository.findByUuid(review.getUuid())).willReturn(Optional.of(review));
-        given(messageUtil.get(MessageCode.RECIPE_REVIEW_DELETED)).willReturn("리뷰 삭제");
-
-        // when
-        MessageResponse response = recipeService.deleteReview(customer.getEmail(), recipe.getUuid(), review.getUuid());
-
-        // then
-        then(reviewRepository).should().delete(review);
-        then(recipeMetaService).should().asyncDecreaseReviewCnt(recipe.getRecipeMeta().getId());
-        assertThat(response.getMessage()).isEqualTo("리뷰 삭제");
-    }
-
-
-    @Test
-    @DisplayName("레시피 리뷰 목록 조회 성공")
-    void get_recipe_reviews_success() {
-        // given
-        Pageable pageable = PageRequest.of(0, 5);
-        Page<Review> parentPage = new PageImpl<>(List.of(review));
-        List<Review> childReviews = List.of();
-        Map<Long, List<Review>> childMap = Map.of(review.getId(), childReviews);
-        Map<Long, Long> countMap = Map.of(review.getId(), 0L);
-
-        given(recipeRepository.findByUuid(recipe.getUuid())).willReturn(Optional.of(recipe));
-        given(reviewRepository.findParentReviews(recipe, pageable)).willReturn(parentPage);
-        given(reviewRepository.findTop3ChildReviews(List.of(review.getId()), PageRequest.of(0, 3))).willReturn(childReviews);
-        given(reviewRepository.countByParentIds(List.of(review.getId()))).willReturn(countMap);
-
-        // when
-        Page<ReviewResponse> result = recipeService.getRecipeReviews(recipe.getUuid(), pageable);
-
-        // then
-        assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).getContent()).isEqualTo(review.getReviewContent());
-    }
-
-    @Test
-    @DisplayName("레시피 수정 성공 - 기존 재료/단계 초기화 후 덮어쓰기")
-    void update_recipe_success() {
-        // given
-        RecipeUpdateRequest request = RecipeFixture.createRecipeUpdateRequest();
-
-        recipe.addItems(List.of(RecipeItem.createRecipeItem(item)));
-        recipe.addSteps(List.of(RecipeStep.builder().stepOrder(1).content("구").build()));
-
-        given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
-        given(recipeRepository.findByUuid(recipe.getUuid())).willReturn(Optional.of(recipe));
-        given(itemRepository.findByUuid(any())).willReturn(Optional.of(item));
-        given(messageUtil.get(MessageCode.RECIPE_MODIFIED)).willReturn("레시피 수정 완료");
-
-        // when
-        MessageResponse response = recipeService.updateRecipe(recipe.getUuid(), request, customer.getEmail());
-
-        // then
-        assertThat(response.getMessage()).isEqualTo("레시피 수정 완료");
-    }
-
-    @Test
-    @DisplayName("레시피 이미지 업로드 성공 - S3 연동")
-    void upload_image_success() {
-        // given
-        MockMultipartFile mockFile = CommonFixture.mockMultipartFile();
-        given(awsS3Service.uploadRecipeOriginImage(mockFile)).willReturn("https://s3.bucket/recipe/image.jpg");
-
-        // when
-        MessageResponse response = recipeService.uploadImage(mockFile);
-
-        // then
-        assertThat(response.getMessage()).isEqualTo("https://s3.bucket/recipe/image.jpg");
-    }
-
-    @Test
     @DisplayName("레시피 목록 조회 성공 - 슬라이스 반환")
     void get_recipes_success() {
         // given
@@ -429,4 +206,231 @@ class RecipeServiceTest {
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().get(0).getRecipeServings()).isEqualTo(1);
     }
+
+    @Test
+    @DisplayName("레시피 수정 성공 - 기존 재료/단계 초기화 후 덮어쓰기")
+    void update_recipe_success() {
+        // given
+        RecipeUpdateRequest request = RecipeFixture.createRecipeUpdateRequest();
+        String recipeCacheKey = RedisKeyHelper.getRecipeKey(recipe.getUuid());
+        recipe.addItems(List.of(RecipeItem.createRecipeItem(item)));
+        recipe.addSteps(List.of(RecipeStep.builder().stepOrder(1).content("구").build()));
+
+        given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
+        given(recipeRepository.findByUuid(recipe.getUuid())).willReturn(Optional.of(recipe));
+        given(itemRepository.findByUuid(any())).willReturn(Optional.of(item));
+        given(messageUtil.get(MessageCode.RECIPE_MODIFIED)).willReturn("레시피 수정 완료");
+
+        // when
+        MessageResponse response = recipeService.updateRecipe(recipe.getUuid(), request, customer.getEmail());
+
+        // then
+        then(cacheRedisTemplate).should(times(1)).delete(recipeCacheKey);
+        assertThat(response.getMessage()).isEqualTo("레시피 수정 완료");
+    }
+
+    @Test
+    @DisplayName("레시피 삭제 성공")
+    void delete_recipe_success() {
+        // given
+        UUID recipeUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+        String recipeCacheKey = RedisKeyHelper.getRecipeKey(recipeUuid);
+        given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
+        given(recipeRepository.findByUuid(recipeUuid)).willReturn(Optional.of(recipe));
+        given(messageUtil.get(MessageCode.RECIPE_DELETED)).willReturn("삭제 성공");
+
+        // when
+        MessageResponse response = recipeService.deleteRecipe(recipeUuid, customer.getEmail());
+
+        // then
+        then(recipeRepository).should().delete(recipe);
+
+        then(cacheRedisTemplate).should(times(1)).delete(recipeCacheKey);
+        assertThat(response.getMessage()).isEqualTo("삭제 성공");
+    }
+
+    @Test
+    @DisplayName("레시피 이미지 업로드 성공 - S3 연동")
+    void upload_image_success() {
+        // given
+        MockMultipartFile mockFile = CommonFixture.mockMultipartFile();
+        given(awsS3Service.uploadRecipeOriginImage(mockFile)).willReturn("https://s3.bucket/recipe/image.jpg");
+
+        // when
+        MessageResponse response = recipeService.uploadImage(mockFile);
+
+        // then
+        assertThat(response.getMessage()).isEqualTo("https://s3.bucket/recipe/image.jpg");
+    }
+
+    @Test
+    @DisplayName("레시피 좋아요 성공 → 좋아요가 없을 때")
+    void toggle_like_add_success() {
+        // given
+        given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
+        given(recipeRepository.findByIdWithMeta(recipe.getUuid())).willReturn(Optional.of(recipe));
+        given(likeRepository.findByRecipeAndCustomer(recipe, customer)).willReturn(Optional.empty());
+        given(messageUtil.get(MessageCode.DO_LIKE)).willReturn("좋아요 등록");
+
+        // when
+        MessageResponse response = recipeService.toggleLike(recipe.getUuid(), customer.getEmail());
+
+        // then
+        then(likeRepository).should().save(any());
+        then(recipeMetaService).should().asyncIncreaseLikeCnt(recipe.getRecipeMeta().getId());
+        assertThat(response.getMessage()).isEqualTo("좋아요 등록");
+    }
+
+    @Test
+    @DisplayName("레시피 좋아요 취소 성공 → 좋아요가 이미 있을 때")
+    void toggle_like_remove_success() {
+        // given
+        Like like = Like.of(customer, recipe);
+        given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
+        given(recipeRepository.findByIdWithMeta(recipe.getUuid())).willReturn(Optional.of(recipe));
+        given(likeRepository.findByRecipeAndCustomer(recipe, customer)).willReturn(Optional.of(like));
+        given(messageUtil.get(MessageCode.UNDO_LIKE)).willReturn("좋아요 취소");
+
+        // when
+        MessageResponse response = recipeService.toggleLike(recipe.getUuid(), customer.getEmail());
+
+        // then
+        then(likeRepository).should().delete(like);
+        then(recipeMetaService).should().asyncDecreaseLikeCnt(recipe.getRecipeMeta().getId());
+        assertThat(response.getMessage()).isEqualTo("좋아요 취소");
+    }
+
+    @Test
+    @DisplayName("레시피 리뷰 목록 조회 성공")
+    void get_recipe_reviews_success() {
+        // given
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<Review> parentPage = new PageImpl<>(List.of(review));
+        List<Review> childReviews = List.of();
+        Map<Long, List<Review>> childMap = Map.of(review.getId(), childReviews);
+        Map<Long, Long> countMap = Map.of(review.getId(), 0L);
+
+        given(recipeRepository.findByUuid(recipe.getUuid())).willReturn(Optional.of(recipe));
+        given(reviewRepository.findParentReviews(recipe, pageable)).willReturn(parentPage);
+        given(reviewRepository.findTop3ChildReviews(List.of(review.getId()), PageRequest.of(0, 3))).willReturn(childReviews);
+        given(reviewRepository.countByParentIds(List.of(review.getId()))).willReturn(countMap);
+
+        // when
+        Page<ReviewResponse> result = recipeService.getRecipeReviews(recipe.getUuid(), pageable);
+
+        // then
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).getContent()).isEqualTo(review.getReviewContent());
+    }
+
+    @Test
+    @DisplayName("대댓글 조회 성공")
+    void get_child_reviews_success() {
+        // given
+        Pageable pageable = PageRequest.of(0, 5);
+        Review parent = ReviewFixture.createParentReviewEntity(recipe, customer);
+        Review child1 = ReviewFixture.createChildReviewEntity(recipe, customer, parent);
+        Page<Review> children = new PageImpl<>(List.of(child1));
+
+        given(recipeRepository.findByUuid(recipe.getUuid())).willReturn(Optional.of(recipe));
+        given(reviewRepository.findByUuid(parent.getUuid())).willReturn(Optional.of(parent));
+        given(reviewRepository.findByParentId(parent.getId(), pageable)).willReturn(children);
+
+        // when
+        Page<ChildReviewResponse> result = recipeService.getChildReviews(
+                recipe.getUuid(), parent.getUuid(), pageable);
+
+        // then
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).getContent()).isEqualTo(child1.getReviewContent());
+    }
+
+    @Test
+    @DisplayName("대댓글 조회 실패 - 부모 리뷰가 레시피에 속하지 않음")
+    void get_child_reviews_fail_if_review_not_belongs_to_recipe() {
+        // given
+        Recipe otherRecipe = RecipeFixture.createRecipeEntityWithId(2L, customer);
+        Review invalidParent = ReviewFixture.createParentReviewEntity(otherRecipe, customer);
+        given(recipeRepository.findByUuid(recipe.getUuid())).willReturn(Optional.of(recipe));
+        given(reviewRepository.findByUuid(invalidParent.getUuid())).willReturn(Optional.of(invalidParent));
+
+        // when & then
+        assertThatThrownBy(() -> recipeService.getChildReviews(
+                recipe.getUuid(), invalidParent.getUuid(), PageRequest.of(0, 5)))
+                .isInstanceOf(AppException.class)
+                .hasMessage(ErrorCode.INVALID_REVIEW.getMessage());
+    }
+
+    @Test
+    @DisplayName("리뷰 작성 성공")
+    void create_review_success() {
+        // given
+        ReviewWriteRequest request = ReviewFixture.createReviewWriteRequest();
+        given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
+        given(recipeRepository.findByIdWithMeta(recipe.getUuid())).willReturn(Optional.of(recipe));
+        given(messageUtil.get(MessageCode.RECIPE_REVIEW_ADDED)).willReturn("리뷰 등록");
+
+        // when
+        MessageResponse response = recipeService.createReview(customer.getEmail(), recipe.getUuid(), request);
+
+        // then
+        then(reviewRepository).should().save(any(Review.class));
+        then(recipeMetaService).should().asyncIncreaseReviewCnt(recipe.getRecipeMeta().getId());
+        assertThat(response.getMessage()).isEqualTo("리뷰 등록");
+    }
+
+    @Test
+    @DisplayName("리뷰 수정 성공")
+    void update_review_success() {
+        // given
+        ReviewUpdateRequest request = ReviewFixture.createReviewUpdateRequest();
+
+        given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
+        given(recipeRepository.findByUuid(recipe.getUuid())).willReturn(Optional.of(recipe));
+        given(reviewRepository.findByUuid(review.getUuid())).willReturn(Optional.of(review));
+        given(messageUtil.get(MessageCode.RECIPE_REVIEW_MODIFIED)).willReturn("리뷰 수정 성공");
+
+        // when
+        MessageResponse response = recipeService.updateReview(customer.getEmail(), recipe.getUuid(), review.getUuid(), request);
+
+        // then
+        assertThat(response.getMessage()).isEqualTo("리뷰 수정 성공");
+    }
+
+    @Test
+    @DisplayName("리뷰 수정 실패 - 작성자 불일치")
+    void update_review_fail_if_not_author() {
+        // given
+        Customer other = CustomerFixture.createCustomer();
+        Review otherReview = ReviewFixture.createParentReviewEntity(recipe, other);
+        ReviewUpdateRequest request = new ReviewUpdateRequest("불법 수정 시도");
+
+        given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
+        given(recipeRepository.findByUuid(recipe.getUuid())).willReturn(Optional.of(recipe));
+        given(reviewRepository.findByUuid(otherReview.getUuid())).willReturn(Optional.of(otherReview));
+
+        // when & then
+        assertThatThrownBy(() -> recipeService.updateReview(customer.getEmail(), recipe.getUuid(), otherReview.getUuid(), request))
+                .isInstanceOf(AppException.class)
+                .hasMessage(ErrorCode.FORBIDDEN_ACCESS.getMessage());
+    }
+
+    @Test
+    @DisplayName("리뷰 삭제 성공")
+    void delete_review_success() {
+        // given
+        given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
+        given(recipeRepository.findByIdWithMeta(recipe.getUuid())).willReturn(Optional.of(recipe));
+        given(reviewRepository.findByUuid(review.getUuid())).willReturn(Optional.of(review));
+        given(messageUtil.get(MessageCode.RECIPE_REVIEW_DELETED)).willReturn("리뷰 삭제");
+
+        // when
+        MessageResponse response = recipeService.deleteReview(customer.getEmail(), recipe.getUuid(), review.getUuid());
+
+        // then
+        then(reviewRepository).should().delete(review);
+        then(recipeMetaService).should().asyncDecreaseReviewCnt(recipe.getRecipeMeta().getId());
+        assertThat(response.getMessage()).isEqualTo("리뷰 삭제");
+    }
+
 }
