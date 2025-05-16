@@ -74,7 +74,7 @@ Master-Slave Replication 환경에서 읽기 작업은 Slave 서버에서, 쓰�
 
 [좋아요 개수, 댓글 개수, 조회 수 테이블 분리 리팩토링](https://until.blog/@zvyg1023/%EC%A2%8B%EC%95%84%EC%9A%94-%EA%B0%9C%EC%88%98--%EB%8C%93%EA%B8%80-%EA%B0%9C%EC%88%98--%EC%A1%B0%ED%9A%8C-%EC%88%98-%ED%85%8C%EC%9D%B4%EB%B8%94-%EB%B6%84%EB%A6%AC-%EB%A6%AC%ED%8C%A9%ED%86%A0%EB%A7%81)
 
-[Redisson Lock으로 캐시 스탬피드 방지한 Look Aside + Cache Busting 전략 적용](https://velog.io/@zvyg1023/Redisson-Lock%EC%9C%BC%EB%A1%9C-%EC%BA%90%EC%8B%9C-%EC%8A%A4%ED%83%AC%ED%94%BC%EB%93%9C-%EB%B0%A9%EC%A7%80%ED%95%9C-Look-Aside-Cache-Busting-%EC%A0%84%EB%9E%B5-%EC%A0%81%EC%9A%A9)
+[Redisson으로 캐시 스탬피드 방지: Look Aside + Write Around + Cache Busting 전략 적용](https://velog.io/@zvyg1023/Redisson%EC%9C%BC%EB%A1%9C-%EC%BA%90%EC%8B%9C-%EC%8A%A4%ED%83%AC%ED%94%BC%EB%93%9C-%EB%B0%A9%EC%A7%80-Look-Aside-Write-Around-Cache-Busting-%EC%A0%84%EB%9E%B5-%EC%A0%81%EC%9A%A9)
 
 [Git Actions와 docker-compose를 이용한 자동 배포](https://velog.io/@zvyg1023/CICD-Docker-Github-Action-Spring-Boot)
 
