@@ -27,7 +27,6 @@ public class Brand {
     @Convert(converter = UUIDBinaryConverter.class)
     private UUID uuid;
 
-    @Column(unique = true)
     private String name;
 
     @Setter

@@ -46,14 +46,14 @@ public class JpaConfiguration {
 
     private JpaVendorAdapter jpaVendorAdapter() {
         HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
-        // DDL 생성 기능을 비활성화
+        // DDL 생성 기능을 활성화
         hibernateJpaVendorAdapter.setGenerateDdl(true);
         // SQL 쿼리를 로깅하지 않도록 설정
         hibernateJpaVendorAdapter.setShowSql(false);
 
         hibernateJpaVendorAdapter.setDatabase(Database.MYSQL);
 
-        hibernateJpaVendorAdapter.setDatabasePlatform("org.hibernate.dialect.MySQLDialect");
+        hibernateJpaVendorAdapter.setDatabasePlatform("org.hibernate.dialect.MySQL8Dialect");
         // SQL 방언을 MySQL8Dialect 방언으로 설정
         return hibernateJpaVendorAdapter;
     }
@@ -67,7 +67,7 @@ public class JpaConfiguration {
 
     @Bean
     public PlatformTransactionManager transactionManager(
-            // 이름이 entityManager인 Bean을 주입받는다.
+            // 이름이 entityManagerFactory인 Bean을 주입받는다.
             @Qualifier("entityManagerFactory") LocalContainerEntityManagerFactoryBean entityManagerFactory) {
         JpaTransactionManager jpaTransactionManager = new JpaTransactionManager();
         // 주입받은 entityManagerFactory의 객체를 설정한다 -> 트랜잭션 매니저가 올바른 엔티티 매니저 팩토리를 사용하여 트랜잭션을 관리할 수 있다.

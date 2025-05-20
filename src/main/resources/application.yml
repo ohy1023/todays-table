@@ -18,7 +18,12 @@ spring:
       max-request-size: 50MB
   jpa:
     open-in-view: false
-
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+      encoding: UTF-8
+      schema-locations: classpath:index.sql
   security:
     user:
       name: ${SECURITY_USER_NAME:user}

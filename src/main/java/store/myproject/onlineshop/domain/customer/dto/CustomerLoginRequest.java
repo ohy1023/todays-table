@@ -14,11 +14,11 @@ import lombok.*;
 public class CustomerLoginRequest {
 
     @Email
-    @Schema(description = "사용자 이메일", example = "user@example.com", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "사용자 이메일", example = "zvyg1023@naver.com", requiredMode = Schema.RequiredMode.REQUIRED)
     private String email;
 
     @NotBlank
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$", message = "비밀번호는 최소 8자 이상, 대소문자, 숫자, 특수문자를 포함해야 합니다.")
-    @Schema(description = "비밀번호", example = "P@ssw0rd123", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "비밀번호", example = "1Q2w3e4r!!", requiredMode = Schema.RequiredMode.REQUIRED)
     private String password;
 }

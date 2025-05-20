@@ -21,6 +21,7 @@ public class ImageFile {
     @Column(name = "image_file_id")
     private Long id;
 
+    @Column(name = "image_url")
     private String imageUrl;
 
     @OneToOne(fetch = LAZY)
