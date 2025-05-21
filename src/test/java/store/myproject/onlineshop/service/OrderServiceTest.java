@@ -13,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -57,9 +56,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
@@ -90,9 +87,6 @@ class OrderServiceTest {
 
     @Mock
     private IamportClient iamportClient;
-
-    @Mock
-    private ApplicationEventPublisher eventPublisher;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -190,9 +184,9 @@ class OrderServiceTest {
     void place_single_order_success() {
         // given
         String email = "test@example.com";
-        UUID merchantUid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
         UUID brandUuid = UUID.randomUUID();
         UUID itemUuid = UUID.randomUUID();
+        Long itemId = 1L;
         Long itemCnt = 2L;
 
         MemberShip BRONZE = MemberShip.builder()
@@ -232,7 +226,8 @@ class OrderServiceTest {
                 .build();
 
         given(customerRepository.findByEmail(email)).willReturn(Optional.of(customer));
-        given(itemRepository.findPessimisticLockByUuid(itemUuid)).willReturn(Optional.of(item));
+        given(itemRepository.findIdByUuid(itemUuid)).willReturn(Optional.of(itemId));
+        given(itemRepository.findPessimisticLockById(itemId)).willReturn(Optional.of(item));
         given(orderRepository.save(any(Order.class)))
                 .willAnswer(invocation -> invocation.getArgument(0)); // 저장된 Order 그대로 리턴
 
@@ -306,7 +301,7 @@ class OrderServiceTest {
                 .build();
 
         given(customerRepository.findByEmail(email)).willReturn(Optional.of(customer));
-        given(itemRepository.findPessimisticLockByUuid(itemUuid)).willReturn(Optional.empty());
+        given(itemRepository.findIdByUuid(itemUuid)).willReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> orderService.placeSingleOrder(request, email))
@@ -685,8 +680,8 @@ class OrderServiceTest {
                 .build();
 
         given(customerRepository.findByEmail(email)).willReturn(Optional.of(customer));
-        given(itemRepository.findPessimisticLockByUuid(cartItem1.getItem().getUuid())).willReturn(Optional.of(item1));
-        given(itemRepository.findPessimisticLockByUuid(cartItem2.getItem().getUuid())).willReturn(Optional.of(item2));
+        given(itemRepository.findIdByUuid(cartItem1.getItem().getUuid())).willReturn(Optional.of(item1.getId()));
+        given(itemRepository.findPessimisticLockById(item1.getId())).willReturn(Optional.of(item1));
         given(cartRepository.findByCustomer(customer)).willReturn(Optional.of(cart));
         given(orderRepository.save(any(Order.class))).willReturn(savedOrder);
         doNothing().when(cartItemRepository).deleteCartItem(any(Cart.class), any(Item.class));

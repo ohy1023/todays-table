@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.test.context.ActiveProfiles;
 import store.myproject.onlineshop.domain.customer.Level;
 import store.myproject.onlineshop.domain.membership.MemberShip;
 import store.myproject.onlineshop.fixture.MemberShipFixture;
@@ -24,6 +25,7 @@ import static org.assertj.core.api.Assertions.*;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(TestConfig.class)
+@ActiveProfiles("test")
 class MemberShipRepositoryTest {
 
     @Autowired

@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.context.ActiveProfiles;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.item.Item;
@@ -34,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(TestConfig.class)
+@ActiveProfiles("test")
 class RecipeRepositoryTest {
 
     @Autowired

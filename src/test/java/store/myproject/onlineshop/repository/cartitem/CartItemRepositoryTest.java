@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.test.context.ActiveProfiles;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.cart.Cart;
 import store.myproject.onlineshop.domain.cartitem.CartItem;
@@ -30,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(TestConfig.class)
+@ActiveProfiles("test")
 class CartItemRepositoryTest {
 
     @Autowired
