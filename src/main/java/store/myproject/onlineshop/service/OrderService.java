@@ -95,7 +95,9 @@ public class OrderService {
     public OrderInfo placeSingleOrder(OrderInfoRequest request, String email) {
         Customer customer = getCustomerByEmail(email);
         MemberShip memberShip = customer.getMemberShip();
-        Item item = itemRepository.findPessimisticLockByUuid(request.getItemUuid())
+        Long itemId = itemRepository.findIdByUuid(request.getItemUuid())
+                .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
+        Item item = itemRepository.findPessimisticLockById(itemId)
                 .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
 
         BigDecimal discountedPrice = memberShip.applyDiscount(item.getPrice());
@@ -263,7 +265,9 @@ public class OrderService {
 
         for (CartItem cartItem : cartItems) {
             if (cartItem.isChecked()) {
-                Item item = itemRepository.findPessimisticLockByUuid(cartItem.getItem().getUuid())
+                Long itemId = itemRepository.findIdByUuid(cartItem.getItem().getUuid())
+                        .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
+                Item item = itemRepository.findPessimisticLockById(itemId)
                         .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
                 BigDecimal discountedPrice = memberShip.applyDiscount(cartItem.getItem().getPrice());
                 orderItemList.add(OrderItem.createOrderItem(customer, item, discountedPrice, cartItem.getCartItemCnt()));
