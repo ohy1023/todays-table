@@ -68,9 +68,13 @@ Master-Slave Replication 환경에서 읽기 작업은 Slave 서버에서, 쓰�
 
 ![img.png](img/JaCoCo_Report.png)
 
-## 📝 블로그 정리
+## 📝 블로그 정리 & Trouble Shooting
 
 [API에서 PK 노출로 인한 보안 강화 (feat. UUID v7 & BINARY(16))](https://until.blog/@zvyg1023/%EB%B0%B1%EC%A4%80-2018%EB%B2%88--%EC%A2%8B%EB%8B%A4)
+
+[반정규화를 통한 성능 개선](https://velog.io/@zvyg1023/%EC%84%B1%EB%8A%A5-%EC%B5%9C%EC%A0%81%ED%99%94%EB%A5%BC-%EC%9C%84%ED%95%9C-%EB%B0%98%EC%A0%95%EA%B7%9C%ED%99%94-%EC%A0%81%EC%9A%A9)
+
+[MySQL Ngram Full-Text 인덱스 적용을 통한 성능 개선](https://velog.io/@zvyg1023/MySQL-Full-Text-%EC%9D%B8%EB%8D%B1%EC%8A%A4%EC%99%80-Ngram-%EC%9D%B8%EB%8D%B1%EC%8A%A4-%EC%A0%81%EC%9A%A9)
 
 [좋아요 개수, 댓글 개수, 조회 수 테이블 분리 리팩토링](https://until.blog/@zvyg1023/%EC%A2%8B%EC%95%84%EC%9A%94-%EA%B0%9C%EC%88%98--%EB%8C%93%EA%B8%80-%EA%B0%9C%EC%88%98--%EC%A1%B0%ED%9A%8C-%EC%88%98-%ED%85%8C%EC%9D%B4%EB%B8%94-%EB%B6%84%EB%A6%AC-%EB%A6%AC%ED%8C%A9%ED%86%A0%EB%A7%81)
 
@@ -84,8 +88,6 @@ Master-Slave Replication 환경에서 읽기 작업은 Slave 서버에서, 쓰�
 
 [MySQL 데이터 분산 처리를 위한 Master-Slave 이중화 구축 (Spring Boot, JPA 설정)](https://velog.io/@zvyg1023/spring-boot-mysql-master-slave)
 
-## 🚧 Trouble Shooting
-
 [@RequestPart를 이용한 MultipartFile, DTO 처리 및 테스트](https://velog.io/@zvyg1023/Spring-Boot-RequestPart%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-MultipartFile-DTO-%EC%B2%98%EB%A6%AC-%EB%B0%8F-%ED%85%8C%EC%8A%A4%ED%8A%B8)
 
 [Swagger에서 @ReqeustPart를 사용하여 MultiPartFile과 DTO 처리 시 Content type 'application/octet-stream' not supported 오류 해결](https://velog.io/@zvyg1023/Spring-Boot-Swagger%EC%97%90%EC%84%9C-ReqeustPart%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%98%EC%97%AC-MultiPartFile%EA%B3%BC-DTO-%EC%B2%98%EB%A6%AC-%EC%8B%9C-Content-type-applicationoctet-stream-not-supported-%EC%98%A4%EB%A5%98-%ED%95%B4%EA%B2%B0)
@@ -97,5 +99,3 @@ Master-Slave Replication 환경에서 읽기 작업은 Slave 서버에서, 쓰�
 [Worker 1 failed executing transaction 'ANONYMOUS' at source log mysql-bin.000003, end_log_pos 16969. 이슈](https://velog.io/@zvyg1023/Worker-1-failed-executing-transaction-ANONYMOUS-at-source-log-mysql-bin.000003-endlogpos-16969)
 
 [MySQL Replication 인증 오류 (caching_sha2_password)](https://until.blog/@zvyg1023/mysql-replication-%ED%8A%B8%EB%9F%AC%EB%B8%94%EC%8A%88%ED%8C%85---%EC%9D%B8%EC%A6%9D-%EC%98%A4%EB%A5%98--caching-sha2-password-)
-
-[반정규화를 통한 성능 개선](https://velog.io/@zvyg1023/%EC%84%B1%EB%8A%A5-%EC%B5%9C%EC%A0%81%ED%99%94%EB%A5%BC-%EC%9C%84%ED%95%9C-%EB%B0%98%EC%A0%95%EA%B7%9C%ED%99%94-%EC%A0%81%EC%9A%A9)
