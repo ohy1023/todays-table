@@ -60,6 +60,7 @@ public class Order extends BaseEntity {
     @Column(name = "order_status")
     private OrderStatus orderStatus;
 
+    @Setter
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "delivery_id")
     private Delivery delivery; //배송정보
@@ -67,11 +68,6 @@ public class Order extends BaseEntity {
     @Builder.Default
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItemList = new ArrayList<>();
-
-    public void setDelivery(Delivery delivery) {
-        this.delivery = delivery;
-        delivery.setOrder(this);
-    }
 
     public void addOrderItem(OrderItem orderItem) {
         orderItemList.add(orderItem);
@@ -103,8 +99,6 @@ public class Order extends BaseEntity {
                 .merchantUid(UUIDGenerator.generateUUIDv7())
                 .build();
 
-        order.setDelivery(delivery);
-
         order.addOrderItem(orderItem);
 
         return order;
@@ -126,8 +120,6 @@ public class Order extends BaseEntity {
                 .merchantUid(UUIDGenerator.generateUUIDv7())
                 .build();
 
-        order.setDelivery(delivery);
-
         for (OrderItem orderItem : orderItems) {
             order.addOrderItem(orderItem);
         }
@@ -146,7 +138,7 @@ public class Order extends BaseEntity {
                 .totalPrice(this.totalPrice)
                 .orderDate(
                         Optional.ofNullable(this.getCreatedDate())
-                                .map(d -> d.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분 ss초")))
+                                .map(d -> d.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분 ss초ㅑㅡ")))
                                 .orElse("날짜 없음")
                 )
                 .orderCustomerName(this.customer.getUserName())

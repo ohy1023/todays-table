@@ -78,7 +78,7 @@ public class CustomerJoinRequest {
                         .zipcode(this.zipcode)
                         .build()
                 )
-                .totalPurchaseAmount(BigDecimal.ZERO)
+                .monthlyPurchaseAmount(BigDecimal.ZERO)
                 .memberShip(memberShip)
                 .customerRole(CustomerRole.ROLE_USER)
                 .build();

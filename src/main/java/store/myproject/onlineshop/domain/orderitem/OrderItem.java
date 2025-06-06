@@ -42,7 +42,7 @@ public class OrderItem {
 
     private Long count; //주문 수량
 
-    public static OrderItem createOrderItem(Customer customer, Item item, BigDecimal orderPrice, Long count) {
+    public static OrderItem createOrderItem(Item item, BigDecimal orderPrice, Long count) {
 
         OrderItem orderItem = OrderItem.builder()
                 .item(item)
@@ -51,8 +51,6 @@ public class OrderItem {
                 .build();
 
         item.decrease(count);
-
-        customer.addPurchaseAmount(orderItem.getTotalPrice());
 
         return orderItem;
 

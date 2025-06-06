@@ -27,6 +27,7 @@ import store.myproject.onlineshop.domain.customer.Address;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.customer.Level;
 import store.myproject.onlineshop.domain.delivery.Delivery;
+import store.myproject.onlineshop.domain.delivery.DeliveryStatus;
 import store.myproject.onlineshop.domain.delivery.dto.DeliveryUpdateRequest;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.membership.MemberShip;
@@ -88,6 +89,9 @@ class OrderServiceTest {
     @Mock
     private IamportClient iamportClient;
 
+    @Mock
+    private AsyncCustomerService asyncCustomerService;
+
     @BeforeEach
     void setUp() throws Exception {
         Field field = OrderService.class.getDeclaredField("iamportClient");
@@ -105,7 +109,7 @@ class OrderServiceTest {
         Brand brand = BrandFixture.createBrandEntity();
         Item item = ItemFixture.createItemEntity(brand);
         BigDecimal discountedPrice = customer.getMemberShip().applyDiscount(item.getPrice());
-        OrderItem orderItem = OrderItem.createOrderItem(customer, item, discountedPrice, 1L);
+        OrderItem orderItem = OrderItem.createOrderItem(item, discountedPrice, 1L);
         Order order = Order.createOrder(customer, delivery, orderItem);
 
         given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
@@ -163,7 +167,7 @@ class OrderServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         BigDecimal discountedPrice = customer.getMemberShip().applyDiscount(item.getPrice());
-        OrderItem orderItem = OrderItem.createOrderItem(customer, item, discountedPrice, 1L);
+        OrderItem orderItem = OrderItem.createOrderItem(item, discountedPrice, 1L);
         Order order = Order.createOrder(customer, delivery, orderItem);
 
         Page<Order> orderPage = new PageImpl<>(List.of(order));
@@ -197,7 +201,7 @@ class OrderServiceTest {
         Customer customer = Customer.builder()
                 .id(1L)
                 .email(email)
-                .totalPurchaseAmount(BigDecimal.ZERO)
+                .monthlyPurchaseAmount(BigDecimal.ZERO)
                 .memberShip(BRONZE)
                 .build();
 
@@ -293,7 +297,7 @@ class OrderServiceTest {
         Customer customer = Customer.builder()
                 .id(1L)
                 .email(email)
-                .totalPurchaseAmount(BigDecimal.ZERO)
+                .monthlyPurchaseAmount(BigDecimal.ZERO)
                 .memberShip(MemberShip.builder()
                         .level(Level.BRONZE)
                         .discountRate(BigDecimal.valueOf(0.1))
@@ -335,6 +339,7 @@ class OrderServiceTest {
                                 .zipcode("12345")
                                 .build()
                 )
+                .status(DeliveryStatus.READY)
                 .build();
 
         Order order = Order.builder()
@@ -393,7 +398,7 @@ class OrderServiceTest {
         Customer customer = CustomerFixture.createCustomerEntity();
         Brand brand = BrandFixture.createBrandEntity();
         Item item = ItemFixture.createItemEntity(brand);
-        OrderItem orderItem = OrderItem.createOrderItem(customer, item, price, 2L);
+        OrderItem orderItem = OrderItem.createOrderItem(item, price, 2L);
         Order order = Order.createOrder(customer, DeliveryFixture.createDelivery(), orderItem);
         order.setImpUid(impUid);
 
@@ -436,7 +441,7 @@ class OrderServiceTest {
         Customer customer = CustomerFixture.createCustomerEntity();
         Brand brand = BrandFixture.createBrandEntity();
         Item item = ItemFixture.createItemEntity(brand);
-        OrderItem orderItem = OrderItem.createOrderItem(customer, item, price, 2L);
+        OrderItem orderItem = OrderItem.createOrderItem(item, price, 2L);
         Order order = Order.createOrder(customer, DeliveryFixture.createDelivery(), orderItem);
         order.setImpUid(impUid);
 
@@ -462,7 +467,7 @@ class OrderServiceTest {
         Customer customer = CustomerFixture.createCustomerEntity();
         Brand brand = BrandFixture.createBrandEntity();
         Item item = ItemFixture.createItemEntity(brand);
-        OrderItem orderItem = OrderItem.createOrderItem(customer, item, price, 2L);
+        OrderItem orderItem = OrderItem.createOrderItem(item, price, 2L);
         Order order = Order.createOrder(customer, DeliveryFixture.createDelivery(), orderItem);
         order.setImpUid(impUid);
 
@@ -558,7 +563,7 @@ class OrderServiceTest {
                         .level(Level.BRONZE)
                         .discountRate(BigDecimal.ZERO)
                         .build())
-                .totalPurchaseAmount(BigDecimal.ZERO)
+                .monthlyPurchaseAmount(BigDecimal.ZERO)
                 .build();
 
         Brand brand = Brand.builder()
@@ -574,7 +579,7 @@ class OrderServiceTest {
                 .brand(brand)
                 .build();
 
-        OrderItem orderItem = OrderItem.createOrderItem(customer, item, price, 2L);
+        OrderItem orderItem = OrderItem.createOrderItem(item, price, 2L);
         Order order = Order.createOrder(customer, DeliveryFixture.createDelivery(), orderItem);
 
         // 실제 결제된 금액 = 기대 금액
@@ -624,7 +629,7 @@ class OrderServiceTest {
                         .baseline(BigDecimal.ZERO)
                         .discountRate(BigDecimal.ZERO)
                         .build())
-                .totalPurchaseAmount(BigDecimal.ZERO)
+                .monthlyPurchaseAmount(BigDecimal.ZERO)
                 .build();
 
         Brand brand = Brand.builder()

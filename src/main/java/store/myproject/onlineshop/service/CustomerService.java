@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,12 +20,10 @@ import store.myproject.onlineshop.global.utils.JwtUtils;
 import store.myproject.onlineshop.repository.customer.CustomerRepository;
 import store.myproject.onlineshop.global.utils.MessageUtil;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static store.myproject.onlineshop.domain.customer.CustomerRole.*;
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 @Slf4j
@@ -192,46 +189,6 @@ public class CustomerService {
         return new MessageResponse(messageUtil.get(MessageCode.CUSTOMER_PASSWORD_MODIFIED));
     }
 
-//    /**
-//     * 회원을 관리자 권한으로 변경
-//     */
-//    public MessageResponse grantAdminRole(String email) {
-//        Customer customer = findCustomerByEmail(email);
-//
-//        if (customer.getCustomerRole() == ROLE_ADMIN) {
-//            throw new AppException(ALREADY_ADMIN);
-//        }
-//
-//        customer.setAdmin();
-//        return new MessageResponse(messageUtil.get(MessageCode.CUSTOMER_ROLE_MODIFIED));
-//    }
-
-    /**
-     * 매주 월요일 새벽 4시 전체 멤버십 갱신
-     */
-    @Scheduled(cron = "0 0 4 ? * MON")
-    public void refreshAllMemberships() {
-        List<Customer> customers = customerRepository.findAll();
-        for (Customer customer : customers) {
-            updateMembershipBasedOnPurchase(customer);
-        }
-    }
-
-    /**
-     * 고객의 총 구매금액에 따라 멤버십 자동 갱신
-     */
-    private void updateMembershipBasedOnPurchase(Customer customer) {
-        BigDecimal totalPurchaseAmount = customer.getTotalPurchaseAmount();
-
-        memberShipRepository.findNextMemberShip(totalPurchaseAmount)
-                .stream()
-                .findFirst()
-                .filter(ms -> totalPurchaseAmount.compareTo(ms.getBaseline()) > 0)
-                .ifPresent(ms -> {
-                    log.info("{} 회원이 {}로 멤버십 변경", customer.getId(), ms.getLevel());
-                    customer.upgradeMemberShip(ms);
-                });
-    }
 
     /**
      * 로그인된 고객의 정보 반환

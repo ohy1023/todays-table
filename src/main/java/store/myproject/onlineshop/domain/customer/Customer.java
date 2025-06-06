@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static jakarta.persistence.FetchType.*;
-import static store.myproject.onlineshop.domain.customer.CustomerRole.*;
 
 @Entity
 @Getter
@@ -53,8 +52,8 @@ public class Customer extends BaseEntity {
 
     private String tel;
 
-    @Column(name = "total_purchase_amount")
-    private BigDecimal totalPurchaseAmount;
+    @Column(name = "monthly_purchase_amount")
+    private BigDecimal monthlyPurchaseAmount;
 
     @Embedded
     private Address address;
@@ -94,18 +93,6 @@ public class Customer extends BaseEntity {
 
     public void setTempPassword(String tempPassword) {
         this.password = tempPassword;
-    }
-
-    public void setAdmin() {
-        this.customerRole = ROLE_ADMIN;
-    }
-
-    public void addPurchaseAmount(BigDecimal price) {
-        this.totalPurchaseAmount = this.totalPurchaseAmount.add(price);
-    }
-
-    public void upgradeMemberShip(MemberShip memberShip) {
-        this.memberShip = memberShip;
     }
 
     public CustomerTempPasswordResponse toCustomerTempPasswordResponse(String tempPassword) {

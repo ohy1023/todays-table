@@ -66,7 +66,7 @@ class OrderRepositoryTest {
 
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
-        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(customer, item, discountedPrice, 1L));
+        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
         Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
         orderItem.setOrder(order);
 
@@ -97,7 +97,7 @@ class OrderRepositoryTest {
 
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
-        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(customer, item, discountedPrice, 1L));
+        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
         Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
         orderItem.setOrder(order);
 
@@ -126,7 +126,7 @@ class OrderRepositoryTest {
 
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
-        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(customer, item, discountedPrice, 1L));
+        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
         Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
         orderItem.setOrder(order);
 
@@ -157,7 +157,7 @@ class OrderRepositoryTest {
 
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
-        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(customer, item, discountedPrice, 1L));
+        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
         Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
         orderItem.setOrder(order);
 
@@ -189,7 +189,7 @@ class OrderRepositoryTest {
 
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
-        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(customer, item, discountedPrice, 1L));
+        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
         Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
         orderItem.setOrder(order);
 
@@ -220,7 +220,7 @@ class OrderRepositoryTest {
 
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
-        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(customer, item, discountedPrice, 1L));
+        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
         Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
         orderItem.setOrder(order);
 
@@ -245,7 +245,7 @@ class OrderRepositoryTest {
 
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
-        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(customer, item, discountedPrice, 1L));
+        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
         Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
         orderItem.setOrder(order);
 
@@ -279,7 +279,7 @@ class OrderRepositoryTest {
 
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
-        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(customer, item, discountedPrice, 1L));
+        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
         Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
         orderItem.setOrder(order);
 

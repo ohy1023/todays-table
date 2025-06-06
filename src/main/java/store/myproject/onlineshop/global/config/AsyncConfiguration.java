@@ -4,44 +4,57 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
 
-@Configuration
-@EnableAsync
 @Slf4j
-public class AsyncConfiguration implements AsyncConfigurer {
+@EnableAsync
+@Configuration
+public class AsyncConfiguration {
 
-    @Override
     @Bean(name = "mailExecutor")
-    public Executor getAsyncExecutor() {
+    public Executor mailExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        // 처리할 작업의 예상되는 동시 처리 수, 설정한 수 만큼 스레드가 미리 만들어져 있다.
-        executor.setCorePoolSize(2);
+        executor.setCorePoolSize(5);
+        executor.setMaxPoolSize(15);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("Mail-Executor-");
 
-        // 만들어져 있는 스레드가 부족한 경우, max로 설정한 값만큼 스레드를 만들어서 작업을 처리한다.
-        executor.setMaxPoolSize(5);
-
-        // max로 설정한 스레드보다 동시 요청이 많아지면, 대기할 요청의 개수
-        executor.setQueueCapacity(10);
-
-        // 스레드 이름 지정 (MailExecutor-{스레드넘버)
-        executor.setThreadNamePrefix("MailExecutor-");
-
-        // 스레드 풀 시작
         executor.initialize();
         return executor;
     }
 
-    // 비동기 작업 중 발생한 예외 처리 (ex. 스레드 대기 큐에 설정한 값을 초과하는 경우..등)
-    @Override
-    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+    @Bean(name = "recipeMetaExecutor")
+    public Executor recipeMetaExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(4);
+        executor.setMaxPoolSize(20);
+        executor.setQueueCapacity(800);
+        executor.setThreadNamePrefix("Recipe-Meta-Executor-");
+
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean(name = "monthlyPurchaseExecutor")
+    public Executor monthlyPurchaseExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(4);
+        executor.setMaxPoolSize(20);
+        executor.setQueueCapacity(800);
+        executor.setThreadNamePrefix("Monthly-Purchase-Executor-");
+
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean
+    public AsyncUncaughtExceptionHandler asyncUncaughtExceptionHandler() {
         return (ex, method, params) -> {
-            log.error("Exception message - " + ex.getMessage());
-            log.error("Method name - " + method.getName());
+            log.error("비동기 작업 중 예외 발생!", ex);
+            log.error("실행 중 예외 발생 메서드: {}", method.getName());
         };
     }
 }

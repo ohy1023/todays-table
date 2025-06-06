@@ -68,6 +68,9 @@ public enum ErrorCode {
     ALREADY_ARRIVED(HttpStatus.CONFLICT, "배송 완료된 상품입니다."),
     PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "결제 정보가 존재하지 않습니다."),
 
+    // Delivery
+    DELIVERY_MODIFIED_FAIL(HttpStatus.CONFLICT, "배송이 시작되면 수정이 불가합니다."),
+
     // Cart
     CART_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 회원은 장바구니에 아무것도 없습니다."),
 

@@ -61,6 +61,7 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final ItemRepository itemRepository;
     private final MessageUtil messageUtil;
+    private final AsyncCustomerService asyncCustomerService;
 
     @Value("${payment.rest.api.key}")
     private String apiKey;
@@ -106,9 +107,11 @@ public class OrderService {
         Delivery delivery = Delivery.createWithInfo(request.toDeliveryInfoRequest());
         delivery.createDeliveryStatus(DeliveryStatus.READY);
 
-        OrderItem orderItem = OrderItem.createOrderItem(customer, item, discountedPrice, request.getItemCnt());
+        OrderItem orderItem = OrderItem.createOrderItem(item, discountedPrice, request.getItemCnt());
         Order order = Order.createOrder(customer, delivery, orderItem);
         orderItem.setOrder(orderRepository.save(order));
+
+        asyncCustomerService.addMonthlyPurchaseAmount(customer.getId(), discountedPrice);
 
         log.info("Total Price : {}", orderItem.getTotalPrice());
         return order.toOrderInfo();
@@ -116,10 +119,18 @@ public class OrderService {
 
     // 배송지 수정
     public MessageResponse updateDeliveryAddress(UUID merchantUid, DeliveryUpdateRequest request) {
+
         Order order = orderRepository.findByMerchantUid(merchantUid)
                 .orElseThrow(() -> new AppException(ORDER_NOT_FOUND));
 
+        Delivery delivery = order.getDelivery();
+
+        if (delivery.getStatus() != DeliveryStatus.READY) {
+            throw new AppException(DELIVERY_MODIFIED_FAIL);
+        }
+
         order.getDelivery().setInfo(request);
+
         return new MessageResponse(order.getMerchantUid(), messageUtil.get(MessageCode.ORDER_DELIVERY_MODIFIED));
     }
 
@@ -152,13 +163,15 @@ public class OrderService {
         Delivery delivery = Delivery.createWithInfo(request.toDeliveryInfoRequest());
         delivery.createDeliveryStatus(DeliveryStatus.READY);
 
-        List<OrderItem> orderItems = createOrderItemsFromCart(cart.getCartItems(), memberShip, customer);
+        List<OrderItem> orderItems = createOrderItemsFromCart(cart.getCartItems(), memberShip);
         Order order = Order.createOrders(customer, delivery, orderItems);
         orderRepository.save(order);
 
         orderItems.forEach(orderItem -> {
             clearCartItem(cart, orderItem);
         });
+
+        asyncCustomerService.addMonthlyPurchaseAmount(customer.getId(), order.getTotalPrice());
 
         return orderItems.stream().map(item -> order.toOrderInfo()).toList();
     }
@@ -260,7 +273,7 @@ public class OrderService {
         }
     }
 
-    private List<OrderItem> createOrderItemsFromCart(List<CartItem> cartItems, MemberShip memberShip, Customer customer) {
+    private List<OrderItem> createOrderItemsFromCart(List<CartItem> cartItems, MemberShip memberShip) {
         List<OrderItem> orderItemList = new ArrayList<>();
 
         for (CartItem cartItem : cartItems) {
@@ -270,7 +283,7 @@ public class OrderService {
                 Item item = itemRepository.findPessimisticLockById(itemId)
                         .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
                 BigDecimal discountedPrice = memberShip.applyDiscount(cartItem.getItem().getPrice());
-                orderItemList.add(OrderItem.createOrderItem(customer, item, discountedPrice, cartItem.getCartItemCnt()));
+                orderItemList.add(OrderItem.createOrderItem(item, discountedPrice, cartItem.getCartItemCnt()));
             }
         }
         return orderItemList;

@@ -2,24 +2,23 @@ package store.myproject.onlineshop.domain.delivery;
 
 import jakarta.persistence.*;
 import lombok.*;
+import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Address;
 import store.myproject.onlineshop.domain.delivery.dto.DeliveryInfoRequest;
 import store.myproject.onlineshop.domain.delivery.dto.DeliveryUpdateRequest;
-import store.myproject.onlineshop.domain.order.Order;
+
 
 @Entity
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Delivery {
+public class Delivery extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "delivery_id")
     private Long id;
-
-    @OneToOne(mappedBy = "delivery")
-    private Order order;
 
     @Column(name = "recipient_name")
     private String recipientName;
@@ -31,7 +30,14 @@ public class Delivery {
     private Address address;
 
     @Enumerated(EnumType.STRING)
-    private DeliveryStatus status; //ENUM [CANCEL(취소), READY(준비), COMP(배송)]
+    @Column(name = "delivery_status")
+    private DeliveryStatus status; // 배송 상태 (READY, SHIPPING, DELIVERING, COMP, CANCEL)
+
+    @Column(name = "courier_name")
+    private String courierName; // 택배사 이름
+
+    @Column(name = "tracking_number")
+    private String trackingNumber;  // 송장 번호
 
     public void setInfo(DeliveryUpdateRequest request) {
         this.recipientName = request.getRecipientName();
@@ -46,10 +52,6 @@ public class Delivery {
 
     public void createDeliveryStatus(DeliveryStatus status) {
         this.status = status;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
     }
 
     public void cancel() {

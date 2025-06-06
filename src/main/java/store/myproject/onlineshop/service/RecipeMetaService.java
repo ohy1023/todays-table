@@ -9,13 +9,13 @@ import store.myproject.onlineshop.repository.recipemeta.RecipeMetaRepository;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class RecipeMetaService {
 
     private final RecipeMetaRepository recipeMetaRepository;
 
-    @Async
-    @Transactional
+    @Async(value = "recipeMetaExecutor")
     public void asyncIncreaseViewCnt(Long recipeMetaId) {
         try {
             recipeMetaRepository.incrementViewCnt(recipeMetaId);
@@ -24,8 +24,7 @@ public class RecipeMetaService {
         }
     }
 
-    @Async
-    @Transactional
+    @Async(value = "recipeMetaExecutor")
     public void asyncIncreaseLikeCnt(Long recipeMetaId) {
         try {
             recipeMetaRepository.incrementLikeCnt(recipeMetaId);
@@ -34,8 +33,7 @@ public class RecipeMetaService {
         }
     }
 
-    @Async
-    @Transactional
+    @Async(value = "recipeMetaExecutor")
     public void asyncDecreaseLikeCnt(Long recipeMetaId) {
         try {
             recipeMetaRepository.decrementLikeCnt(recipeMetaId);
@@ -44,8 +42,7 @@ public class RecipeMetaService {
         }
     }
 
-    @Async
-    @Transactional
+    @Async(value = "recipeMetaExecutor")
     public void asyncIncreaseReviewCnt(Long recipeMetaId) {
         try {
             recipeMetaRepository.incrementReviewCnt(recipeMetaId);
@@ -54,8 +51,7 @@ public class RecipeMetaService {
         }
     }
 
-    @Async
-    @Transactional
+    @Async(value = "recipeMetaExecutor")
     public void asyncDecreaseReviewCnt(Long recipeMetaId) {
         try {
             recipeMetaRepository.decrementReviewCnt(recipeMetaId);

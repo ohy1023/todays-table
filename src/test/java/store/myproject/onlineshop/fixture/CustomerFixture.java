@@ -37,7 +37,7 @@ public class CustomerFixture {
                         .zipcode("04524")
                         .build())
                 .customerRole(CustomerRole.ROLE_USER)
-                .totalPurchaseAmount(BigDecimal.ZERO)
+                .monthlyPurchaseAmount(BigDecimal.ZERO)
                 .memberShip(MemberShip.builder()
                         .id(1L)
                         .level(Level.BRONZE)
@@ -69,7 +69,7 @@ public class CustomerFixture {
                         .zipcode(faker.address().zipCode())
                         .build())
                 .customerRole(CustomerRole.ROLE_USER)
-                .totalPurchaseAmount(purchaseAmount)
+                .monthlyPurchaseAmount(purchaseAmount)
                 .build();
 
         customer.setCreatedDate(LocalDateTime.now());
