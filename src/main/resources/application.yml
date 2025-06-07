@@ -30,6 +30,11 @@ spring:
       password: ${SECURITY_USER_PASSWORD:1q2w3e4r}
   messages:
     encoding: UTF-8
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: true
 
 server:
   port: ${SERVER_PORT:8089}

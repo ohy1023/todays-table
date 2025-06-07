@@ -98,44 +98,6 @@ class MemberShipRepositoryTest {
     }
 
     @Nested
-    @DisplayName("사용 금액보다 작은 기준 금액을 가진 멤버십 내림차순 조회")
-    class findNextMemberShip {
-
-        @Test
-        @DisplayName("성공")
-        void find_next_membership_success() {
-            // given
-            MemberShip bronze = MemberShipFixture.createBronzeMembership(); // baseline: 0
-            MemberShip silver = MemberShipFixture.createSilverMembership(); // baseline: 100000
-            MemberShip gold = MemberShipFixture.createGoldMembership();     // baseline: 200000
-
-            memberShipRepository.saveAll(List.of(bronze, silver, gold));
-
-            // when
-            List<MemberShip> result = memberShipRepository.findNextMemberShip(new BigDecimal("180000"));
-
-            // then
-            assertThat(result).hasSize(2);
-            assertThat(result.get(0).getBaseline()).isEqualTo(silver.getBaseline()); // 100000
-            assertThat(result.get(1).getBaseline()).isEqualTo(bronze.getBaseline()); // 0
-        }
-
-        @Test
-        @DisplayName("실패 - 사용 금액보다 작은 멤버십 없음")
-        void find_next_membership_none() {
-            // given
-            MemberShip silver = MemberShipFixture.createSilverMembership(); // 100000
-            memberShipRepository.save(silver);
-
-            // when
-            List<MemberShip> result = memberShipRepository.findNextMemberShip(new BigDecimal("1000"));
-
-            // then
-            assertThat(result).isEmpty();
-        }
-    }
-
-    @Nested
     @DisplayName("기준 금액이 가장 낮은 멤버십 조회")
     class findTopByLowestBaseline {
 

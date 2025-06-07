@@ -40,6 +40,9 @@ import store.myproject.onlineshop.global.utils.MessageUtil;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -215,6 +218,17 @@ public class OrderService {
         return new MessageResponse(messageUtil.get(ORDER_POST_VERIFICATION));
     }
 
+    public void updateMonthlyPurchaseAmounts() {
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfMonth = today.withDayOfMonth(1).atStartOfDay(); // 00:00:00
+        LocalDateTime endOfMonth = today.withDayOfMonth(today.lengthOfMonth()).atTime(LocalTime.MAX); // 23:59:59.999999999
+
+        List<CustomerOrderTotalDto> totals = orderRepository.findCustomerMonthlyOrderTotals(startOfMonth, endOfMonth);
+
+        for (CustomerOrderTotalDto total : totals) {
+            customerRepository.updateMonthlyPurchaseAmount(total.getCustomerId(), total.getTotalAmount());
+        }
+    }
 
     // === private utils ===
 
