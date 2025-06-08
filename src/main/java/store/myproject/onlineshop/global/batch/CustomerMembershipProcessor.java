@@ -21,6 +21,8 @@ public class CustomerMembershipProcessor implements ItemProcessor<Customer, Cust
                 return new CustomerMembershipUpdateDto(customer.getId(), membership.getId());
             }
         }
-        return null; // 업데이트 필요 없는 경우
+        // 아무 기준도 만족하지 못하면 가장 낮은 멤버십
+        MemberShip lowestMembership = memberships.get(memberships.size() - 1);
+        return new CustomerMembershipUpdateDto(customer.getId(), lowestMembership.getId());
     }
 }

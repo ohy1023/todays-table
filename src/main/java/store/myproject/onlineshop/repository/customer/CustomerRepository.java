@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import store.myproject.onlineshop.domain.customer.Customer;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -24,8 +25,9 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     void incrementMonthlyPurchaseAmount(@Param("customerId") Long customerId, @Param("amount") BigDecimal amount);
 
     @Modifying
-    @Query("UPDATE Customer c SET c.memberShip.id = :membershipId WHERE c.id = :customerId")
-    void updateMembershipId(@Param("customerId") Long customerId, @Param("membershipId") Long membershipId);
+    @Query("UPDATE Customer c SET c.memberShip.id = :membershipId WHERE c.id IN :customerIds")
+    void updateMemberships(@Param("customerIds") List<Long> customerIds,
+                            @Param("membershipId") Long membershipId);
 
     @Modifying
     @Query("UPDATE Customer c SET c.monthlyPurchaseAmount = :amount WHERE c.id = :customerId")
