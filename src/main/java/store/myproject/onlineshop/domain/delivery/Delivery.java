@@ -33,12 +33,6 @@ public class Delivery extends BaseEntity {
     @Column(name = "delivery_status")
     private DeliveryStatus status; // 배송 상태 (READY, SHIPPING, DELIVERING, COMP, CANCEL)
 
-    @Column(name = "courier_name")
-    private String courierName; // 택배사 이름
-
-    @Column(name = "tracking_number")
-    private String trackingNumber;  // 송장 번호
-
     public void setInfo(DeliveryUpdateRequest request) {
         this.recipientName = request.getRecipientName();
         this.recipientTel = request.getRecipientTel();
