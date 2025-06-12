@@ -34,7 +34,7 @@ spring:
     jdbc:
       initialize-schema: always
     job:
-      enabled: true
+      enabled: false
 
 server:
   port: ${SERVER_PORT:8089}

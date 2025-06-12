@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import store.myproject.onlineshop.domain.customer.Customer;
+import store.myproject.onlineshop.domain.membership.MemberShip;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -19,6 +20,8 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     Optional<Customer> findByEmailAndTel(String email, String tel);
 
     Optional<Customer> findByNickName(String nickName);
+
+    Long countByMemberShip(MemberShip memberShip);
 
     @Modifying
     @Query("UPDATE Customer c SET c.monthlyPurchaseAmount = c.monthlyPurchaseAmount + :amount WHERE c.id = :customerId")
