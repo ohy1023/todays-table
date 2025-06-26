@@ -43,6 +43,9 @@ public class SecurityConfiguration {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests(authorize -> authorize
+                        // Actuator 허용 추가
+                        .requestMatchers("/actuator/**").permitAll()
+
                         // Swagger 허용
                         .requestMatchers(SWAGGER_AUTH).permitAll()
 

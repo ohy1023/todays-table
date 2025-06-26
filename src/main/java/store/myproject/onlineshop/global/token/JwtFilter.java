@@ -36,7 +36,9 @@ public class JwtFilter extends OncePerRequestFilter {
             "/api/v1/customers/login",     // 로그인
             "/api/v1/customers/join",      // 회원가입
             "/swagger-ui/",
-            "/api-docs/"
+            "/api-docs/",
+            "/actuator",                 // actuator
+            "/favicon.ico"
     );
 
     /**

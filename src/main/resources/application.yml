@@ -41,4 +41,10 @@ server:
 
 logging.level:
   org.hibernate.SQL: debug
-  org.springframework.core.LocalVariableTableParameterNameDiscoverer : error
+  org.springframework.core.LocalVariableTableParameterNameDiscoverer: error
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
