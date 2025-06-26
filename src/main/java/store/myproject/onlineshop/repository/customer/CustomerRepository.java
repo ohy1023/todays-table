@@ -30,10 +30,13 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     @Modifying
     @Query("UPDATE Customer c SET c.memberShip.id = :membershipId WHERE c.id IN :customerIds")
     void updateMemberships(@Param("customerIds") List<Long> customerIds,
-                            @Param("membershipId") Long membershipId);
+                           @Param("membershipId") Long membershipId);
 
     @Modifying
     @Query("UPDATE Customer c SET c.monthlyPurchaseAmount = :amount WHERE c.id = :customerId")
     void updateMonthlyPurchaseAmount(@Param("customerId") Long customerId, @Param("amount") BigDecimal amount);
 
+    @Modifying
+    @Query("UPDATE Customer c SET c.monthlyPurchaseAmount = 0 WHERE c.id IN :customerIds")
+    void resetMonthlyPurchaseAmounts(@Param("customerIds") List<Long> customerIds);
 }

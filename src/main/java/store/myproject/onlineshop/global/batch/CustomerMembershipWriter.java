@@ -30,5 +30,13 @@ public class CustomerMembershipWriter implements ItemWriter<CustomerMembershipUp
             List<Long> customerIds = entry.getValue();
             customerRepository.updateMemberships(customerIds, membershipId);
         }
+
+        // 전체 고객 ID를 모아서 이번 달 누적 결제 금액 0으로 초기화
+        List<Long> customerIds = items.getItems().stream()
+                .map(CustomerMembershipUpdateDto::getCustomerId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        customerRepository.resetMonthlyPurchaseAmounts(customerIds);
     }
 }
