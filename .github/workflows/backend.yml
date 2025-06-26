@@ -45,7 +45,7 @@ jobs:
       - name: Build with Gradle
         run: |
           chmod +x gradlew 
-          ./gradlew build
+          ./gradlew check
       # 웹 이미지 빌드 및 도커허브에 push
       - name: docker build and push
         run: |
@@ -64,3 +64,9 @@ jobs:
             docker-compose up -d
             sudo docker image prune -f
           
+      # JaCoCo 커버리지 리포트 업로드
+      - name: Upload JaCoCo report
+        uses: actions/upload-artifact@v3
+        with:
+          name: jacoco-report
+          path: build/reports/jacoco/test/html
