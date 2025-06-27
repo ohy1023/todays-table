@@ -32,15 +32,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
 
-    private static final List<String> EXCLUDED_URIS = List.of(
-            "/api/v1/customers/login",     // 로그인
-            "/api/v1/customers/join",      // 회원가입
-            "/swagger-ui/",
-            "/api-docs/",
-            "/actuator",                 // actuator
-            "/favicon.ico"
-    );
-
     /**
      * Access Token, Refresh Token Cookie 에 담아서 보낸다.
      *
@@ -54,18 +45,12 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String requestUri = request.getRequestURI();
-
-        if (isExcludedUri(requestUri)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         Optional<String> accessTokenAtCookie = CookieUtils.extractAccessToken(request);
         Optional<String> refreshTokenAtCookie = CookieUtils.extractRefreshToken(request);
 
         if (accessTokenAtCookie.isEmpty()) {
-            throw new AppException(ACCESS_TOKEN_NOT_FOUND);
+            filterChain.doFilter(request, response);
+            return;
         }
 
         String accessToken = accessTokenAtCookie.get();
@@ -125,11 +110,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
         log.info("인증 객체 설정 후: {}", SecurityContextHolder.getContext().getAuthentication());
         filterChain.doFilter(request, response);
-    }
-
-    private boolean isExcludedUri(String uri) {
-        if (uri.equals("/")) return true;
-        return EXCLUDED_URIS.stream().anyMatch(uri::startsWith);
     }
 
 }
