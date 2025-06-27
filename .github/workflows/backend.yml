@@ -21,7 +21,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      ## 🔥 환경별 설정 파일 생성 (기존 파일이 있으면 삭제 후 생성)
+      ## 환경별 설정 파일 생성 (기존 파일이 있으면 삭제 후 생성)
       - name: Create application.yml files
         run: |
           cd ./src/main/resources
@@ -40,6 +40,19 @@ jobs:
           echo "${{ secrets.REDIS }}" >> application-redis.yml
           echo "${{ secrets.S3 }}" >> application-s3.yml
           echo "${{ secrets.MAIL }}" >> application-mail.yml
+        shell: bash
+
+      - name: Create application-test.yml
+        run: |
+          cd ./src/test/resources
+          
+          if [ -f "application-test.yml" ]; then
+            rm "application-test.yml"
+          fi
+          
+          touch "application-test.yml"
+          
+          echo "${{ secrets.TEST}}" >> application-test.yml
         shell: bash
 
       - name: Build with Gradle
@@ -63,7 +76,7 @@ jobs:
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
             docker-compose up -d
             sudo docker image prune -f
-          
+
       # JaCoCo 커버리지 리포트 업로드
       - name: Upload JaCoCo report
         uses: actions/upload-artifact@v3

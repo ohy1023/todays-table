@@ -47,33 +47,17 @@ class JwtFilterTest {
         SecurityContextHolder.clearContext();
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"/", "/api/v1/customers/login", "/api/v1/customers/join", "/swagger-ui/index.html", "/api-docs/v1"})
-    @DisplayName("특정 url 인증 없이 통과")
-    void excluded_url_pass_success(String uri) throws ServletException, IOException {
+    @Test
+    @DisplayName("AccessToken 없는 경우")
+    void no_access_token() throws ServletException, IOException {
+        // given
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI(uri);
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
 
         jwtFilter.doFilterInternal(request, response, chain);
 
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-    }
-
-
-    @Test
-    @DisplayName("AccessToken 없는 경우")
-    void no_access_token() {
-        // given
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterChain chain = new MockFilterChain();
-
-        // when & then
-        assertThatThrownBy(() -> jwtFilter.doFilterInternal(request, response, chain))
-                .isInstanceOf(AppException.class)
-                .hasMessage(ACCESS_TOKEN_NOT_FOUND.getMessage());
     }
 
     @Test

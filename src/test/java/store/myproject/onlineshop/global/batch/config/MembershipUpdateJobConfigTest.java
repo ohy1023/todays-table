@@ -25,7 +25,9 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
+/**
+ * application-test.yml이 정상적으로 설정(레디스 정보, S3 정보 등) 되어 있어야 성공
+ */
 @SpringBootTest
 @SpringBatchTest
 @Import(MembershipUpdateJobConfig.class)
@@ -72,7 +74,7 @@ class MembershipUpdateJobConfigTest {
 
     @Test
     @DisplayName("스프링 배치 실행 성공")
-    public void jpaPagingItemReader() throws Exception {
+    public void spring_batch_success() throws Exception {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addLong("time", System.currentTimeMillis()) // JobInstance 구분용
                 .toJobParameters();
@@ -85,7 +87,7 @@ class MembershipUpdateJobConfigTest {
 
     @Test
     @DisplayName("jpaPagingItemReader 실행 중 고객 탈퇴")
-    public void jpaPagingItemReader_deletedCustomer() throws Exception {
+    public void jpa_paging_item_reader_deleted_customer() throws Exception {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addLong("time", System.currentTimeMillis())
                 .toJobParameters();
