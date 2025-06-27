@@ -65,19 +65,7 @@ public class OrderService {
     private final ItemRepository itemRepository;
     private final MessageUtil messageUtil;
     private final AsyncCustomerService asyncCustomerService;
-
-    @Value("${payment.rest.api.key}")
-    private String apiKey;
-
-    @Value("${payment.rest.api.secret}")
-    private String apiSecret;
-
-    private IamportClient iamportClient;
-
-    @PostConstruct
-    public void initializeIamportClient() {
-        iamportClient = new IamportClient(apiKey, apiSecret);
-    }
+    private final IamportClient iamportClient;
 
     // 주문 단건 조회
     @Transactional(readOnly = true)
