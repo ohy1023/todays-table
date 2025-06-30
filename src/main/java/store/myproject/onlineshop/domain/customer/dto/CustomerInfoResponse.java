@@ -5,7 +5,9 @@ import lombok.*;
 import store.myproject.onlineshop.domain.customer.Address;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.customer.Gender;
+import store.myproject.onlineshop.domain.membership.MemberShip;
 
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 
 @Data
@@ -20,10 +22,14 @@ public class CustomerInfoResponse {
     private String userName;
     private String tel;
     private Address address;
-    private Gender gender;
+    private String gender;
     private String createdDate;
+    private String membershipName;
+    private BigDecimal discountRate;
 
     public static CustomerInfoResponse toDto(Customer savedCustomer) {
+
+        MemberShip memberShip = savedCustomer.getMemberShip();
 
         return CustomerInfoResponse.builder()
                 .createdDate(savedCustomer.getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
@@ -31,13 +37,15 @@ public class CustomerInfoResponse {
                 .nickName(savedCustomer.getNickName())
                 .userName(savedCustomer.getUserName())
                 .tel(savedCustomer.getTel())
-                .gender(savedCustomer.getGender())
+                .gender(savedCustomer.getGender().name())
                 .address(Address.builder()
                         .city(savedCustomer.getAddress().getCity())
                         .street(savedCustomer.getAddress().getStreet())
                         .detail(savedCustomer.getAddress().getDetail())
                         .zipcode(savedCustomer.getAddress().getZipcode())
                         .build())
+                .membershipName(memberShip.getLevel().name())
+                .discountRate(memberShip.getDiscountRate())
                 .build();
     }
 }

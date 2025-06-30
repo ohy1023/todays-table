@@ -53,8 +53,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
@@ -310,7 +309,7 @@ class OrderServiceTest {
         // when & then
         assertThatThrownBy(() -> orderService.placeSingleOrder(request, email))
                 .isInstanceOf(AppException.class)
-                .hasMessage(ErrorCode.ITEM_NOT_FOUND.getMessage());
+                .hasMessage(ErrorCode.ITEM_ID_NOT_FOUND.getMessage());
     }
 
     @Test
@@ -405,7 +404,8 @@ class OrderServiceTest {
         CancelItemRequest request = OrderFixture.createCancelItemRequest(item.getUuid());
 
         given(orderRepository.findByMerchantUid(order.getMerchantUid())).willReturn(Optional.of(order));
-        given(itemRepository.findByUuid(item.getUuid())).willReturn(Optional.of(item));
+        given(itemRepository.findIdByUuid(item.getUuid())).willReturn(Optional.of(item.getId()));
+        given(itemRepository.findPessimisticLockById(item.getId())).willReturn(Optional.of(item));
         given(orderItemRepository.findByOrderAndItem(order, item)).willReturn(Optional.of(orderItem));
         given(messageUtil.get(MessageCode.ORDER_CANCEL)).willReturn("주문 취소");
 
@@ -448,7 +448,8 @@ class OrderServiceTest {
         CancelItemRequest request = OrderFixture.createCancelItemRequest(item.getUuid());
 
         given(orderRepository.findByMerchantUid(order.getMerchantUid())).willReturn(Optional.of(order));
-        given(itemRepository.findByUuid(item.getUuid())).willReturn(Optional.of(item));
+        given(itemRepository.findIdByUuid(item.getUuid())).willReturn(Optional.of(item.getId()));
+        given(itemRepository.findPessimisticLockById(item.getId())).willReturn(Optional.of(item));
         given(orderItemRepository.findByOrderAndItem(order, item)).willReturn(Optional.empty());
 
         // when & then
@@ -474,7 +475,8 @@ class OrderServiceTest {
         CancelItemRequest request = OrderFixture.createCancelItemRequest(item.getUuid());
 
         given(orderRepository.findByMerchantUid(order.getMerchantUid())).willReturn(Optional.of(order));
-        given(itemRepository.findByUuid(item.getUuid())).willReturn(Optional.of(item));
+        given(itemRepository.findIdByUuid(item.getUuid())).willReturn(Optional.of(item.getId()));
+        given(itemRepository.findPessimisticLockById(item.getId())).willReturn(Optional.of(item));
         given(orderItemRepository.findByOrderAndItem(order, item)).willReturn(Optional.of(orderItem));
         given(iamportClient.paymentByImpUid(impUid)).willThrow(new java.io.IOException("통신 오류"));
 
@@ -489,10 +491,9 @@ class OrderServiceTest {
     @DisplayName("결제 사전 검증 성공")
     void validate_pre_payment_success() throws Exception {
         // given
-        String merchantUid = "merchant-123";
         BigDecimal totalPrice = BigDecimal.valueOf(50000);
 
-        PreparationRequest request = new PreparationRequest(merchantUid, totalPrice);
+        PreparationRequest request = new PreparationRequest(totalPrice);
         Prepare mockPrepare = new Prepare(); // 성공 응답 객체 (내용 필요 시 필드 설정 가능)
         IamportResponse<Prepare> iamportResponse = new IamportResponse<>();
 
@@ -513,8 +514,20 @@ class OrderServiceTest {
         PreparationResponse result = orderService.validatePrePayment(request);
 
         // then
-        assertThat(result.getMerchantUid()).isEqualTo(merchantUid);
+        assertThat(result).isNotNull();
+        assertThatCode(() -> UUID.fromString(result.getMerchantUid())).doesNotThrowAnyException();
     }
+
+    @Test
+    @DisplayName("UUID 형식이 아니라면 IllegalArgumentException")
+    void should_throw_illegal_argument_exception_when_invalid_uuid() {
+        String invalid_uid = "not-a-uuid";
+
+        assertThatThrownBy(() -> UUID.fromString(invalid_uid))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Invalid UUID string");
+    }
+
 
     @Test
     @DisplayName("결제 사전 검증 실패 - Iamport 오류")
@@ -523,7 +536,7 @@ class OrderServiceTest {
         String merchantUid = "merchant-123";
         BigDecimal totalPrice = BigDecimal.valueOf(50000);
 
-        PreparationRequest request = new PreparationRequest(merchantUid, totalPrice);
+        PreparationRequest request = new PreparationRequest(totalPrice);
 
         IamportResponse<Prepare> iamportResponse = new IamportResponse<>();
 
@@ -597,7 +610,6 @@ class OrderServiceTest {
         responseField.setAccessible(true);
         responseField.set(iamportResponse, payment);
 
-        given(orderRepository.countByMerchantUid(merchantUid)).willReturn(1L);
         given(orderRepository.findByMerchantUid(merchantUid)).willReturn(Optional.of(order));
         given(iamportClient.paymentByImpUid(impUid)).willReturn(iamportResponse);
         given(messageUtil.get(MessageCode.ORDER_POST_VERIFICATION)).willReturn("결제 검증 완료");

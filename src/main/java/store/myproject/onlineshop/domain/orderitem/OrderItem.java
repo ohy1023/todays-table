@@ -60,10 +60,6 @@ public class OrderItem {
         this.order = order;
     }
 
-    public void cancel() {
-        getItem().increase(this.count);
-    }
-
     public BigDecimal getTotalPrice() {
         return getOrderPrice().multiply(new BigDecimal(getCount()));
     }

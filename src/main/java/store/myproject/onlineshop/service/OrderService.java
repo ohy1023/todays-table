@@ -7,10 +7,8 @@ import com.siot.IamportRestClient.request.PrepareData;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
 import com.siot.IamportRestClient.response.Prepare;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,6 +17,7 @@ import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.cart.Cart;
 import store.myproject.onlineshop.domain.cart.dto.CartOrderRequest;
+import store.myproject.onlineshop.global.utils.UUIDGenerator;
 import store.myproject.onlineshop.repository.cart.CartRepository;
 import store.myproject.onlineshop.domain.cartitem.CartItem;
 import store.myproject.onlineshop.repository.cartitem.CartItemRepository;
@@ -40,9 +39,6 @@ import store.myproject.onlineshop.global.utils.MessageUtil;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -88,7 +84,7 @@ public class OrderService {
         Customer customer = getCustomerByEmail(email);
         MemberShip memberShip = customer.getMemberShip();
         Long itemId = itemRepository.findIdByUuid(request.getItemUuid())
-                .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ITEM_ID_NOT_FOUND));
         Item item = itemRepository.findPessimisticLockById(itemId)
                 .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
 
@@ -100,12 +96,14 @@ public class OrderService {
 
         OrderItem orderItem = OrderItem.createOrderItem(item, discountedPrice, request.getItemCnt());
         Order order = Order.createOrder(customer, delivery, orderItem);
-        orderItem.setOrder(orderRepository.save(order));
+        orderItem.setOrder(order);
 
         asyncCustomerService.addMonthlyPurchaseAmount(customer.getId(), discountedPrice);
 
         log.info("Total Price : {}", orderItem.getTotalPrice());
-        return order.toOrderInfo();
+
+        Order savedOrder = orderRepository.save(order);
+        return savedOrder.toOrderInfo();
     }
 
     // 배송지 수정
@@ -130,14 +128,18 @@ public class OrderService {
         Order order = orderRepository.findByMerchantUid(merchantUid)
                 .orElseThrow(() -> new AppException(ORDER_NOT_FOUND));
 
-        Item item = itemRepository.findByUuid(request.getItemUuid())
+        Long itemId = itemRepository.findIdByUuid(request.getItemUuid())
+                .orElseThrow(() -> new AppException(ITEM_ID_NOT_FOUND));
+
+        Item item = itemRepository.findPessimisticLockById(itemId)
                 .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
 
         OrderItem orderItem = orderItemRepository.findByOrderAndItem(order, item)
                 .orElseThrow(() -> new AppException(ORDER_ITEM_NOT_FOUND));
 
-        order.cancel();
         cancelReservation(new CancelRequest(order.getImpUid(), orderItem.getTotalPrice()));
+        item.increase(orderItem.getCount());
+        order.cancelPayment();
 
         return new MessageResponse(order.getMerchantUid(), messageUtil.get(MessageCode.ORDER_CANCEL));
     }
@@ -169,13 +171,14 @@ public class OrderService {
 
     // 결제 사전 검증
     public PreparationResponse validatePrePayment(PreparationRequest request) throws IamportResponseException, IOException {
-        PrepareData prepareData = new PrepareData(request.getMerchantUid(), request.getTotalPrice());
+        String merchantUid = UUIDGenerator.generateUUIDv7().toString();
+        PrepareData prepareData = new PrepareData(merchantUid, request.getTotalPrice());
         IamportResponse<Prepare> response = iamportClient.postPrepare(prepareData);
 
         if (response.getCode() != 0) {
             throw new AppException(FAILED_PREPARE_VALID, response.getMessage());
         }
-        return PreparationResponse.builder().merchantUid(request.getMerchantUid()).build();
+        return PreparationResponse.builder().merchantUid(merchantUid).build();
     }
 
     // 결제 사후 검증
@@ -183,55 +186,39 @@ public class OrderService {
 
         Payment payment = getPayment(request.getImpUid());
 
-        // 주문 정보 검증 (merchant_uid로 조회)
-        Order order = validateOrderByMerchantUid(request.getMerchantUid());
+        UUID merchantUid = request.getMerchantUid();
+
+        Order order = orderRepository.findByMerchantUid(merchantUid)
+                .orElseThrow(() -> new AppException(ORDER_NOT_FOUND));
+
+        if (!order.getOrderStatus().equals(READY)) {
+            throw new AppException(NOT_READY_ORDER_STATUS);
+        }
 
         // 주문 금액과 결제 금액 비교
         BigDecimal expectedAmount = calculateTotalAmount(order.getOrderItemList());
+        BigDecimal orderTotalPrice = order.getTotalPrice();
         BigDecimal actualAmount = payment.getAmount();
 
         // 금액 불일치 시 결제 취소 및 예외 발생
-        if (expectedAmount.compareTo(actualAmount) != 0) {
+        if (actualAmount.compareTo(expectedAmount) != 0 || actualAmount.compareTo(orderTotalPrice) != 0) {
             CancelData cancelData = createCancelData(payment, BigDecimal.ZERO);
             iamportClient.cancelPaymentByImpUid(cancelData);
-            order.updateOrderStatus(CANCEL);
+            cancelOrder(order);
             throw new AppException(WRONG_PAYMENT_AMOUNT);
         }
 
         // 결제 정보가 일치하면 주문에 imp_uid 설정 및 주문 상태 변경
-        order.setImpUid(request.getImpUid());
-        order.updateOrderStatus(ORDER);
+        order.completePayment(request.getImpUid());
 
         // 성공 메시지 응답
         return new MessageResponse(messageUtil.get(ORDER_POST_VERIFICATION));
     }
 
-    public void updateMonthlyPurchaseAmounts() {
-        LocalDate today = LocalDate.now();
-        LocalDateTime startOfMonth = today.withDayOfMonth(1).atStartOfDay(); // 00:00:00
-        LocalDateTime endOfMonth = today.withDayOfMonth(today.lengthOfMonth()).atTime(LocalTime.MAX); // 23:59:59.999999999
-
-        List<CustomerOrderTotalDto> totals = orderRepository.findCustomerMonthlyOrderTotals(startOfMonth, endOfMonth);
-
-        for (CustomerOrderTotalDto total : totals) {
-            customerRepository.updateMonthlyPurchaseAmount(total.getCustomerId(), total.getTotalAmount());
-        }
-    }
-
     // === private utils ===
-
     private Customer getCustomerByEmail(String email) {
         return customerRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(CUSTOMER_NOT_FOUND));
-    }
-
-    private Order validateOrderByMerchantUid(UUID merchantUid) {
-        long count = orderRepository.countByMerchantUid(merchantUid);
-        if (count >= 2) {
-            throw new AppException(DUPLICATE_MERCHANT_UID);
-        }
-        return orderRepository.findByMerchantUid(merchantUid)
-                .orElseThrow(() -> new AppException(ORDER_NOT_FOUND));
     }
 
     private Payment getPayment(String impUid) throws IOException {
@@ -293,5 +280,24 @@ public class OrderService {
 
     private void clearCartItem(Cart cart, OrderItem orderItem) {
         cartItemRepository.deleteCartItem(cart, orderItem.getItem());
+    }
+
+    private void cancelOrder(Order order) {
+        Delivery delivery = order.getDelivery();
+        List<OrderItem> orderItemList = order.getOrderItemList();
+
+        if (delivery.getStatus().equals(DeliveryStatus.COMP)) {
+            throw new AppException(ALREADY_ARRIVED, ALREADY_ARRIVED.getMessage());
+        }
+        delivery.cancelDelivery();
+        order.cancelPayment();
+        for (OrderItem orderItem : orderItemList) {
+            // 비관적 락으로 Item 조회
+            Item item = itemRepository.findPessimisticLockById(orderItem.getItem().getId())
+                    .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
+
+            // 재고 증가
+            item.increase(orderItem.getCount());
+        }
     }
 }

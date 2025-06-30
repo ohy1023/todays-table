@@ -19,6 +19,10 @@ public class OrderInfoRequest {
     @Schema(description = "주문할 상품 UUID", example = "13dd3e84-2b3a-11f0-9aef-59f7f88a8400", required = true)
     private UUID itemUuid;
 
+    @NotNull(message = "주문 UUID는 필수입니다.")
+    @Schema(description = "주문 UUID", example = "11dd3e84-2b3a-11f0-9aef-59f7f88a8400", required = true)
+    private UUID merchantUid;
+
     @NotNull(message = "상품 수량은 필수입니다.")
     @Min(value = 1, message = "상품 수량은 최소 1개 이상이어야 합니다.")
     @Schema(description = "주문할 상품 수량", example = "2", required = true)

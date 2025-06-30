@@ -6,10 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.order.Order;
-import store.myproject.onlineshop.domain.order.dto.CustomerOrderTotalDto;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,18 +17,5 @@ public interface OrderRepository extends JpaRepository<Order, Long>, OrderCustom
     Optional<Order> findMyOrder(@Param("merchantUid") UUID merchantUid, @Param("customer") Customer customer);
 
     Optional<Order> findByMerchantUid(UUID merchantUid);
-
-    Long countByMerchantUid(UUID merchantUid);
-
-    @Query("""
-                SELECT new store.myproject.onlineshop.domain.order.dto.CustomerOrderTotalDto(o.customer.id, SUM(o.totalPrice))
-                FROM Order o
-                WHERE o.createdDate BETWEEN :start AND :end
-                GROUP BY o.customer.id
-            """)
-    List<CustomerOrderTotalDto> findCustomerMonthlyOrderTotals(
-            @Param("start") LocalDateTime start,
-            @Param("end") LocalDateTime end
-    );
 
 }

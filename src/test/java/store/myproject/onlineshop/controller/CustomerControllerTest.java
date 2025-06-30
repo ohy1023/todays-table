@@ -395,7 +395,7 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.result.address.street").value(response.getAddress().getStreet()))
                 .andExpect(jsonPath("$.result.address.detail").value(response.getAddress().getDetail()))
                 .andExpect(jsonPath("$.result.address.zipcode").value(response.getAddress().getZipcode()))
-                .andExpect(jsonPath("$.result.gender").value(response.getGender().name()))
+                .andExpect(jsonPath("$.result.gender").value(response.getGender()))
                 .andExpect(jsonPath("$.result.createdDate").value(response.getCreatedDate()))
                 .andDo(print());
 

@@ -50,6 +50,7 @@ public enum ErrorCode {
     // Item
     DUPLICATE_ITEM(HttpStatus.CONFLICT, "중복된 품목 이름입니다."),
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 품목 이름입니다."),
+    ITEM_ID_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 품목 ID입니다."),
 
     // Stock
     STOCK_NOT_FOUND(HttpStatus.NOT_FOUND, "재고 정보가 입력되지 않았습니다."),
@@ -65,6 +66,7 @@ public enum ErrorCode {
     DUPLICATE_MERCHANT_UID(HttpStatus.CONFLICT, "해당 merchant_uid가 이미 존재합니다."),
     FAILED_PREPARE_VALID(HttpStatus.CONFLICT, "사전 검증에 실패했습니다."),
     WRONG_PAYMENT_AMOUNT(HttpStatus.CONFLICT, "결제금액이 다릅니다."),
+    NOT_READY_ORDER_STATUS(HttpStatus.BAD_REQUEST, "주문 상태가 READY가 아닙니다."),
     ALREADY_ARRIVED(HttpStatus.CONFLICT, "배송 완료된 상품입니다."),
     PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "결제 정보가 존재하지 않습니다."),
 

@@ -266,37 +266,4 @@ class OrderRepositoryTest {
         // then
         assertThat(result).isEmpty();
     }
-
-    @Test
-    @DisplayName("주문 수 확인")
-    void count_by_merchant_uid_success() {
-        // given
-        Customer customer = customerRepository.save(CustomerFixture.createCustomer());
-        Brand brand = brandRepository.save(BrandFixture.createBrand());
-        Item item = itemRepository.save(ItemFixture.createItem(brand));
-        MemberShip memberShip = memberShipRepository.save(MemberShipFixture.createBronzeMembership());
-        BigDecimal discountedPrice = memberShip.applyDiscount(item.getPrice());
-
-        Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
-
-        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
-        Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
-        orderItem.setOrder(order);
-
-        // when
-        Long count = orderRepository.countByMerchantUid(order.getMerchantUid());
-
-        // then
-        assertThat(count).isEqualTo(1);
-    }
-
-    @Test
-    @DisplayName("존재하지 않는 MerchantUid에 대해 count는 0을 반환")
-    void count_by_merchant_uid_zero() {
-        // when
-        Long count = orderRepository.countByMerchantUid(UUID.randomUUID());
-
-        // then
-        assertThat(count).isZero();
-    }
 }

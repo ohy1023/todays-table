@@ -154,7 +154,7 @@ public class CustomerFixture {
                 .email("test@naver.com")
                 .userName("test")
                 .nickName("test")
-                .gender(Gender.MALE)
+                .gender(Gender.MALE.name())
                 .tel("010-1234-5678")
                 .createdDate("2023-06-07")
                 .address(Address.builder()

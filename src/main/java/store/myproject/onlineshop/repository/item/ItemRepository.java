@@ -18,7 +18,8 @@ public interface ItemRepository extends JpaRepository<Item, Long>, ItemCustomRep
     @Query("select i from Item i join fetch i.brand b where i.uuid = :uuid")
     Optional<Item> findByUuid(@Param("uuid") UUID uuid);
 
-    Optional<Long> findIdByUuid(UUID uuid);
+    @Query("SELECT i.id FROM Item i WHERE i.uuid = :uuid")
+    Optional<Long> findIdByUuid(@Param("uuid") UUID uuid);
 
     @Lock(LockModeType.PESSIMISTIC_READ)
     Optional<Item> findPessimisticLockById(Long itemId);

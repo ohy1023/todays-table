@@ -10,8 +10,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
+import store.myproject.onlineshop.domain.customer.*;
 import store.myproject.onlineshop.domain.customer.dto.*;
-import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.membership.MemberShip;
 import store.myproject.onlineshop.repository.membership.MemberShipRepository;
 import store.myproject.onlineshop.exception.AppException;
@@ -22,6 +22,7 @@ import store.myproject.onlineshop.repository.customer.CustomerRepository;
 import store.myproject.onlineshop.global.utils.MessageUtil;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +30,6 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.times;
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -447,19 +447,45 @@ class CustomerServiceTest {
     @DisplayName("회원 정보 조회 성공")
     public void get_customer_info_success() {
 
+        Customer customer1 = Customer.builder()
+                .id(1L)
+                .email("test@example.com")
+                .password("testPassword123!")
+                .userName("홍길동")
+                .nickName("hong123")
+                .gender(Gender.MALE)
+                .tel("010-1234-5678")
+                .address(Address.builder()
+                        .city("서울")
+                        .street("테스트로")
+                        .detail("123")
+                        .zipcode("04524")
+                        .build())
+                .customerRole(CustomerRole.ROLE_USER)
+                .monthlyPurchaseAmount(BigDecimal.ZERO)
+                .memberShip(MemberShip.builder()
+                        .id(1L)
+                        .level(Level.BRONZE)
+                        .baseline(BigDecimal.ZERO)
+                        .discountRate(BigDecimal.ZERO)
+                        .build())
+                .build();
+
+        customer1.setCreatedDate(LocalDateTime.now());
+
         // given
-        String request = customer.getEmail();
+        String request = customer1.getEmail();
 
         given(customerRepository.findByEmail(request))
-                .willReturn(Optional.of(customer));
+                .willReturn(Optional.of(customer1));
 
         // when
         CustomerInfoResponse response = customerService.getCustomerInfo(request);
 
         // then
-        assertThat(response.getEmail()).isEqualTo(customer.getEmail());
-        assertThat(response.getUserName()).isEqualTo(customer.getUserName());
-        assertThat(response.getNickName()).isEqualTo(customer.getNickName());
+        assertThat(response.getEmail()).isEqualTo(customer1.getEmail());
+        assertThat(response.getUserName()).isEqualTo(customer1.getUserName());
+        assertThat(response.getNickName()).isEqualTo(customer1.getNickName());
 
     }
 

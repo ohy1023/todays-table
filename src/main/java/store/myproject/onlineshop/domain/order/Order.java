@@ -74,19 +74,13 @@ public class Order extends BaseEntity {
         orderItem.addOrder(this);
     }
 
-    public void updateOrderStatus(OrderStatus orderStatus) {
-        this.orderStatus = orderStatus;
+    public void completePayment(String impUid) {
+        setImpUid(impUid);
+        this.orderStatus = ORDER;
     }
 
-    public void cancel() {
-        if (delivery.getStatus().equals(DeliveryStatus.COMP)) {
-            throw new AppException(ALREADY_ARRIVED, ALREADY_ARRIVED.getMessage());
-        }
-        this.delivery.cancel();
+    public void cancelPayment() {
         this.orderStatus = CANCEL;
-        for (OrderItem orderItem : orderItemList) {
-            orderItem.cancel();
-        }
     }
 
     public static Order createOrder(Customer customer, Delivery delivery, OrderItem orderItem) {

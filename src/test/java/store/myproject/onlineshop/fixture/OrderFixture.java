@@ -17,6 +17,7 @@ public class OrderFixture {
     public static OrderInfoRequest createOrderInfoRequest() {
         return OrderInfoRequest.builder()
                 .itemUuid(UUID.fromString(faker.internet().uuid()))
+                .merchantUid(UUID.fromString(faker.internet().uuid()))
                 .itemCnt(faker.number().numberBetween(1L, 5L))
                 .recipientName(faker.name().fullName())
                 .recipientTel("010-" + faker.number().digits(4) + "-" + faker.number().digits(4))
@@ -61,7 +62,7 @@ public class OrderFixture {
     }
 
     public static PreparationRequest createPreparationRequest() {
-        return new PreparationRequest(UUID.randomUUID().toString(), new BigDecimal(faker.number().randomNumber()));
+        return new PreparationRequest(new BigDecimal(faker.number().randomNumber()));
     }
 
     public static PostVerificationRequest createPostVerificationRequest() {

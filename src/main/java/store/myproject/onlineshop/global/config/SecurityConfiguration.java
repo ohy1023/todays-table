@@ -110,6 +110,8 @@ public class SecurityConfiguration {
                                 "/api/v1/recipes/*/reviews",
                                 "/api/v1/orders",
                                 "/api/v1/orders/cart",
+                                "/api/v1/orders/preparation",
+                                "/api/v1/orders/verification",
                                 "/api/v1/carts",
                                 "/api/v1/carts/*",
                                 "/api/v1/recipes/*/likes" // 좋아요 누르기
