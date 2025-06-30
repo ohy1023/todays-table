@@ -83,14 +83,14 @@ public class Order extends BaseEntity {
         this.orderStatus = CANCEL;
     }
 
-    public static Order createOrder(Customer customer, Delivery delivery, OrderItem orderItem) {
+    public static Order createOrder(UUID merchantUid, Customer customer, Delivery delivery, OrderItem orderItem) {
 
         Order order = Order.builder()
+                .merchantUid(merchantUid)
                 .customer(customer)
                 .delivery(delivery)
                 .totalPrice(orderItem.getTotalPrice())
                 .orderStatus(READY)
-                .merchantUid(UUIDGenerator.generateUUIDv7())
                 .build();
 
         order.addOrderItem(orderItem);

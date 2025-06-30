@@ -109,7 +109,7 @@ class OrderServiceTest {
         Item item = ItemFixture.createItemEntity(brand);
         BigDecimal discountedPrice = customer.getMemberShip().applyDiscount(item.getPrice());
         OrderItem orderItem = OrderItem.createOrderItem(item, discountedPrice, 1L);
-        Order order = Order.createOrder(customer, delivery, orderItem);
+        Order order = Order.createOrder(UUID.randomUUID(), customer, delivery, orderItem);
 
         given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
         given(orderRepository.findMyOrder(order.getMerchantUid(), customer)).willReturn(Optional.of(order));
@@ -167,7 +167,7 @@ class OrderServiceTest {
 
         BigDecimal discountedPrice = customer.getMemberShip().applyDiscount(item.getPrice());
         OrderItem orderItem = OrderItem.createOrderItem(item, discountedPrice, 1L);
-        Order order = Order.createOrder(customer, delivery, orderItem);
+        Order order = Order.createOrder(UUID.randomUUID(), customer, delivery, orderItem);
 
         Page<Order> orderPage = new PageImpl<>(List.of(order));
 
@@ -398,7 +398,7 @@ class OrderServiceTest {
         Brand brand = BrandFixture.createBrandEntity();
         Item item = ItemFixture.createItemEntity(brand);
         OrderItem orderItem = OrderItem.createOrderItem(item, price, 2L);
-        Order order = Order.createOrder(customer, DeliveryFixture.createDelivery(), orderItem);
+        Order order = Order.createOrder(UUID.randomUUID(), customer, DeliveryFixture.createDelivery(), orderItem);
         order.setImpUid(impUid);
 
         CancelItemRequest request = OrderFixture.createCancelItemRequest(item.getUuid());
@@ -442,7 +442,7 @@ class OrderServiceTest {
         Brand brand = BrandFixture.createBrandEntity();
         Item item = ItemFixture.createItemEntity(brand);
         OrderItem orderItem = OrderItem.createOrderItem(item, price, 2L);
-        Order order = Order.createOrder(customer, DeliveryFixture.createDelivery(), orderItem);
+        Order order = Order.createOrder(UUID.randomUUID(), customer, DeliveryFixture.createDelivery(), orderItem);
         order.setImpUid(impUid);
 
         CancelItemRequest request = OrderFixture.createCancelItemRequest(item.getUuid());
@@ -469,7 +469,7 @@ class OrderServiceTest {
         Brand brand = BrandFixture.createBrandEntity();
         Item item = ItemFixture.createItemEntity(brand);
         OrderItem orderItem = OrderItem.createOrderItem(item, price, 2L);
-        Order order = Order.createOrder(customer, DeliveryFixture.createDelivery(), orderItem);
+        Order order = Order.createOrder(UUID.randomUUID(), customer, DeliveryFixture.createDelivery(), orderItem);
         order.setImpUid(impUid);
 
         CancelItemRequest request = OrderFixture.createCancelItemRequest(item.getUuid());
@@ -593,7 +593,7 @@ class OrderServiceTest {
                 .build();
 
         OrderItem orderItem = OrderItem.createOrderItem(item, price, 2L);
-        Order order = Order.createOrder(customer, DeliveryFixture.createDelivery(), orderItem);
+        Order order = Order.createOrder(UUID.randomUUID(), customer, DeliveryFixture.createDelivery(), orderItem);
 
         // 실제 결제된 금액 = 기대 금액
         Payment payment = new Payment();

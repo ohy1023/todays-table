@@ -67,7 +67,7 @@ class OrderRepositoryTest {
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
         OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
-        Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
+        Order order = orderRepository.save(Order.createOrder(UUID.randomUUID(), customer, delivery, orderItem));
         orderItem.setOrder(order);
 
         // 검색 조건 생성
@@ -98,7 +98,7 @@ class OrderRepositoryTest {
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
         OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
-        Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
+        Order order = orderRepository.save(Order.createOrder(UUID.randomUUID(), customer, delivery, orderItem));
         orderItem.setOrder(order);
 
         // 검색 조건 생성
@@ -127,7 +127,7 @@ class OrderRepositoryTest {
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
         OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
-        Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
+        Order order = orderRepository.save(Order.createOrder(UUID.randomUUID(), customer, delivery, orderItem));
         orderItem.setOrder(order);
 
         // 검색 조건 (itemName만 설정)
@@ -158,7 +158,7 @@ class OrderRepositoryTest {
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
         OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
-        Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
+        Order order = orderRepository.save(Order.createOrder(UUID.randomUUID(), customer, delivery, orderItem));
         orderItem.setOrder(order);
 
         // 검색 조건 (brandName만 null)
@@ -190,7 +190,7 @@ class OrderRepositoryTest {
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
         OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
-        Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
+        Order order = orderRepository.save(Order.createOrder(UUID.randomUUID(), customer, delivery, orderItem));
         orderItem.setOrder(order);
 
         // 검색 조건 (orderStatus만 null)
@@ -221,7 +221,7 @@ class OrderRepositoryTest {
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
         OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
-        Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
+        Order order = orderRepository.save(Order.createOrder(UUID.randomUUID(), customer, delivery, orderItem));
         orderItem.setOrder(order);
 
         // when
@@ -246,7 +246,7 @@ class OrderRepositoryTest {
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
         OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
-        Order order = orderRepository.save(Order.createOrder(customer, delivery, orderItem));
+        Order order = orderRepository.save(Order.createOrder(UUID.randomUUID(), customer, delivery, orderItem));
         orderItem.setOrder(order);
 
         // when

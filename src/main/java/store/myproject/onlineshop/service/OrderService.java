@@ -95,7 +95,7 @@ public class OrderService {
         delivery.createDeliveryStatus(DeliveryStatus.READY);
 
         OrderItem orderItem = OrderItem.createOrderItem(item, discountedPrice, request.getItemCnt());
-        Order order = Order.createOrder(customer, delivery, orderItem);
+        Order order = Order.createOrder(request.getMerchantUid(), customer, delivery, orderItem);
         orderItem.setOrder(order);
 
         asyncCustomerService.addMonthlyPurchaseAmount(customer.getId(), discountedPrice);
