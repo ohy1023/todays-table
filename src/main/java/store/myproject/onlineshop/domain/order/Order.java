@@ -128,11 +128,12 @@ public class Order extends BaseEntity {
         return OrderInfo.builder()
                 .merchantUid(this.merchantUid)
                 .brandName(this.orderItemList.get(0).getItem().getBrand().getName())
+                .itemUuid(this.orderItemList.get(0).getItem().getUuid())
                 .itemName(this.orderItemList.get(0).getItem().getItemName())
                 .totalPrice(this.totalPrice)
                 .orderDate(
                         Optional.ofNullable(this.getCreatedDate())
-                                .map(d -> d.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분 ss초ㅑㅡ")))
+                                .map(d -> d.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분 ss초")))
                                 .orElse("날짜 없음")
                 )
                 .orderCustomerName(this.customer.getUserName())

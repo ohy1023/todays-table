@@ -19,6 +19,9 @@ public class OrderInfo {
     @Schema(description = "브랜드 이름", example = "풀무원")
     private String brandName;
 
+    @Schema(description = "상품 번호",  example = "a9dc96bf-2b1b-11f0-b1f0-5b9e0b864120")
+    private UUID itemUuid;
+
     @Schema(description = "상품 이름", example = "대파")
     private String itemName;
 
