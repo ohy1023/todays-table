@@ -87,6 +87,16 @@ public class OrderController {
         return Response.success(response);
     }
 
+    @Operation(summary = "주문 정보 롤백 (oder row 제거 및 재고 정합성)", description = "아임포트 결제 창 닫기 등의 이유로 결제 실패시 주문 롤백")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "주문이 성공적으로 롤백되었습니다."),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.")
+    })
+    @PostMapping("/rollback")
+    public Response<MessageResponse> order(@Valid @RequestBody OrderRollbackRequest request, Authentication authentication) {
+        return Response.success(orderService.rollbackOrder(authentication.getName(), request));
+    }
+
     @Operation(summary = "해당 주문의 배송지 변경", description = "주문의 배송지 정보를 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "배송지 변경 성공"),

@@ -98,34 +98,42 @@ public class OrderService {
         Order order = Order.createOrder(request.getMerchantUid(), customer, delivery, orderItem);
         orderItem.setOrder(order);
 
-        asyncCustomerService.addMonthlyPurchaseAmount(customer.getId(), discountedPrice);
-
         log.info("Total Price : {}", orderItem.getTotalPrice());
 
         Order savedOrder = orderRepository.save(order);
         return savedOrder.toOrderInfo();
     }
 
-    // 배송지 수정
-    public MessageResponse updateDeliveryAddress(UUID merchantUid, DeliveryUpdateRequest request) {
+    // 주문 롤백
+    public MessageResponse rollbackOrder(String email, OrderRollbackRequest request) {
 
-        Order order = orderRepository.findByMerchantUid(merchantUid)
+        Order order = orderRepository.findPessimisticLockByMerchantUid(request.getMerchantUid())
                 .orElseThrow(() -> new AppException(ORDER_NOT_FOUND));
 
-        Delivery delivery = order.getDelivery();
-
-        if (delivery.getStatus() != DeliveryStatus.READY) {
-            throw new AppException(DELIVERY_MODIFIED_FAIL);
+        if (!email.equals(order.getCustomer().getEmail())) {
+            throw new AppException(UNAUTHORIZED_ORDER_ACCESS);
         }
 
-        order.getDelivery().setInfo(request);
+        List<OrderItem> orderItemList = order.getOrderItemList();
 
-        return new MessageResponse(order.getMerchantUid(), messageUtil.get(MessageCode.ORDER_DELIVERY_MODIFIED));
+        for (OrderItem orderItem : orderItemList) {
+
+            Long itemId = orderItem.getItem().getId();
+
+            Item item = itemRepository.findPessimisticLockById(itemId)
+                    .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
+
+            item.increase(orderItem.getCount());
+        }
+
+        order.rollbackPayment();
+
+        return new MessageResponse(order.getMerchantUid(), messageUtil.get(MessageCode.ORDER_ROLLBACK));
     }
 
     // 주문 취소
     public MessageResponse cancelOrder(UUID merchantUid, CancelItemRequest request) throws IamportResponseException, IOException {
-        Order order = orderRepository.findByMerchantUid(merchantUid)
+        Order order = orderRepository.findPessimisticLockByMerchantUid(merchantUid)
                 .orElseThrow(() -> new AppException(ORDER_NOT_FOUND));
 
         Long itemId = itemRepository.findIdByUuid(request.getItemUuid())
@@ -163,8 +171,6 @@ public class OrderService {
         orderItems.forEach(orderItem -> {
             clearCartItem(cart, orderItem);
         });
-
-        asyncCustomerService.addMonthlyPurchaseAmount(customer.getId(), order.getTotalPrice());
 
         return orderItems.stream().map(item -> order.toOrderInfo()).toList();
     }
@@ -211,8 +217,27 @@ public class OrderService {
         // 결제 정보가 일치하면 주문에 imp_uid 설정 및 주문 상태 변경
         order.completePayment(request.getImpUid());
 
+        asyncCustomerService.addMonthlyPurchaseAmount(order.getCustomer().getId(), order.getTotalPrice());
+
         // 성공 메시지 응답
         return new MessageResponse(messageUtil.get(ORDER_POST_VERIFICATION));
+    }
+
+    // 배송지 수정
+    public MessageResponse updateDeliveryAddress(UUID merchantUid, DeliveryUpdateRequest request) {
+
+        Order order = orderRepository.findByMerchantUid(merchantUid)
+                .orElseThrow(() -> new AppException(ORDER_NOT_FOUND));
+
+        Delivery delivery = order.getDelivery();
+
+        if (delivery.getStatus() != DeliveryStatus.READY) {
+            throw new AppException(DELIVERY_MODIFIED_FAIL);
+        }
+
+        order.getDelivery().setInfo(request);
+
+        return new MessageResponse(order.getMerchantUid(), messageUtil.get(MessageCode.ORDER_DELIVERY_MODIFIED));
     }
 
     // === private utils ===

@@ -1,12 +1,17 @@
 package store.myproject.onlineshop.repository.order;
 
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.order.Order;
+import store.myproject.onlineshop.domain.order.OrderStatus;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,4 +23,8 @@ public interface OrderRepository extends JpaRepository<Order, Long>, OrderCustom
 
     Optional<Order> findByMerchantUid(UUID merchantUid);
 
+    @Lock(LockModeType.PESSIMISTIC_READ)
+    Optional<Order> findPessimisticLockByMerchantUid(UUID merchantUid);
+
+    List<Order> findAllByOrderStatusAndCreatedDateBefore(OrderStatus orderStatus, LocalDateTime createdDate);
 }

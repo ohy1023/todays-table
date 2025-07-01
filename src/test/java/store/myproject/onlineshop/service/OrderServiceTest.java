@@ -403,7 +403,7 @@ class OrderServiceTest {
 
         CancelItemRequest request = OrderFixture.createCancelItemRequest(item.getUuid());
 
-        given(orderRepository.findByMerchantUid(order.getMerchantUid())).willReturn(Optional.of(order));
+        given(orderRepository.findPessimisticLockByMerchantUid(order.getMerchantUid())).willReturn(Optional.of(order));
         given(itemRepository.findIdByUuid(item.getUuid())).willReturn(Optional.of(item.getId()));
         given(itemRepository.findPessimisticLockById(item.getId())).willReturn(Optional.of(item));
         given(orderItemRepository.findByOrderAndItem(order, item)).willReturn(Optional.of(orderItem));
@@ -447,7 +447,7 @@ class OrderServiceTest {
 
         CancelItemRequest request = OrderFixture.createCancelItemRequest(item.getUuid());
 
-        given(orderRepository.findByMerchantUid(order.getMerchantUid())).willReturn(Optional.of(order));
+        given(orderRepository.findPessimisticLockByMerchantUid(order.getMerchantUid())).willReturn(Optional.of(order));
         given(itemRepository.findIdByUuid(item.getUuid())).willReturn(Optional.of(item.getId()));
         given(itemRepository.findPessimisticLockById(item.getId())).willReturn(Optional.of(item));
         given(orderItemRepository.findByOrderAndItem(order, item)).willReturn(Optional.empty());
@@ -474,7 +474,7 @@ class OrderServiceTest {
 
         CancelItemRequest request = OrderFixture.createCancelItemRequest(item.getUuid());
 
-        given(orderRepository.findByMerchantUid(order.getMerchantUid())).willReturn(Optional.of(order));
+        given(orderRepository.findPessimisticLockByMerchantUid(order.getMerchantUid())).willReturn(Optional.of(order));
         given(itemRepository.findIdByUuid(item.getUuid())).willReturn(Optional.of(item.getId()));
         given(itemRepository.findPessimisticLockById(item.getId())).willReturn(Optional.of(item));
         given(orderItemRepository.findByOrderAndItem(order, item)).willReturn(Optional.of(orderItem));

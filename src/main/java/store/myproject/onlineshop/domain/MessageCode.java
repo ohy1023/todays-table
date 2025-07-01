@@ -40,6 +40,7 @@ public enum MessageCode {
 
     // 주문 관련
     ORDER_DELIVERY_MODIFIED("order.delivery.modified"),
+    ORDER_ROLLBACK("order.rollback"),
     ORDER_CANCEL("order.cancel"),
     ORDER_POST_VERIFICATION("order.post.verification"),
 

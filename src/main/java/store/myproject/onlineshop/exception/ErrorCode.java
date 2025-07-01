@@ -69,6 +69,7 @@ public enum ErrorCode {
     NOT_READY_ORDER_STATUS(HttpStatus.BAD_REQUEST, "주문 상태가 READY가 아닙니다."),
     ALREADY_ARRIVED(HttpStatus.CONFLICT, "배송 완료된 상품입니다."),
     PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "결제 정보가 존재하지 않습니다."),
+    UNAUTHORIZED_ORDER_ACCESS(HttpStatus.UNAUTHORIZED, "본인의 주문만 접근할 수 있습니다."),
 
     // Delivery
     DELIVERY_MODIFIED_FAIL(HttpStatus.CONFLICT, "배송이 시작되면 수정이 불가합니다."),

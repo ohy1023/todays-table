@@ -7,10 +7,8 @@ import org.hibernate.annotations.Where;
 import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.delivery.Delivery;
-import store.myproject.onlineshop.domain.delivery.DeliveryStatus;
 import store.myproject.onlineshop.domain.order.dto.OrderInfo;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
-import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.utils.UUIDBinaryConverter;
 import store.myproject.onlineshop.global.utils.UUIDGenerator;
 
@@ -22,7 +20,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static store.myproject.onlineshop.domain.order.OrderStatus.*;
-import static store.myproject.onlineshop.exception.ErrorCode.ALREADY_ARRIVED;
 
 @Entity
 @Table(
@@ -81,6 +78,10 @@ public class Order extends BaseEntity {
 
     public void cancelPayment() {
         this.orderStatus = CANCEL;
+    }
+
+    public void rollbackPayment() {
+        this.orderStatus = ROLLBACK;
     }
 
     public static Order createOrder(UUID merchantUid, Customer customer, Delivery delivery, OrderItem orderItem) {

@@ -35,3 +35,22 @@ SET @create_index_item := IF(
 PREPARE stmt_item FROM @create_index_item;
 EXECUTE stmt_item;
 DEALLOCATE PREPARE stmt_item;
+
+-- Orders 인덱스 조건부 생성
+SET @index_exists := (
+    SELECT COUNT(*)
+    FROM INFORMATION_SCHEMA.STATISTICS
+    WHERE table_schema = DATABASE()
+      AND table_name = 'Orders'
+      AND index_name = 'idx_orders_status_createddate'
+);
+
+SET @create_index_orders := IF(
+        @index_exists = 0,
+        'ALTER TABLE Orders ADD INDEX idx_orders_status_createddate (order_status, created_date);',
+        'SELECT "Index already exists for Orders"'
+                            );
+
+PREPARE stmt_orders FROM @create_index_orders;
+EXECUTE stmt_orders;
+DEALLOCATE PREPARE stmt_orders;
