@@ -107,7 +107,7 @@ public class OrderService {
     // 주문 롤백
     public MessageResponse rollbackOrder(String email, OrderRollbackRequest request) {
 
-        Order order = orderRepository.findPessimisticLockByMerchantUid(request.getMerchantUid())
+        Order order = orderRepository.findByMerchantUid(request.getMerchantUid())
                 .orElseThrow(() -> new AppException(ORDER_NOT_FOUND));
 
         if (!email.equals(order.getCustomer().getEmail())) {
@@ -133,7 +133,7 @@ public class OrderService {
 
     // 주문 취소
     public MessageResponse cancelOrder(UUID merchantUid, CancelItemRequest request) throws IamportResponseException, IOException {
-        Order order = orderRepository.findPessimisticLockByMerchantUid(merchantUid)
+        Order order = orderRepository.findByMerchantUid(merchantUid)
                 .orElseThrow(() -> new AppException(ORDER_NOT_FOUND));
 
         Long itemId = itemRepository.findIdByUuid(request.getItemUuid())
@@ -147,6 +147,7 @@ public class OrderService {
 
         cancelReservation(new CancelRequest(order.getImpUid(), orderItem.getOrderPrice()));
         item.increase(orderItem.getCount());
+        order.getDelivery().cancelDelivery();
         order.cancelPayment();
 
         asyncCustomerService.subtractMonthlyPurchaseAmount(order.getCustomer().getId(), orderItem.getOrderPrice());

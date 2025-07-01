@@ -18,13 +18,10 @@ import java.util.UUID;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long>, OrderCustomRepository {
 
-    @Query("select o from Order o join fetch o.delivery d join fetch o.orderItemList oi join fetch oi.item i join fetch i.brand b where o.merchantUid = :merchantUid and o.customer = :customer")
+    @Query("select o from Order o join fetch o.delivery d join fetch o.orderItemList oi join fetch oi.item i join fetch i.brand b where o.merchantUid = :merchantUid and (o.orderStatus = store.myproject.onlineshop.domain.order.OrderStatus.ORDER or o.orderStatus = store.myproject.onlineshop.domain.order.OrderStatus.CANCEL )  and o.customer = :customer")
     Optional<Order> findMyOrder(@Param("merchantUid") UUID merchantUid, @Param("customer") Customer customer);
 
     Optional<Order> findByMerchantUid(UUID merchantUid);
-
-    @Lock(LockModeType.PESSIMISTIC_READ)
-    Optional<Order> findPessimisticLockByMerchantUid(UUID merchantUid);
 
     List<Order> findAllByOrderStatusAndCreatedDateBefore(OrderStatus orderStatus, LocalDateTime createdDate);
 }
