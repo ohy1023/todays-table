@@ -25,4 +25,13 @@ public class AsyncCustomerService {
             log.error("이번달 구매 금액 증가 실패!");
         }
     }
+
+    @Async(value = "monthlyPurchaseExecutor")
+    public void subtractMonthlyPurchaseAmount(Long customerId, BigDecimal amountToDecrease) {
+        try {
+            customerRepository.decrementMonthlyPurchaseAmount(customerId, amountToDecrease);
+        } catch (Exception e) {
+            log.error("주문 취소로 인한 금액 감소 실패!");
+        }
+    }
 }

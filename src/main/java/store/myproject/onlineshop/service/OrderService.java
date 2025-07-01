@@ -145,9 +145,11 @@ public class OrderService {
         OrderItem orderItem = orderItemRepository.findByOrderAndItem(order, item)
                 .orElseThrow(() -> new AppException(ORDER_ITEM_NOT_FOUND));
 
-        cancelReservation(new CancelRequest(order.getImpUid(), orderItem.getTotalPrice()));
+        cancelReservation(new CancelRequest(order.getImpUid(), orderItem.getOrderPrice()));
         item.increase(orderItem.getCount());
         order.cancelPayment();
+
+        asyncCustomerService.subtractMonthlyPurchaseAmount(order.getCustomer().getId(), orderItem.getOrderPrice());
 
         return new MessageResponse(order.getMerchantUid(), messageUtil.get(MessageCode.ORDER_CANCEL));
     }

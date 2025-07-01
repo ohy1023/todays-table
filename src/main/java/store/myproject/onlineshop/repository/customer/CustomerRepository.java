@@ -28,13 +28,13 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     void incrementMonthlyPurchaseAmount(@Param("customerId") Long customerId, @Param("amount") BigDecimal amount);
 
     @Modifying
+    @Query("UPDATE Customer c SET c.monthlyPurchaseAmount = CASE WHEN c.monthlyPurchaseAmount - :amount < 0 THEN 0 ELSE c.monthlyPurchaseAmount - :amount END WHERE c.id = :customerId")
+    void decrementMonthlyPurchaseAmount(@Param("customerId") Long customerId, @Param("amount") BigDecimal amount);
+
+    @Modifying
     @Query("UPDATE Customer c SET c.memberShip.id = :membershipId WHERE c.id IN :customerIds")
     void updateMemberships(@Param("customerIds") List<Long> customerIds,
                            @Param("membershipId") Long membershipId);
-
-    @Modifying
-    @Query("UPDATE Customer c SET c.monthlyPurchaseAmount = :amount WHERE c.id = :customerId")
-    void updateMonthlyPurchaseAmount(@Param("customerId") Long customerId, @Param("amount") BigDecimal amount);
 
     @Modifying
     @Query("UPDATE Customer c SET c.monthlyPurchaseAmount = 0 WHERE c.id IN :customerIds")
