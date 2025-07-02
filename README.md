@@ -70,6 +70,8 @@ Master-Slave Replication 환경에서 읽기 작업은 Slave 서버에서, 쓰�
 
 ## 📝 블로그 정리 & Trouble Shooting
 
+[@OneToOne 양방향 연관관계의 N+1 문제](https://velog.io/@zvyg1023/JPA-OneToOne-%EC%96%91%EB%B0%A9%ED%96%A5-%EC%97%B0%EA%B4%80%EA%B4%80%EA%B3%84%EC%9D%98-N1-%EB%AC%B8%EC%A0%9C)
+
 [API에서 PK 노출로 인한 보안 강화 (feat. UUID v7 & BINARY(16))](https://until.blog/@zvyg1023/%EB%B0%B1%EC%A4%80-2018%EB%B2%88--%EC%A2%8B%EB%8B%A4)
 
 [반정규화를 통한 성능 개선](https://velog.io/@zvyg1023/%EC%84%B1%EB%8A%A5-%EC%B5%9C%EC%A0%81%ED%99%94%EB%A5%BC-%EC%9C%84%ED%95%9C-%EB%B0%98%EC%A0%95%EA%B7%9C%ED%99%94-%EC%A0%81%EC%9A%A9)
