@@ -9,10 +9,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import store.myproject.onlineshop.domain.MessageResponse;
@@ -53,22 +49,14 @@ public class OrderController {
         return Response.success(response);
     }
 
-    @Operation(summary = "나의 주문 내역 검색", description = "로그인한 사용자의 주문 내역을 페이지로 검색합니다.")
+    @Operation(summary = "나의 주문 내역", description = "로그인한 사용자의 주문 내역을 페이지")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "주문 내역 검색 결과를 반환합니다."),
             @ApiResponse(responseCode = "401", description = "사용자가 인증되지 않았습니다.")
     })
-    @GetMapping("/search")
-    public Response<Page<OrderInfo>> searchOrder(
-            @Parameter(description = "주문 검색 조건") OrderSearchCond orderSearchCond,
-            Authentication authentication,
-            @ParameterObject @PageableDefault(size = 5) Pageable pageable
-    ) {
-
-        String email = authentication.getName();
-
-        Page<OrderInfo> response = orderService.getMyOrders(orderSearchCond, email, pageable);
-
+    @GetMapping
+    public Response<MyOrderSliceResponse> myOrder(@ModelAttribute OrderSearchCond orderSearchCond, Authentication authentication) {
+        MyOrderSliceResponse response = orderService.getMyOrders(orderSearchCond, authentication.getName());
         return Response.success(response);
     }
 

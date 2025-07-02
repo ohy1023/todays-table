@@ -7,7 +7,9 @@ import org.hibernate.annotations.Where;
 import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.delivery.Delivery;
+import store.myproject.onlineshop.domain.order.dto.MyOrderResponse;
 import store.myproject.onlineshop.domain.order.dto.OrderInfo;
+import store.myproject.onlineshop.domain.order.dto.OrderItemResponse;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
 import store.myproject.onlineshop.global.utils.UUIDBinaryConverter;
 import store.myproject.onlineshop.global.utils.UUIDGenerator;
@@ -18,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static store.myproject.onlineshop.domain.order.OrderStatus.*;
 
@@ -145,6 +148,29 @@ public class Order extends BaseEntity {
                 .recipientTel(this.delivery.getRecipientTel())
                 .recipientAddress(address)
                 .zipcode(this.delivery.getAddress().getZipcode())
+                .build();
+    }
+
+    public MyOrderResponse toMyOrderResponse() {
+        return MyOrderResponse.builder()
+                .merchantUid(this.merchantUid)
+                .createdDate(this.getCreatedDate())
+                .orderStatus(this.orderStatus.name())
+                .totalPrice(this.totalPrice)
+                .deliveryStatus(this.delivery.getStatus().name())
+                .orderItems(
+                        this.orderItemList.stream()
+                                .map(oi -> OrderItemResponse.builder()
+                                        .count(oi.getCount())
+                                        .orderPrice(oi.getOrderPrice())
+                                        .itemName(oi.getItem().getItemName())
+                                        .itemUuid(oi.getItem().getUuid())
+                                        .thumbnail(oi.getItem().getThumbnail())
+                                        .brandUuid(oi.getItem().getBrand().getUuid())
+                                        .brandName(oi.getItem().getBrand().getName())
+                                        .build()
+                                ).collect(Collectors.toList())
+                )
                 .build();
     }
 

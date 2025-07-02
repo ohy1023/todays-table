@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 public class ItemUpdateRequest {
 
     @NotBlank(message = "아이템 이름은 비어 있을 수 없습니다.")
-    @Schema(description = "아이템 이름", example = "스마트폰", required = true)
+    @Schema(description = "아이템 이름", example = "Onion", required = true)
     private String itemName;
 
     @NotNull(message = "가격은 비어 있을 수 없습니다.")

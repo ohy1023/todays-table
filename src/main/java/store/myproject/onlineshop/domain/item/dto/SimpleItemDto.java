@@ -18,7 +18,7 @@ public class SimpleItemDto {
     @Schema(description = "품목 UUID", example = "a9dc96bf-2b1b-11f0-b1f0-5b9e0b864120")
     private UUID uuid;
 
-    @Schema(description = "품목 이름", example = "대파")
+    @Schema(description = "품목 이름", example = "Onion")
     private String itemName;
 
     @Schema(description = "품목 가격", example = "3200")

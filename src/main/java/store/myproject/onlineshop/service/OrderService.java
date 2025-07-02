@@ -9,8 +9,6 @@ import com.siot.IamportRestClient.response.Payment;
 import com.siot.IamportRestClient.response.Prepare;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import store.myproject.onlineshop.domain.MessageCode;
@@ -72,11 +70,30 @@ public class OrderService {
         return order.toOrderInfo();
     }
 
-    // 주문 목록 조회
+    // 나의 주문 목록 조회
     @Transactional(readOnly = true)
-    public Page<OrderInfo> getMyOrders(OrderSearchCond searchCond, String email, Pageable pageable) {
+    public MyOrderSliceResponse getMyOrders(OrderSearchCond cond, String email) {
         Customer customer = getCustomerByEmail(email);
-        return orderRepository.search(searchCond, customer, pageable).map(Order::toOrderInfo);
+
+        List<Order> myOrders = orderRepository.findMyOrders(cond, customer);
+        boolean hasNext = myOrders.size() > cond.getSize();
+
+        List<Order> content = hasNext
+                ? myOrders.subList(0, cond.getSize())
+                : myOrders;
+
+        List<MyOrderResponse> responseList = content.stream()
+                .map(Order::toMyOrderResponse)
+                .toList();
+
+        UUID nextCursor = hasNext
+                ? content.get(content.size() - 1).getMerchantUid()
+                : null;
+
+        return MyOrderSliceResponse.builder()
+                .content(responseList)
+                .nextCursor(nextCursor)
+                .build();
     }
 
     // 단건 주문
