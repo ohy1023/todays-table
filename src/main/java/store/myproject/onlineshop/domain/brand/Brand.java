@@ -29,8 +29,8 @@ public class Brand {
 
     private String name;
 
-    @Setter
-    @OneToOne(mappedBy = "brand")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "image_file_id")
     private ImageFile imageFile;
 
     @Builder.Default
@@ -48,6 +48,10 @@ public class Brand {
 
     public void update(BrandUpdateRequest updatedBrand) {
         this.name = updatedBrand.getName();
+    }
+
+    public void addImage(ImageFile imageFile) {
+        this.imageFile = imageFile;
     }
 
     public void removeImage() {

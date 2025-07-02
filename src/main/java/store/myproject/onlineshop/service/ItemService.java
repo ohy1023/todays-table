@@ -114,7 +114,7 @@ public class ItemService {
 
             String originImageUrl = awsS3Service.uploadItemOriginImage(multipartFile);
 
-            ImageFile image = ImageFile.createImage(originImageUrl, savedItem);
+            ImageFile image = ImageFile.createImage(originImageUrl);
 
             // 연관관계 정의
             image.addItem(savedItem);
@@ -141,7 +141,7 @@ public class ItemService {
             for (ImageFile imageFile : findItem.getImageFileList()) {
                 String extractFileName = FileUtils.extractFileName(imageFile.getImageUrl());
 
-                imageFile.removeItem(findItem);  // 연관관계 제거
+                imageFile.removeItem();  // 연관관계 제거
                 awsS3Service.deleteBrandImage(extractFileName);
             }
 
@@ -150,7 +150,7 @@ public class ItemService {
                 MultipartFile multipartFile = multipartFileList.get(i);
                 String newUrl = awsS3Service.uploadItemOriginImage(multipartFile);
 
-                ImageFile image = ImageFile.createImage(newUrl, findItem);
+                ImageFile image = ImageFile.createImage(newUrl);
                 image.addItem(findItem);
                 imageFileRepository.save(image); // 저장 누락되어 있던 부분
 

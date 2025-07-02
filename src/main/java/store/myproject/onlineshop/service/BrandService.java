@@ -58,8 +58,8 @@ public class BrandService {
         String imageUrl = awsS3Service.uploadBrandOriginImage(multipartFile);
         Brand savedBrand = brandRepository.save(request.toEntity());
 
-        ImageFile image = ImageFile.createImage(imageUrl, savedBrand);
-        image.addBrand(savedBrand);
+        ImageFile image = ImageFile.createImage(imageUrl);
+        savedBrand.addImage(image);
         imageFileRepository.save(image);
 
         return new MessageResponse(savedBrand.getUuid(), messageUtil.get(MessageCode.BRAND_ADDED));
@@ -76,12 +76,12 @@ public class BrandService {
             awsS3Service.deleteBrandImage(oldFileName);
 
             ImageFile oldImage = brand.getImageFile();
-            oldImage.removeBrand();
+            brand.removeImage();
             imageFileRepository.deleteById(oldImage.getId());
 
             String newImageUrl = awsS3Service.uploadBrandOriginImage(multipartFile);
-            ImageFile newImage = ImageFile.createImage(newImageUrl, brand);
-            newImage.addBrand(brand);
+            ImageFile newImage = ImageFile.createImage(newImageUrl);
+            brand.addImage(newImage);
             imageFileRepository.save(newImage);
         }
 

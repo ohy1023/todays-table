@@ -16,7 +16,7 @@ public interface RecipeItemRepository extends JpaRepository<RecipeItem, Long> {
                     i.itemName,
                     i.price,
                     b.name,
-                    (select min(ii.imageUrl) from ImageFile ii where ii.item.id = i.id)
+                    i.thumbnail
                 )
                 from RecipeItem ri
                 join ri.item i
