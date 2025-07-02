@@ -14,10 +14,20 @@
 - Spring Data JPA
 - Spring Security
 - QueryDsl 5.1.0
+
+**Database**
+
 - MySQL 8.0.33
 - Redis 7.0
 
-**배포**
+**Testing**
+
+- JUnit5
+- Mockito
+- Jacoco
+- JMeter
+
+**Deployment**
 
 - Git Actions
 - Docker
