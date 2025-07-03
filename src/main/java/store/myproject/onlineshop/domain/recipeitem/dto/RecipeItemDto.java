@@ -19,7 +19,7 @@ public class RecipeItemDto {
 
     private BigDecimal price;
 
-    private String thumbnail;
-
     private String brandName;
+
+    private String thumbnail;
 }

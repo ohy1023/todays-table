@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.customer.Customer;
@@ -15,7 +13,6 @@ import store.myproject.onlineshop.domain.delivery.Delivery;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.membership.MemberShip;
 import store.myproject.onlineshop.domain.order.Order;
-import store.myproject.onlineshop.domain.order.OrderStatus;
 import store.myproject.onlineshop.domain.order.dto.OrderSearchCond;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
 import store.myproject.onlineshop.fixture.*;
@@ -28,6 +25,7 @@ import store.myproject.onlineshop.repository.membership.MemberShipRepository;
 import store.myproject.onlineshop.repository.orderitem.OrderItemRepository;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -55,8 +53,8 @@ class OrderRepositoryTest {
     private DeliveryRepository deliveryRepository;
 
     @Test
-    @DisplayName("itemName 없이 검색 성공")
-    void search_without_item_name_success() {
+    @DisplayName("나의 주문 목록 조회 성공")
+    void find_my_orders_success() {
         // given
         Customer customer = customerRepository.save(CustomerFixture.createCustomer());
         Brand brand = brandRepository.save(BrandFixture.createBrand());
@@ -66,143 +64,28 @@ class OrderRepositoryTest {
 
         Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
 
-        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
-        Order order = orderRepository.save(Order.createOrder(UUID.randomUUID(), customer, delivery, orderItem));
+        OrderItem orderItem = OrderItem.createOrderItem(item, discountedPrice, 1L);
+
+        Order order = Order.createOrder(UUID.randomUUID(), customer, delivery, orderItem);
         orderItem.setOrder(order);
+
+        order.completePayment("imp_uid");
+
+        orderItemRepository.save(orderItem);
+        orderRepository.save(order);
 
         // 검색 조건 생성
         OrderSearchCond condition = OrderSearchCond.builder()
-                .brandName(brand.getName())
-                .orderStatus(OrderStatus.READY)
+                .merchantUid(null)
+                .size(10)
+                .fromDate(null)
+                .toDate(null)
+                .brandName(null)
+                .itemName(null)
                 .build();
 
-        PageRequest pageRequest = PageRequest.of(0, 10);
-
         // when
-        Page<Order> result = orderRepository.search(condition, customer, pageRequest);
-
-        // then
-        assertThat(result).hasSize(1);
-    }
-
-    @Test
-    @DisplayName("customer 없이 검색 성공")
-    void search_success_without_customer_success() {
-        // given
-        Customer customer = customerRepository.save(CustomerFixture.createCustomer());
-        Brand brand = brandRepository.save(BrandFixture.createBrand());
-        Item item = itemRepository.save(ItemFixture.createItem(brand));
-        MemberShip memberShip = memberShipRepository.save(MemberShipFixture.createBronzeMembership());
-        BigDecimal discountedPrice = memberShip.applyDiscount(item.getPrice());
-
-        Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
-
-        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
-        Order order = orderRepository.save(Order.createOrder(UUID.randomUUID(), customer, delivery, orderItem));
-        orderItem.setOrder(order);
-
-        // 검색 조건 생성
-        OrderSearchCond condition = OrderSearchCond.builder()
-                .build();
-
-        PageRequest pageRequest = PageRequest.of(0, 10);
-
-        // when
-        Page<Order> result = orderRepository.search(condition, null, pageRequest);
-
-        // then
-        assertThat(result).hasSize(1);
-    }
-
-    @Test
-    @DisplayName("itemName 조건이 있는 경우 검색 성공")
-    void search_with_item_name_success() {
-        // given
-        Customer customer = customerRepository.save(CustomerFixture.createCustomer());
-        Brand brand = brandRepository.save(BrandFixture.createBrand());
-        Item item = itemRepository.save(ItemFixture.createItem(brand));
-        MemberShip memberShip = memberShipRepository.save(MemberShipFixture.createBronzeMembership());
-        BigDecimal discountedPrice = memberShip.applyDiscount(item.getPrice());
-
-        Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
-
-        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
-        Order order = orderRepository.save(Order.createOrder(UUID.randomUUID(), customer, delivery, orderItem));
-        orderItem.setOrder(order);
-
-        // 검색 조건 (itemName만 설정)
-        OrderSearchCond condition = OrderSearchCond.builder()
-                .itemName(item.getItemName())
-                .build();
-
-        PageRequest pageRequest = PageRequest.of(0, 10);
-
-        // when
-        Page<Order> result = orderRepository.search(condition, customer, pageRequest);
-
-        // then
-        assertThat(result).hasSize(1);
-    }
-
-
-    @Test
-    @DisplayName("brandName 없이 검색 성공")
-    void search_without_brand_name_success() {
-        // given
-        Customer customer = customerRepository.save(CustomerFixture.createCustomer());
-        Brand brand = brandRepository.save(BrandFixture.createBrand());
-        Item item = itemRepository.save(ItemFixture.createItem(brand));
-        MemberShip memberShip = memberShipRepository.save(MemberShipFixture.createBronzeMembership());
-        BigDecimal discountedPrice = memberShip.applyDiscount(item.getPrice());
-
-        Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
-
-        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
-        Order order = orderRepository.save(Order.createOrder(UUID.randomUUID(), customer, delivery, orderItem));
-        orderItem.setOrder(order);
-
-        // 검색 조건 (brandName만 null)
-        OrderSearchCond condition = OrderSearchCond.builder()
-                .itemName(item.getItemName())
-                .orderStatus(OrderStatus.READY)
-                .build();
-
-        PageRequest pageRequest = PageRequest.of(0, 10);
-
-        // when
-        Page<Order> result = orderRepository.search(condition, customer, pageRequest);
-
-        // then
-        assertThat(result).hasSize(1);
-    }
-
-
-    @Test
-    @DisplayName("orderStatus 없이 검색 성공")
-    void search_without_order_status_success() {
-        // given
-        Customer customer = customerRepository.save(CustomerFixture.createCustomer());
-        Brand brand = brandRepository.save(BrandFixture.createBrand());
-        Item item = itemRepository.save(ItemFixture.createItem(brand));
-        MemberShip memberShip = memberShipRepository.save(MemberShipFixture.createBronzeMembership());
-        BigDecimal discountedPrice = memberShip.applyDiscount(item.getPrice());
-
-        Delivery delivery = deliveryRepository.save(DeliveryFixture.createDelivery());
-
-        OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
-        Order order = orderRepository.save(Order.createOrder(UUID.randomUUID(), customer, delivery, orderItem));
-        orderItem.setOrder(order);
-
-        // 검색 조건 (orderStatus만 null)
-        OrderSearchCond condition = OrderSearchCond.builder()
-                .itemName(item.getItemName())
-                .brandName(brand.getName())
-                .build();
-
-        PageRequest pageRequest = PageRequest.of(0, 10);
-
-        // when
-        Page<Order> result = orderRepository.search(condition, customer, pageRequest);
+        List<Order> result = orderRepository.findMyOrders(condition, customer);
 
         // then
         assertThat(result).hasSize(1);
@@ -223,6 +106,7 @@ class OrderRepositoryTest {
         OrderItem orderItem = orderItemRepository.save(OrderItem.createOrderItem(item, discountedPrice, 1L));
         Order order = orderRepository.save(Order.createOrder(UUID.randomUUID(), customer, delivery, orderItem));
         orderItem.setOrder(order);
+        order.completePayment("imp_uid");
 
         // when
         Optional<Order> result = orderRepository.findMyOrder(order.getMerchantUid(), customer);

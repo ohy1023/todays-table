@@ -12,13 +12,11 @@ public class ImageFileFixture {
     private static final Faker faker = new Faker(Locale.KOREA);
 
     public static ImageFile withBrand(Brand brand) {
-        ImageFile imageFile = ImageFile.createImage(faker.internet().image(), brand);
-        imageFile.addBrand(brand);
-        return imageFile;
+        return ImageFile.createImage(faker.internet().image());
     }
 
     public static ImageFile withItem(Item item) {
-        return ImageFile.createImage(faker.internet().image(), item);
+        return ImageFile.createImage(faker.internet().image());
     }
 
 }

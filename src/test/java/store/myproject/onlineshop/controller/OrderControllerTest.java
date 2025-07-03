@@ -7,8 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import store.myproject.onlineshop.domain.MessageResponse;
@@ -18,6 +16,7 @@ import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.fixture.OrderFixture;
 import store.myproject.onlineshop.service.OrderService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -121,10 +120,11 @@ class OrderControllerTest {
         @Test
         @DisplayName("주문 내역 검색 성공")
         void searchOrders_success() throws Exception {
-            List<OrderInfo> results = List.of(OrderFixture.createOrderInfo());
-            given(orderService.getMyOrders(any(), anyString(), any())).willReturn(new PageImpl<>(results, PageRequest.of(0, 10), 1));
 
-            mockMvc.perform(get("/api/v1/orders/search"))
+            MyOrderSliceResponse results = MyOrderSliceResponse.builder().nextCursor(null).content(new ArrayList<>()).build();
+            given(orderService.getMyOrders(any(), anyString())).willReturn(results);
+
+            mockMvc.perform(get("/api/v1/orders"))
                     .andExpect(status().isOk())
                     .andDo(print());
         }
@@ -132,15 +132,56 @@ class OrderControllerTest {
         @Test
         @DisplayName("주문 내역 검색 실패 - 고객 없음")
         void searchOrders_fail_customer_not_found() throws Exception {
-            given(orderService.getMyOrders(any(), anyString(), any()))
+            given(orderService.getMyOrders(any(), anyString()))
                     .willThrow(new AppException(CUSTOMER_NOT_FOUND));
 
-            mockMvc.perform(get("/api/v1/orders/search"))
+            mockMvc.perform(get("/api/v1/orders"))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.result.errorCode").value(CUSTOMER_NOT_FOUND.name()))
                     .andDo(print());
         }
     }
+
+    @Nested
+    @DisplayName("주문 롤백")
+    class RollbackOrder {
+
+        @Test
+        @DisplayName("주문 롤백 성공")
+        void rollback_success() throws Exception {
+            OrderRollbackRequest request = new OrderRollbackRequest(UUID.randomUUID());
+            MessageResponse response = new MessageResponse("주문 롤백 완료");
+
+            given(orderService.rollbackOrder(anyString(), any(OrderRollbackRequest.class)))
+                    .willReturn(response);
+
+            mockMvc.perform(post("/api/v1/orders/rollback")
+                            .with(csrf())
+                            .contentType(APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.result.message").value("주문 롤백 완료"))
+                    .andDo(print());
+        }
+
+        @Test
+        @DisplayName("주문 롤백 실패 - 주문 없음")
+        void rollback_fail_order_not_found() throws Exception {
+            OrderRollbackRequest request = new OrderRollbackRequest(UUID.randomUUID());
+
+            given(orderService.rollbackOrder(anyString(), any(OrderRollbackRequest.class)))
+                    .willThrow(new AppException(ORDER_NOT_FOUND));
+
+            mockMvc.perform(post("/api/v1/orders/rollback")
+                            .with(csrf())
+                            .contentType(APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.result.errorCode").value(ORDER_NOT_FOUND.name()))
+                    .andDo(print());
+        }
+    }
+
 
     @Nested
     @DisplayName("주문 취소")

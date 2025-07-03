@@ -13,10 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.brand.Brand;
@@ -49,9 +45,7 @@ import store.myproject.onlineshop.repository.orderitem.OrderItemRepository;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -162,24 +156,23 @@ class OrderServiceTest {
         Delivery delivery = DeliveryFixture.createDelivery();
         Brand brand = BrandFixture.createBrandEntity();
         Item item = ItemFixture.createItemEntity(brand);
-        OrderSearchCond searchCond = new OrderSearchCond(); // 검색 조건이 비어 있을 경우 기본 테스트
-        Pageable pageable = PageRequest.of(0, 10);
+        OrderSearchCond searchCond = new OrderSearchCond();
 
         BigDecimal discountedPrice = customer.getMemberShip().applyDiscount(item.getPrice());
         OrderItem orderItem = OrderItem.createOrderItem(item, discountedPrice, 1L);
         Order order = Order.createOrder(UUID.randomUUID(), customer, delivery, orderItem);
 
-        Page<Order> orderPage = new PageImpl<>(List.of(order));
+        List<Order> orders = new ArrayList<>(List.of(order));
 
         given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
-        given(orderRepository.search(searchCond, customer, pageable)).willReturn(orderPage);
+        given(orderRepository.findMyOrders(searchCond, customer)).willReturn(orders);
 
         // when
-        Page<OrderInfo> result = orderService.getMyOrders(searchCond, customer.getEmail(), pageable);
+        MyOrderSliceResponse result = orderService.getMyOrders(searchCond, customer.getEmail());
 
         // then
-        assertThat(result).isNotNull();
-        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().size()).isEqualTo(1);
+        assertThat(result.getNextCursor()).isNull();
     }
 
     @Test
@@ -313,6 +306,101 @@ class OrderServiceTest {
     }
 
     @Test
+    @DisplayName("주문 롤백 성공")
+    void rollback_order_success() {
+        // given
+
+        UUID merchantUid = UUID.randomUUID();
+
+        Customer customer = CustomerFixture.createCustomerEntity();
+
+        Brand brand = BrandFixture.createBrandEntity();
+        Item item = ItemFixture.createItemEntity(brand);
+
+        OrderItem orderItem = OrderItem.createOrderItem(item, item.getPrice(), 2L);
+        Order order = Order.createOrder(merchantUid, customer, DeliveryFixture.createDelivery(), orderItem);
+
+        given(orderRepository.findByMerchantUid(merchantUid)).willReturn(Optional.of(order));
+        given(itemRepository.findPessimisticLockById(item.getId())).willReturn(Optional.of(item));
+        given(messageUtil.get(MessageCode.ORDER_ROLLBACK)).willReturn("주문 롤백 완료");
+
+        OrderRollbackRequest request = new OrderRollbackRequest(merchantUid);
+
+        // when
+        MessageResponse result = orderService.rollbackOrder(customer.getEmail(), request);
+
+        // then
+        assertThat(result.getMessage()).isEqualTo("주문 롤백 완료");
+        assertThat(item.getStock()).isEqualTo(40L);
+    }
+
+    @Test
+    @DisplayName("주문 롤백 실패 - 주문자 이메일 불일치")
+    void rollback_order_fail_unauthorized() {
+        // given
+        String email = "unauthorized@example.com";
+        UUID merchantUid = UUID.randomUUID();
+
+        Customer customer = CustomerFixture.createCustomerEntity();
+
+        Brand brand = BrandFixture.createBrandEntity();
+        Item item = ItemFixture.createItemEntity(brand);
+
+        OrderItem orderItem = OrderItem.createOrderItem(item, item.getPrice(), 2L);
+        Order order = Order.createOrder(merchantUid, customer, DeliveryFixture.createDelivery(), orderItem);
+
+        given(orderRepository.findByMerchantUid(merchantUid)).willReturn(Optional.of(order));
+
+        OrderRollbackRequest request = new OrderRollbackRequest(merchantUid);
+
+        // when & then
+        assertThatThrownBy(() -> orderService.rollbackOrder(email, request))
+                .isInstanceOf(AppException.class)
+                .hasMessage(ErrorCode.UNAUTHORIZED_ORDER_ACCESS.getMessage());
+    }
+
+    @Test
+    @DisplayName("주문 롤백 실패 - 주문 없음")
+    void rollback_order_fail_order_not_found() {
+        // given
+        UUID merchantUid = UUID.randomUUID();
+        OrderRollbackRequest request = new OrderRollbackRequest(merchantUid);
+
+        given(orderRepository.findByMerchantUid(merchantUid)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> orderService.rollbackOrder("test@example.com", request))
+                .isInstanceOf(AppException.class)
+                .hasMessage(ErrorCode.ORDER_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("주문 롤백 실패 - 상품 없음")
+    void rollback_order_fail_item_not_found() {
+        // given
+        String email = "test@example.com";
+        UUID merchantUid = UUID.randomUUID();
+
+        Customer customer = CustomerFixture.createCustomerEntity();
+
+        Brand brand = BrandFixture.createBrandEntity();
+        Item item = ItemFixture.createItemEntity(brand);
+
+        OrderItem orderItem = OrderItem.createOrderItem(item, item.getPrice(), 1L);
+        Order order = Order.createOrder(merchantUid, customer, DeliveryFixture.createDelivery(), orderItem);
+
+        given(orderRepository.findByMerchantUid(merchantUid)).willReturn(Optional.of(order));
+        given(itemRepository.findPessimisticLockById(item.getId())).willReturn(Optional.empty());
+
+        OrderRollbackRequest request = new OrderRollbackRequest(merchantUid);
+
+        // when & then
+        assertThatThrownBy(() -> orderService.rollbackOrder(email, request))
+                .isInstanceOf(AppException.class)
+                .hasMessage(ErrorCode.ITEM_NOT_FOUND.getMessage());
+    }
+
+    @Test
     @DisplayName("배송지 변경 성공")
     void update_delivery_info_success() {
         // given
@@ -403,7 +491,7 @@ class OrderServiceTest {
 
         CancelItemRequest request = OrderFixture.createCancelItemRequest(item.getUuid());
 
-        given(orderRepository.findPessimisticLockByMerchantUid(order.getMerchantUid())).willReturn(Optional.of(order));
+        given(orderRepository.findByMerchantUid(order.getMerchantUid())).willReturn(Optional.of(order));
         given(itemRepository.findIdByUuid(item.getUuid())).willReturn(Optional.of(item.getId()));
         given(itemRepository.findPessimisticLockById(item.getId())).willReturn(Optional.of(item));
         given(orderItemRepository.findByOrderAndItem(order, item)).willReturn(Optional.of(orderItem));
@@ -447,7 +535,7 @@ class OrderServiceTest {
 
         CancelItemRequest request = OrderFixture.createCancelItemRequest(item.getUuid());
 
-        given(orderRepository.findPessimisticLockByMerchantUid(order.getMerchantUid())).willReturn(Optional.of(order));
+        given(orderRepository.findByMerchantUid(order.getMerchantUid())).willReturn(Optional.of(order));
         given(itemRepository.findIdByUuid(item.getUuid())).willReturn(Optional.of(item.getId()));
         given(itemRepository.findPessimisticLockById(item.getId())).willReturn(Optional.of(item));
         given(orderItemRepository.findByOrderAndItem(order, item)).willReturn(Optional.empty());
@@ -474,7 +562,7 @@ class OrderServiceTest {
 
         CancelItemRequest request = OrderFixture.createCancelItemRequest(item.getUuid());
 
-        given(orderRepository.findPessimisticLockByMerchantUid(order.getMerchantUid())).willReturn(Optional.of(order));
+        given(orderRepository.findByMerchantUid(order.getMerchantUid())).willReturn(Optional.of(order));
         given(itemRepository.findIdByUuid(item.getUuid())).willReturn(Optional.of(item.getId()));
         given(itemRepository.findPessimisticLockById(item.getId())).willReturn(Optional.of(item));
         given(orderItemRepository.findByOrderAndItem(order, item)).willReturn(Optional.of(orderItem));

@@ -30,6 +30,7 @@ public class OrderSearchCond {
     @Schema(description = "커서 기준 merchantUid(UUID 문자열)", example = "ca125af9-5587-11f0-b3df-03453729bcd1", required = false)
     private String merchantUid;
 
+    @Builder.Default
     @Schema(description = "페이지 사이즈 (기본값 10)", example = "10", required = false)
     private int size = 10;
 }

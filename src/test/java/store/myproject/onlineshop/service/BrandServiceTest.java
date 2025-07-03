@@ -61,6 +61,7 @@ class BrandServiceTest {
     void find_brand_info_success() {
         // given
         UUID brandUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+        brand.addImage(imageFile);
 
         given(brandRepository.findByUuid(brandUuid)).willReturn(Optional.of(brand));
 
@@ -132,6 +133,8 @@ class BrandServiceTest {
     void update_brand_success_with_image_and_name() {
         UUID brandUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
+        brand.addImage(imageFile);
+
         BrandUpdateRequest request = BrandFixture.updateRequest();
         String newImageUrl = "s3://new-image";
 
@@ -193,6 +196,7 @@ class BrandServiceTest {
         // given
         UUID brandUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
+        brand.addImage(imageFile);
 
         given(brandRepository.findByUuid(brandUuid)).willReturn(Optional.of(brand));
         given(messageUtil.get(MessageCode.BRAND_DELETED)).willReturn("브랜드 삭제 성공");
