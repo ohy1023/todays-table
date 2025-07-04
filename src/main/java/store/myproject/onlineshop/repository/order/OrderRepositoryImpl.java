@@ -9,6 +9,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.order.Order;
+import store.myproject.onlineshop.domain.order.OrderStatus;
 import store.myproject.onlineshop.domain.order.dto.OrderSearchCond;
 
 import java.time.LocalDate;
@@ -39,7 +40,8 @@ public class OrderRepositoryImpl implements OrderCustomRepository {
                         fullTextSearchBrandName(cond.getBrandName()),
                         fullTextSearchItemName(cond.getItemName()),
                         createdDateBetween(cond.getFromDate(), cond.getToDate()),
-                        merchantUidLt(cond.getMerchantUid())
+                        merchantUidLt(cond.getMerchantUid()),
+                        isOrderOrCancelStatus()
                 )
                 .orderBy(order.merchantUid.desc())
                 .limit(cond.getSize() + 1)
@@ -49,6 +51,10 @@ public class OrderRepositoryImpl implements OrderCustomRepository {
 
     private BooleanExpression customerEq(Customer customer) {
         return ObjectUtils.isEmpty(customer) ? null : order.customer.eq(customer);
+    }
+
+    private BooleanExpression isOrderOrCancelStatus() {
+        return order.orderStatus.in(OrderStatus.ORDER, OrderStatus.CANCEL);
     }
 
     private BooleanExpression fullTextSearchBrandName(String brandName) {

@@ -19,7 +19,6 @@ import store.myproject.onlineshop.domain.order.dto.*;
 import store.myproject.onlineshop.service.OrderService;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -66,38 +65,9 @@ public class OrderController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.")
     })
     @PostMapping
-    public Response<OrderInfo> order(@Valid @RequestBody OrderInfoRequest request, Authentication authentication) {
-
+    public Response<MessageResponse> order(@Valid @RequestBody OrderInfoRequest request, Authentication authentication) {
         String email = authentication.getName();
-
-        OrderInfo response = orderService.placeSingleOrder(request, email);
-
-        return Response.success(response);
-    }
-
-    @Operation(summary = "주문 정보 롤백 (oder row 제거 및 재고 정합성)", description = "아임포트 결제 창 닫기 등의 이유로 결제 실패시 주문 롤백")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "주문이 성공적으로 롤백되었습니다."),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.")
-    })
-    @PostMapping("/rollback")
-    public Response<MessageResponse> order(@Valid @RequestBody OrderRollbackRequest request, Authentication authentication) {
-        return Response.success(orderService.rollbackOrder(authentication.getName(), request));
-    }
-
-    @Operation(summary = "해당 주문의 배송지 변경", description = "주문의 배송지 정보를 수정합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "배송지 변경 성공"),
-            @ApiResponse(responseCode = "404", description = "주문을 찾을 수 없음"),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청")
-    })
-    @PutMapping("/{merchantUid}")
-    public Response<MessageResponse> changeDeliveryInfo(
-            @Parameter(description = "주문 고유 식별자", example = "9115f8f7-2b3f-11f0-82bf-3b1848bfb7af", required = true)
-            @PathVariable UUID merchantUid,
-            @RequestBody DeliveryUpdateRequest request
-    ) {
-        return Response.success(orderService.updateDeliveryAddress(merchantUid, request));
+        return Response.success(orderService.placeSingleOrder(request, email));
     }
 
     @Operation(summary = "장바구니 내 품목 구매", description = "장바구니에 담긴 품목들을 구매합니다.")
@@ -106,13 +76,19 @@ public class OrderController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청")
     })
     @PostMapping("/cart")
-    public Response<List<OrderInfo>> order(@Valid @RequestBody CartOrderRequest request, Authentication authentication) {
-
+    public Response<MessageResponse> order(@Valid @RequestBody CartOrderRequest request, Authentication authentication) {
         String email = authentication.getName();
+        return Response.success(orderService.placeCartOrder(request, email));
+    }
 
-        List<OrderInfo> response = orderService.placeCartOrder(request, email);
-
-        return Response.success(response);
+    @Operation(summary = "주문 정보 롤백 (oderstatus 변경 및 재고 정합성)", description = "아임포트 결제 창 닫기 등의 이유로 결제 실패시 주문 롤백")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "주문이 성공적으로 롤백되었습니다."),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.")
+    })
+    @PostMapping("/rollback")
+    public Response<MessageResponse> order(@Valid @RequestBody OrderRollbackRequest request, Authentication authentication) {
+        return Response.success(orderService.rollbackOrder(authentication.getName(), request));
     }
 
     @Operation(summary = "주문 취소", description = "특정 주문을 취소합니다.")
@@ -150,4 +126,20 @@ public class OrderController {
         log.info("imp_uid:{}", postVerificationRequest.getImpUid());
         return Response.success(orderService.verifyPostPayment(postVerificationRequest));
     }
+
+    @Operation(summary = "해당 주문의 배송지 변경", description = "주문의 배송지 정보를 수정합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "배송지 변경 성공"),
+            @ApiResponse(responseCode = "404", description = "주문을 찾을 수 없음"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청")
+    })
+    @PutMapping("/{merchantUid}")
+    public Response<MessageResponse> changeDeliveryInfo(
+            @Parameter(description = "주문 고유 식별자", example = "9115f8f7-2b3f-11f0-82bf-3b1848bfb7af", required = true)
+            @PathVariable UUID merchantUid,
+            @RequestBody DeliveryUpdateRequest request
+    ) {
+        return Response.success(orderService.updateDeliveryAddress(merchantUid, request));
+    }
+
 }

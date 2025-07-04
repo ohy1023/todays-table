@@ -1,6 +1,7 @@
 package store.myproject.onlineshop.domain.cart.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import store.myproject.onlineshop.domain.delivery.dto.DeliveryInfoRequest;
+import store.myproject.onlineshop.domain.order.dto.OrderItemRequest;
+
+import java.util.List;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -41,6 +46,12 @@ public class CartOrderRequest {
     @Pattern(regexp = "\\d{5}", message = "우편번호는 5자리 숫자여야 합니다.")
     @Schema(description = "우편번호", example = "06236", requiredMode = Schema.RequiredMode.REQUIRED)
     private String recipientZipcode;
+
+    @Schema(description = "주문 아이템 목록", requiredMode = Schema.RequiredMode.REQUIRED)
+    private List<OrderItemRequest> orderItems;
+
+    @Schema(description = "주문 번호", requiredMode = Schema.RequiredMode.REQUIRED)
+    private UUID merchantUid;
 
     public DeliveryInfoRequest toDeliveryInfoRequest() {
         return DeliveryInfoRequest

@@ -12,7 +12,9 @@ import java.util.Optional;
 
 public interface CartItemRepository extends JpaRepository<CartItem, Long>, CartItemCustomRepository {
 
-    void deleteByCart(Cart cart);
+    @Modifying
+    @Query("delete from CartItem ci where ci.cart = :cart")
+    void deleteByCart(@Param("cart") Cart cart);
 
     void deleteByItem(Item item);
 

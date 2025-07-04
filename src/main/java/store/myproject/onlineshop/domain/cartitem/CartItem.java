@@ -28,9 +28,6 @@ public class CartItem {
     @JoinColumn(name = "cart_id")
     private Cart cart;
 
-    @Column(name = "order_bool")
-    private boolean isChecked;
-
     public void plusItemCnt(Long cnt) {
         this.cartItemCnt += cnt;
     }
@@ -38,7 +35,6 @@ public class CartItem {
     public static CartItem createCartItem(Item findItem, Long itemCnt, Cart cart) {
         return CartItem.builder()
                 .item(findItem)
-                .isChecked(true)
                 .cartItemCnt(itemCnt)
                 .cart(cart)
                 .build();

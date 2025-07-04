@@ -17,7 +17,6 @@ import store.myproject.onlineshop.domain.cart.Cart;
 import store.myproject.onlineshop.domain.cart.dto.CartOrderRequest;
 import store.myproject.onlineshop.global.utils.UUIDGenerator;
 import store.myproject.onlineshop.repository.cart.CartRepository;
-import store.myproject.onlineshop.domain.cartitem.CartItem;
 import store.myproject.onlineshop.repository.cartitem.CartItemRepository;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.repository.customer.CustomerRepository;
@@ -97,7 +96,7 @@ public class OrderService {
     }
 
     // 단건 주문
-    public OrderInfo placeSingleOrder(OrderInfoRequest request, String email) {
+    public MessageResponse placeSingleOrder(OrderInfoRequest request, String email) {
         Customer customer = getCustomerByEmail(email);
         MemberShip memberShip = customer.getMemberShip();
         Long itemId = itemRepository.findIdByUuid(request.getItemUuid())
@@ -118,7 +117,35 @@ public class OrderService {
         log.info("Total Price : {}", orderItem.getTotalPrice());
 
         Order savedOrder = orderRepository.save(order);
-        return savedOrder.toOrderInfo();
+        return new MessageResponse(savedOrder.getMerchantUid(), messageUtil.get(MessageCode.ORDER_COMPLETE));
+    }
+
+    // 장바구니 주문
+    public MessageResponse placeCartOrder(CartOrderRequest request, String email) {
+        Customer customer = getCustomerByEmail(email);
+
+        Cart cart = cartRepository.findByCustomer(customer)
+                .orElseThrow(() -> new AppException(CART_NOT_FOUND));
+
+        List<OrderItemRequest> orderItemRequests = request.getOrderItems();
+
+        if (orderItemRequests.isEmpty()) {
+            throw new AppException(CART_ITEM_NOT_EXIST_IN_CART);
+        }
+
+        MemberShip memberShip = customer.getMemberShip();
+        Delivery delivery = Delivery.createWithInfo(request.toDeliveryInfoRequest());
+        delivery.createDeliveryStatus(DeliveryStatus.READY);
+
+        List<OrderItem> orderItems = createOrderItemsFromCart(orderItemRequests, memberShip);
+        Order order = Order.createOrders(request.getMerchantUid(), customer, delivery, orderItems);
+        orderRepository.save(order);
+
+        orderItems.forEach(orderItem -> {
+            cartItemRepository.deleteCartItem(cart, orderItem.getItem());
+        });
+
+        return new MessageResponse(order.getMerchantUid(), messageUtil.get(MessageCode.ORDER_COMPLETE));
     }
 
     // 주문 롤백
@@ -150,50 +177,42 @@ public class OrderService {
 
     // 주문 취소
     public MessageResponse cancelOrder(UUID merchantUid, CancelItemRequest request) throws IamportResponseException, IOException {
+
         Order order = orderRepository.findByMerchantUid(merchantUid)
                 .orElseThrow(() -> new AppException(ORDER_NOT_FOUND));
 
-        Long itemId = itemRepository.findIdByUuid(request.getItemUuid())
-                .orElseThrow(() -> new AppException(ITEM_ID_NOT_FOUND));
+        BigDecimal totalRefundAmount = BigDecimal.ZERO;
 
-        Item item = itemRepository.findPessimisticLockById(itemId)
-                .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
+        if (request.getItemUuidList().isEmpty()) {
+            totalRefundAmount = totalRefundAmount.add(order.getTotalPrice());
+        } else {
+            List<UUID> itemUuidList = request.getItemUuidList();
 
-        OrderItem orderItem = orderItemRepository.findByOrderAndItem(order, item)
-                .orElseThrow(() -> new AppException(ORDER_ITEM_NOT_FOUND));
+            for (UUID uuid : itemUuidList) {
+                Long itemId = itemRepository.findIdByUuid(uuid)
+                        .orElseThrow(() -> new AppException(ITEM_ID_NOT_FOUND));
 
-        cancelReservation(new CancelRequest(order.getImpUid(), orderItem.getOrderPrice()));
-        item.increase(orderItem.getCount());
+                Item item = itemRepository.findPessimisticLockById(itemId)
+                        .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
+
+                OrderItem orderItem = orderItemRepository.findByOrderAndItem(order, item)
+                        .orElseThrow(() -> new AppException(ORDER_ITEM_NOT_FOUND));
+
+                item.increase(orderItem.getCount());
+                totalRefundAmount = totalRefundAmount.add(orderItem.getOrderPrice());
+            }
+
+        }
+
+        cancelReservation(new CancelRequest(order.getImpUid(), totalRefundAmount));
+
         order.getDelivery().cancelDelivery();
         order.cancelPayment();
-
-        asyncCustomerService.subtractMonthlyPurchaseAmount(order.getCustomer().getId(), orderItem.getOrderPrice());
+        asyncCustomerService.subtractMonthlyPurchaseAmount(order.getCustomer().getId(), totalRefundAmount);
 
         return new MessageResponse(order.getMerchantUid(), messageUtil.get(MessageCode.ORDER_CANCEL));
     }
 
-    // 장바구니 주문
-    public List<OrderInfo> placeCartOrder(CartOrderRequest request, String email) {
-        Customer customer = getCustomerByEmail(email);
-        Cart cart = cartRepository.findByCustomer(customer)
-                .orElseThrow(() -> new AppException(CART_NOT_FOUND));
-
-        validateCartItems(cart.getCartItems());
-
-        MemberShip memberShip = customer.getMemberShip();
-        Delivery delivery = Delivery.createWithInfo(request.toDeliveryInfoRequest());
-        delivery.createDeliveryStatus(DeliveryStatus.READY);
-
-        List<OrderItem> orderItems = createOrderItemsFromCart(cart.getCartItems(), memberShip);
-        Order order = Order.createOrders(customer, delivery, orderItems);
-        orderRepository.save(order);
-
-        orderItems.forEach(orderItem -> {
-            clearCartItem(cart, orderItem);
-        });
-
-        return orderItems.stream().map(item -> order.toOrderInfo()).toList();
-    }
 
     // 결제 사전 검증
     public PreparationResponse validatePrePayment(PreparationRequest request) throws IamportResponseException, IOException {
@@ -298,29 +317,22 @@ public class OrderService {
         return new CancelData(payment.getImpUid(), true, refundAmount);
     }
 
-    private void validateCartItems(List<CartItem> cartItems) {
-        if (cartItems.isEmpty()) {
-            throw new AppException(CART_ITEM_NOT_EXIST_IN_CART);
-        }
-        if (cartItems.stream().noneMatch(CartItem::isChecked)) {
-            throw new AppException(CHECK_NOT_EXIST_IN_CART);
-        }
-    }
+    private List<OrderItem> createOrderItemsFromCart(List<OrderItemRequest> orderItemRequests, MemberShip memberShip) {
+        List<OrderItem> orderItems = new ArrayList<>();
 
-    private List<OrderItem> createOrderItemsFromCart(List<CartItem> cartItems, MemberShip memberShip) {
-        List<OrderItem> orderItemList = new ArrayList<>();
+        for (OrderItemRequest itemRequest : orderItemRequests) {
+            Long itemId = itemRepository.findIdByUuid(itemRequest.getItemUuid())
+                    .orElseThrow(() -> new AppException(ITEM_ID_NOT_FOUND));
+            Item item = itemRepository.findPessimisticLockById(itemId)
+                    .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
 
-        for (CartItem cartItem : cartItems) {
-            if (cartItem.isChecked()) {
-                Long itemId = itemRepository.findIdByUuid(cartItem.getItem().getUuid())
-                        .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
-                Item item = itemRepository.findPessimisticLockById(itemId)
-                        .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
-                BigDecimal discountedPrice = memberShip.applyDiscount(cartItem.getItem().getPrice());
-                orderItemList.add(OrderItem.createOrderItem(item, discountedPrice, cartItem.getCartItemCnt()));
-            }
+            BigDecimal discountedPrice = memberShip.applyDiscount(item.getPrice());
+
+            OrderItem orderItem = OrderItem.createOrderItem(item, discountedPrice, itemRequest.getItemCnt());
+            orderItems.add(orderItem);
         }
-        return orderItemList;
+
+        return orderItems;
     }
 
     private void clearCartItem(Cart cart, OrderItem orderItem) {

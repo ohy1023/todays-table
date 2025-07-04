@@ -105,7 +105,7 @@ public class ItemService {
                     throw new AppException(DUPLICATE_ITEM);
                 }));
 
-        Brand findBrand = getBrand(request.getBrandName());
+        Brand findBrand = getBrandByName(request.getBrandName());
 
         Item savedItem = itemRepository.save(request.toEntity(findBrand));
 
@@ -131,7 +131,10 @@ public class ItemService {
 
         Item findItem = getItemByUuid(uuid);
 
-        Brand findBrand = getBrand(request.getBrandName());
+        Brand findBrand = null;
+        if (request.getBrandName() != null) {
+            findBrand = getBrandByName(request.getBrandName());
+        }
 
         findItem.updateItem(request, findBrand);
 
@@ -191,7 +194,7 @@ public class ItemService {
                 .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
     }
 
-    private Brand getBrand(String brandName) {
+    private Brand getBrandByName(String brandName) {
         return brandRepository.findBrandByName(brandName)
                 .orElseThrow(() -> new AppException(BRAND_NOT_FOUND));
     }

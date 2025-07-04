@@ -43,6 +43,7 @@ public enum MessageCode {
     ORDER_ROLLBACK("order.rollback"),
     ORDER_CANCEL("order.cancel"),
     ORDER_POST_VERIFICATION("order.post.verification"),
+    ORDER_COMPLETE("order.complete"),
 
     // 장바구니 관련
     CART_ITEM_ADDED("cart.item.added"),

@@ -14,20 +14,16 @@ import java.math.BigDecimal;
 @Schema(description = "품목 정보 수정 요청 DTO")
 public class ItemUpdateRequest {
 
-    @NotBlank(message = "아이템 이름은 비어 있을 수 없습니다.")
-    @Schema(description = "아이템 이름", example = "Onion", required = true)
+    @Schema(description = "아이템 이름", example = "Onion")
     private String itemName;
 
-    @NotNull(message = "가격은 비어 있을 수 없습니다.")
-    @Schema(description = "가격", example = "299.99", required = true)
+    @Schema(description = "가격", example = "299.99")
     private BigDecimal price;
 
-    @NotNull(message = "재고 수량은 비어 있을 수 없습니다.")
-    @Schema(description = "재고 수량", example = "100", required = true)
+    @Schema(description = "재고 수량", example = "100")
     private Long stock;
 
-    @NotBlank(message = "브랜드 이름은 비어 있을 수 없습니다.")
-    @Schema(description = "브랜드 이름", example = "애플", required = true)
+    @Schema(description = "브랜드 이름", example = "애플")
     private String brandName;
 
 }

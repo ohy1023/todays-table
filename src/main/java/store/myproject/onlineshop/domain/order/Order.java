@@ -102,7 +102,7 @@ public class Order extends BaseEntity {
         return order;
     }
 
-    public static Order createOrders(Customer customer, Delivery delivery, List<OrderItem> orderItems) {
+    public static Order createOrders(UUID merchantUid, Customer customer, Delivery delivery, List<OrderItem> orderItems) {
 
         BigDecimal totalPrice = BigDecimal.ZERO;
 
@@ -115,7 +115,7 @@ public class Order extends BaseEntity {
                 .delivery(delivery)
                 .totalPrice(totalPrice)
                 .orderStatus(READY)
-                .merchantUid(UUIDGenerator.generateUUIDv7())
+                .merchantUid(merchantUid)
                 .build();
 
         for (OrderItem orderItem : orderItems) {
@@ -129,11 +129,22 @@ public class Order extends BaseEntity {
 
         String address = this.delivery.getAddress().getCity() + " " + this.delivery.getAddress().getStreet() + " " + this.delivery.getAddress().getDetail();
 
+        List<OrderItemResponse> orderItemResponses = this.orderItemList.stream().map(
+                        orderItem -> OrderItemResponse.builder()
+                                .itemUuid(orderItem.getItem().getUuid())
+                                .orderPrice(orderItem.getOrderPrice())
+                                .itemName(orderItem.getItem().getItemName())
+                                .thumbnail(orderItem.getItem().getThumbnail())
+                                .count(orderItem.getCount())
+                                .brandUuid(orderItem.getItem().getBrand().getUuid())
+                                .brandName(orderItem.getItem().getBrand().getName())
+                                .build()
+                )
+                .toList();
+
         return OrderInfo.builder()
                 .merchantUid(this.merchantUid)
-                .brandName(this.orderItemList.get(0).getItem().getBrand().getName())
-                .itemUuid(this.orderItemList.get(0).getItem().getUuid())
-                .itemName(this.orderItemList.get(0).getItem().getItemName())
+                .orderItemList(orderItemResponses)
                 .totalPrice(this.totalPrice)
                 .orderDate(
                         Optional.ofNullable(this.getCreatedDate())

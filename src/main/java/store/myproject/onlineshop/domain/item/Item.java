@@ -99,10 +99,18 @@ public class Item extends BaseEntity {
 
     // 상품을 업데이트하는 메서드 (요청과 브랜드를 기반으로)
     public void updateItem(ItemUpdateRequest updateRequest, Brand findBrand) {
-        this.itemName = updateRequest.getItemName();
-        this.price = updateRequest.getPrice();
-        this.brand = findBrand;
-        this.stock = updateRequest.getStock();
+        if (updateRequest.getItemName() != null) {
+            this.itemName = updateRequest.getItemName();
+        }
+        if (updateRequest.getPrice() != null) {
+            this.price = updateRequest.getPrice();
+        }
+        if (findBrand != null) {
+            this.brand = findBrand;
+        }
+        if (updateRequest.getStock() != null) {
+            this.stock = updateRequest.getStock();
+        }
     }
 
     // 상품을 DTO로 변환하는 메서드

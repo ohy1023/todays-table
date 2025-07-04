@@ -88,4 +88,12 @@ public class CartController {
         Page<CartItemResponse> response = cartService.getCartItems(email, pageable);
         return Response.success(response);
     }
+
+
+    @PostMapping("/init-cart-items")
+    public Response<MessageResponse> insertInitialCartItems(Authentication authentication) {
+        String email = authentication.getName();
+        cartService.insertInitialCartItems(email);
+        return Response.success(new MessageResponse("장바구니에 초기 아이템 3개가 삽입되었습니다."));
+    }
 }

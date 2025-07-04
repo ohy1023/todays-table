@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -16,14 +17,16 @@ public class OrderInfo {
     @Schema(description = "주문 UUID", example = "a9dc96bf-2b1b-11f0-b1f0-5b9e0b864120")
     private UUID merchantUid;
 
-    @Schema(description = "브랜드 이름", example = "풀무원")
-    private String brandName;
-
-    @Schema(description = "상품 번호",  example = "a9dc96bf-2b1b-11f0-b1f0-5b9e0b864120")
-    private UUID itemUuid;
-
-    @Schema(description = "상품 이름", example = "대파")
-    private String itemName;
+    private List<OrderItemResponse> orderItemList;
+//
+//    @Schema(description = "브랜드 이름", example = "풀무원")
+//    private String brandName;
+//
+//    @Schema(description = "상품 번호",  example = "a9dc96bf-2b1b-11f0-b1f0-5b9e0b864120")
+//    private UUID itemUuid;
+//
+//    @Schema(description = "상품 이름", example = "대파")
+//    private String itemName;
 
     @Schema(description = "주문 일자", example = "2025-05-08")
     private String orderDate;

@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -14,7 +15,7 @@ import java.util.UUID;
 @Schema(description = "주문 품목 취소 요청 DTO")
 public class CancelItemRequest {
 
-    @Schema(description = "취소할 상품 UUID", example = "13dd3e84-2b3a-11f0-9aef-59f7f88a8400", required = true)
-    @NotNull(message = "상품 UUID는 필수입니다.")
-    private UUID itemUuid;
+    private String impUid;
+
+    private List<UUID> itemUuidList;
 }

@@ -4,7 +4,6 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,22 +30,14 @@ public class CartItemRepositoryImpl implements CartItemCustomRepository {
                 .select(new QCartItemResponse(
                         item.uuid,
                         item.itemName,
-                        imageFile.imageUrl.min(),
+                        item.thumbnail,
                         item.price,
-                        item.stock,
                         cartItem.cartItemCnt)
                 )
                 .from(cartItem)
-                .leftJoin(cartItem.item, item)
-                .leftJoin(item.imageFileList, imageFile)
+                .join(cartItem.item, item)
                 .where(cartEq(findCart))
-                .groupBy(
-                        item.id,
-                        item.itemName,
-                        item.price,
-                        item.stock,
-                        cartItem.cartItemCnt
-                )
+                .orderBy(cartItem.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();

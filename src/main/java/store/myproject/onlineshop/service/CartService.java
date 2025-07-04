@@ -3,6 +3,7 @@ package store.myproject.onlineshop.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ import store.myproject.onlineshop.repository.item.ItemRepository;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.utils.MessageUtil;
 
+import java.util.List;
 import java.util.UUID;
 
 import static store.myproject.onlineshop.exception.ErrorCode.*;
@@ -81,12 +83,36 @@ public class CartService {
      * 장바구니에서 특정 품목 삭제
      */
     public MessageResponse deleteItemFromCart(UUID uuid, String email) {
-        findCustomerByEmail(email); // 고객 존재 여부 확인
+        Customer customer = findCustomerByEmail(email);// 고객 존재 여부 확인
+
+        Cart cart = cartRepository.findByCustomer(customer)
+                .orElseThrow(() -> new AppException(CART_NOT_FOUND));
+
+
         Item item = itemRepository.findByUuid(uuid)
                 .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
 
-        cartItemRepository.deleteByItem(item);
+        cartItemRepository.deleteCartItem(cart, item);
+
         return new MessageResponse(messageUtil.get(MessageCode.CART_ITEM_DELETED));
+    }
+
+    public void insertInitialCartItems(String email) {
+
+        Customer customer = findCustomerByEmail(email);
+
+        Cart cart = findCartByCustomer(customer);
+
+        cartItemRepository.deleteByCart(cart);
+
+        List<Item> items = itemRepository.findTop3ByOrderByIdAsc(PageRequest.of(0, 3));
+
+        for (Item item : items) {
+            Long count = 1L;
+            CartItem newCartItem = CartItem.createCartItem(item, count, cart);
+            cartItemRepository.save(newCartItem);
+        }
+
     }
 
     // === private utils ===
