@@ -209,6 +209,7 @@ class CartServiceTest {
     void delete_item_from_cart_success() {
         // given
         given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
+        given(cartRepository.findByCustomer(customer)).willReturn(Optional.of(cart));
         given(itemRepository.findByUuid(item.getUuid())).willReturn(Optional.of(item));
         given(messageUtil.get(MessageCode.CART_ITEM_DELETED)).willReturn("삭제 성공");
 
@@ -216,7 +217,7 @@ class CartServiceTest {
         MessageResponse response = cartService.deleteItemFromCart(item.getUuid(), customer.getEmail());
 
         // then
-        then(cartItemRepository).should().deleteByItem(item);
+        then(cartItemRepository).should().deleteCartItem(cart, item);
         assertThat(response.getMessage()).isEqualTo("삭제 성공");
     }
 
@@ -225,7 +226,8 @@ class CartServiceTest {
     void delete_item_from_cart_fail_if_item_not_found() {
         // given
         given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
-        given(itemRepository.findByUuid(any())).willReturn(Optional.empty());
+        given(cartRepository.findByCustomer(customer)).willReturn(Optional.of(cart));
+        given(itemRepository.findByUuid(item.getUuid())).willReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> cartService.deleteItemFromCart(item.getUuid(), customer.getEmail()))

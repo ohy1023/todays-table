@@ -17,7 +17,6 @@ import store.myproject.onlineshop.fixture.OrderFixture;
 import store.myproject.onlineshop.service.OrderService;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -51,7 +50,7 @@ class OrderControllerTest {
         @DisplayName("단건 주문 성공")
         void orderByOne_success() throws Exception {
             OrderInfoRequest request = OrderFixture.createOrderInfoRequest();
-            OrderInfo response = OrderFixture.createOrderInfo();
+            MessageResponse response = new MessageResponse("단건 주문 완료");
 
             given(orderService.placeSingleOrder(any(), anyString())).willReturn(response);
 
@@ -190,8 +189,9 @@ class OrderControllerTest {
         @Test
         @DisplayName("주문 취소 성공")
         void cancel_success() throws Exception {
+            String impUid = "imp_12354";
             UUID orderUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-            CancelItemRequest request = OrderFixture.createCancelItemRequest(orderUuid);
+            CancelItemRequest request = OrderFixture.createCancelItemRequest(impUid, orderUuid);
 
             given(orderService.cancelOrder(any(UUID.class), any(CancelItemRequest.class))).willReturn(new MessageResponse("주문이 취소되었습니다."));
 
@@ -208,8 +208,9 @@ class OrderControllerTest {
         @Test
         @DisplayName("주문 취소 실패 - 주문 없음")
         void cancel_fail_order_not_found() throws Exception {
+            String impUid = "imp_12354";
             UUID orderUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-            CancelItemRequest request = OrderFixture.createCancelItemRequest(orderUuid);
+            CancelItemRequest request = OrderFixture.createCancelItemRequest(impUid, orderUuid);
 
             given(orderService.cancelOrder(any(UUID.class), any(CancelItemRequest.class)))
                     .willThrow(new AppException(ORDER_NOT_FOUND));
@@ -273,7 +274,7 @@ class OrderControllerTest {
         @DisplayName("장바구니 주문 성공")
         void orderByCart_success() throws Exception {
             CartOrderRequest request = OrderFixture.createCartOrderRequest();
-            List<OrderInfo> response = List.of(OrderFixture.createOrderInfo());
+            MessageResponse response = new MessageResponse("장바구니 주문 완료");
 
             given(orderService.placeCartOrder(any(), anyString())).willReturn(response);
 

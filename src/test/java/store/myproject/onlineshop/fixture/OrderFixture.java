@@ -7,6 +7,8 @@ import store.myproject.onlineshop.domain.cart.dto.CartOrderRequest;
 import store.myproject.onlineshop.domain.order.dto.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -29,9 +31,19 @@ public class OrderFixture {
     }
 
     public static OrderInfo createOrderInfo() {
-        return OrderInfo.builder()
+        List<OrderItemResponse> orderItemResponses = new ArrayList<>();
+        orderItemResponses.add(OrderItemResponse.builder()
+                .itemUuid(UUID.fromString(faker.internet().uuid()))
+                .orderPrice(BigDecimal.valueOf(1000L))
+                .count(2L)
+                .brandUuid(UUID.randomUUID())
                 .brandName(faker.company().name())
+                .itemUuid(UUID.randomUUID())
                 .itemName(faker.commerce().productName())
+                .build());
+
+        return OrderInfo.builder()
+                .orderItemList(orderItemResponses)
                 .orderDate(faker.date().birthday().toString())
                 .orderStatus("DELIVERED")
                 .orderCustomerName(faker.name().fullName())
@@ -57,8 +69,8 @@ public class OrderFixture {
                 .build();
     }
 
-    public static CancelItemRequest createCancelItemRequest(UUID uuid) {
-        return new CancelItemRequest(uuid);
+    public static CancelItemRequest createCancelItemRequest(String impUid, UUID uuid) {
+        return new CancelItemRequest(impUid, List.of(uuid));
     }
 
     public static PreparationRequest createPreparationRequest() {

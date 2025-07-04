@@ -227,20 +227,12 @@ class OrderServiceTest {
         given(orderRepository.save(any(Order.class)))
                 .willAnswer(invocation -> invocation.getArgument(0)); // 저장된 Order 그대로 리턴
 
-
-        BigDecimal totalPrice = item.getPrice()
-                .multiply(BigDecimal.valueOf(itemCnt))
-                .multiply(BigDecimal.ONE.subtract(BRONZE.getDiscountRate()));
-
-
         // when
-        OrderInfo result = orderService.placeSingleOrder(request, email);
+        MessageResponse result = orderService.placeSingleOrder(request, email);
 
         // then
         assertThat(result).isNotNull();
-        assertThat(result.getItemName()).isEqualTo(item.getItemName());
-        assertThat(result.getBrandName()).isEqualTo(item.getBrand().getName());
-        assertThat(result.getTotalPrice()).isEqualTo(totalPrice);
+
 
     }
 
@@ -489,7 +481,7 @@ class OrderServiceTest {
         Order order = Order.createOrder(UUID.randomUUID(), customer, DeliveryFixture.createDelivery(), orderItem);
         order.setImpUid(impUid);
 
-        CancelItemRequest request = OrderFixture.createCancelItemRequest(item.getUuid());
+        CancelItemRequest request = OrderFixture.createCancelItemRequest(impUid, item.getUuid());
 
         given(orderRepository.findByMerchantUid(order.getMerchantUid())).willReturn(Optional.of(order));
         given(itemRepository.findIdByUuid(item.getUuid())).willReturn(Optional.of(item.getId()));
@@ -533,7 +525,7 @@ class OrderServiceTest {
         Order order = Order.createOrder(UUID.randomUUID(), customer, DeliveryFixture.createDelivery(), orderItem);
         order.setImpUid(impUid);
 
-        CancelItemRequest request = OrderFixture.createCancelItemRequest(item.getUuid());
+        CancelItemRequest request = OrderFixture.createCancelItemRequest(impUid, item.getUuid());
 
         given(orderRepository.findByMerchantUid(order.getMerchantUid())).willReturn(Optional.of(order));
         given(itemRepository.findIdByUuid(item.getUuid())).willReturn(Optional.of(item.getId()));
@@ -560,7 +552,7 @@ class OrderServiceTest {
         Order order = Order.createOrder(UUID.randomUUID(), customer, DeliveryFixture.createDelivery(), orderItem);
         order.setImpUid(impUid);
 
-        CancelItemRequest request = OrderFixture.createCancelItemRequest(item.getUuid());
+        CancelItemRequest request = OrderFixture.createCancelItemRequest(impUid, item.getUuid());
 
         given(orderRepository.findByMerchantUid(order.getMerchantUid())).willReturn(Optional.of(order));
         given(itemRepository.findIdByUuid(item.getUuid())).willReturn(Optional.of(item.getId()));
@@ -784,12 +776,20 @@ class OrderServiceTest {
                 .orderStatus(OrderStatus.ORDER)
                 .build();
 
-        given(customerRepository.findByEmail(email)).willReturn(Optional.of(customer));
-        given(itemRepository.findIdByUuid(cartItem1.getItem().getUuid())).willReturn(Optional.of(item1.getId()));
-        given(itemRepository.findPessimisticLockById(item1.getId())).willReturn(Optional.of(item1));
-        given(cartRepository.findByCustomer(customer)).willReturn(Optional.of(cart));
-        given(orderRepository.save(any(Order.class))).willReturn(savedOrder);
-        doNothing().when(cartItemRepository).deleteCartItem(any(Cart.class), any(Item.class));
+        List<OrderItemRequest> orderItemRequests = new ArrayList<>();
+
+        orderItemRequests.add(
+                OrderItemRequest.builder()
+                        .itemCnt(1L)
+                        .itemUuid(item1.getUuid())
+                        .build());
+
+        orderItemRequests.add(
+                OrderItemRequest.builder()
+                        .itemCnt(1L)
+                        .itemUuid(item2.getUuid())
+                        .build());
+
 
         CartOrderRequest request = CartOrderRequest.builder()
                 .recipientName("홍길동")
@@ -798,13 +798,24 @@ class OrderServiceTest {
                 .recipientStreet("송파구 가락동")
                 .recipientDetail("101동 202호")
                 .recipientZipcode("12345")
+                .merchantUid(UUID.randomUUID())
+                .orderItems(orderItemRequests)
                 .build();
 
+
+        given(customerRepository.findByEmail(email)).willReturn(Optional.of(customer));
+        given(itemRepository.findIdByUuid(cartItem1.getItem().getUuid())).willReturn(Optional.of(item1.getId()));
+        given(itemRepository.findPessimisticLockById(item1.getId())).willReturn(Optional.of(item1));
+        given(cartRepository.findByCustomer(customer)).willReturn(Optional.of(cart));
+        given(orderRepository.save(any(Order.class))).willReturn(savedOrder);
+        doNothing().when(cartItemRepository).deleteCartItem(any(Cart.class), any(Item.class));
+
+
         // when
-        List<OrderInfo> result = orderService.placeCartOrder(request, email);
+        MessageResponse result = orderService.placeCartOrder(request, email);
 
         // then
-        assertThat(result).hasSize(2);
+        assertThat(result).isNotNull();
     }
 
 
