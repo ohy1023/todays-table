@@ -6,6 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import store.myproject.onlineshop.domain.faillog.AsyncFailureLog;
+import store.myproject.onlineshop.repository.asyncFailureLog.AsyncFailureLogRepository;
 import store.myproject.onlineshop.repository.recipemeta.RecipeMetaRepository;
 
 import static org.mockito.BDDMockito.*;
@@ -13,8 +15,14 @@ import static org.mockito.BDDMockito.*;
 @ExtendWith(MockitoExtension.class)
 class RecipeMetaServiceTest {
 
+    private static final int SUCCESS_CALL_COUNT = 1;
+    private static final int FAILURE_RETRY_CALL_COUNT = 4; // 실패 시 재시도 포함 총 4번 호출
+
     @Mock
     private RecipeMetaRepository recipeMetaRepository;
+
+    @Mock
+    private AsyncFailureLogRepository asyncFailureLogRepository;
 
     @InjectMocks
     private RecipeMetaService recipeMetaService;
@@ -29,7 +37,7 @@ class RecipeMetaServiceTest {
         recipeMetaService.asyncIncreaseViewCnt(recipeMetaId);
 
         // then
-        then(recipeMetaRepository).should(times(1)).incrementViewCnt(recipeMetaId);
+        then(recipeMetaRepository).should(times(SUCCESS_CALL_COUNT)).incrementViewCnt(recipeMetaId);
     }
 
 
@@ -38,14 +46,15 @@ class RecipeMetaServiceTest {
     void async_increase_view_count_fail() {
         // given
         Long recipeMetaId = 1L;
-        willThrow(new RuntimeException("DB 오류"))
+        willThrow(new RuntimeException("비동기 실행 오류"))
                 .given(recipeMetaRepository).incrementViewCnt(recipeMetaId);
 
         // when
         recipeMetaService.asyncIncreaseViewCnt(recipeMetaId);
 
         // then
-        then(recipeMetaRepository).should(times(1)).incrementViewCnt(recipeMetaId);
+        then(recipeMetaRepository).should(times(FAILURE_RETRY_CALL_COUNT)).incrementViewCnt(recipeMetaId); // 재시도 횟수 포함 4번 호출
+        then(asyncFailureLogRepository).should(times(1)).save(any(AsyncFailureLog.class)); // 최종 실패 로그 저장
     }
 
     @Test
@@ -58,7 +67,7 @@ class RecipeMetaServiceTest {
         recipeMetaService.asyncIncreaseLikeCnt(recipeMetaId);
 
         // then
-        then(recipeMetaRepository).should(times(1)).incrementLikeCnt(recipeMetaId);
+        then(recipeMetaRepository).should(times(SUCCESS_CALL_COUNT)).incrementLikeCnt(recipeMetaId);
     }
 
     @Test
@@ -66,14 +75,15 @@ class RecipeMetaServiceTest {
     void async_increase_like_count_fail() {
         // given
         Long recipeMetaId = 1L;
-        willThrow(new RuntimeException("DB 오류"))
+        willThrow(new RuntimeException("비동기 실행 오류"))
                 .given(recipeMetaRepository).incrementLikeCnt(recipeMetaId);
 
         // when
         recipeMetaService.asyncIncreaseLikeCnt(recipeMetaId);
 
         // then
-        then(recipeMetaRepository).should(times(1)).incrementLikeCnt(recipeMetaId);
+        then(recipeMetaRepository).should(times(FAILURE_RETRY_CALL_COUNT)).incrementLikeCnt(recipeMetaId);
+        then(asyncFailureLogRepository).should(times(1)).save(any(AsyncFailureLog.class));
     }
 
 
@@ -87,7 +97,7 @@ class RecipeMetaServiceTest {
         recipeMetaService.asyncDecreaseLikeCnt(recipeMetaId);
 
         // then
-        then(recipeMetaRepository).should(times(1)).decrementLikeCnt(recipeMetaId);
+        then(recipeMetaRepository).should(times(SUCCESS_CALL_COUNT)).decrementLikeCnt(recipeMetaId);
     }
 
     @Test
@@ -95,14 +105,15 @@ class RecipeMetaServiceTest {
     void async_decrease_like_count_fail() {
         // given
         Long recipeMetaId = 1L;
-        willThrow(new RuntimeException("DB 오류"))
+        willThrow(new RuntimeException("비동기 실행 오류"))
                 .given(recipeMetaRepository).decrementLikeCnt(recipeMetaId);
 
         // when
         recipeMetaService.asyncDecreaseLikeCnt(recipeMetaId);
 
         // then
-        then(recipeMetaRepository).should(times(1)).decrementLikeCnt(recipeMetaId);
+        then(recipeMetaRepository).should(times(FAILURE_RETRY_CALL_COUNT)).decrementLikeCnt(recipeMetaId);
+        then(asyncFailureLogRepository).should(times(1)).save(any(AsyncFailureLog.class));
     }
 
     @Test
@@ -115,7 +126,7 @@ class RecipeMetaServiceTest {
         recipeMetaService.asyncIncreaseReviewCnt(recipeMetaId);
 
         // then
-        then(recipeMetaRepository).should(times(1)).incrementReviewCnt(recipeMetaId);
+        then(recipeMetaRepository).should(times(SUCCESS_CALL_COUNT)).incrementReviewCnt(recipeMetaId);
     }
 
     @Test
@@ -123,14 +134,15 @@ class RecipeMetaServiceTest {
     void async_increase_review_count_fail() {
         // given
         Long recipeMetaId = 1L;
-        willThrow(new RuntimeException("DB 오류"))
+        willThrow(new RuntimeException("비동기 실행 오류"))
                 .given(recipeMetaRepository).incrementReviewCnt(recipeMetaId);
 
         // when
         recipeMetaService.asyncIncreaseReviewCnt(recipeMetaId);
 
         // then
-        then(recipeMetaRepository).should(times(1)).incrementReviewCnt(recipeMetaId);
+        then(recipeMetaRepository).should(times(FAILURE_RETRY_CALL_COUNT)).incrementReviewCnt(recipeMetaId);
+        then(asyncFailureLogRepository).should(times(1)).save(any(AsyncFailureLog.class));
     }
 
     @Test
@@ -143,7 +155,7 @@ class RecipeMetaServiceTest {
         recipeMetaService.asyncDecreaseReviewCnt(recipeMetaId);
 
         // then
-        then(recipeMetaRepository).should(times(1)).decrementReviewCnt(recipeMetaId);
+        then(recipeMetaRepository).should(times(SUCCESS_CALL_COUNT)).decrementReviewCnt(recipeMetaId);
     }
 
 
@@ -152,15 +164,15 @@ class RecipeMetaServiceTest {
     void async_decrease_review_count_fail() {
         // given
         Long recipeMetaId = 1L;
-        willThrow(new RuntimeException("DB 오류"))
+        willThrow(new RuntimeException("비동기 실행 오류"))
                 .given(recipeMetaRepository).decrementReviewCnt(recipeMetaId);
 
         // when
         recipeMetaService.asyncDecreaseReviewCnt(recipeMetaId);
 
         // then
-        then(recipeMetaRepository).should(times(1)).decrementReviewCnt(recipeMetaId);
+        then(recipeMetaRepository).should(times(FAILURE_RETRY_CALL_COUNT)).decrementReviewCnt(recipeMetaId);
+        then(asyncFailureLogRepository).should(times(1)).save(any(AsyncFailureLog.class));
     }
-
 
 }
