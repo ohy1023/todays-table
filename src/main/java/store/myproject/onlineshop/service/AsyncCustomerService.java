@@ -71,7 +71,7 @@ public class AsyncCustomerService {
     private void saveFailureRecord(Long customerId, BigDecimal amount, JobType jobType, String errorMessage) {
         AsyncFailureLog asyncFailureLog = AsyncFailureLog.builder()
                 .jobType(jobType)
-                .status(FailureStatus.FAILED)
+                .failureStatus(FailureStatus.FAILED)
                 .targetId(customerId)
                 .amount(amount)
                 .errorMessage(errorMessage)

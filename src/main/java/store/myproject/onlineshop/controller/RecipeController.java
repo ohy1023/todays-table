@@ -8,10 +8,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -45,7 +43,10 @@ public class RecipeController {
     public Response<RecipeDto> viewOneRecipe(
             @Parameter(description = "조회할 레시피 UUID", example = "13dd3e84-2b3a-11f0-9aef-59f7f88a8400", required = true)
             @PathVariable UUID recipeUuid) {
-        return Response.success(recipeService.getRecipeDetail(recipeUuid));
+        RecipeDto recipeDetail = recipeService.getRecipeDetail(recipeUuid);
+        recipeService.increaseRecipeViewCount(recipeUuid);
+
+        return Response.success(recipeDetail);
     }
 
     @Operation(summary = "레시피 단건 통계 정보 조회", description = "특정 레시피의 통계 정보를 조회합니다.")

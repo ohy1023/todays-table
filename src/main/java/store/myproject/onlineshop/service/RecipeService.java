@@ -1,6 +1,7 @@
 package store.myproject.onlineshop.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,9 @@ import store.myproject.onlineshop.domain.MessageCode;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.customer.CustomerRole;
+import store.myproject.onlineshop.domain.faillog.AsyncFailureLog;
+import store.myproject.onlineshop.domain.faillog.FailureStatus;
+import store.myproject.onlineshop.domain.faillog.JobType;
 import store.myproject.onlineshop.domain.recipe.dto.*;
 import store.myproject.onlineshop.domain.recipeitem.dto.RecipeItemDto;
 import store.myproject.onlineshop.domain.recipemeta.dto.RecipeMetaDto;
@@ -22,6 +26,7 @@ import store.myproject.onlineshop.domain.recipestep.RecipeStep;
 import store.myproject.onlineshop.domain.recipestep.dto.RecipeStepDto;
 import store.myproject.onlineshop.domain.review.dto.*;
 import store.myproject.onlineshop.global.utils.RedisKeyHelper;
+import store.myproject.onlineshop.repository.asyncFailureLog.AsyncFailureLogRepository;
 import store.myproject.onlineshop.repository.customer.CustomerRepository;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.repository.item.ItemRepository;
@@ -43,9 +48,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static store.myproject.onlineshop.domain.faillog.FailureStatus.*;
+import static store.myproject.onlineshop.domain.faillog.JobType.*;
 import static store.myproject.onlineshop.exception.ErrorCode.CUSTOMER_NOT_FOUND;
 import static store.myproject.onlineshop.exception.ErrorCode.FORBIDDEN_ACCESS;
 import static store.myproject.onlineshop.exception.ErrorCode.INVALID_REVIEW;
@@ -53,6 +61,7 @@ import static store.myproject.onlineshop.exception.ErrorCode.ITEM_NOT_FOUND;
 import static store.myproject.onlineshop.exception.ErrorCode.RECIPE_NOT_FOUND;
 import static store.myproject.onlineshop.exception.ErrorCode.REVIEW_NOT_FOUND;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -71,7 +80,7 @@ public class RecipeService {
     private final RedisTemplate<String, Object> cacheRedisTemplate;
     private final RedissonClient redisson;
     private final RecipeMetaRepository recipeMetaRepository;
-
+    private final AsyncFailureLogRepository asyncFailureLogRepository;
 
     /**
      * 단일 레시피 정보를 조회하고 조회수를 증가시킵니다.
@@ -83,7 +92,6 @@ public class RecipeService {
         // 1. 캐시에서 데이터 조회
         RecipeDto cachedRecipe = (RecipeDto) cacheRedisTemplate.opsForValue().get(recipeCacheKey);
         if (cachedRecipe != null) {
-            increaseRecipeViewCount(recipeUuid);
             return cachedRecipe;
         }
 
@@ -99,7 +107,6 @@ public class RecipeService {
                     // 캐시 재확인 (다른 스레드가 락을 선점하여 캐싱했을 수도 있음)
                     RecipeDto doubleCheckCache = (RecipeDto) cacheRedisTemplate.opsForValue().get(recipeCacheKey);
                     if (doubleCheckCache != null) {
-                        increaseRecipeViewCount(recipeUuid);
                         return doubleCheckCache;
                     }
 
@@ -116,8 +123,6 @@ public class RecipeService {
                     // 캐시에 저장 (1일 유지)
                     cacheRedisTemplate.opsForValue().set(recipeCacheKey, recipeDto, Duration.ofDays(1L));
 
-                    increaseRecipeViewCount(recipeUuid);
-
                     return recipeDto;
                 } finally {
                     lock.unlock();
@@ -127,7 +132,6 @@ public class RecipeService {
                     Thread.sleep(100); // 100ms 대기
                     RecipeDto retryCache = (RecipeDto) cacheRedisTemplate.opsForValue().get(recipeCacheKey);
                     if (retryCache != null) {
-                        increaseRecipeViewCount(recipeUuid);
                         return retryCache;
                     }
                 }
@@ -137,7 +141,6 @@ public class RecipeService {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Thread interrupted during lock acquisition", e);
         }
-
 
     }
 
@@ -253,7 +256,6 @@ public class RecipeService {
         Review review = request.toEntity(parentId, request.getReviewContent(), customer, recipe);
         review.addReviewToRecipe(recipe);
         reviewRepository.save(review);
-        recipeMetaService.asyncIncreaseReviewCnt(recipe.getRecipeMeta().getId());
         return new MessageResponse(review.getUuid(), messageUtil.get(MessageCode.RECIPE_REVIEW_ADDED));
     }
 
@@ -279,7 +281,6 @@ public class RecipeService {
         validatePermission(customer, review.getCustomer());
         review.removeReviewToRecipe();
         reviewRepository.delete(review);
-        recipeMetaService.asyncDecreaseReviewCnt(recipe.getRecipeMeta().getId());
         return new MessageResponse(review.getUuid(), messageUtil.get(MessageCode.RECIPE_REVIEW_DELETED));
     }
 
@@ -290,13 +291,17 @@ public class RecipeService {
         Customer customer = getCustomerByEmail(email);
         Recipe recipe = getRecipeWithMeta(recipeUuid);
         Optional<Like> like = likeRepository.findByRecipeAndCustomer(recipe, customer);
+        Long recipeMetaId = recipe.getRecipeMeta().getId();
         if (like.isPresent()) {
             likeRepository.delete(like.get());
-            recipeMetaService.asyncDecreaseLikeCnt(recipe.getRecipeMeta().getId());
+            decreaseLikeCount(recipeMetaId);
+            recipeMetaService.asyncDecreaseLikeCnt(recipeMetaId);
             return new MessageResponse(messageUtil.get(MessageCode.UNDO_LIKE));
         }
         likeRepository.save(Like.of(customer, recipe));
-        recipeMetaService.asyncIncreaseLikeCnt(recipe.getRecipeMeta().getId());
+        increaseLikeCount(recipeMetaId);
+        recipeMetaService.asyncIncreaseLikeCnt(recipeMetaId);
+
         return new MessageResponse(messageUtil.get(MessageCode.DO_LIKE));
     }
 
@@ -305,6 +310,64 @@ public class RecipeService {
      */
     public MessageResponse uploadImage(MultipartFile file) {
         return new MessageResponse(awsS3Service.uploadRecipeOriginImage(file));
+    }
+
+    /**
+     * 레시피 조회 수 증가
+     */
+    public void increaseRecipeViewCount(UUID recipeUuid) {
+        Long recipeMetaId = recipeRepository.findRecipeMetaIdByRecipeUuid(recipeUuid);
+        try {
+            recipeMetaService.asyncIncreaseViewCnt(recipeMetaId);
+        } catch (RejectedExecutionException e) {
+            saveAsyncFailureLog(e, recipeMetaId, RECIPE_VIEW_COUNT_INCREMENT);
+        }
+    }
+
+    /**
+     * 리뷰 수 증가
+     */
+    public void increaseReviewCount(UUID recipeUuid) {
+        Long recipeMetaId = recipeRepository.findRecipeMetaIdByRecipeUuid(recipeUuid);
+        try {
+            recipeMetaService.asyncIncreaseReviewCnt(recipeMetaId);
+        } catch (RejectedExecutionException e) {
+            saveAsyncFailureLog(e, recipeMetaId, REVIEW_COUNT_INCREMENT);
+        }
+    }
+
+    /**
+     * 리뷰 수 감소
+     */
+    public void decreaseReviewCount(UUID recipeUuid) {
+        Long recipeMetaId = recipeRepository.findRecipeMetaIdByRecipeUuid(recipeUuid);
+        try {
+            recipeMetaService.asyncDecreaseReviewCnt(recipeMetaId);
+        } catch (RejectedExecutionException e) {
+            saveAsyncFailureLog(e, recipeMetaId, REVIEW_COUNT_DECREMENT);
+        }
+    }
+
+    /**
+     * 리뷰 수 증가
+     */
+    public void increaseLikeCount(Long recipeMetaId) {
+        try {
+            recipeMetaService.asyncIncreaseLikeCnt(recipeMetaId);
+        } catch (RejectedExecutionException e) {
+            saveAsyncFailureLog(e, recipeMetaId, LIKE_COUNT_INCREMENT);
+        }
+    }
+
+    /**
+     * 리뷰 수 감소
+     */
+    public void decreaseLikeCount(Long recipeMetaId) {
+        try {
+            recipeMetaService.asyncDecreaseLikeCnt(recipeMetaId);
+        } catch (RejectedExecutionException e) {
+            saveAsyncFailureLog(e, recipeMetaId, LIKE_COUNT_INCREMENT);
+        }
     }
 
     /**
@@ -426,11 +489,14 @@ public class RecipeService {
         return recipeRepository.findByIdWithMeta(recipeUuid).orElseThrow(() -> new AppException(RECIPE_NOT_FOUND));
     }
 
-    /**
-     * 레시피 조회 수 증가
-     */
-    private void increaseRecipeViewCount(UUID recipeUuid) {
-        Long recipeMetaId = recipeRepository.findRecipeMetaIdByRecipeUuid(recipeUuid);
-        recipeMetaService.asyncIncreaseViewCnt(recipeMetaId);
+    private void saveAsyncFailureLog(RejectedExecutionException e, Long targetId, JobType jobType) {
+        AsyncFailureLog asyncFailureLog = AsyncFailureLog.builder()
+                .targetId(targetId)
+                .jobType(jobType)
+                .amount(null)
+                .errorMessage(e.getMessage())
+                .failureStatus(FAILED)
+                .build();
+        asyncFailureLogRepository.save(asyncFailureLog);
     }
 }

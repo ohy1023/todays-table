@@ -29,11 +29,11 @@ public class AsyncFailureLog extends BaseEntity {
     @Column(name = "amount")
     private BigDecimal amount;
 
-    @Column(name = "error_message")
+    @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
     @Column(name = "failure_status")
     @Enumerated(EnumType.STRING)
-    private FailureStatus status;
+    private FailureStatus failureStatus;
 
 }

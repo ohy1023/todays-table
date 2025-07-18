@@ -2,6 +2,9 @@ package store.myproject.onlineshop.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,7 +12,12 @@ import store.myproject.onlineshop.domain.faillog.AsyncFailureLog;
 import store.myproject.onlineshop.domain.faillog.FailureStatus;
 import store.myproject.onlineshop.domain.faillog.JobType;
 import store.myproject.onlineshop.repository.asyncFailureLog.AsyncFailureLogRepository;
+import store.myproject.onlineshop.repository.recipe.RecipeRepository;
 import store.myproject.onlineshop.repository.recipemeta.RecipeMetaRepository;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -17,119 +25,107 @@ import store.myproject.onlineshop.repository.recipemeta.RecipeMetaRepository;
 @RequiredArgsConstructor
 public class RecipeMetaService {
 
+    private final RecipeRepository recipeRepository;
     private final RecipeMetaRepository recipeMetaRepository;
     private final AsyncFailureLogRepository asyncFailureLogRepository;
 
     private static final int MAX_RETRY = 3;
 
-    @Async(value = "recipeMetaExecutor")
+    @Retryable(
+            value = Exception.class,
+            maxAttempts = MAX_RETRY,
+            backoff = @Backoff(delay = 200, multiplier = 2))
+    @Async("recipeMetaExecutor")
+    @Transactional
     public void asyncIncreaseViewCnt(Long recipeMetaId) {
-        asyncIncreaseViewCntRetry(recipeMetaId, 0);
+        recipeMetaRepository.incrementViewCnt(recipeMetaId);
     }
 
+    @Recover
+    public void recoverIncreaseViewCnt(Exception e, Long recipeMetaId) {
+        log.error("조회수 증가 재시도 실패: recipeMetaId={}, error={}", recipeMetaId, e.getMessage(), e);
+        saveAsyncFailureLog(JobType.RECIPE_VIEW_COUNT_INCREMENT, recipeMetaId, e);
+    }
+
+    @Retryable(
+            value = Exception.class,
+            maxAttempts = MAX_RETRY,
+            backoff = @Backoff(delay = 200, multiplier = 2))
+    @Async("recipeMetaExecutor")
     @Transactional
-    protected void asyncIncreaseViewCntRetry(Long recipeMetaId, int retryCount) {
-        try {
-            recipeMetaRepository.incrementViewCnt(recipeMetaId);
-        } catch (Exception e) {
-            if (retryCount < MAX_RETRY) {
-                log.warn("조회수 증가 실패, 재시도 {}/{}: recipeMetaId={}", retryCount + 1, MAX_RETRY, recipeMetaId, e);
-                asyncIncreaseViewCntRetry(recipeMetaId, retryCount + 1);
-            } else {
-                log.error("조회수 증가 최종 실패: recipeMetaId={}, error={}", recipeMetaId, e.getMessage(), e);
-                saveFailureRecord(recipeMetaId, JobType.RECIPE_VIEW_COUNT_INCREMENT, e.getMessage());
-            }
-        }
-    }
-
-    @Async(value = "recipeMetaExecutor")
     public void asyncIncreaseLikeCnt(Long recipeMetaId) {
-        asyncIncreaseLikeCntRetry(recipeMetaId, 0);
+        recipeMetaRepository.incrementLikeCnt(recipeMetaId);
     }
 
+    @Recover
+    public void recoverIncreaseLikeCnt(Exception e, Long recipeMetaId) {
+        log.error("좋아요 수 증가 재시도 실패: recipeMetaId={}, error={}", recipeMetaId, e.getMessage(), e);
+        saveAsyncFailureLog(JobType.LIKE_COUNT_INCREMENT, recipeMetaId, e);
+    }
+
+    @Retryable(
+            value = Exception.class,
+            maxAttempts = MAX_RETRY,
+            backoff = @Backoff(delay = 200, multiplier = 2))
+    @Async("recipeMetaExecutor")
     @Transactional
-    protected void asyncIncreaseLikeCntRetry(Long recipeMetaId, int retryCount) {
-        try {
-            recipeMetaRepository.incrementLikeCnt(recipeMetaId);
-        } catch (Exception e) {
-            if (retryCount < MAX_RETRY) {
-                log.warn("좋아요 수 증가 실패, 재시도 {}/{}: recipeMetaId={}", retryCount + 1, MAX_RETRY, recipeMetaId, e);
-                asyncIncreaseLikeCntRetry(recipeMetaId, retryCount + 1);
-            } else {
-                log.error("좋아요 수 증가 최종 실패: recipeMetaId={}, error={}", recipeMetaId, e.getMessage(), e);
-                saveFailureRecord(recipeMetaId, JobType.LIKE_COUNT_INCREMENT, e.getMessage());
-            }
-        }
-    }
-
-    @Async(value = "recipeMetaExecutor")
     public void asyncDecreaseLikeCnt(Long recipeMetaId) {
-        asyncDecreaseLikeCntRetry(recipeMetaId, 0);
+        recipeMetaRepository.decrementLikeCnt(recipeMetaId);
     }
 
+    @Recover
+    public void recoverDecreaseLikeCnt(Exception e, Long recipeMetaId) {
+        log.error("좋아요 수 감소 재시도 실패: recipeMetaId={}, error={}", recipeMetaId, e.getMessage(), e);
+        saveAsyncFailureLog(JobType.LIKE_COUNT_DECREMENT, recipeMetaId, e);
+    }
+
+    @Retryable(
+            value = Exception.class,
+            maxAttempts = MAX_RETRY,
+            backoff = @Backoff(delay = 200, multiplier = 2))
+    @Async("recipeMetaExecutor")
     @Transactional
-    protected void asyncDecreaseLikeCntRetry(Long recipeMetaId, int retryCount) {
-        try {
-            recipeMetaRepository.decrementLikeCnt(recipeMetaId);
-        } catch (Exception e) {
-            if (retryCount < MAX_RETRY) {
-                log.warn("좋아요 수 감소 실패, 재시도 {}/{}: recipeMetaId={}", retryCount + 1, MAX_RETRY, recipeMetaId, e);
-                asyncDecreaseLikeCntRetry(recipeMetaId, retryCount + 1);
-            } else {
-                log.error("좋아요 수 감소 최종 실패: recipeMetaId={}, error={}", recipeMetaId, e.getMessage(), e);
-                saveFailureRecord(recipeMetaId, JobType.LIKE_COUNT_DECREMENT, e.getMessage());
-            }
-        }
-    }
-
-    @Async(value = "recipeMetaExecutor")
     public void asyncIncreaseReviewCnt(Long recipeMetaId) {
-        asyncIncreaseReviewCntRetry(recipeMetaId, 0);
+        recipeMetaRepository.incrementReviewCnt(recipeMetaId);
     }
 
+    @Recover
+    public void recoverIncreaseReviewCnt(Exception e, Long recipeMetaId) {
+        log.error("리뷰 수 증가 재시도 실패: recipeMetaId={}, error={}", recipeMetaId, e.getMessage(), e);
+        saveAsyncFailureLog(JobType.REVIEW_COUNT_INCREMENT, recipeMetaId, e);
+    }
+
+    @Retryable(
+            value = Exception.class,
+            maxAttempts = MAX_RETRY,
+            backoff = @Backoff(delay = 200, multiplier = 2))
+    @Async("recipeMetaExecutor")
     @Transactional
-    protected void asyncIncreaseReviewCntRetry(Long recipeMetaId, int retryCount) {
-        try {
-            recipeMetaRepository.incrementReviewCnt(recipeMetaId);
-        } catch (Exception e) {
-            if (retryCount < MAX_RETRY) {
-                log.warn("리뷰 수 증가 실패, 재시도 {}/{}: recipeMetaId={}", retryCount + 1, MAX_RETRY, recipeMetaId, e);
-                asyncIncreaseReviewCntRetry(recipeMetaId, retryCount + 1);
-            } else {
-                log.error("리뷰 수 증가 최종 실패: recipeMetaId={}, error={}", recipeMetaId, e.getMessage(), e);
-                saveFailureRecord(recipeMetaId, JobType.REVIEW_COUNT_INCREMENT, e.getMessage());
-            }
-        }
-    }
-
-    @Async(value = "recipeMetaExecutor")
     public void asyncDecreaseReviewCnt(Long recipeMetaId) {
-        asyncDecreaseReviewCntRetry(recipeMetaId, 0);
+        recipeMetaRepository.decrementReviewCnt(recipeMetaId);
     }
 
-    @Transactional
-    protected void asyncDecreaseReviewCntRetry(Long recipeMetaId, int retryCount) {
-        try {
-            recipeMetaRepository.decrementReviewCnt(recipeMetaId);
-        } catch (Exception e) {
-            if (retryCount < MAX_RETRY) {
-                log.warn("리뷰 수 감소 실패, 재시도 {}/{}: recipeMetaId={}", retryCount + 1, MAX_RETRY, recipeMetaId, e);
-                asyncDecreaseReviewCntRetry(recipeMetaId, retryCount + 1);
-            } else {
-                log.error("리뷰 수 감소 최종 실패: recipeMetaId={}, error={}", recipeMetaId, e.getMessage(), e);
-                saveFailureRecord(recipeMetaId, JobType.REVIEW_COUNT_DECREMENT, e.getMessage());
-            }
-        }
+    @Recover
+    public void recoverDecreaseReviewCnt(Exception e, Long recipeMetaId) {
+        log.error("리뷰 수 감소 재시도 실패: recipeMetaId={}, error={}", recipeMetaId, e.getMessage(), e);
+        saveAsyncFailureLog(JobType.REVIEW_COUNT_DECREMENT, recipeMetaId, e);
     }
 
-    private void saveFailureRecord(Long targetId, JobType jobType, String errorMessage) {
-        AsyncFailureLog asyncFailureLog = AsyncFailureLog.builder()
+    private void saveAsyncFailureLog(JobType jobType, Long targetId, Exception e) {
+        AsyncFailureLog log = AsyncFailureLog.builder()
                 .jobType(jobType)
                 .targetId(targetId)
-                .status(FailureStatus.FAILED)
-                .errorMessage(errorMessage)
+                .amount(null)
+                .errorMessage(getStackTraceString(e))
+                .failureStatus(FailureStatus.FAILED)
                 .build();
 
-        asyncFailureLogRepository.save(asyncFailureLog);
+        asyncFailureLogRepository.save(log);
+    }
+
+    private String getStackTraceString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 }

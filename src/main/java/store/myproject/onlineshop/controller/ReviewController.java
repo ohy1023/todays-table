@@ -76,7 +76,9 @@ public class ReviewController {
             Authentication authentication
     ) {
         String email = authentication.getName();
-        return Response.success(recipeService.createReview(email, recipeUuid, request));
+        MessageResponse response = recipeService.createReview(email, recipeUuid, request);
+        recipeService.increaseReviewCount(recipeUuid);
+        return Response.success(response);
     }
 
 
@@ -106,6 +108,8 @@ public class ReviewController {
             @Parameter(description = "삭제할 댓글 UUID", example = "88dd3e84-2b3a-11f0-9aef-59f7f88a8410", required = true)
             @PathVariable UUID reviewUuid, Authentication authentication) {
         String email = authentication.getName();
-        return Response.success(recipeService.deleteReview(email, recipeUuid, reviewUuid));
+        MessageResponse response = recipeService.deleteReview(email, recipeUuid, reviewUuid);
+        recipeService.decreaseReviewCount(recipeUuid);
+        return Response.success(response);
     }
 }
