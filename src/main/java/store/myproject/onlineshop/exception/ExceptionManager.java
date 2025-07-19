@@ -2,7 +2,6 @@ package store.myproject.onlineshop.exception;
 
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.task.TaskRejectedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -13,13 +12,9 @@ import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import store.myproject.onlineshop.domain.ErrorResponse;
 import store.myproject.onlineshop.domain.Response;
-import store.myproject.onlineshop.domain.faillog.AsyncFailureLog;
-import store.myproject.onlineshop.domain.faillog.JobType;
-import store.myproject.onlineshop.repository.asyncFailureLog.AsyncFailureLogRepository;
 
 import javax.naming.AuthenticationException;
 import java.nio.file.AccessDeniedException;
@@ -28,8 +23,6 @@ import java.sql.SQLTransientConnectionException;
 @RestControllerAdvice
 @RequiredArgsConstructor
 public class ExceptionManager {
-
-    private final AsyncFailureLogRepository asyncFailureLogRepository;
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<?> handleRuntimeException(RuntimeException e) {

@@ -1,4 +1,4 @@
-package store.myproject.onlineshop.global.config;
+package store.myproject.onlineshop.global.db;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
