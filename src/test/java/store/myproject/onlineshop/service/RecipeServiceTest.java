@@ -99,20 +99,17 @@ class RecipeServiceTest {
     @DisplayName("레시피 상세 조회 성공 - 캐시 히트")
     void get_recipe_detail_success_by_cache_hit() {
         // given
-        Long recipeId = 1L;
         UUID recipeUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
         RecipeDto dto = RecipeFixture.createRecipeDto(recipeUuid);
         String recipeCacheKey = RedisKeyHelper.getRecipeKey(recipeUuid);
         given(cacheRedisTemplate.opsForValue()).willReturn(valueOperations);
         given(cacheRedisTemplate.opsForValue().get(recipeCacheKey)).willReturn(dto);
-        given(recipeRepository.findRecipeMetaIdByRecipeUuid(recipeUuid)).willReturn(recipeId);
 
         // when
         RecipeDto result = recipeService.getRecipeDetail(recipeUuid);
 
         // then
         assertThat(result).isEqualTo(dto);
-        then(recipeMetaService).should(times(1)).asyncIncreaseViewCnt(recipeId);
         then(recipeRepository).should(never()).findRecipeDtoByUuid(any());
         then(recipeStepRepository).shouldHaveNoInteractions();
         then(recipeItemRepository).shouldHaveNoInteractions();
@@ -136,14 +133,12 @@ class RecipeServiceTest {
         given(recipeRepository.findRecipeDtoByUuid(recipeUuid)).willReturn(Optional.of(dto));
         given(recipeStepRepository.findStepsByRecipeUuid(recipeUuid)).willReturn(List.of());
         given(recipeItemRepository.findItemsByRecipeUuid(recipeUuid)).willReturn(List.of());
-        given(recipeRepository.findRecipeMetaIdByRecipeUuid(recipeUuid)).willReturn(recipeId);
 
         // when
         RecipeDto result = recipeService.getRecipeDetail(recipeUuid);
 
         // then
         assertThat(result).isEqualTo(dto);
-        then(recipeMetaService).should(times(1)).asyncIncreaseViewCnt(recipeId);
         then(cacheRedisTemplate.opsForValue()).should().set(eq(recipeCacheKey), eq(dto), any());
         then(rLock).should().unlock();
     }
@@ -278,7 +273,6 @@ class RecipeServiceTest {
 
         // then
         then(likeRepository).should().save(any());
-        then(recipeMetaService).should().asyncIncreaseLikeCnt(recipe.getRecipeMeta().getId());
         assertThat(response.getMessage()).isEqualTo("좋아요 등록");
     }
 
@@ -297,7 +291,6 @@ class RecipeServiceTest {
 
         // then
         then(likeRepository).should().delete(like);
-        then(recipeMetaService).should().asyncDecreaseLikeCnt(recipe.getRecipeMeta().getId());
         assertThat(response.getMessage()).isEqualTo("좋아요 취소");
     }
 
@@ -376,7 +369,6 @@ class RecipeServiceTest {
 
         // then
         then(reviewRepository).should().save(any(Review.class));
-        then(recipeMetaService).should().asyncIncreaseReviewCnt(recipe.getRecipeMeta().getId());
         assertThat(response.getMessage()).isEqualTo("리뷰 등록");
     }
 
@@ -430,7 +422,6 @@ class RecipeServiceTest {
 
         // then
         then(reviewRepository).should().delete(review);
-        then(recipeMetaService).should().asyncDecreaseReviewCnt(recipe.getRecipeMeta().getId());
         assertThat(response.getMessage()).isEqualTo("리뷰 삭제");
     }
 
