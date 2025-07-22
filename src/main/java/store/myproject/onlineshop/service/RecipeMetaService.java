@@ -17,7 +17,6 @@ import store.myproject.onlineshop.repository.recipemeta.RecipeMetaRepository;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.UUID;
 
 @Slf4j
 @Service

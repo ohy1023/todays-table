@@ -17,6 +17,8 @@ import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.global.utils.CookieUtils;
 import store.myproject.onlineshop.service.CustomerService;
 
+import java.util.Map;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -44,24 +46,20 @@ public class CustomerController {
             @ApiResponse(responseCode = "401", description = "이메일 또는 비밀번호가 올바르지 않음")
     })
     @PostMapping("/login")
-    public Response<LoginResponse> login(@Valid @RequestBody CustomerLoginRequest customerLoginRequest, HttpServletRequest request,
-                                         HttpServletResponse response) {
+    public Response<Map<String, String>> login(@Valid @RequestBody CustomerLoginRequest customerLoginRequest,
+                                               HttpServletRequest request,
+                                               HttpServletResponse response) {
 
         LoginResponse loginResponse = customerService.login(customerLoginRequest);
 
         String accessToken = loginResponse.getAccessToken();
         String refreshToken = loginResponse.getRefreshToken();
 
-
-        log.info("쿠키에 저장된 AccessToken :");
-        log.info("Authorization = {};", accessToken);
-        CookieUtils.addAccessTokenAtCookie(response, accessToken);
-
-        log.info("쿠키에 저장된 RefreshToken :");
-        log.info("Authorization-refresh= {}; Path=/; Secure; HttpOnly; Expires=DOW, DAY MONTH YEAR HH:MM:SS GMT;", refreshToken);
         CookieUtils.addRefreshTokenAtCookie(response, refreshToken);
 
-        return Response.success(loginResponse);
+        Map<String, String> responseBody = Map.of("accessToken", accessToken);
+
+        return Response.success(responseBody);
     }
 
     @Operation(summary = "로그아웃", description = "현재 로그인한 사용자 로그아웃")

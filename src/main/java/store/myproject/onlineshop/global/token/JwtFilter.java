@@ -1,5 +1,6 @@
 package store.myproject.onlineshop.global.token;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +20,7 @@ import store.myproject.onlineshop.service.CustomerService;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static store.myproject.onlineshop.exception.ErrorCode.*;
@@ -32,83 +34,69 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
 
-    /**
-     * Access Token, Refresh Token Cookie 에 담아서 보낸다.
-     *
-     * @param request
-     * @param response
-     * @param filterChain
-     * @throws ServletException
-     * @throws IOException
-     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        Optional<String> accessTokenAtCookie = CookieUtils.extractAccessToken(request);
-        Optional<String> refreshTokenAtCookie = CookieUtils.extractRefreshToken(request);
-
-        if (accessTokenAtCookie.isEmpty()) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String accessToken = accessTokenAtCookie.get();
+        String accessToken = authHeader.substring(7);
 
         if (jwtUtils.isInvalid(accessToken)) {
             throw new AppException(INVALID_ACCESS_TOKEN);
         }
 
-        if (jwtUtils.isExpired(accessToken)) {
-            throw new AppException(EXPIRED_ACCESS_TOKEN);
-        }
+        boolean isAccessTokenExpired = jwtUtils.isExpired(accessToken);
+        String email = jwtUtils.getEmail(accessToken);
 
-        String info = jwtUtils.getEmail(accessToken);
+        Optional<String> refreshTokenAtCookie = CookieUtils.extractRefreshToken(request);
 
-        // refresh Token 존재 여부 확인
         if (refreshTokenAtCookie.isEmpty()) {
-            log.error("Refresh Token 없습니다.");
             throw new AppException(REFRESH_TOKEN_NOT_FOUND);
         }
 
         String refreshToken = refreshTokenAtCookie.get();
         log.info("refreshToken : {}", refreshToken);
 
-        // access Token 만료된 경우 -> refresh Token 검증
-        if (jwtUtils.isExpired(refreshToken)) {
-            // refresh Token 만료된 경우
-            log.error("Refresh Token 만료");
-            throw new AppException(EXPIRED_REFRESH_TOKEN);
+        if (isAccessTokenExpired) {
+            if (jwtUtils.isExpired(refreshToken)) {
+                throw new AppException(EXPIRED_REFRESH_TOKEN);
+            }
+
+            String newAccessToken = jwtUtils.createAccessToken(email);
+            String newRefreshToken = jwtUtils.createRefreshToken(email);
+
+            log.info("newAccessToken : {}", newAccessToken);
+            log.info("newRefreshToken : {}", newRefreshToken);
+
+            CookieUtils.addRefreshTokenAtCookie(response, newRefreshToken);
+
+            Map<String, String> tokenMap = Map.of("accessToken", newAccessToken);
+
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.writeValue(response.getWriter(), tokenMap);
+            return;
         }
 
-        // refresh Token 유효한 경우 -> access Token / refresh Token 재발급
-        String newAccessToken = jwtUtils.createAccessToken(info);
-        log.info("newAccessToken : {}", newAccessToken);
-        String newRefreshToken = jwtUtils.createRefreshToken(info);
-        log.info("newRefreshToken : {}", newRefreshToken);
+        Customer customer = customerService.findCustomerByEmail(email);
 
-
-        // 발급된 accessToken을 response cookie 에 저장
-        CookieUtils.addAccessTokenAtCookie(response, newAccessToken);
-        // 발급된 refreshToken을 response cookie 에 저장
-        CookieUtils.addRefreshTokenAtCookie(response, newRefreshToken);
-
-        Customer customer = customerService.findCustomerByEmail(info);
-
-        // 유효성 검증 통과한 경우
-        log.info("유효성 검증 통과! \n SecurityContextHolder 에 Authentication 객체를 저장합니다!");
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(customer.getEmail(),
+                new UsernamePasswordAuthenticationToken(
+                        customer.getEmail(),
                         null,
-                        List.of(new SimpleGrantedAuthority(customer.getCustomerRole().name())));
-
+                        List.of(new SimpleGrantedAuthority(customer.getCustomerRole().name()))
+                );
         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-        log.info("권한 리스트: {}", authenticationToken.getAuthorities());
-        log.info("인증 객체 설정 전: {}", SecurityContextHolder.getContext().getAuthentication());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-        log.info("인증 객체 설정 후: {}", SecurityContextHolder.getContext().getAuthentication());
         filterChain.doFilter(request, response);
     }
 
