@@ -13,6 +13,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CookieUtilsTest {
 
     @Test
+    @DisplayName("AccessToken 쿠키를 추출할 수 있다")
+    void extract_access_token_cookie() {
+        // given
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setCookies(new Cookie("Authorization", "access-token-value"));
+
+        // when
+        Optional<String> result = CookieUtils.extractAccessToken(request);
+
+        // then
+        assertThat(result).isPresent().contains("access-token-value");
+    }
+
+    @Test
     @DisplayName("RefreshToken 쿠키를 추출할 수 있다")
     void extract_refresh_token_cookie() {
         // given
@@ -24,6 +38,21 @@ class CookieUtilsTest {
 
         // then
         assertThat(result).isPresent().contains("refresh-token-value");
+    }
+
+    @Test
+    @DisplayName("AccessToken을 쿠키에 저장할 수 있다")
+    void add_access_token_cookie() {
+        // given
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        // when
+        CookieUtils.addAccessTokenAtCookie(response, "access-token-value");
+
+        // then
+        String setCookie = response.getHeader("Set-Cookie");
+        assertThat(setCookie).contains("Authorization=access-token-value");
+        assertThat(setCookie).contains("Max-Age=10800"); // 3시간
     }
 
     @Test

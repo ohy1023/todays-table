@@ -147,6 +147,8 @@ class CustomerControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value(SUCCESS))
                 .andExpect(jsonPath("$.result.accessToken").value("accessToken"))
+                .andExpect(jsonPath("$.result.refreshToken").value("refreshToken"))
+                .andExpect(cookie().value("Authorization", "accessToken"))
                 .andExpect(cookie().value("Authorization-refresh", "refreshToken"))
                 .andDo(print());
 
