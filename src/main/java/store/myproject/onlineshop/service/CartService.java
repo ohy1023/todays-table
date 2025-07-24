@@ -14,7 +14,6 @@ import store.myproject.onlineshop.domain.cart.dto.CartAddRequest;
 import store.myproject.onlineshop.repository.cart.CartRepository;
 import store.myproject.onlineshop.domain.cartitem.CartItem;
 import store.myproject.onlineshop.domain.cartitem.dto.CartItemResponse;
-import store.myproject.onlineshop.repository.cartitem.CartItemJpaRepository;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.repository.cartitem.CartItemRepository;
 import store.myproject.onlineshop.repository.customer.CustomerRepository;

@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="store.myproject.onlineshop.repository.brand.BrandMapper">
+<mapper namespace="store.myproject.onlineshop.mapper.BrandMapper">
 
     <select id="searchBrand" resultType="store.myproject.onlineshop.domain.brand.dto.BrandInfo">
         SELECT

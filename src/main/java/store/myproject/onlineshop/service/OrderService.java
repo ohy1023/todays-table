@@ -17,7 +17,6 @@ import store.myproject.onlineshop.domain.cart.Cart;
 import store.myproject.onlineshop.domain.cart.dto.CartOrderRequest;
 import store.myproject.onlineshop.global.utils.UUIDGenerator;
 import store.myproject.onlineshop.repository.cart.CartRepository;
-import store.myproject.onlineshop.repository.cartitem.CartItemJpaRepository;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.repository.cartitem.CartItemRepository;
 import store.myproject.onlineshop.repository.customer.CustomerRepository;

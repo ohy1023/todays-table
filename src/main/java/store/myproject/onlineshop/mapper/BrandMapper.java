@@ -1,4 +1,4 @@
-package store.myproject.onlineshop.repository.brand;
+package store.myproject.onlineshop.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.data.repository.query.Param;

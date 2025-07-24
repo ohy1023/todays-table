@@ -1,4 +1,4 @@
-package store.myproject.onlineshop.repository.cartitem;
+package store.myproject.onlineshop.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import store.myproject.onlineshop.domain.cartitem.dto.CartItemResponse;

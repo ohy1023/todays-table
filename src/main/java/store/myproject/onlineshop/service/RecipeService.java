@@ -17,7 +17,6 @@ import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.customer.CustomerRole;
 import store.myproject.onlineshop.domain.faillog.AsyncFailureLog;
-import store.myproject.onlineshop.domain.faillog.FailureStatus;
 import store.myproject.onlineshop.domain.faillog.JobType;
 import store.myproject.onlineshop.domain.recipe.dto.*;
 import store.myproject.onlineshop.domain.recipeitem.dto.RecipeItemDto;

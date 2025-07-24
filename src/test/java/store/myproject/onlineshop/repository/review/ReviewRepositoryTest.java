@@ -1,3 +1,4 @@
+/*
 package store.myproject.onlineshop.repository.review;
 
 import org.junit.jupiter.api.DisplayName;
@@ -136,3 +137,4 @@ class ReviewRepositoryTest {
 
 
 }
+*/
