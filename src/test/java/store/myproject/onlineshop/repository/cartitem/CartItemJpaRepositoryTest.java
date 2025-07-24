@@ -6,20 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.cart.Cart;
 import store.myproject.onlineshop.domain.cartitem.CartItem;
-import store.myproject.onlineshop.domain.cartitem.dto.CartItemResponse;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.fixture.BrandFixture;
 import store.myproject.onlineshop.fixture.CustomerFixture;
 import store.myproject.onlineshop.fixture.ItemFixture;
 import store.myproject.onlineshop.global.config.TestConfig;
-import store.myproject.onlineshop.repository.brand.BrandJpaRepository;
+import store.myproject.onlineshop.repository.brand.BrandRepository;
 import store.myproject.onlineshop.repository.cart.CartRepository;
 import store.myproject.onlineshop.repository.customer.CustomerRepository;
 import store.myproject.onlineshop.repository.item.ItemRepository;
@@ -32,10 +29,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(TestConfig.class)
 @ActiveProfiles("test")
-class CartItemRepositoryTest {
+class CartItemJpaRepositoryTest {
 
     @Autowired
-    private CartItemRepository cartItemRepository;
+    private CartItemJpaRepository cartItemJpaRepository;
 
     @Autowired
     private CartRepository cartRepository;
@@ -45,8 +42,9 @@ class CartItemRepositoryTest {
 
     @Autowired
     private CustomerRepository customerRepository;
+
     @Autowired
-    private BrandJpaRepository brandJpaRepository;
+    private BrandRepository brandRepository;
 
     @Test
     @DisplayName("장바구니 조회 성공")
@@ -54,40 +52,18 @@ class CartItemRepositoryTest {
         // given
         Customer customer = customerRepository.save(CustomerFixture.createCustomer());
         Cart cart = cartRepository.save(Cart.createCart(customer));
-        Brand brand = brandJpaRepository.save(BrandFixture.createBrand());
+        Brand brand = brandRepository.save(BrandFixture.createBrand());
         Item item = itemRepository.save(ItemFixture.createItem(brand));
-        cartItemRepository.save(CartItem.createCartItem(item, 1L, cart));
+        cartItemJpaRepository.save(CartItem.createCartItem(item, 1L, cart));
 
         // when
-        Optional<CartItem> result = cartItemRepository.findByCartAndItem(cart, item);
+        Optional<CartItem> result = cartItemJpaRepository.findByCartAndItem(cart, item);
 
         // then
         assertThat(result).isPresent();
         assertThat(result.get().getCart()).isEqualTo(cart);
         assertThat(result.get().getItem()).isEqualTo(item);
         assertThat(result.get().getCartItemCnt()).isEqualTo(1L);
-    }
-
-    @Test
-    @DisplayName("cart가 null인 경우 장바구니 조회")
-    void find_by_cart_page_with_null_cart_success() {
-        // given
-        Customer customer = customerRepository.save(CustomerFixture.createCustomer());
-        Cart cart = cartRepository.save(Cart.createCart(customer));
-        Brand brand = brandJpaRepository.save(BrandFixture.createBrand());
-        Item item1 = itemRepository.save(ItemFixture.createItem(brand));
-        Item item2 = itemRepository.save(ItemFixture.createItem(brand));
-        cartItemRepository.save(CartItem.createCartItem(item1, 1L, cart));
-        cartItemRepository.save(CartItem.createCartItem(item2, 1L, cart));
-
-        PageRequest pageRequest = PageRequest.of(0, 10);
-
-        // when
-        Page<CartItemResponse> result = cartItemRepository.findByCartPage(null, pageRequest);
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.getContent()).hasSize(2);
     }
 
 
@@ -97,15 +73,15 @@ class CartItemRepositoryTest {
         // given
         Customer customer = customerRepository.save(CustomerFixture.createCustomer());
         Cart cart = cartRepository.save(Cart.createCart(customer));
-        Brand brand = brandJpaRepository.save(BrandFixture.createBrand());
+        Brand brand = brandRepository.save(BrandFixture.createBrand());
         Item item = itemRepository.save(ItemFixture.createItem(brand));
-        cartItemRepository.save(CartItem.createCartItem(item, 1L, cart));
+        cartItemJpaRepository.save(CartItem.createCartItem(item, 1L, cart));
 
         // when
-        cartItemRepository.deleteByCart(cart);
+        cartItemJpaRepository.deleteByCart(cart);
 
         // then
-        Optional<CartItem> result = cartItemRepository.findByCartAndItem(cart, item);
+        Optional<CartItem> result = cartItemJpaRepository.findByCartAndItem(cart, item);
         assertThat(result).isEmpty();
     }
 
@@ -115,15 +91,15 @@ class CartItemRepositoryTest {
         // given
         Customer customer = customerRepository.save(CustomerFixture.createCustomer());
         Cart cart = cartRepository.save(Cart.createCart(customer));
-        Brand brand = brandJpaRepository.save(BrandFixture.createBrand());
+        Brand brand = brandRepository.save(BrandFixture.createBrand());
         Item item = itemRepository.save(ItemFixture.createItem(brand));
-        cartItemRepository.save(CartItem.createCartItem(item, 1L, cart));
+        cartItemJpaRepository.save(CartItem.createCartItem(item, 1L, cart));
 
         // when
-        cartItemRepository.deleteByItem(item);
+        cartItemJpaRepository.deleteByItem(item);
 
         // then
-        Optional<CartItem> result = cartItemRepository.findByCartAndItem(cart, item);
+        Optional<CartItem> result = cartItemJpaRepository.findByCartAndItem(cart, item);
         assertThat(result).isEmpty();
     }
 
@@ -133,38 +109,16 @@ class CartItemRepositoryTest {
         // given
         Customer customer = customerRepository.save(CustomerFixture.createCustomer());
         Cart cart = cartRepository.save(Cart.createCart(customer));
-        Brand brand = brandJpaRepository.save(BrandFixture.createBrand());
+        Brand brand = brandRepository.save(BrandFixture.createBrand());
         Item item = itemRepository.save(ItemFixture.createItem(brand));
-        cartItemRepository.save(CartItem.createCartItem(item, 1L, cart));
+        cartItemJpaRepository.save(CartItem.createCartItem(item, 1L, cart));
 
         // when
-        cartItemRepository.deleteCartItem(cart, item);
+        cartItemJpaRepository.deleteCartItem(cart, item);
 
         // then
-        Optional<CartItem> result = cartItemRepository.findByCartAndItem(cart, item);
+        Optional<CartItem> result = cartItemJpaRepository.findByCartAndItem(cart, item);
         assertThat(result).isEmpty();
     }
 
-    @Test
-    @DisplayName("장바구니 아이템 페이지 조회 성공")
-    void find_by_cart_page_success() {
-        // given
-        Customer customer = customerRepository.save(CustomerFixture.createCustomer());
-        Cart cart = cartRepository.save(Cart.createCart(customer));
-        Brand brand = brandJpaRepository.save(BrandFixture.createBrand());
-        Item item1 = itemRepository.save(ItemFixture.createItem(brand));
-        Item item2 = itemRepository.save(ItemFixture.createItem(brand));
-        cartItemRepository.save(CartItem.createCartItem(item1, 1L, cart));
-        cartItemRepository.save(CartItem.createCartItem(item2, 1L, cart));
-
-        PageRequest pageRequest = PageRequest.of(0, 10);
-
-        // when
-        Page<CartItemResponse> result = cartItemRepository.findByCartPage(cart, pageRequest);
-
-        // then
-        assertThat(result.getContent()).hasSize(2);
-        assertThat(result.getContent()).extracting("itemUuid")
-                .containsExactlyInAnyOrder(item1.getUuid(), item2.getUuid());
-    }
 }

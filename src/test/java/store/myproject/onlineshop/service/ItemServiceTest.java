@@ -19,8 +19,8 @@ import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.item.dto.*;
 import store.myproject.onlineshop.global.utils.RedisKeyHelper;
-import store.myproject.onlineshop.repository.brand.BrandJpaRepository;
 import store.myproject.onlineshop.domain.imagefile.ImageFile;
+import store.myproject.onlineshop.repository.brand.BrandRepository;
 import store.myproject.onlineshop.repository.imagefile.ImageFileRepository;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.repository.item.ItemRepository;
@@ -51,7 +51,7 @@ class ItemServiceTest {
     @Mock
     private ItemRepository itemRepository;
     @Mock
-    private BrandJpaRepository brandJpaRepository;
+    private BrandRepository brandRepository;
     @Mock
     private ImageFileRepository imageFileRepository;
     @Mock
@@ -177,7 +177,7 @@ class ItemServiceTest {
         ItemCreateRequest request = ItemFixture.createRequest();
 
         given(itemRepository.findItemByItemName(request.getItemName())).willReturn(Optional.empty());
-        given(brandJpaRepository.findBrandByName(request.getBrandName())).willReturn(Optional.of(brand));
+        given(brandRepository.findBrandByName(request.getBrandName())).willReturn(Optional.of(brand));
         given(itemRepository.save(any(Item.class))).willReturn(item);
         given(awsS3Service.uploadItemOriginImage(any(MultipartFile.class))).willReturn(imageFile.getImageUrl());
         given(imageFileRepository.save(any(ImageFile.class))).willReturn(imageFile);
@@ -215,7 +215,7 @@ class ItemServiceTest {
         ItemUpdateRequest request = ItemFixture.updateRequest();
 
         given(itemRepository.findByUuid(any(UUID.class))).willReturn(Optional.of(item));
-        given(brandJpaRepository.findBrandByName(any(String.class))).willReturn(Optional.of(brand));
+        given(brandRepository.findBrandByName(any(String.class))).willReturn(Optional.of(brand));
         given(awsS3Service.uploadItemOriginImage(any(MultipartFile.class))).willReturn(imageFile.getImageUrl());
         given(messageUtil.get(MessageCode.ITEM_MODIFIED)).willReturn("해당 품목이 수정되었습니다.");
 
@@ -247,7 +247,7 @@ class ItemServiceTest {
         UUID itemUuid = item.getUuid();
         ItemUpdateRequest request = ItemFixture.updateRequest();
         given(itemRepository.findByUuid(any(UUID.class))).willReturn(Optional.of(item));
-        given(brandJpaRepository.findBrandByName(any(String.class))).willReturn(Optional.empty());
+        given(brandRepository.findBrandByName(any(String.class))).willReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> itemService.updateItem(itemUuid, request, List.of(multipartFile)))

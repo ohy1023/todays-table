@@ -26,6 +26,7 @@ class BrandJpaRepositoryTest {
     @Autowired
     BrandJpaRepository brandJpaRepository;
 
+
     @Nested
     @DisplayName("브랜드 이름으로 조회")
     class FindByName {
