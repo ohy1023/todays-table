@@ -21,10 +21,10 @@ import static org.assertj.core.api.Assertions.*;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(TestConfig.class)
 @ActiveProfiles("test")
-class BrandRepositoryTest {
+class BrandJpaRepositoryTest {
 
     @Autowired
-    BrandRepository brandRepository;
+    BrandJpaRepository brandJpaRepository;
 
     @Nested
     @DisplayName("브랜드 이름으로 조회")
@@ -35,10 +35,10 @@ class BrandRepositoryTest {
         void find_brand_by_name_success() {
             // given
             Brand brand = BrandFixture.createBrand();
-            brandRepository.save(brand);
+            brandJpaRepository.save(brand);
 
             // when
-            Optional<Brand> result = brandRepository.findBrandByName(brand.getName());
+            Optional<Brand> result = brandJpaRepository.findBrandByName(brand.getName());
 
             // then
             assertThat(result).isPresent();
@@ -49,7 +49,7 @@ class BrandRepositoryTest {
         @DisplayName("존재하지 않는 브랜드 이름 조회")
         void find_brand_by_name_fail() {
             // when
-            Optional<Brand> result = brandRepository.findBrandByName("not-exist");
+            Optional<Brand> result = brandJpaRepository.findBrandByName("not-exist");
 
             // then
             assertThat(result).isEmpty();
@@ -65,10 +65,10 @@ class BrandRepositoryTest {
         void exists_true() {
             // given
             Brand brand = BrandFixture.createBrand();
-            brandRepository.save(brand);
+            brandJpaRepository.save(brand);
 
             // when
-            boolean exists = brandRepository.existsByName(brand.getName());
+            boolean exists = brandJpaRepository.existsByName(brand.getName());
 
             // then
             assertThat(exists).isTrue();
@@ -78,7 +78,7 @@ class BrandRepositoryTest {
         @DisplayName("브랜드 존재하지 않음")
         void exists_false() {
             // when
-            boolean exists = brandRepository.existsByName("non-exist");
+            boolean exists = brandJpaRepository.existsByName("non-exist");
 
             // then
             assertThat(exists).isFalse();
@@ -94,10 +94,10 @@ class BrandRepositoryTest {
         void find_brand_by_uuid_success() {
             // given
             Brand brand = BrandFixture.createBrand();
-            brandRepository.save(brand);
+            brandJpaRepository.save(brand);
 
             // when
-            Optional<Brand> result = brandRepository.findByUuid(brand.getUuid());
+            Optional<Brand> result = brandJpaRepository.findByUuid(brand.getUuid());
 
             // then
             assertThat(result).isPresent();
@@ -108,7 +108,7 @@ class BrandRepositoryTest {
         @DisplayName("존재하지 않는 브랜드 UUID 조회")
         void find_brand_by_uuid_fail() {
             // when
-            Optional<Brand> result = brandRepository.findByUuid(UUID.randomUUID());
+            Optional<Brand> result = brandJpaRepository.findByUuid(UUID.randomUUID());
 
             // then
             assertThat(result).isEmpty();

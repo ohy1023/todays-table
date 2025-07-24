@@ -17,7 +17,7 @@ import store.myproject.onlineshop.domain.order.dto.OrderSearchCond;
 import store.myproject.onlineshop.domain.orderitem.OrderItem;
 import store.myproject.onlineshop.fixture.*;
 import store.myproject.onlineshop.global.config.TestConfig;
-import store.myproject.onlineshop.repository.brand.BrandRepository;
+import store.myproject.onlineshop.repository.brand.BrandJpaRepository;
 import store.myproject.onlineshop.repository.customer.CustomerRepository;
 import store.myproject.onlineshop.repository.delivery.DeliveryRepository;
 import store.myproject.onlineshop.repository.item.ItemRepository;
@@ -44,7 +44,7 @@ class OrderRepositoryTest {
     @Autowired
     private ItemRepository itemRepository;
     @Autowired
-    private BrandRepository brandRepository;
+    private BrandJpaRepository brandJpaRepository;
     @Autowired
     private MemberShipRepository memberShipRepository;
     @Autowired
@@ -57,7 +57,7 @@ class OrderRepositoryTest {
     void find_my_orders_success() {
         // given
         Customer customer = customerRepository.save(CustomerFixture.createCustomer());
-        Brand brand = brandRepository.save(BrandFixture.createBrand());
+        Brand brand = brandJpaRepository.save(BrandFixture.createBrand());
         Item item = itemRepository.save(ItemFixture.createItem(brand));
         MemberShip memberShip = memberShipRepository.save(MemberShipFixture.createBronzeMembership());
         BigDecimal discountedPrice = memberShip.applyDiscount(item.getPrice());
@@ -96,7 +96,7 @@ class OrderRepositoryTest {
     void find_my_order_success() {
         // given
         Customer customer = customerRepository.save(CustomerFixture.createCustomer());
-        Brand brand = brandRepository.save(BrandFixture.createBrand());
+        Brand brand = brandJpaRepository.save(BrandFixture.createBrand());
         Item item = itemRepository.save(ItemFixture.createItem(brand));
         MemberShip memberShip = memberShipRepository.save(MemberShipFixture.createBronzeMembership());
         BigDecimal discountedPrice = memberShip.applyDiscount(item.getPrice());
@@ -122,7 +122,7 @@ class OrderRepositoryTest {
     void find_by_merchant_uid_success() {
         // given
         Customer customer = customerRepository.save(CustomerFixture.createCustomer());
-        Brand brand = brandRepository.save(BrandFixture.createBrand());
+        Brand brand = brandJpaRepository.save(BrandFixture.createBrand());
         Item item = itemRepository.save(ItemFixture.createItem(brand));
         MemberShip memberShip = memberShipRepository.save(MemberShipFixture.createBronzeMembership());
         BigDecimal discountedPrice = memberShip.applyDiscount(item.getPrice());

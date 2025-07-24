@@ -23,7 +23,7 @@ import store.myproject.onlineshop.fixture.CustomerFixture;
 import store.myproject.onlineshop.fixture.ItemFixture;
 import store.myproject.onlineshop.fixture.RecipeFixture;
 import store.myproject.onlineshop.global.config.TestConfig;
-import store.myproject.onlineshop.repository.brand.BrandRepository;
+import store.myproject.onlineshop.repository.brand.BrandJpaRepository;
 import store.myproject.onlineshop.repository.customer.CustomerRepository;
 import store.myproject.onlineshop.repository.item.ItemRepository;
 
@@ -45,7 +45,7 @@ class RecipeRepositoryTest {
     private ItemRepository itemRepository;
 
     @Autowired
-    private BrandRepository brandRepository;
+    private BrandJpaRepository brandJpaRepository;
 
     @Autowired
     private CustomerRepository customerRepository;
@@ -218,7 +218,7 @@ class RecipeRepositoryTest {
         @DisplayName("성공")
         void find_recipe_use_item_success() {
             // given
-            Brand brand = brandRepository.save(BrandFixture.createBrand());
+            Brand brand = brandJpaRepository.save(BrandFixture.createBrand());
             Item item = itemRepository.save(ItemFixture.createItem(brand));
             Customer customer = customerRepository.save(CustomerFixture.createCustomer());
 
@@ -242,7 +242,7 @@ class RecipeRepositoryTest {
         @DisplayName("해당 아이템을 사용하는 레시피가 없을 경우")
         void find_recipe_use_item_empty() {
             // given
-            Brand brand = brandRepository.save(BrandFixture.createBrand());
+            Brand brand = brandJpaRepository.save(BrandFixture.createBrand());
             Item item = itemRepository.save(ItemFixture.createItem(brand));
             PageRequest pageRequest = PageRequest.of(0, 10);
 
@@ -257,7 +257,7 @@ class RecipeRepositoryTest {
         @DisplayName("정렬 필드가 잘못됐을 때 기본 정렬로 동작")
         void find_recipe_use_item_invalid_sort_success() {
             // given
-            Brand brand = brandRepository.save(BrandFixture.createBrand());
+            Brand brand = brandJpaRepository.save(BrandFixture.createBrand());
             Item item = itemRepository.save(ItemFixture.createItem(brand));
             Customer customer = customerRepository.save(CustomerFixture.createCustomer());
 

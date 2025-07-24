@@ -19,7 +19,7 @@ import store.myproject.onlineshop.fixture.BrandFixture;
 import store.myproject.onlineshop.fixture.CustomerFixture;
 import store.myproject.onlineshop.fixture.ItemFixture;
 import store.myproject.onlineshop.global.config.TestConfig;
-import store.myproject.onlineshop.repository.brand.BrandRepository;
+import store.myproject.onlineshop.repository.brand.BrandJpaRepository;
 import store.myproject.onlineshop.repository.cart.CartRepository;
 import store.myproject.onlineshop.repository.customer.CustomerRepository;
 import store.myproject.onlineshop.repository.item.ItemRepository;
@@ -46,7 +46,7 @@ class CartItemRepositoryTest {
     @Autowired
     private CustomerRepository customerRepository;
     @Autowired
-    private BrandRepository brandRepository;
+    private BrandJpaRepository brandJpaRepository;
 
     @Test
     @DisplayName("장바구니 조회 성공")
@@ -54,7 +54,7 @@ class CartItemRepositoryTest {
         // given
         Customer customer = customerRepository.save(CustomerFixture.createCustomer());
         Cart cart = cartRepository.save(Cart.createCart(customer));
-        Brand brand = brandRepository.save(BrandFixture.createBrand());
+        Brand brand = brandJpaRepository.save(BrandFixture.createBrand());
         Item item = itemRepository.save(ItemFixture.createItem(brand));
         cartItemRepository.save(CartItem.createCartItem(item, 1L, cart));
 
@@ -74,7 +74,7 @@ class CartItemRepositoryTest {
         // given
         Customer customer = customerRepository.save(CustomerFixture.createCustomer());
         Cart cart = cartRepository.save(Cart.createCart(customer));
-        Brand brand = brandRepository.save(BrandFixture.createBrand());
+        Brand brand = brandJpaRepository.save(BrandFixture.createBrand());
         Item item1 = itemRepository.save(ItemFixture.createItem(brand));
         Item item2 = itemRepository.save(ItemFixture.createItem(brand));
         cartItemRepository.save(CartItem.createCartItem(item1, 1L, cart));
@@ -97,7 +97,7 @@ class CartItemRepositoryTest {
         // given
         Customer customer = customerRepository.save(CustomerFixture.createCustomer());
         Cart cart = cartRepository.save(Cart.createCart(customer));
-        Brand brand = brandRepository.save(BrandFixture.createBrand());
+        Brand brand = brandJpaRepository.save(BrandFixture.createBrand());
         Item item = itemRepository.save(ItemFixture.createItem(brand));
         cartItemRepository.save(CartItem.createCartItem(item, 1L, cart));
 
@@ -115,7 +115,7 @@ class CartItemRepositoryTest {
         // given
         Customer customer = customerRepository.save(CustomerFixture.createCustomer());
         Cart cart = cartRepository.save(Cart.createCart(customer));
-        Brand brand = brandRepository.save(BrandFixture.createBrand());
+        Brand brand = brandJpaRepository.save(BrandFixture.createBrand());
         Item item = itemRepository.save(ItemFixture.createItem(brand));
         cartItemRepository.save(CartItem.createCartItem(item, 1L, cart));
 
@@ -133,7 +133,7 @@ class CartItemRepositoryTest {
         // given
         Customer customer = customerRepository.save(CustomerFixture.createCustomer());
         Cart cart = cartRepository.save(Cart.createCart(customer));
-        Brand brand = brandRepository.save(BrandFixture.createBrand());
+        Brand brand = brandJpaRepository.save(BrandFixture.createBrand());
         Item item = itemRepository.save(ItemFixture.createItem(brand));
         cartItemRepository.save(CartItem.createCartItem(item, 1L, cart));
 
@@ -151,7 +151,7 @@ class CartItemRepositoryTest {
         // given
         Customer customer = customerRepository.save(CustomerFixture.createCustomer());
         Cart cart = cartRepository.save(Cart.createCart(customer));
-        Brand brand = brandRepository.save(BrandFixture.createBrand());
+        Brand brand = brandJpaRepository.save(BrandFixture.createBrand());
         Item item1 = itemRepository.save(ItemFixture.createItem(brand));
         Item item2 = itemRepository.save(ItemFixture.createItem(brand));
         cartItemRepository.save(CartItem.createCartItem(item1, 1L, cart));

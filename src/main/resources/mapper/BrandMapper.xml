@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="store.myproject.onlineshop.repository.brand.BrandMapper">
+
+    <select id="searchBrand" resultType="store.myproject.onlineshop.domain.brand.dto.BrandInfo">
+        SELECT
+        b.brand_uuid AS uuid,
+        b.name,
+        img.image_url AS brand_img_url
+        FROM Brand b
+        JOIN ImageFile img ON b.image_file_id = img.image_file_id
+        <where>
+            <if test="brandName != null and brandName != ''">
+                AND MATCH(b.name) AGAINST(#{brandName} IN NATURAL LANGUAGE MODE) > 0
+            </if>
+        </where>
+    </select>
+
+
+</mapper>

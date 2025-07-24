@@ -11,19 +11,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import store.myproject.onlineshop.domain.brand.Brand;
-import store.myproject.onlineshop.domain.imagefile.ImageFile;
 import store.myproject.onlineshop.domain.item.Item;
 import store.myproject.onlineshop.domain.item.dto.ItemSearchCond;
 import store.myproject.onlineshop.domain.item.dto.SimpleItemDto;
 import store.myproject.onlineshop.fixture.BrandFixture;
-import store.myproject.onlineshop.fixture.ImageFileFixture;
 import store.myproject.onlineshop.fixture.ItemFixture;
 import store.myproject.onlineshop.global.config.TestConfig;
-import store.myproject.onlineshop.repository.brand.BrandRepository;
+import store.myproject.onlineshop.repository.brand.BrandJpaRepository;
 import store.myproject.onlineshop.repository.imagefile.ImageFileRepository;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,7 +33,7 @@ class ItemRepositoryTest {
     @Autowired
     private ItemRepository itemRepository;
     @Autowired
-    private BrandRepository brandRepository;
+    private BrandJpaRepository brandJpaRepository;
     @Autowired
     private ImageFileRepository imageFileRepository;
 
@@ -78,7 +75,7 @@ class ItemRepositoryTest {
         void search_without_cond() {
             // given
             Brand brand = BrandFixture.createBrand();
-            brandRepository.save(brand);
+            brandJpaRepository.save(brand);
             Item item = ItemFixture.createItem(brand);
             itemRepository.save(item);
 
@@ -100,7 +97,7 @@ class ItemRepositoryTest {
     void find_by_uuid_success() {
         // given
         Brand brand = BrandFixture.createBrand();
-        brandRepository.save(brand);
+        brandJpaRepository.save(brand);
         Item item = ItemFixture.createItem(brand);
         Item savedItem = itemRepository.save(item);
 
@@ -118,7 +115,7 @@ class ItemRepositoryTest {
     void find_by_name_success() {
         // given
         Brand brand = BrandFixture.createBrand();
-        brandRepository.save(brand);
+        brandJpaRepository.save(brand);
         Item item = ItemFixture.createItem(brand);
         itemRepository.save(item);
 

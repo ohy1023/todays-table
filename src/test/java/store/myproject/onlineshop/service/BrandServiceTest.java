@@ -17,8 +17,8 @@ import store.myproject.onlineshop.domain.brand.dto.BrandCreateRequest;
 import store.myproject.onlineshop.domain.brand.dto.BrandInfo;
 import store.myproject.onlineshop.domain.brand.dto.BrandUpdateRequest;
 import store.myproject.onlineshop.exception.ErrorCode;
-import store.myproject.onlineshop.repository.brand.BrandRepository;
 import store.myproject.onlineshop.domain.imagefile.ImageFile;
+import store.myproject.onlineshop.repository.brand.BrandRepository;
 import store.myproject.onlineshop.repository.imagefile.ImageFileRepository;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.fixture.BrandFixture;
@@ -88,14 +88,14 @@ class BrandServiceTest {
         );
 
         Page<BrandInfo> page = new PageImpl<>(content, pageable, content.size());
-        given(brandRepository.search(brandName, pageable)).willReturn(page);
+        given(brandRepository.searchBrand(brandName, pageable)).willReturn(page);
 
         // when & then
         Page<BrandInfo> response = brandService.searchBrands(brandName, pageable);
 
         assertThat(response.getContent()).hasSize(2);
         assertThat(response.getContent().get(0).getName()).isEqualTo(brandName);
-        then(brandRepository).should(times(1)).search(brandName, pageable);
+        then(brandRepository).should(times(1)).searchBrand(brandName, pageable);
     }
 
 

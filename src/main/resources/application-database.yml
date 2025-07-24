@@ -38,3 +38,25 @@ spring:
         max-lifetime: 900000            # 15분
         connection-timeout: 3000        # 3초
         validation-timeout: 2000        # 2초
+
+
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: store.myproject.onlineshop.domain
+  type-handlers-package: store.myproject.onlineshop.global.utils
+  configuration:
+    map-underscore-to-camel-case: true
+
+pagehelper:
+  # 데이터베이스 방언 (MySQL, PostgreSQL, Oracle 등)
+  helper-dialect: mysql
+  # 페이지 번호가 1보다 작으면 첫 페이지로, 마지막 페이지보다 크면 마지막 페이지로
+  reasonable: true
+  # RowBounds와 PageRowBounds 파라미터 지원
+  support-methods-arguments: true
+  # 페이징 파라미터 설정
+  params: count=countSql
+  # 자동으로 COUNT 쿼리 최적화
+  auto-runtime-dialect: true
+  # 빈 페이지 반환 허용
+  return-page-info: check

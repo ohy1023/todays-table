@@ -12,10 +12,10 @@ import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.brand.dto.*;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.imagefile.ImageFile;
+import store.myproject.onlineshop.repository.brand.BrandRepository;
 import store.myproject.onlineshop.repository.imagefile.ImageFileRepository;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.utils.FileUtils;
-import store.myproject.onlineshop.repository.brand.BrandRepository;
 import store.myproject.onlineshop.global.utils.MessageUtil;
 
 import java.util.UUID;
@@ -46,7 +46,7 @@ public class BrandService {
      */
     @Transactional(readOnly = true)
     public Page<BrandInfo> searchBrands(String brandName, Pageable pageable) {
-        return brandRepository.search(brandName, pageable);
+        return brandRepository.searchBrand(brandName, pageable);
     }
 
     /**

@@ -177,6 +177,12 @@ dependencies {
     // Actuator
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+    // MyBatis
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.5'
+
+    // PageHelper
+    implementation 'com.github.pagehelper:pagehelper-spring-boot-starter:2.1.1'
+
 }
 
 
