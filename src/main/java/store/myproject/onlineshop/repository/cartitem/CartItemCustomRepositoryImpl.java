@@ -13,6 +13,7 @@ import store.myproject.onlineshop.domain.cartitem.dto.CartItemResponse;
 import store.myproject.onlineshop.mapper.CartItemMapper;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -23,6 +24,13 @@ public class CartItemCustomRepositoryImpl implements CartItemCustomRepository {
     @Override
     public Page<CartItemResponse> findByCartPage(Cart cart, Pageable pageable) {
         PageHelper.startPage(pageable.getPageNumber() + 1, pageable.getPageSize());
+
+        if (pageable.getSort().isSorted()) {
+            String orderBy = pageable.getSort().stream()
+                    .map(order -> order.getProperty() + " " + order.getDirection())
+                    .collect(Collectors.joining(", "));
+            PageHelper.orderBy(orderBy);
+        }
 
         List<CartItemResponse> cartItemResponses = cartItemMapper.findByCartPage(cart.getId());
 

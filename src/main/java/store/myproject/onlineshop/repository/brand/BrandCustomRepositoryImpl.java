@@ -11,6 +11,7 @@ import store.myproject.onlineshop.domain.brand.dto.BrandInfo;
 import store.myproject.onlineshop.mapper.BrandMapper;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -21,6 +22,13 @@ public class BrandCustomRepositoryImpl implements BrandCustomRepository {
     @Override
     public Page<BrandInfo> searchBrand(String brandName, Pageable pageable) {
         PageHelper.startPage(pageable.getPageNumber() + 1, pageable.getPageSize());
+
+        if (pageable.getSort().isSorted()) {
+            String orderBy = pageable.getSort().stream()
+                    .map(order -> order.getProperty() + " " + order.getDirection())
+                    .collect(Collectors.joining(", "));
+            PageHelper.orderBy(orderBy);
+        }
 
         List<BrandInfo> brands = brandMapper.searchBrand(brandName);
 
