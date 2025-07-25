@@ -69,7 +69,7 @@ class BrandControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value(SUCCESS))
                 .andExpect(jsonPath("$.result.uuid").value(brandUuid.toString()))
-                .andExpect(jsonPath("$.result.name").exists())
+                .andExpect(jsonPath("$.result.brandName").exists())
                 .andDo(print());
 
     }
@@ -263,9 +263,9 @@ class BrandControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value(SUCCESS))
                 .andExpect(jsonPath("$.result.content[0].uuid").value(brand1.getUuid().toString()))
-                .andExpect(jsonPath("$.result.content[0].name").value(brand1.getBrandName()))
+                .andExpect(jsonPath("$.result.content[0].brandName").value(brand1.getBrandName()))
                 .andExpect(jsonPath("$.result.content[1].uuid").value(brand2.getUuid().toString()))
-                .andExpect(jsonPath("$.result.content[1].name").value(brand2.getBrandName()))
+                .andExpect(jsonPath("$.result.content[1].brandName").value(brand2.getBrandName()))
                 .andDo(print());
     }
 
