@@ -90,7 +90,7 @@ class RecipeControllerTest {
         @DisplayName("성공")
         void get_all_recipes_success() throws Exception {
             List<SimpleRecipeDto> response = List.of(RecipeFixture.createSimpleRecipeDto());
-            given(recipeService.getRecipes(any())).willReturn(new PageImpl<>(response));
+            given(recipeService.getRecipes(any(), any())).willReturn(new PageImpl<>(response));
 
             mockMvc.perform(get("/api/v1/recipes"))
                     .andExpect(status().isOk())

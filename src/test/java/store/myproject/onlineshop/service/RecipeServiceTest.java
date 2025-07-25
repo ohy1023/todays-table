@@ -171,11 +171,12 @@ class RecipeServiceTest {
                 RecipeFixture.createSimpleRecipeDto()
         );
         Slice<SimpleRecipeDto> slice = new SliceImpl<>(recipes, pageable, false);
+        RecipeListCond cond = new RecipeListCond();
 
-        given(recipeRepository.findAllSimpleRecipes(pageable)).willReturn(slice);
+        given(recipeRepository.findRecipeList(cond, pageable)).willReturn(slice);
 
         // when
-        Slice<SimpleRecipeDto> result = recipeService.getRecipes(pageable);
+        Slice<SimpleRecipeDto> result = recipeService.getRecipes(cond, pageable);
 
         // then
         assertThat(result.getContent()).hasSize(2);
