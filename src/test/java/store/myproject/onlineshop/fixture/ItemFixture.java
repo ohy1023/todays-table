@@ -22,7 +22,7 @@ public class ItemFixture {
                 .id(1L)
                 .uuid(UUID.randomUUID())
                 .itemName(faker.company().name())
-                .price(BigDecimal.valueOf(3000))
+                .itemPrice(BigDecimal.valueOf(3000))
                 .stock(40L)
                 .brand(brand)
                 .build();
@@ -33,7 +33,7 @@ public class ItemFixture {
         return Item.builder()
                 .uuid(UUID.fromString(faker.internet().uuid()))
                 .itemName(faker.company().name())
-                .price(BigDecimal.valueOf(3000))
+                .itemPrice(BigDecimal.valueOf(3000))
                 .stock(40L)
                 .brand(brand)
                 .build();
@@ -58,7 +58,7 @@ public class ItemFixture {
                 .uuid(UUID.fromString(faker.internet().uuid()))
                 .itemName(faker.company().name())
                 .thumbnail(faker.internet().image())
-                .price(BigDecimal.valueOf(faker.number().numberBetween(1L, 1000L)))
+                .itemPrice(BigDecimal.valueOf(faker.number().numberBetween(1L, 1000L)))
                 .build();
     }
 
@@ -66,7 +66,7 @@ public class ItemFixture {
         return ItemCreateRequest.builder()
                 .brandName(faker.company().name())
                 .itemName(faker.commerce().productName())
-                .price(BigDecimal.valueOf(faker.number().numberBetween(1000, 100000)))
+                .itemPrice(BigDecimal.valueOf(faker.number().numberBetween(1000, 100000)))
                 .stock(faker.number().numberBetween(1L, 1000L))
                 .build();
     }

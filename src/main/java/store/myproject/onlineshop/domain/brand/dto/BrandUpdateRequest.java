@@ -15,11 +15,11 @@ public class BrandUpdateRequest {
 
     @NotEmpty(message = "브랜드 명을 입력하세요.")
     @Schema(description = "수정할 브랜드명", example = "샘표", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String name;
+    private String brandName;
 
     public Brand toEntity() {
         return Brand.builder()
-                .name(this.name)
+                .brandName(this.brandName)
                 .uuid(UUIDGenerator.generateUUIDv7())
                 .build();
     }

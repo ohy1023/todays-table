@@ -1,10 +1,8 @@
 package store.myproject.onlineshop.domain.order.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -33,4 +31,7 @@ public class OrderSearchCond {
     @Builder.Default
     @Schema(description = "페이지 사이즈 (기본값 10)", example = "10", required = false)
     private int size = 10;
+
+    @JsonIgnore
+    private int sizePlusOne;
 }

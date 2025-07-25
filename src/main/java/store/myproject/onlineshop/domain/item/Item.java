@@ -53,13 +53,16 @@ public class Item extends BaseEntity {
     private String itemName;
 
     // 상품의 가격
-    private BigDecimal price;
+    @Column(name = "item_price")
+    private BigDecimal itemPrice;
 
     // 상품의 재고 수량
+    @Column(name = "stock")
     private Long stock;
 
     // 썸네일
     @Setter
+    @Column(name = "thumbnail")
     private String thumbnail;
 
     // Brand 엔티티와의 다대일 관계
@@ -103,7 +106,7 @@ public class Item extends BaseEntity {
             this.itemName = updateRequest.getItemName();
         }
         if (updateRequest.getPrice() != null) {
-            this.price = updateRequest.getPrice();
+            this.itemPrice = updateRequest.getPrice();
         }
         if (findBrand != null) {
             this.brand = findBrand;
@@ -118,8 +121,8 @@ public class Item extends BaseEntity {
         return ItemDto.builder()
                 .uuid(this.uuid)
                 .itemName(this.itemName)
-                .price(this.price)
-                .brandName(this.brand.getName())
+                .price(this.itemPrice)
+                .brandName(this.brand.getBrandName())
                 .imageList(this.getImageFileList().stream()
                         .map(ImageFile::getImageUrl)
                         .collect(Collectors.toList()))

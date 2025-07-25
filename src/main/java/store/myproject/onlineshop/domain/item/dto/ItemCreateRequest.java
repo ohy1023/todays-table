@@ -23,7 +23,7 @@ public class ItemCreateRequest {
 
     @NotNull(message = "가격은 필수입니다.")
     @Schema(description = "가격", example = "3200", requiredMode = Schema.RequiredMode.REQUIRED)
-    private BigDecimal price;
+    private BigDecimal itemPrice;
 
     @NotNull(message = "재고는 필수입니다.")
     @Schema(description = "재고 수량", example = "10000", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -38,7 +38,7 @@ public class ItemCreateRequest {
         return Item.builder()
                 .uuid(UUIDGenerator.generateUUIDv7())
                 .itemName(this.itemName)
-                .price(this.price)
+                .itemPrice(this.itemPrice)
                 .stock(this.stock)
                 .brand(brand)
                 .build();

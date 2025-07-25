@@ -69,21 +69,21 @@ class BrandServiceTest {
         BrandInfo response = brandService.findBrandInfoById(brandUuid);
 
         then(brandRepository).should(times(1)).findByUuid(brandUuid);
-        assertThat(response.getName()).isEqualTo(brand.getName());
+        assertThat(response.getBrandName()).isEqualTo(brand.getBrandName());
     }
 
     @Test
     @DisplayName("브랜드 검색 성공")
     void search_brand_success() {
         // given
-        String brandName = brand.getName();
+        String brandName = brand.getBrandName();
         Pageable pageable = PageRequest.of(0, 10);
 
         UUID brand1Uuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
         UUID brand2Uuid = UUID.fromString("d290f1ee-6c54-4b01-90e6-d701748f0851");
 
         List<BrandInfo> content = List.of(
-                BrandInfo.builder().uuid(brand1Uuid).name(brandName).build(),
+                BrandInfo.builder().uuid(brand1Uuid).brandName(brandName).build(),
                 BrandFixture.createBrandInfo(brand2Uuid)
         );
 
@@ -94,7 +94,7 @@ class BrandServiceTest {
         Page<BrandInfo> response = brandService.searchBrands(brandName, pageable);
 
         assertThat(response.getContent()).hasSize(2);
-        assertThat(response.getContent().get(0).getName()).isEqualTo(brandName);
+        assertThat(response.getContent().get(0).getBrandName()).isEqualTo(brandName);
         then(brandRepository).should(times(1)).searchBrand(brandName, pageable);
     }
 
@@ -104,7 +104,7 @@ class BrandServiceTest {
     void create_brand_success() {
         BrandCreateRequest request = BrandFixture.createRequest();
 
-        given(brandRepository.existsByName(request.getName())).willReturn(false);
+        given(brandRepository.existsByBrandName(request.getBrandName())).willReturn(false);
         given(awsS3Service.uploadBrandOriginImage(mockFile)).willReturn(imageFile.getImageUrl());
         given(brandRepository.save(any(Brand.class))).willAnswer(invocation -> invocation.getArgument(0));
         given(imageFileRepository.save(any(ImageFile.class))).willAnswer(invocation -> invocation.getArgument(0));
@@ -122,7 +122,7 @@ class BrandServiceTest {
     void create_brand_fail_duplicate_name() {
         BrandCreateRequest request = new BrandCreateRequest("중복브랜드");
 
-        given(brandRepository.existsByName("중복브랜드")).willReturn(true);
+        given(brandRepository.existsByBrandName("중복브랜드")).willReturn(true);
 
         assertThatThrownBy(() -> brandService.createBrand(request, mockFile))
                 .isInstanceOf(AppException.class);
@@ -152,7 +152,7 @@ class BrandServiceTest {
     @DisplayName("브랜드 수정 성공 - 이미지 없이 이름만")
     void update_brand_success_name_only() {
         UUID brandUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-        Brand brand = Brand.builder().name("예전이름").build();
+        Brand brand = Brand.builder().brandName("예전이름").build();
 
         BrandUpdateRequest request = new BrandUpdateRequest("새이름");
 
@@ -162,7 +162,7 @@ class BrandServiceTest {
         MessageResponse response = brandService.updateBrand(brandUuid, request, null);
 
         assertThat(response.getMessage()).isEqualTo("브랜드 수정 완료");
-        assertThat(brand.getName()).isEqualTo("새이름");
+        assertThat(brand.getBrandName()).isEqualTo("새이름");
         then(awsS3Service).should(never()).deleteBrandImage(anyString());
     }
 

@@ -1,7 +1,7 @@
 package store.myproject.onlineshop.domain.recipe.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import com.querydsl.core.annotations.QueryProjection;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,8 +9,9 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Getter
-@NoArgsConstructor
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "레시피 간략 정보 DTO")
 public class SimpleRecipeDto {
 
@@ -44,19 +45,19 @@ public class SimpleRecipeDto {
     @Schema(description = "레시피 좋아요 수", example = "100")
     private Long likeCnt;
 
-    @QueryProjection
-    public SimpleRecipeDto(UUID recipeUuid, String title, String recipeDescription, String thumbnail,
-                           String writer, Integer recipeCookingTime, Integer recipeServings,
-                           Long recipeView, Long reviewCnt, Long likeCnt) {
-        this.recipeUuid = recipeUuid;
-        this.title = title;
-        this.recipeDescription = recipeDescription;
-        this.thumbnail = thumbnail;
-        this.writer = writer;
-        this.recipeCookingTime = recipeCookingTime;
-        this.recipeServings = recipeServings;
-        this.recipeView = recipeView;
-        this.reviewCnt = reviewCnt;
-        this.likeCnt = likeCnt;
-    }
+//    @QueryProjection
+//    public SimpleRecipeDto(UUID recipeUuid, String title, String recipeDescription, String thumbnail,
+//                           String writer, Integer recipeCookingTime, Integer recipeServings,
+//                           Long recipeView, Long reviewCnt, Long likeCnt) {
+//        this.recipeUuid = recipeUuid;
+//        this.title = title;
+//        this.recipeDescription = recipeDescription;
+//        this.thumbnail = thumbnail;
+//        this.writer = writer;
+//        this.recipeCookingTime = recipeCookingTime;
+//        this.recipeServings = recipeServings;
+//        this.recipeView = recipeView;
+//        this.reviewCnt = reviewCnt;
+//        this.likeCnt = likeCnt;
+//    }
 }

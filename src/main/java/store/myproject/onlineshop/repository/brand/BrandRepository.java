@@ -9,9 +9,9 @@ import java.util.UUID;
 
 public interface BrandRepository extends JpaRepository<Brand, Long>, BrandCustomRepository {
 
-    boolean existsByName(String brandName);
+    boolean existsByBrandName(String brandName);
 
-    Optional<Brand> findBrandByName(String name);
+    Optional<Brand> findBrandByBrandName(String brandName);
 
     Optional<Brand> findByUuid(UUID uuid);
 }

@@ -373,7 +373,8 @@ public class RecipeService {
      * 특정 아이템을 사용하는 레시피 목록 조회
      */
     public Page<SimpleRecipeDto> getRecipesByItem(UUID itemUuid, Pageable pageable) {
-        return recipeRepository.findRecipeUseItem(itemUuid, pageable);
+        Long itemId = itemRepository.findIdByUuid(itemUuid).orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
+        return recipeRepository.findRecipeUseItem(itemId, pageable);
     }
 
     /**

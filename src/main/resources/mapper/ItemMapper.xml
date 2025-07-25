@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="store.myproject.onlineshop.mapper.ItemMapper">
+    <select id="searchItem" resultType="store.myproject.onlineshop.domain.item.dto.SimpleItemDto">
+        SELECT
+            i.item_uuid AS uuid,
+            i.item_name,
+            i.item_price,
+            i.thumbnail,
+            b.brand_name
+        FROM Item i
+        JOIN Brand b ON i.brand_id = b.brand_id
+        <where>
+            <if test="cond.itemName != null and cond.itemName != ''">
+                AND MATCH(i.item_name) AGAINST(#{cond.itemName} IN BOOLEAN MODE)
+            </if>
+            <if test="cond.brandName != null and cond.brandName != ''">
+                AND MATCH(b.brand_name) AGAINST(#{cond.brandName} IN NATURAL LANGUAGE MODE) > 0
+            </if>
+        </where>
+    </select>
+
+</mapper>

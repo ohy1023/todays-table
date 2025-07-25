@@ -16,33 +16,33 @@ public class BrandFixture {
         return Brand.builder()
                 .id(1L)
                 .uuid(UUID.randomUUID())
-                .name(faker.company().name())
+                .brandName(faker.company().name())
                 .build();
     }
 
     public static Brand createBrand() {
         return Brand.builder()
                 .uuid(UUID.randomUUID())
-                .name(faker.company().name())
+                .brandName(faker.company().name())
                 .build();
     }
 
     public static BrandCreateRequest createRequest() {
         return BrandCreateRequest.builder()
-                .name(faker.company().name())
+                .brandName(faker.company().name())
                 .build();
     }
 
     public static BrandUpdateRequest updateRequest() {
         return BrandUpdateRequest.builder()
-                .name(faker.company().name())
+                .brandName(faker.company().name())
                 .build();
     }
 
     public static BrandInfo createBrandInfo(UUID uuid) {
         return BrandInfo.builder()
                 .uuid(uuid)
-                .name(faker.company().name())
+                .brandName(faker.company().name())
                 .brandImgUrl(faker.internet().image())
                 .build();
     }

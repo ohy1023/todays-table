@@ -126,7 +126,7 @@ class ItemControllerTest {
                         .param("size", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.content[0].itemName").value(item.getItemName()))
-                .andExpect(jsonPath("$.result.content[0].price").value(item.getPrice().intValue()))
+                .andExpect(jsonPath("$.result.content[0].itemPrice").value(item.getItemPrice().intValue()))
                 .andDo(print());
     }
 

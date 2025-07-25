@@ -1,6 +1,6 @@
 package store.myproject.onlineshop.domain.cartitem.dto;
 
-import com.querydsl.core.annotations.QueryProjection;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,6 +11,7 @@ import java.util.UUID;
 @Data
 @Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class CartItemResponse {
 
     private UUID itemUuid;
@@ -19,16 +20,7 @@ public class CartItemResponse {
 
     private String thumbnail;
 
-    private BigDecimal price;
+    private BigDecimal itemPrice;
 
     private Long itemCnt;
-
-    @QueryProjection
-    public CartItemResponse(UUID itemUuid, String itemName, String thumbnail, BigDecimal price, Long itemCnt) {
-        this.itemUuid = itemUuid;
-        this.itemName = itemName;
-        this.thumbnail = thumbnail;
-        this.price = price;
-        this.itemCnt = itemCnt;
-    }
 }

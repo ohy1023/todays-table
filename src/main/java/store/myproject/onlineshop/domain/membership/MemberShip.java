@@ -27,11 +27,13 @@ public class MemberShip {
     private UUID uuid;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "level")
     private Level level;
 
     @Column(name = "discount_rate")
     private BigDecimal discountRate;
 
+    @Column(name = "baseline")
     private BigDecimal baseline;
 
     public void updateMemberShip(MemberShipUpdateRequest updateRequest) {

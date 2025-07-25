@@ -10,7 +10,7 @@
         i.item_uuid,
         i.item_name,
         i.thumbnail,
-        i.price,
+        i.item_price,
         ci.cart_item_cnt AS item_cnt
         FROM CartItem AS ci
         JOIN Item i ON i.item_id = ci.item_id

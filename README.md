@@ -13,7 +13,7 @@
 - Spring Boot 3.0.6
 - Spring Data JPA
 - Spring Security
-- QueryDsl 5.1.0
+- MyBatis
 
 **Database**
 

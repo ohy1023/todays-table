@@ -11,5 +11,5 @@ public interface RecipeCustomRepository {
 
     Slice<SimpleRecipeDto> findAllSimpleRecipes(Pageable pageable);
 
-    Page<SimpleRecipeDto> findRecipeUseItem(UUID uuid, Pageable pageable);
+    Page<SimpleRecipeDto> findRecipeUseItem(Long itemId, Pageable pageable);
 }

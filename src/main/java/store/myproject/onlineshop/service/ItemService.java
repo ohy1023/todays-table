@@ -95,7 +95,7 @@ public class ItemService {
 
     @Transactional(readOnly = true)
     public Page<SimpleItemDto> searchItem(ItemSearchCond itemSearchCond, Pageable pageable) {
-        return itemRepository.search(itemSearchCond, pageable);
+        return itemRepository.searchItem(itemSearchCond, pageable);
     }
 
     public MessageResponse createItem(ItemCreateRequest request, List<MultipartFile> multipartFileList) {
@@ -195,7 +195,7 @@ public class ItemService {
     }
 
     private Brand getBrandByName(String brandName) {
-        return brandRepository.findBrandByName(brandName)
+        return brandRepository.findBrandByBrandName(brandName)
                 .orElseThrow(() -> new AppException(BRAND_NOT_FOUND));
     }
 }

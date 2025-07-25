@@ -17,7 +17,7 @@ public class RecipeItemDto {
 
     private String itemName;
 
-    private BigDecimal price;
+    private BigDecimal itemPrice;
 
     private String brandName;
 

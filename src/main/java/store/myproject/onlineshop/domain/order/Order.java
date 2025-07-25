@@ -137,7 +137,7 @@ public class Order extends BaseEntity {
                                 .thumbnail(orderItem.getItem().getThumbnail())
                                 .count(orderItem.getCount())
                                 .brandUuid(orderItem.getItem().getBrand().getUuid())
-                                .brandName(orderItem.getItem().getBrand().getName())
+                                .brandName(orderItem.getItem().getBrand().getBrandName())
                                 .build()
                 )
                 .toList();
@@ -178,7 +178,7 @@ public class Order extends BaseEntity {
                                         .itemUuid(oi.getItem().getUuid())
                                         .thumbnail(oi.getItem().getThumbnail())
                                         .brandUuid(oi.getItem().getBrand().getUuid())
-                                        .brandName(oi.getItem().getBrand().getName())
+                                        .brandName(oi.getItem().getBrand().getBrandName())
                                         .build()
                                 ).collect(Collectors.toList())
                 )

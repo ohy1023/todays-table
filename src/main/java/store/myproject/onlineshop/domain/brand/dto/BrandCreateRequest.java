@@ -16,11 +16,11 @@ public class BrandCreateRequest {
 
     @NotBlank(message = "브랜드명은 공백일수 없습니다.")
     @Schema(description = "브랜드 이름", example = "풀무원", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String name;
+    private String brandName;
 
     public Brand toEntity() {
         return Brand.builder()
-                .name(this.name)
+                .brandName(this.brandName)
                 .uuid(UUIDGenerator.generateUUIDv7())
                 .build();
     }

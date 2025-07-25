@@ -113,7 +113,7 @@ class ItemServiceTest {
 
         // then
         assertThat(result.getItemName()).isEqualTo(item.getItemName());
-        assertThat(result.getPrice()).isEqualTo(item.getPrice());
+        assertThat(result.getPrice()).isEqualTo(item.getItemPrice());
         then(cacheRedisTemplate.opsForValue()).should().set(eq(itemCacheKey), eq(dto), any());
         then(rLock).should().unlock();
     }
@@ -146,7 +146,7 @@ class ItemServiceTest {
         ItemSearchCond cond = ItemSearchCond
                 .builder()
                 .itemName(item.getItemName())
-                .brandName(brand.getName())
+                .brandName(brand.getBrandName())
                 .build();
         Pageable pageable = PageRequest.of(0, 10);
 
@@ -154,13 +154,13 @@ class ItemServiceTest {
                 SimpleItemDto
                         .builder()
                         .uuid(item.getUuid())
-                        .price(item.getPrice())
+                        .itemPrice(item.getItemPrice())
                         .itemName(item.getItemName())
-                        .brandName(brand.getName())
+                        .brandName(brand.getBrandName())
                         .thumbnail(imageFile.getImageUrl())
                         .build()
                 ));
-        given(itemRepository.search(cond, pageable)).willReturn(page);
+        given(itemRepository.searchItem(cond, pageable)).willReturn(page);
 
         // when
         Page<SimpleItemDto> result = itemService.searchItem(cond, pageable);
@@ -177,7 +177,7 @@ class ItemServiceTest {
         ItemCreateRequest request = ItemFixture.createRequest();
 
         given(itemRepository.findItemByItemName(request.getItemName())).willReturn(Optional.empty());
-        given(brandRepository.findBrandByName(request.getBrandName())).willReturn(Optional.of(brand));
+        given(brandRepository.findBrandByBrandName(request.getBrandName())).willReturn(Optional.of(brand));
         given(itemRepository.save(any(Item.class))).willReturn(item);
         given(awsS3Service.uploadItemOriginImage(any(MultipartFile.class))).willReturn(imageFile.getImageUrl());
         given(imageFileRepository.save(any(ImageFile.class))).willReturn(imageFile);
@@ -215,7 +215,7 @@ class ItemServiceTest {
         ItemUpdateRequest request = ItemFixture.updateRequest();
 
         given(itemRepository.findByUuid(any(UUID.class))).willReturn(Optional.of(item));
-        given(brandRepository.findBrandByName(any(String.class))).willReturn(Optional.of(brand));
+        given(brandRepository.findBrandByBrandName(any(String.class))).willReturn(Optional.of(brand));
         given(awsS3Service.uploadItemOriginImage(any(MultipartFile.class))).willReturn(imageFile.getImageUrl());
         given(messageUtil.get(MessageCode.ITEM_MODIFIED)).willReturn("해당 품목이 수정되었습니다.");
 
@@ -247,7 +247,7 @@ class ItemServiceTest {
         UUID itemUuid = item.getUuid();
         ItemUpdateRequest request = ItemFixture.updateRequest();
         given(itemRepository.findByUuid(any(UUID.class))).willReturn(Optional.of(item));
-        given(brandRepository.findBrandByName(any(String.class))).willReturn(Optional.empty());
+        given(brandRepository.findBrandByBrandName(any(String.class))).willReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> itemService.updateItem(itemUuid, request, List.of(multipartFile)))

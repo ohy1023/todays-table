@@ -43,6 +43,7 @@ public class Review extends BaseEntity {
     private Long parentId;
 
     // 리뷰 내용
+    @Column(name = "review_content")
     private String reviewContent;
 
     // 리뷰를 작성한 고객

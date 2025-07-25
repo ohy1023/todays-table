@@ -20,14 +20,14 @@ public class RecipeMeta {
     private Long id;
 
     // 좋아요 수
-    @Column(nullable = false)
+    @Column(nullable = false, name = "like_cnt")
     private Long likeCnt;
 
     // 리뷰 수
-    @Column(nullable = false)
+    @Column(nullable = false, name = "review_cnt")
     private Long reviewCnt;
 
     // 조회수
-    @Column(nullable = false)
+    @Column(nullable = false, name = "recipe_view")
     private Long viewCnt;
 }

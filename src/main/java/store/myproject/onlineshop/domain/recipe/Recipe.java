@@ -43,10 +43,11 @@ public class Recipe extends BaseEntity {
     private UUID uuid;
 
     // 제목
+    @Column(name = "recipe_title")
     private String recipeTitle;
 
     // 레시피 간단 설명
-    @Column(columnDefinition = "text")
+    @Column(columnDefinition = "text", name = "recipe_description")
     private String recipeDescription;
 
     // 레시피 작성자
@@ -55,13 +56,16 @@ public class Recipe extends BaseEntity {
     private Customer customer;
 
     // 조리시간
+    @Column(name = "recipe_cooking_time")
     private Integer recipeCookingTime;
 
     // 몇인분
+    @Column(name = "recipe_servings")
     private Integer recipeServings;
 
     // 썸네일
     @Setter
+    @Column(name = "thumbnail_url")
     private String thumbnailUrl;
 
     // 통계 테이블

@@ -186,6 +186,7 @@ class RecipeServiceTest {
     @DisplayName("특정 아이템을 사용하는 레시피 조회 성공")
     void get_recipes_by_item_success() {
         UUID itemUuid = UUID.randomUUID();
+        Long itemId = 1L;
 
         // given
         Pageable pageable = PageRequest.of(0, 5);
@@ -193,7 +194,8 @@ class RecipeServiceTest {
                 RecipeFixture.createSimpleRecipeDto()
         ));
 
-        given(recipeRepository.findRecipeUseItem(itemUuid, pageable)).willReturn(page);
+        given(itemRepository.findIdByUuid(itemUuid)).willReturn(Optional.of(itemId));
+        given(recipeRepository.findRecipeUseItem(itemId, pageable)).willReturn(page);
 
         // when
         Page<SimpleRecipeDto> result = recipeService.getRecipesByItem(itemUuid, pageable);

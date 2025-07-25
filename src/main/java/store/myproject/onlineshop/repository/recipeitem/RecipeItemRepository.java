@@ -14,8 +14,8 @@ public interface RecipeItemRepository extends JpaRepository<RecipeItem, Long> {
                 select new store.myproject.onlineshop.domain.recipeitem.dto.RecipeItemDto(
                     i.uuid,
                     i.itemName,
-                    i.price,
-                    b.name,
+                    i.itemPrice,
+                    b.brandName,
                     i.thumbnail
                 )
                 from RecipeItem ri

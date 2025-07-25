@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="store.myproject.onlineshop.mapper.OrderMapper">
+
+    <select id="findMyOrderIds" resultType="long">
+        SELECT
+        o.orders_id
+        FROM
+        Orders o
+        <where>
+            o.customer_id = #{customerId}
+            AND o.order_status IN ('ORDER', 'CANCEL')
+
+            <if test="cond.brandName != null and cond.brandName != ''">
+                AND EXISTS (
+                SELECT 1
+                FROM OrderItem oi
+                JOIN Item i ON oi.item_id = i.item_id
+                JOIN Brand b ON i.brand_id = b.brand_id
+                WHERE oi.orders_id = o.orders_id
+                AND MATCH(b.brand_name) AGAINST(#{cond.brandName} IN BOOLEAN MODE)
+                )
+            </if>
+
+            <if test="cond.itemName != null and cond.itemName != ''">
+                AND EXISTS (
+                SELECT 1
+                FROM OrderItem oi
+                JOIN Item i ON oi.item_id = i.item_id
+                WHERE oi.orders_id = o.orders_id
+                AND MATCH(i.item_name) AGAINST(#{cond.itemName} IN BOOLEAN MODE)
+                )
+            </if>
+
+            <if test="cond.fromDate != null">
+                AND o.created_date &gt;= #{cond.fromDate}
+            </if>
+            <if test="cond.toDate != null">
+                AND o.created_date &lt;= #{cond.toDate}
+            </if>
+
+            <if test="cond.merchantUid != null and cond.merchantUid != ''">
+                AND o.merchant_uid &lt; #{cond.merchantUid}
+            </if>
+        </where>
+        ORDER BY o.merchant_uid DESC
+        LIMIT #{cond.sizePlusOne}
+
+    </select>
+
+    <select id="findMyOrders" resultType="store.myproject.onlineshop.domain.order.dto.MyOrderFlatDto">
+        SELECT
+        o.merchant_uid,
+        o.created_date,
+        o.total_price,
+        o.order_status,
+        d.delivery_status,
+        oi.order_count AS count,
+        oi.order_price,
+        i.item_uuid,
+        i.item_name,
+        i.thumbnail,
+        b.brand_uuid,
+        b.brand_name
+        FROM Orders o
+        JOIN Delivery d ON o.delivery_id = d.delivery_id
+        JOIN OrderItem oi ON o.orders_id = oi.orders_id
+        JOIN Item i ON oi.item_id = i.item_id
+        JOIN Brand b ON i.brand_id = b.brand_id
+        <where>
+            <if test="orderIds != null and orderIds.size() > 0">
+                o.orders_id IN
+                <foreach collection="orderIds" item="orderId" open="(" separator="," close=")">
+                    #{orderId}
+                </foreach>
+            </if>
+            <if test="orderIds == null or orderIds.size() == 0">
+                1=0
+            </if>
+        </where>
+        ORDER BY o.merchant_uid DESC
+    </select>
+
+
+</mapper>

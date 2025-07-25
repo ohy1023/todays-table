@@ -40,6 +40,7 @@ public class OrderItem {
     @Column(name = "order_price")
     private BigDecimal orderPrice; //주문 가격
 
+    @Column(name = "order_count")
     private Long count; //주문 수량
 
     public static OrderItem createOrderItem(Item item, BigDecimal orderPrice, Long count) {

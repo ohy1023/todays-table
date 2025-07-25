@@ -45,10 +45,14 @@ import store.myproject.onlineshop.repository.orderitem.OrderItemRepository;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 
@@ -101,7 +105,7 @@ class OrderServiceTest {
         Delivery delivery = DeliveryFixture.createDelivery();
         Brand brand = BrandFixture.createBrandEntity();
         Item item = ItemFixture.createItemEntity(brand);
-        BigDecimal discountedPrice = customer.getMemberShip().applyDiscount(item.getPrice());
+        BigDecimal discountedPrice = customer.getMemberShip().applyDiscount(item.getItemPrice());
         OrderItem orderItem = OrderItem.createOrderItem(item, discountedPrice, 1L);
         Order order = Order.createOrder(UUID.randomUUID(), customer, delivery, orderItem);
 
@@ -153,27 +157,42 @@ class OrderServiceTest {
     void get_my_orders_success() {
         // given
         Customer customer = CustomerFixture.createCustomerEntity();
-        Delivery delivery = DeliveryFixture.createDelivery();
-        Brand brand = BrandFixture.createBrandEntity();
-        Item item = ItemFixture.createItemEntity(brand);
         OrderSearchCond searchCond = new OrderSearchCond();
+        searchCond.setSize(10);
 
-        BigDecimal discountedPrice = customer.getMemberShip().applyDiscount(item.getPrice());
-        OrderItem orderItem = OrderItem.createOrderItem(item, discountedPrice, 1L);
-        Order order = Order.createOrder(UUID.randomUUID(), customer, delivery, orderItem);
+        List<Long> myOrderIds = IntStream.rangeClosed(1, 11)
+                .mapToObj(i -> (long) i)
+                .collect(Collectors.toList());
 
-        List<Order> orders = new ArrayList<>(List.of(order));
+        List<MyOrderFlatDto> flatDtos = IntStream.rangeClosed(1, 10)
+                .mapToObj(i -> MyOrderFlatDto.builder()
+                        .merchantUid(UUID.randomUUID())
+                        .createdDate(LocalDateTime.now())
+                        .orderStatus(OrderStatus.ORDER.name())
+                        .totalPrice(BigDecimal.valueOf(1000L * i))
+                        .deliveryStatus(DeliveryStatus.READY.name())
+                        .count(1L)
+                        .orderPrice(BigDecimal.valueOf(1000L * i))
+                        .itemName("Item " + i)
+                        .itemUuid(UUID.randomUUID())
+                        .thumbnail("thumbnail_url")
+                        .brandUuid(UUID.randomUUID())
+                        .brandName("Brand " + i)
+                        .build())
+                .collect(Collectors.toList());
 
         given(customerRepository.findByEmail(customer.getEmail())).willReturn(Optional.of(customer));
-        given(orderRepository.findMyOrders(searchCond, customer)).willReturn(orders);
+        given(orderRepository.findMyOrderIds(searchCond, customer)).willReturn(myOrderIds);
+        given(orderRepository.findMyOrders(anyList())).willReturn(flatDtos);
 
         // when
         MyOrderSliceResponse result = orderService.getMyOrders(searchCond, customer.getEmail());
 
         // then
-        assertThat(result.getContent().size()).isEqualTo(1);
-        assertThat(result.getNextCursor()).isNull();
+        assertThat(result.getContent().size()).isEqualTo(10);
+        assertThat(result.getNextCursor()).isNotNull();
     }
+
 
     @Test
     @DisplayName("단건 주문 성공")
@@ -199,14 +218,14 @@ class OrderServiceTest {
 
         Brand brand = Brand.builder()
                 .uuid(brandUuid)
-                .name("브랜드명")
+                .brandName("브랜드명")
                 .build();
 
         Item item = Item.builder()
                 .uuid(itemUuid)
                 .itemName("상품명")
                 .stock(100L)
-                .price(BigDecimal.valueOf(10000))
+                .itemPrice(BigDecimal.valueOf(10000))
                 .brand(brand)
                 .build();
 
@@ -309,7 +328,7 @@ class OrderServiceTest {
         Brand brand = BrandFixture.createBrandEntity();
         Item item = ItemFixture.createItemEntity(brand);
 
-        OrderItem orderItem = OrderItem.createOrderItem(item, item.getPrice(), 2L);
+        OrderItem orderItem = OrderItem.createOrderItem(item, item.getItemPrice(), 2L);
         Order order = Order.createOrder(merchantUid, customer, DeliveryFixture.createDelivery(), orderItem);
 
         given(orderRepository.findByMerchantUid(merchantUid)).willReturn(Optional.of(order));
@@ -338,7 +357,7 @@ class OrderServiceTest {
         Brand brand = BrandFixture.createBrandEntity();
         Item item = ItemFixture.createItemEntity(brand);
 
-        OrderItem orderItem = OrderItem.createOrderItem(item, item.getPrice(), 2L);
+        OrderItem orderItem = OrderItem.createOrderItem(item, item.getItemPrice(), 2L);
         Order order = Order.createOrder(merchantUid, customer, DeliveryFixture.createDelivery(), orderItem);
 
         given(orderRepository.findByMerchantUid(merchantUid)).willReturn(Optional.of(order));
@@ -378,7 +397,7 @@ class OrderServiceTest {
         Brand brand = BrandFixture.createBrandEntity();
         Item item = ItemFixture.createItemEntity(brand);
 
-        OrderItem orderItem = OrderItem.createOrderItem(item, item.getPrice(), 1L);
+        OrderItem orderItem = OrderItem.createOrderItem(item, item.getItemPrice(), 1L);
         Order order = Order.createOrder(merchantUid, customer, DeliveryFixture.createDelivery(), orderItem);
 
         given(orderRepository.findByMerchantUid(merchantUid)).willReturn(Optional.of(order));
@@ -661,14 +680,14 @@ class OrderServiceTest {
 
         Brand brand = Brand.builder()
                 .id(brandId)
-                .name("브랜드명")
+                .brandName("브랜드명")
                 .build();
 
         Item item = Item.builder()
                 .id(itemId)
                 .itemName("상품명")
                 .stock(100L)
-                .price(BigDecimal.valueOf(10000))
+                .itemPrice(BigDecimal.valueOf(10000))
                 .brand(brand)
                 .build();
 
@@ -726,21 +745,21 @@ class OrderServiceTest {
 
         Brand brand = Brand.builder()
                 .id(brandId)
-                .name("브랜드명")
+                .brandName("브랜드명")
                 .build();
 
         Item item1 = Item.builder()
                 .id(1L)
                 .itemName("사과")
                 .stock(100L)
-                .price(BigDecimal.valueOf(10000))
+                .itemPrice(BigDecimal.valueOf(10000))
                 .brand(brand)
                 .build();
 
         Item item2 = Item.builder()
                 .id(2L)
                 .itemName("바나나")
-                .price(BigDecimal.valueOf(2000))
+                .itemPrice(BigDecimal.valueOf(2000))
                 .stock(5L)
                 .brand(brand)
                 .build();

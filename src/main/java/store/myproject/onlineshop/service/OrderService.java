@@ -36,9 +36,7 @@ import store.myproject.onlineshop.global.utils.MessageUtil;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static store.myproject.onlineshop.domain.MessageCode.ORDER_POST_VERIFICATION;
 import static store.myproject.onlineshop.domain.order.OrderStatus.*;
@@ -74,19 +72,21 @@ public class OrderService {
     public MyOrderSliceResponse getMyOrders(OrderSearchCond cond, String email) {
         Customer customer = getCustomerByEmail(email);
 
-        List<Order> myOrders = orderRepository.findMyOrders(cond, customer);
-        boolean hasNext = myOrders.size() > cond.getSize();
+        List<Long> myOrderIds = orderRepository.findMyOrderIds(cond, customer);
 
-        List<Order> content = hasNext
-                ? myOrders.subList(0, cond.getSize())
-                : myOrders;
+        boolean hasNext = myOrderIds.size() > cond.getSize();
 
-        List<MyOrderResponse> responseList = content.stream()
-                .map(Order::toMyOrderResponse)
-                .toList();
+        List<Long> limitedOrderIds = hasNext
+                ? myOrderIds.subList(0, cond.getSize())
+                : myOrderIds;
+
+        List<MyOrderFlatDto> flatDtos = orderRepository.findMyOrders(limitedOrderIds);
+
+        // 그룹핑 (merchantUid 기준)
+        List<MyOrderResponse> responseList = groupOrders(flatDtos);
 
         UUID nextCursor = hasNext
-                ? content.get(content.size() - 1).getMerchantUid()
+                ? responseList.get(responseList.size() - 1).getMerchantUid()
                 : null;
 
         return MyOrderSliceResponse.builder()
@@ -104,7 +104,7 @@ public class OrderService {
         Item item = itemRepository.findPessimisticLockById(itemId)
                 .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
 
-        BigDecimal discountedPrice = memberShip.applyDiscount(item.getPrice());
+        BigDecimal discountedPrice = memberShip.applyDiscount(item.getItemPrice());
         log.info("할인된 가격 : {}", discountedPrice);
 
         Delivery delivery = Delivery.createWithInfo(request.toDeliveryInfoRequest());
@@ -326,7 +326,7 @@ public class OrderService {
             Item item = itemRepository.findPessimisticLockById(itemId)
                     .orElseThrow(() -> new AppException(ITEM_NOT_FOUND));
 
-            BigDecimal discountedPrice = memberShip.applyDiscount(item.getPrice());
+            BigDecimal discountedPrice = memberShip.applyDiscount(item.getItemPrice());
 
             OrderItem orderItem = OrderItem.createOrderItem(item, discountedPrice, itemRequest.getItemCnt());
             orderItems.add(orderItem);
@@ -356,5 +356,32 @@ public class OrderService {
             // 재고 증가
             item.increase(orderItem.getCount());
         }
+    }
+
+    private List<MyOrderResponse> groupOrders(List<MyOrderFlatDto> flatDtos) {
+        Map<UUID, MyOrderResponse> grouped = new LinkedHashMap<>();
+
+        for (MyOrderFlatDto dto : flatDtos) {
+            grouped.computeIfAbsent(dto.getMerchantUid(), uid -> MyOrderResponse.builder()
+                    .merchantUid(uid)
+                    .createdDate(dto.getCreatedDate())
+                    .orderStatus(dto.getOrderStatus())
+                    .totalPrice(dto.getTotalPrice())
+                    .deliveryStatus(dto.getDeliveryStatus())
+                    .orderItems(new ArrayList<>())
+                    .build()
+            ).getOrderItems().add(OrderItemResponse.builder()
+                    .count(dto.getCount())
+                    .orderPrice(dto.getOrderPrice())
+                    .itemName(dto.getItemName())
+                    .itemUuid(dto.getItemUuid())
+                    .thumbnail(dto.getThumbnail())
+                    .brandUuid(dto.getBrandUuid())
+                    .brandName(dto.getBrandName())
+                    .build()
+            );
+        }
+
+        return new ArrayList<>(grouped.values());
     }
 }

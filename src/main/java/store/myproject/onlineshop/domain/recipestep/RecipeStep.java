@@ -16,12 +16,13 @@ public class RecipeStep {
     @Column(name = "recipe_step_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "step_order")
     private int stepOrder;
 
     @Column(columnDefinition = "text", nullable = false)
     private String content;
 
+    @Column(name = "image_url")
     private String imageUrl;  // S3 URL (nullable)
 
     @Setter

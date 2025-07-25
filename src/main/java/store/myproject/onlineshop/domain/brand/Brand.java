@@ -27,7 +27,8 @@ public class Brand {
     @Convert(converter = UUIDBinaryConverter.class)
     private UUID uuid;
 
-    private String name;
+    @Column(name = "brand_name")
+    private String brandName;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "image_file_id")
@@ -41,13 +42,13 @@ public class Brand {
     public BrandInfo toBrandInfo() {
         return BrandInfo.builder()
                 .uuid(this.uuid)
-                .name(this.name)
+                .brandName(this.brandName)
                 .brandImgUrl(this.imageFile.getImageUrl())
                 .build();
     }
 
     public void update(BrandUpdateRequest updatedBrand) {
-        this.name = updatedBrand.getName();
+        this.brandName = updatedBrand.getBrandName();
     }
 
     public void addImage(ImageFile imageFile) {

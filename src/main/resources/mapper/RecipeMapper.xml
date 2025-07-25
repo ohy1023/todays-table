@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="store.myproject.onlineshop.mapper.RecipeMapper">
+
+    <select id="findAllSimpleRecipes" resultType="store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto">
+        SELECT
+            r.recipe_uuid,
+            r.recipe_title AS title,
+            r.recipe_description,
+            r.thumbnail_url AS thumbnail,
+            c.nick_name AS writer,
+            r.recipe_cooking_time,
+            r.recipe_servings,
+            rm.recipe_view,
+            rm.review_cnt,
+            rm.like_cnt
+        FROM
+            Recipe r
+        JOIN Customer c ON r.customer_id = c.customer_id
+        JOIN RecipeMeta rm ON r.recipe_meta_id = rm.recipe_meta_id
+        ORDER BY rm.recipe_view DESC
+    </select>
+
+    <select id="findRecipeUseItem" resultType="store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto">
+        SELECT
+            r.recipe_uuid,
+            r.recipe_title AS title,
+            r.recipe_description,
+            r.thumbnail_url AS thumbnail,
+            c.nick_name AS writer,
+            r.recipe_cooking_time,
+            r.recipe_servings,
+            rm.recipe_view,
+            rm.review_cnt,
+            rm.like_cnt
+        FROM
+            Recipe r
+        JOIN Customer c ON r.customer_id = c.customer_id
+        JOIN RecipeMeta rm ON r.recipe_meta_id = rm.recipe_meta_id
+        <where>
+            <if test="itemId != null and itemId != ''">
+                AND recipe_id IN (
+                    SELECT recipe_id FROM RecipeItem ri WHERE item_id = #{itemId}
+                )
+            </if>
+        </where>
+        ORDER BY rm.recipe_view DESC
+    </select>
+
+</mapper>

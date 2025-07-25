@@ -53,7 +53,7 @@ public class BrandService {
      * 브랜드 등록
      */
     public MessageResponse createBrand(BrandCreateRequest request, MultipartFile multipartFile) {
-        validateBrandNameUniqueness(request.getName());
+        validateBrandNameUniqueness(request.getBrandName());
 
         String imageUrl = awsS3Service.uploadBrandOriginImage(multipartFile);
         Brand savedBrand = brandRepository.save(request.toEntity());
@@ -116,7 +116,7 @@ public class BrandService {
      * 브랜드 이름 중복 여부 검증 (중복이면 예외)
      */
     private void validateBrandNameUniqueness(String brandName) {
-        if (brandRepository.existsByName(brandName)) {
+        if (brandRepository.existsByBrandName(brandName)) {
             throw new AppException(DUPLICATE_BRAND);
         }
     }

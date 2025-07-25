@@ -37,12 +37,12 @@ spring:
       enabled: false
 
 server:
-  port: ${SERVER_PORT:8089}
+  port: ${SERVER_PORT:14239}
 
 logging.level:
   org.hibernate.SQL: debug
   org.springframework.core.LocalVariableTableParameterNameDiscoverer: error
-  store.myproject.onlineshop.repository: DEBUG
+  store.myproject.onlineshop.mapper: DEBUG
 
 management:
   endpoints:

@@ -8,13 +8,13 @@
     <select id="searchBrand" resultType="store.myproject.onlineshop.domain.brand.dto.BrandInfo">
         SELECT
         b.brand_uuid AS uuid,
-        b.name,
+        b.brand_name,
         img.image_url AS brand_img_url
         FROM Brand b
         JOIN ImageFile img ON b.image_file_id = img.image_file_id
         <where>
             <if test="brandName != null and brandName != ''">
-                AND MATCH(b.name) AGAINST(#{brandName} IN NATURAL LANGUAGE MODE) > 0
+                AND MATCH(b.brand_name) AGAINST(#{brandName} IN NATURAL LANGUAGE MODE) > 0
             </if>
         </where>
     </select>
