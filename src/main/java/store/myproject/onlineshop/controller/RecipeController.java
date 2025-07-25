@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.Response;
-import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateRequest;
-import store.myproject.onlineshop.domain.recipe.dto.RecipeDto;
-import store.myproject.onlineshop.domain.recipe.dto.RecipeUpdateRequest;
-import store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto;
+import store.myproject.onlineshop.domain.recipe.dto.*;
 import store.myproject.onlineshop.domain.recipemeta.dto.RecipeMetaDto;
 import store.myproject.onlineshop.service.RecipeService;
 
@@ -62,8 +59,8 @@ public class RecipeController {
             @ApiResponse(responseCode = "200", description = "레시피 목록 조회 성공")
     })
     @GetMapping
-    public Response<Slice<SimpleRecipeDto>> viewAllRecipes(@ParameterObject Pageable pageable) {
-        return Response.success(recipeService.getRecipes(pageable));
+    public Response<Slice<SimpleRecipeDto>> viewAllRecipes(RecipeListCond cond, @ParameterObject Pageable pageable) {
+        return Response.success(recipeService.getRecipes(cond, pageable));
     }
 
     @Operation(summary = "레시피 작성", description = "새로운 레시피를 작성합니다.")

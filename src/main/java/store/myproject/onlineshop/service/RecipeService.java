@@ -155,11 +155,11 @@ public class RecipeService {
     }
 
     /**
-     * 레시피 요약 정보를 페이지 단위로 조회합니다.
+     * 레시피 목록 조회.
      */
     @Transactional(readOnly = true)
-    public Slice<SimpleRecipeDto> getRecipes(Pageable pageable) {
-        return recipeRepository.findAllSimpleRecipes(pageable);
+    public Slice<SimpleRecipeDto> getRecipes(RecipeListCond cond, Pageable pageable) {
+        return recipeRepository.findRecipeList(cond, pageable);
     }
 
     /**

@@ -5,23 +5,53 @@
 
 <mapper namespace="store.myproject.onlineshop.mapper.RecipeMapper">
 
-    <select id="findAllSimpleRecipes" resultType="store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto">
+    <select id="findRecipeDtoByUuid" resultType="store.myproject.onlineshop.domain.recipe.dto.RecipeDto">
         SELECT
-            r.recipe_uuid,
-            r.recipe_title AS title,
-            r.recipe_description,
-            r.thumbnail_url AS thumbnail,
-            c.nick_name AS writer,
-            r.recipe_cooking_time,
-            r.recipe_servings,
-            rm.recipe_view,
-            rm.review_cnt,
-            rm.like_cnt
+            r.recipe_uuid AS recipeUuid,
+            r.recipe_title AS recipeTitle,
+            r.recipe_description AS recipeDescription,
+            r.recipe_cooking_time AS recipeCookingTime,
+            r.recipe_servings AS recipeServings,
+            c.nick_name AS recipeWriter,
+            r.thumbnail_url AS thumbnailUrl
         FROM
             Recipe r
+                JOIN RecipeMeta rm ON r.recipe_meta_id = rm.recipe_meta_id
+                JOIN Customer c ON r.customer_id = c.customer_id
+        <where>
+            r.recipe_uuid = #{recipeUuid}
+        </where>
+
+    </select>
+
+    <select id="findRecipeList" resultType="store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto">
+        SELECT
+        r.recipe_uuid,
+        r.recipe_title AS title,
+        r.recipe_description,
+        r.thumbnail_url AS thumbnail,
+        c.nick_name AS writer,
+        r.recipe_cooking_time,
+        r.recipe_servings,
+        rm.recipe_view,
+        rm.review_cnt,
+        rm.like_cnt
+        FROM
+        Recipe r
         JOIN Customer c ON r.customer_id = c.customer_id
         JOIN RecipeMeta rm ON r.recipe_meta_id = rm.recipe_meta_id
-        ORDER BY rm.recipe_view DESC
+        <where>
+            <if test="cond.servings != null">
+                AND r.recipe_servings = #{cond.servings}
+            </if>
+
+            <if test="cond.cookingTimeFrom != null">
+                AND r.recipe_cooking_time &gt;= #{cond.cookingTimeFrom}
+            </if>
+            <if test="cond.cookingTimeTo != null">
+                AND r.recipe_cooking_time &lt;= #{cond.cookingTimeTo}
+            </if>
+        </where>
     </select>
 
     <select id="findRecipeUseItem" resultType="store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto">
