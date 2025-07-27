@@ -11,8 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,7 +37,7 @@ public class BrandController {
     })
     @GetMapping("/{brandUuid}")
     public Response<BrandInfo> getBrandById(
-            @Parameter(description = "브랜드 UUID", example = "a9dc96bf-2b1b-11f0-b1f0-5b9e0b864120")
+            @Parameter(description = "브랜드 UUID", example = "c51ecc4c-2be3-11f0-bff7-453261748c60")
             @PathVariable UUID brandUuid) {
         BrandInfo brandInfo = brandService.findBrandInfoById(brandUuid);
         return Response.success(brandInfo);
@@ -82,7 +80,7 @@ public class BrandController {
     })
     @PutMapping(value = "/{brandUuid}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Response<MessageResponse> updateBrand(
-            @Parameter(description = "브랜드 UUID", example = "a9dc96bf-2b1b-11f0-b1f0-5b9e0b864120")
+            @Parameter(description = "브랜드 UUID", example = "c51ecc4c-2be3-11f0-bff7-453261748c60")
             @PathVariable UUID brandUuid,
             @Valid @RequestPart BrandUpdateRequest request,
             @RequestPart(required = false) MultipartFile multipartFile) {

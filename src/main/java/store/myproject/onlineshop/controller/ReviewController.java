@@ -40,7 +40,7 @@ public class ReviewController {
     })
     @GetMapping("/{recipeUuid}/reviews")
     public Response<Page<ReviewResponse>> getReview(
-            @Parameter(description = "조회할 레시피 UUID", example = "13dd3e84-2b3a-11f0-9aef-59f7f88a8400", required = true)
+            @Parameter(description = "조회할 레시피 UUID", example = "6516f24e-2be4-11f0-bff7-453261748c60", required = true)
             @PathVariable UUID recipeUuid,
             @ParameterObject @PageableDefault(sort = "createdDate", direction = Sort.Direction.ASC) Pageable pageable) {
         return Response.success(recipeService.getRecipeReviews(recipeUuid, pageable));
@@ -54,7 +54,7 @@ public class ReviewController {
     })
     @GetMapping("/{recipeUuid}/reviews/{reviewUuid}/replies")
     public Response<Page<ChildReviewResponse>> getChildReviews(
-            @Parameter(description = "조회할 레시피 UUID", example = "13dd3e84-2b3a-11f0-9aef-59f7f88a8400", required = true)
+            @Parameter(description = "조회할 레시피 UUID", example = "6516f24e-2be4-11f0-bff7-453261748c60", required = true)
             @PathVariable UUID recipeUuid,
             @Parameter(description = "조회할 댓글 UUID", example = "88dd3e84-2b3a-11f0-9aef-59f7f88a8410", required = true)
             @PathVariable UUID reviewUuid,
@@ -70,7 +70,7 @@ public class ReviewController {
     })
     @PostMapping("/{recipeUuid}/reviews")
     public Response<MessageResponse> writeReview(
-            @Parameter(description = "댓글을 작성할 레시피 UUID", example = "13dd3e84-2b3a-11f0-9aef-59f7f88a8400", required = true)
+            @Parameter(description = "댓글을 작성할 레시피 UUID", example = "6516f24e-2be4-11f0-bff7-453261748c60", required = true)
             @PathVariable UUID recipeUuid,
             @Valid @RequestBody ReviewWriteRequest request,
             Authentication authentication

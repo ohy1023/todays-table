@@ -17,7 +17,7 @@ import java.util.UUID;
 public class CartAddRequest {
 
     @NotNull
-    @Schema(description = "추가할 품목 UUID", example = "550e8400-e29b-41d4-a716-446655440000", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "추가할 품목 UUID", example = "cffb8f4d-2be3-11f0-bff7-453261748c60", requiredMode = Schema.RequiredMode.REQUIRED)
     private UUID itemUuid;
 
     @NotNull

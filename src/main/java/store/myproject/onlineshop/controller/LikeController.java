@@ -32,7 +32,7 @@ public class LikeController {
             @ApiResponse(responseCode = "401", description = "인증 실패")
     })
     @PostMapping("/{recipeUuid}/likes")
-    public Response<MessageResponse> pushLike(@Parameter(name = "recipeUuid", description = "좋아요를 누를 레시피의 UUID", example = "13dd3e84-2b3a-11f0-9aef-59f7f88a8400", required = true) @PathVariable UUID recipeUuid, Authentication authentication) {
+    public Response<MessageResponse> pushLike(@Parameter(name = "recipeUuid", description = "좋아요를 누를 레시피의 UUID", example = "6516f24e-2be4-11f0-bff7-453261748c60", required = true) @PathVariable UUID recipeUuid, Authentication authentication) {
         String email = authentication.getName();
 
         return Response.success(recipeService.toggleLike(recipeUuid, email));

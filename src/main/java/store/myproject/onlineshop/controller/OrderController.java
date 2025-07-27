@@ -38,7 +38,7 @@ public class OrderController {
     })
     @GetMapping("/{merchantUid}")
     public Response<OrderInfo> findOneOrder(
-            @Parameter(description = "주문을 조회할 고유 식별자", example = "9115f8f7-2b3f-11f0-82bf-3b1848bfb7af", required = true)
+            @Parameter(description = "주문을 조회할 고유 식별자", example = "91d7bee8-5880-11f0-8b90-718284fea868", required = true)
             @PathVariable UUID merchantUid, Authentication authentication) {
 
         String email = authentication.getName();
@@ -48,11 +48,17 @@ public class OrderController {
         return Response.success(response);
     }
 
-    @Operation(summary = "나의 주문 내역", description = "로그인한 사용자의 주문 내역을 페이지")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "주문 내역 검색 결과를 반환합니다."),
-            @ApiResponse(responseCode = "401", description = "사용자가 인증되지 않았습니다.")
-    })
+    @Operation(
+            summary = "나의 주문 내역",
+            description = """
+                        로그인한 사용자의 주문 내역을 페이지 단위로 조회합니다.
+                    
+                        우선순위:
+                        1. brandName이 있으면 brandName으로 검색합니다.
+                        2. brandName이 없고 itemName이 있으면 itemName으로 검색합니다.
+                        3. 둘 다 없으면 전체 주문 내역을 조회합니다.
+                    """
+    )
     @GetMapping
     public Response<MyOrderSliceResponse> myOrder(@ModelAttribute OrderSearchCond orderSearchCond, Authentication authentication) {
         MyOrderSliceResponse response = orderService.getMyOrders(orderSearchCond, authentication.getName());

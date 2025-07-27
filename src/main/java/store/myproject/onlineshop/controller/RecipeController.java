@@ -38,7 +38,7 @@ public class RecipeController {
     })
     @GetMapping("/{recipeUuid}")
     public Response<RecipeDto> viewOneRecipe(
-            @Parameter(description = "조회할 레시피 UUID", example = "13dd3e84-2b3a-11f0-9aef-59f7f88a8400", required = true)
+            @Parameter(description = "조회할 레시피 UUID", example = "6516f24e-2be4-11f0-bff7-453261748c60", required = true)
             @PathVariable UUID recipeUuid) {
         RecipeDto recipeDetail = recipeService.getRecipeDetail(recipeUuid);
         recipeService.increaseRecipeViewCount(recipeUuid);
@@ -49,7 +49,7 @@ public class RecipeController {
     @Operation(summary = "레시피 단건 통계 정보 조회", description = "특정 레시피의 통계 정보를 조회합니다.")
     @GetMapping("/meta/{recipeUuid}")
     public Response<RecipeMetaDto> viewOneRecipeMeta(
-            @Parameter(description = "조회할 레시피 UUID", example = "13dd3e84-2b3a-11f0-9aef-59f7f88a8400", required = true)
+            @Parameter(description = "조회할 레시피 UUID", example = "6516f24e-2be4-11f0-bff7-453261748c60", required = true)
             @PathVariable UUID recipeUuid) {
         return Response.success(recipeService.getRecipeMeta(recipeUuid));
     }
@@ -82,7 +82,7 @@ public class RecipeController {
     })
     @PutMapping(value = "/{recipeUuid}")
     public Response<MessageResponse> writeRecipe(
-            @Parameter(description = "수정할 레시피 UUID", example = "13dd3e84-2b3a-11f0-9aef-59f7f88a8400", required = true)
+            @Parameter(description = "수정할 레시피 UUID", example = "6516f24e-2be4-11f0-bff7-453261748c60", required = true)
             @PathVariable UUID recipeUuid,
             @Valid @RequestBody RecipeUpdateRequest request,
             Authentication authentication

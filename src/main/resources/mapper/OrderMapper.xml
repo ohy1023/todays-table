@@ -11,35 +11,34 @@
         FROM
         Orders o
         <where>
-            o.customer_id = #{customerId}
+            o.deleted_date IS NULL
+            AND o.customer_id = #{customerId}
             AND o.order_status IN ('ORDER', 'CANCEL')
 
-            <if test="cond.brandName != null and cond.brandName != ''">
-                AND EXISTS (
-                SELECT 1
-                FROM OrderItem oi
-                JOIN Item i ON oi.item_id = i.item_id
-                JOIN Brand b ON i.brand_id = b.brand_id
-                WHERE oi.orders_id = o.orders_id
-                AND MATCH(b.brand_name) AGAINST(#{cond.brandName} IN BOOLEAN MODE)
-                )
-            </if>
+            <choose>
+                <when test="cond.brandName != null and cond.brandName != ''">
+                    AND EXISTS (
+                    SELECT 1
+                    FROM OrderItem oi
+                    JOIN Item i ON oi.item_id = i.item_id
+                    JOIN Brand b ON i.brand_id = b.brand_id
+                    WHERE oi.orders_id = o.orders_id
+                    AND MATCH(b.brand_name) AGAINST(#{cond.brandName} IN NATURAL LANGUAGE MODE) > 0
+                    )
+                </when>
+                <when test="cond.itemName != null and cond.itemName != ''">
+                    AND EXISTS (
+                    SELECT 1
+                    FROM OrderItem oi
+                    JOIN Item i ON oi.item_id = i.item_id
+                    WHERE oi.orders_id = o.orders_id
+                    AND MATCH(i.item_name) AGAINST(#{cond.itemName} IN NATURAL LANGUAGE MODE) > 0
+                    )
+                </when>
+            </choose>
 
-            <if test="cond.itemName != null and cond.itemName != ''">
-                AND EXISTS (
-                SELECT 1
-                FROM OrderItem oi
-                JOIN Item i ON oi.item_id = i.item_id
-                WHERE oi.orders_id = o.orders_id
-                AND MATCH(i.item_name) AGAINST(#{cond.itemName} IN BOOLEAN MODE)
-                )
-            </if>
-
-            <if test="cond.fromDate != null">
-                AND o.created_date &gt;= #{cond.fromDate}
-            </if>
-            <if test="cond.toDate != null">
-                AND o.created_date &lt;= #{cond.toDate}
+            <if test="cond.fromDate != null and cond.toDate != null">
+                AND o.created_date BETWEEN #{cond.fromDate} AND #{cond.toDate}
             </if>
 
             <if test="cond.merchantUid != null and cond.merchantUid != ''">

@@ -22,7 +22,9 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
 
     @Override
     public Page<SimpleItemDto> searchItem(ItemSearchCond cond, Pageable pageable) {
-        PageHelper.startPage(pageable.getPageNumber() + 1, pageable.getPageSize());
+        Long total = itemMapper.countItem(cond);
+
+        PageHelper.startPage(pageable.getPageNumber() + 1, pageable.getPageSize(), false);
 
         if (pageable.getSort().isSorted()) {
             String orderBy = pageable.getSort().stream()
@@ -33,8 +35,6 @@ public class ItemRepositoryImpl implements ItemCustomRepository {
 
         List<SimpleItemDto> simpleItemDtos = itemMapper.searchItem(cond);
 
-        PageInfo<SimpleItemDto> pageInfo = new PageInfo<>(simpleItemDtos);
-
-        return new PageImpl<>(simpleItemDtos, pageable, pageInfo.getTotal());
+        return new PageImpl<>(simpleItemDtos, pageable, total);
     }
 }

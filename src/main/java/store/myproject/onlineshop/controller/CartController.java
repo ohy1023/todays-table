@@ -67,7 +67,7 @@ public class CartController {
     })
     @DeleteMapping("/{itemUuid}")
     public Response<MessageResponse> deleteItemFromCart(
-            @Parameter(description = "삭제할 품목 UUID", example = "a497a803-2b32-11f0-9178-1583b134d536")
+            @Parameter(description = "삭제할 품목 UUID", example = "cffb8f4d-2be3-11f0-bff7-453261748c60")
             @PathVariable UUID itemUuid,
             Authentication authentication) {
         String email = authentication.getName();

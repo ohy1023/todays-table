@@ -7,19 +7,19 @@
 
     <select id="findRecipeDtoByUuid" resultType="store.myproject.onlineshop.domain.recipe.dto.RecipeDto">
         SELECT
-            r.recipe_uuid AS recipeUuid,
-            r.recipe_title AS recipeTitle,
-            r.recipe_description AS recipeDescription,
-            r.recipe_cooking_time AS recipeCookingTime,
-            r.recipe_servings AS recipeServings,
-            c.nick_name AS recipeWriter,
-            r.thumbnail_url AS thumbnailUrl
+        r.recipe_uuid AS recipeUuid,
+        r.recipe_title AS recipeTitle,
+        r.recipe_description AS recipeDescription,
+        r.recipe_cooking_time AS recipeCookingTime,
+        r.recipe_servings AS recipeServings,
+        c.nick_name AS recipeWriter,
+        r.thumbnail_url AS thumbnailUrl
         FROM
-            Recipe r
-                JOIN RecipeMeta rm ON r.recipe_meta_id = rm.recipe_meta_id
-                JOIN Customer c ON r.customer_id = c.customer_id
+        Recipe r
+        JOIN RecipeMeta rm ON r.recipe_meta_id = rm.recipe_meta_id
+        JOIN Customer c ON r.customer_id = c.customer_id
         <where>
-            r.recipe_uuid = #{recipeUuid}
+            r.recipe_uuid = #{recipeUuid} AND r.deleted_date IS NULL
         </where>
 
     </select>
@@ -41,39 +41,38 @@
         JOIN Customer c ON r.customer_id = c.customer_id
         JOIN RecipeMeta rm ON r.recipe_meta_id = rm.recipe_meta_id
         <where>
-            <if test="cond.servings != null">
+            r.deleted_date IS NULL
+            <if test="cond.servings != null and cond.servings != 0">
                 AND r.recipe_servings = #{cond.servings}
             </if>
 
-            <if test="cond.cookingTimeFrom != null">
-                AND r.recipe_cooking_time &gt;= #{cond.cookingTimeFrom}
-            </if>
-            <if test="cond.cookingTimeTo != null">
-                AND r.recipe_cooking_time &lt;= #{cond.cookingTimeTo}
+            <if test="cond.cookingTimeFrom != null and cond.cookingTimeFrom != 0 and cond.cookingTimeTo != null and cond.cookingTimeTo != 0">
+                AND r.recipe_cooking_time BETWEEN #{cond.cookingTimeFrom} AND #{cond.cookingTimeTo}
             </if>
         </where>
     </select>
 
     <select id="findRecipeUseItem" resultType="store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto">
         SELECT
-            r.recipe_uuid,
-            r.recipe_title AS title,
-            r.recipe_description,
-            r.thumbnail_url AS thumbnail,
-            c.nick_name AS writer,
-            r.recipe_cooking_time,
-            r.recipe_servings,
-            rm.recipe_view,
-            rm.review_cnt,
-            rm.like_cnt
+        r.recipe_uuid,
+        r.recipe_title AS title,
+        r.recipe_description,
+        r.thumbnail_url AS thumbnail,
+        c.nick_name AS writer,
+        r.recipe_cooking_time,
+        r.recipe_servings,
+        rm.recipe_view,
+        rm.review_cnt,
+        rm.like_cnt
         FROM
-            Recipe r
+        Recipe r
         JOIN Customer c ON r.customer_id = c.customer_id
         JOIN RecipeMeta rm ON r.recipe_meta_id = rm.recipe_meta_id
         <where>
+            r.deleted_date IS NULL
             <if test="itemId != null and itemId != ''">
                 AND recipe_id IN (
-                    SELECT recipe_id FROM RecipeItem ri WHERE item_id = #{itemId}
+                SELECT recipe_id FROM RecipeItem ri WHERE item_id = #{itemId}
                 )
             </if>
         </where>

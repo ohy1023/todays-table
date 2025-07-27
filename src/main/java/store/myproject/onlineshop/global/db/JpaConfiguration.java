@@ -53,7 +53,7 @@ public class JpaConfiguration {
 
         hibernateJpaVendorAdapter.setDatabase(Database.MYSQL);
 
-        hibernateJpaVendorAdapter.setDatabasePlatform("org.hibernate.dialect.MySQL8Dialect");
+        hibernateJpaVendorAdapter.setDatabasePlatform("org.hibernate.dialect.MySQLDialect");
         // SQL 방언을 MySQL8Dialect 방언으로 설정
         return hibernateJpaVendorAdapter;
     }

@@ -26,11 +26,6 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Where(clause = "deleted_date IS NULL")
 @SQLDelete(sql = "UPDATE Recipe SET deleted_date = CURRENT_TIMESTAMP WHERE recipe_id = ?")
-@Table(
-        indexes = {
-                @Index(name = "idx_recipe_deleted_created", columnList = "deleted_date, created_date")
-        }
-)
 public class Recipe extends BaseEntity {
 
     @Id
