@@ -37,7 +37,7 @@ spring:
       enabled: false
 
 server:
-  port: ${SERVER_PORT:14239}
+  port: ${SERVER_PORT:0}
 
 logging.level:
   org.hibernate.SQL: debug

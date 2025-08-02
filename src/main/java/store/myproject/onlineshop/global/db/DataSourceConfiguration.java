@@ -18,8 +18,7 @@ import java.util.Map;
 public class DataSourceConfiguration {
 
     public static final String MASTER_DATASOURCE = "masterDataSource";
-    public static final String SLAVE1_DATASOURCE = "slave1DataSource";
-    public static final String SLAVE2_DATASOURCE = "slave2DataSource";
+    public static final String SLAVE_DATASOURCE = "slaveDataSource";
 
     @Bean(MASTER_DATASOURCE)
     @ConfigurationProperties("spring.datasource.master.hikari")
@@ -27,28 +26,22 @@ public class DataSourceConfiguration {
         return new HikariDataSource();
     }
 
-    @Bean(SLAVE1_DATASOURCE)
-    @ConfigurationProperties("spring.datasource.slave1.hikari")
+    @Bean(SLAVE_DATASOURCE)
+    @ConfigurationProperties("spring.datasource.slave.hikari")
     public HikariDataSource slaveDataSource() {
         return new HikariDataSource();
     }
 
-    @Bean(SLAVE2_DATASOURCE)
-    @ConfigurationProperties("spring.datasource.slave2.hikari")
-    public HikariDataSource slave2DataSource() {return new HikariDataSource();}
-
     @Bean
     public DataSource routingDataSource(
             @Qualifier(MASTER_DATASOURCE) DataSource masterDataSource,
-            @Qualifier(SLAVE1_DATASOURCE) DataSource slave1DataSource,
-            @Qualifier(SLAVE2_DATASOURCE) DataSource slave2DataSource) {
+            @Qualifier(SLAVE_DATASOURCE) DataSource slave1DataSource) {
 
         RoutingDataSource routingDataSource = new RoutingDataSource();
 
         Map<Object, Object> dataSourceMap = new HashMap<>();
         dataSourceMap.put("master", masterDataSource);
-        dataSourceMap.put("slave1", slave1DataSource);
-        dataSourceMap.put("slave2", slave2DataSource);
+        dataSourceMap.put("slave", slave1DataSource);
 
         routingDataSource.setTargetDataSources(Collections.unmodifiableMap(dataSourceMap));
         routingDataSource.setDefaultTargetDataSource(masterDataSource);
