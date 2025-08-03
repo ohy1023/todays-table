@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.batch.item.ItemProcessor;
 import store.myproject.onlineshop.domain.customer.Customer;
+import store.myproject.onlineshop.domain.customer.dto.CustomerOrderSumDto;
 import store.myproject.onlineshop.domain.membership.MemberShip;
 import store.myproject.onlineshop.domain.order.dto.CustomerMembershipUpdateDto;
 
@@ -26,3 +27,20 @@ public class CustomerMembershipProcessor implements ItemProcessor<Customer, Cust
         return new CustomerMembershipUpdateDto(customer.getId(), lowestMembership.getId());
     }
 }
+
+//@RequiredArgsConstructor
+//public class CustomerMembershipProcessor implements ItemProcessor<CustomerOrderSumDto, CustomerMembershipUpdateDto> {
+//
+//    private final List<MemberShip> memberships;
+//
+//    @Override
+//    public CustomerMembershipUpdateDto process(CustomerOrderSumDto dto) {
+//        for (MemberShip membership : memberships) {
+//            if (dto.getTotalOrderPrice().compareTo(membership.getBaseline()) >= 0) {
+//                return new CustomerMembershipUpdateDto(dto.getCustomerId(), membership.getId());
+//            }
+//        }
+//        MemberShip lowestMembership = memberships.get(memberships.size() - 1);
+//        return new CustomerMembershipUpdateDto(dto.getCustomerId(), lowestMembership.getId());
+//    }
+//}
