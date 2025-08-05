@@ -16,9 +16,9 @@ public interface RecipeCustomRepository {
 
     Optional<RecipeDto> findRecipeDtoByUuid(UUID recipeUuid);
 
-    Slice<SimpleRecipeDto> findRecipeList(RecipeListCond cond, Pageable pageable);
+    List<SimpleRecipeDto> findRecipeList(RecipeListCond cond);
 
     Page<SimpleRecipeDto> findRecipeUseItem(Long itemId, Pageable pageable);
 
-    List<SimpleRecipeDto> findRecipeVer3(RecipeCond cond);
+//    List<SimpleRecipeDto> findRecipeVer3(RecipeCond cond);
 }

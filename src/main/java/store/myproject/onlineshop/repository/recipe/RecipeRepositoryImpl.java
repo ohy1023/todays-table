@@ -28,25 +28,14 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository {
     }
 
     @Override
-    public Slice<SimpleRecipeDto> findRecipeList(RecipeListCond cond, Pageable pageable) {
-        // 정렬 조건 추출 및 변환
-        String orderBy = toOrderByClause(pageable);
+    public List<SimpleRecipeDto> findRecipeList(RecipeListCond cond) {
 
-        // PageHelper로 페이지 + 정렬 설정
-        PageHelper.startPage(pageable.getPageNumber() + 1, pageable.getPageSize(), false);
+        int sizePlusOne = cond.getSize() + 1;
 
-        if (!orderBy.isBlank()) {
-            PageHelper.orderBy(orderBy);
-        }
+        cond.setSizePlusOne(sizePlusOne);
 
-        // 쿼리 실행
-        List<SimpleRecipeDto> content = recipeMapper.findRecipeList(cond);
+        return recipeMapper.findRecipeList(cond);
 
-        // PageInfo로 다음 페이지 존재 여부 계산
-        PageInfo<SimpleRecipeDto> pageInfo = new PageInfo<>(content);
-        boolean hasNext = pageInfo.getPageNum() < pageInfo.getPages();
-
-        return new SliceImpl<>(content, pageable, hasNext);
     }
 
     @Override
@@ -60,14 +49,14 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository {
         return new PageImpl<>(content, pageable, pageInfo.getTotal());
     }
 
-    @Override
-    public List<SimpleRecipeDto> findRecipeVer3(RecipeCond cond) {
-        int sizePlusOne = cond.getSize() + 1;
-
-        cond.setSizePlusOne(sizePlusOne);
-
-        return recipeMapper.findRecipeVer3(cond);
-    }
+//    @Override
+//    public List<SimpleRecipeDto> findRecipeVer3(RecipeCond cond) {
+//        int sizePlusOne = cond.getSize() + 1;
+//
+//        cond.setSizePlusOne(sizePlusOne);
+//
+//        return recipeMapper.findRecipeVer3(cond);
+//    }
 
     private String toOrderByClause(Pageable pageable) {
         return pageable.getSort().stream()

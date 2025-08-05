@@ -15,7 +15,6 @@ import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.customer.CustomerRole;
 import store.myproject.onlineshop.domain.faillog.AsyncFailureLog;
 import store.myproject.onlineshop.domain.faillog.JobType;
-import store.myproject.onlineshop.domain.order.dto.MyOrderSliceResponse;
 import store.myproject.onlineshop.domain.recipe.dto.*;
 import store.myproject.onlineshop.domain.recipeitem.dto.RecipeItemDto;
 import store.myproject.onlineshop.domain.recipemeta.dto.RecipeMetaDto;
@@ -156,8 +155,29 @@ public class RecipeService {
      * 레시피 목록 조회.
      */
     @Transactional(readOnly = true)
-    public Slice<SimpleRecipeDto> getRecipes(RecipeListCond cond, Pageable pageable) {
-        return recipeRepository.findRecipeList(cond, pageable);
+    public RecipeCursorResponse getRecipes(RecipeListCond cond) {
+
+        List<SimpleRecipeDto> recipes = recipeRepository.findRecipeList(cond);
+
+        boolean hasNext = recipes.size() > cond.getSize();
+
+        List<SimpleRecipeDto> limitedRecipes = hasNext
+                ? recipes.subList(0, cond.getSize())
+                : recipes;
+
+        UUID nextUuid = hasNext
+                ? recipes.get(recipes.size() - 1).getRecipeUuid()
+                : null;
+
+        Long nextViewCount = hasNext
+                ? recipes.get(recipes.size() - 1).getRecipeView()
+                : null;
+
+        Long nextLikeCount = hasNext
+                ? recipes.get(recipes.size() - 1).getLikeCnt()
+                : null;
+
+        return new RecipeCursorResponse(limitedRecipes, nextUuid, nextViewCount, nextLikeCount);
     }
 
     /**
@@ -509,22 +529,22 @@ public class RecipeService {
     }
 
 
-    public RecipeCursorResponse testCursor(RecipeCond cond) {
-
-        List<SimpleRecipeDto> recipes = recipeRepository.findRecipeVer3(cond);
-
-        boolean hasNext = recipes.size() > cond.getSize();
-
-        List<SimpleRecipeDto> limitedRecipes = hasNext
-                ? recipes.subList(0, cond.getSize())
-                : recipes;
-
-        UUID nextCursor = hasNext
-                ? recipes.get(recipes.size() - 1).getRecipeUuid()
-                : null;
-
-        return new RecipeCursorResponse(limitedRecipes, nextCursor);
-    }
+//    public RecipeCursorResponse testCursor(RecipeCond cond) {
+//
+//        List<SimpleRecipeDto> recipes = recipeRepository.findRecipeVer3(cond);
+//
+//        boolean hasNext = recipes.size() > cond.getSize();
+//
+//        List<SimpleRecipeDto> limitedRecipes = hasNext
+//                ? recipes.subList(0, cond.getSize())
+//                : recipes;
+//
+//        UUID nextCursor = hasNext
+//                ? recipes.get(recipes.size() - 1).getRecipeUuid()
+//                : null;
+//
+//        return new RecipeCursorResponse(limitedRecipes, nextCursor);
+//    }
 
     public Page<SimpleRecipeDto> testCountPer(Pageable pageable) {
         Page<Recipe> recipes = recipeRepository.findRecipeVer5(pageable);

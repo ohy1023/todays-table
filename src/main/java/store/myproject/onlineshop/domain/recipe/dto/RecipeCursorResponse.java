@@ -14,5 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class RecipeCursorResponse {
     private List<SimpleRecipeDto> content;
-    private UUID nextCursor;
+    private UUID nextUuid;
+    private Long nextViewCount;
+    private Long nextLikeCount;
 }

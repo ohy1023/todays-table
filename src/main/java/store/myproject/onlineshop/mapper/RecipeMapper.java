@@ -19,5 +19,5 @@ public interface RecipeMapper {
 
     List<SimpleRecipeDto> findRecipeUseItem(@Param("itemId") Long itemId);
 
-    List<SimpleRecipeDto> findRecipeVer3(@Param("cond") RecipeCond cond);
+//    List<SimpleRecipeDto> findRecipeVer3(@Param("cond") RecipeCond cond);
 }

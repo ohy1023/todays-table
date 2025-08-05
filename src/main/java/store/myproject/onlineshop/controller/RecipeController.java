@@ -55,13 +55,29 @@ public class RecipeController {
         return Response.success(recipeService.getRecipeMeta(recipeUuid));
     }
 
-    @Operation(summary = "레시피 페이징 조회", description = "레시피 목록을 페이징하여 조회합니다.")
+    @Operation(
+            summary = "레시피 목록 조회",
+            description = """
+                        레시피 목록을 커서 기반 페이징 방식으로 조회합니다.
+                    
+                        정렬 기준별 커서 파라미터 사용법:
+                        - recent (최신순): nextUuid만 사용하며, nextViewCount와 nextLikeCount는 무시하세요.
+                        - view (조회순): nextViewCount와 nextUuid를 사용하며, nextLikeCount는 무시하세요.
+                        - like (추천순): nextLikeCount와 nextUuid를 사용하며, nextViewCount는 무시하세요.
+                    
+                        추가 필터:
+                        - servings: 몇 인분 필터
+                        - cookingTimeFrom, cookingTimeTo: 조리 시간 범위 필터 (분 단위)
+                        - size: 페이지 크기 (기본 10)
+
+                    """
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "레시피 목록 조회 성공")
     })
     @GetMapping
-    public Response<Slice<SimpleRecipeDto>> viewAllRecipes(RecipeListCond cond, @ParameterObject Pageable pageable) {
-        return Response.success(recipeService.getRecipes(cond, pageable));
+    public Response<RecipeCursorResponse> viewAllRecipes(RecipeListCond cond) {
+        return Response.success(recipeService.getRecipes(cond));
     }
 
     @Operation(summary = "레시피 작성", description = "새로운 레시피를 작성합니다.")
@@ -128,10 +144,10 @@ public class RecipeController {
     }
 
 
-    @GetMapping("/test/three")
-    public Response<RecipeCursorResponse> testCursor(@ModelAttribute RecipeCond cond) {
-        return Response.success(recipeService.testCursor(cond));
-    }
+//    @GetMapping("/test/three")
+//    public Response<RecipeCursorResponse> testCursor(@ModelAttribute RecipeCond cond) {
+//        return Response.success(recipeService.testCursor(cond));
+//    }
 
     @GetMapping("/test/four")
     public Response<Page<SimpleRecipeDto>> testCountPer(Pageable pageable) {

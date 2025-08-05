@@ -49,7 +49,45 @@
             <if test="cond.cookingTimeFrom != null and cond.cookingTimeFrom != 0 and cond.cookingTimeTo != null and cond.cookingTimeTo != 0">
                 AND r.recipe_cooking_time BETWEEN #{cond.cookingTimeFrom} AND #{cond.cookingTimeTo}
             </if>
+
+            <choose>
+                <when test="cond.sortBy == 'view'
+            and cond.nextViewCount != null and cond.nextViewCount != 0
+            and cond.nextUuid != null and cond.nextUuid != ''">
+                    AND (
+                    rm.recipe_view &lt; #{cond.nextViewCount}
+                    OR (rm.recipe_view = #{cond.nextViewCount} AND r.recipe_uuid &lt; #{cond.nextUuid})
+                    )
+                </when>
+
+                <when test="cond.sortBy == 'like'
+            and cond.nextLikeCount != null and cond.nextLikeCount != 0
+            and cond.nextUuid != null and cond.nextUuid != ''">
+                    AND (
+                    rm.like_cnt &lt; #{cond.nextLikeCount}
+                    OR (rm.like_cnt = #{cond.nextLikeCount} AND r.recipe_uuid &lt; #{cond.nextUuid})
+                    )
+                </when>
+
+                <when test="cond.sortBy == 'recent'
+            and cond.nextUuid != null and cond.nextUuid != ''">
+                    AND r.recipe_uuid &lt; #{cond.nextUuid}
+                </when>
+            </choose>
+
         </where>
+        <choose>
+            <when test="cond.sortBy == 'view'">
+                ORDER BY rm.recipe_view DESC, r.recipe_uuid DESC
+            </when>
+            <when test="cond.sortBy == 'like'">
+                ORDER BY rm.like_cnt DESC, r.recipe_uuid DESC
+            </when>
+            <otherwise> <!-- 기본은 최신순 -->
+                ORDER BY r.recipe_uuid DESC
+            </otherwise>
+        </choose>
+        LIMIT #{cond.sizePlusOne}
     </select>
 
     <select id="findRecipeUseItem" resultType="store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto">
@@ -79,30 +117,30 @@
         ORDER BY rm.recipe_view DESC
     </select>
 
-    <select id="findRecipeVer3" resultType="store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto">
-        SELECT
-        r.recipe_uuid,
-        r.recipe_title AS title,
-        r.recipe_description,
-        r.thumbnail_url AS thumbnail,
-        c.nick_name AS writer,
-        r.recipe_cooking_time,
-        r.recipe_servings,
-        rm.recipe_view,
-        rm.review_cnt,
-        rm.like_cnt
-        FROM
-        Recipe r
-        JOIN RecipeMeta rm ON r.recipe_meta_id = rm.recipe_meta_id
-        JOIN Customer c ON r.customer_id = c.customer_id
-        <where>
-            r.deleted_date IS NULL
-            <if test="cond.nextCursor != null and cond.nextCursor != ''">
-                AND r.recipe_uuid &lt; #{cond.nextCursor}
-            </if>
-        </where>
-        ORDER BY r.created_date DESC
-        LIMIT #{cond.sizePlusOne}
-    </select>
+<!--    <select id="findRecipeVer3" resultType="store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto">-->
+<!--        SELECT-->
+<!--        r.recipe_uuid,-->
+<!--        r.recipe_title AS title,-->
+<!--        r.recipe_description,-->
+<!--        r.thumbnail_url AS thumbnail,-->
+<!--        c.nick_name AS writer,-->
+<!--        r.recipe_cooking_time,-->
+<!--        r.recipe_servings,-->
+<!--        rm.recipe_view,-->
+<!--        rm.review_cnt,-->
+<!--        rm.like_cnt-->
+<!--        FROM-->
+<!--        Recipe r-->
+<!--        JOIN RecipeMeta rm ON r.recipe_meta_id = rm.recipe_meta_id-->
+<!--        JOIN Customer c ON r.customer_id = c.customer_id-->
+<!--        <where>-->
+<!--            r.deleted_date IS NULL-->
+<!--            <if test="cond.nextCursor != null and cond.nextCursor != ''">-->
+<!--                AND r.recipe_uuid &lt; #{cond.nextCursor}-->
+<!--            </if>-->
+<!--        </where>-->
+<!--        ORDER BY r.created_date DESC-->
+<!--        LIMIT #{cond.sizePlusOne}-->
+<!--    </select>-->
 
 </mapper>
