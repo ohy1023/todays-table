@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.MediaType;
@@ -114,5 +115,31 @@ public class RecipeController {
     @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Response<MessageResponse> uploadImage(@RequestPart("recipeStepImage") MultipartFile file) {
         return Response.success(recipeService.uploadImage(file));
+    }
+
+    @GetMapping("/test/one")
+    public Response<Page<SimpleRecipeDto>> testPage(Pageable pageable) {
+        return Response.success(recipeService.testPage(pageable));
+    }
+
+    @GetMapping("/test/two")
+    public Response<Slice<SimpleRecipeDto>> testSlice(Pageable pageable) {
+        return Response.success(recipeService.testSlice(pageable));
+    }
+
+
+    @GetMapping("/test/three")
+    public Response<RecipeCursorResponse> testCursor(@ModelAttribute RecipeCond cond) {
+        return Response.success(recipeService.testCursor(cond));
+    }
+
+    @GetMapping("/test/four")
+    public Response<Page<SimpleRecipeDto>> testCountPer(Pageable pageable) {
+        return Response.success(recipeService.testCountPer(pageable));
+    }
+
+    @GetMapping("/test/five")
+    public Response<Page<SimpleRecipeDto>> testCount(Pageable pageable) {
+        return Response.success(recipeService.testCount(pageable));
     }
 }

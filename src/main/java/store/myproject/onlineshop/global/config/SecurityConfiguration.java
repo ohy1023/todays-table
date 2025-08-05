@@ -65,7 +65,8 @@ public class SecurityConfiguration {
                                 "/api/v1/recipes/*/reviews",
                                 "/api/v1/recipes/*/reviews/*/replies",
                                 "/api/v1/items/*/recipes",
-                                "/api/v1/items/test/*"
+                                "/api/v1/items/test/*",
+                                "/api/v1/recipes/test/*"
                         ).permitAll()
 
                         // ADMIN 전용

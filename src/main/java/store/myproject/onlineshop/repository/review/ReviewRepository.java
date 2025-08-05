@@ -49,4 +49,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
                         row -> (Long) row[1]
                 ));
     }
+
+    Long countByRecipe(Recipe recipe);
 }

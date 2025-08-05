@@ -79,4 +79,30 @@
         ORDER BY rm.recipe_view DESC
     </select>
 
+    <select id="findRecipeVer3" resultType="store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto">
+        SELECT
+        r.recipe_uuid,
+        r.recipe_title AS title,
+        r.recipe_description,
+        r.thumbnail_url AS thumbnail,
+        c.nick_name AS writer,
+        r.recipe_cooking_time,
+        r.recipe_servings,
+        rm.recipe_view,
+        rm.review_cnt,
+        rm.like_cnt
+        FROM
+        Recipe r
+        JOIN RecipeMeta rm ON r.recipe_meta_id = rm.recipe_meta_id
+        JOIN Customer c ON r.customer_id = c.customer_id
+        <where>
+            r.deleted_date IS NULL
+            <if test="cond.nextCursor != null and cond.nextCursor != ''">
+                AND r.recipe_uuid &lt; #{cond.nextCursor}
+            </if>
+        </where>
+        ORDER BY r.created_date DESC
+        LIMIT #{cond.sizePlusOne}
+    </select>
+
 </mapper>

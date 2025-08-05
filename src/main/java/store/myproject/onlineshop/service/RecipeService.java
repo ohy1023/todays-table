@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.*;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +15,7 @@ import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.customer.CustomerRole;
 import store.myproject.onlineshop.domain.faillog.AsyncFailureLog;
 import store.myproject.onlineshop.domain.faillog.JobType;
+import store.myproject.onlineshop.domain.order.dto.MyOrderSliceResponse;
 import store.myproject.onlineshop.domain.recipe.dto.*;
 import store.myproject.onlineshop.domain.recipeitem.dto.RecipeItemDto;
 import store.myproject.onlineshop.domain.recipemeta.dto.RecipeMetaDto;
@@ -499,4 +497,96 @@ public class RecipeService {
                 .build();
         asyncFailureLogRepository.save(asyncFailureLog);
     }
+
+
+    public Page<SimpleRecipeDto> testPage(Pageable pageable) {
+        return recipeRepository.findRecipeVer1(pageable);
+    }
+
+
+    public Slice<SimpleRecipeDto> testSlice(Pageable pageable) {
+        return recipeRepository.findRecipeVer2(pageable);
+    }
+
+
+    public RecipeCursorResponse testCursor(RecipeCond cond) {
+
+        List<SimpleRecipeDto> recipes = recipeRepository.findRecipeVer3(cond);
+
+        boolean hasNext = recipes.size() > cond.getSize();
+
+        List<SimpleRecipeDto> limitedRecipes = hasNext
+                ? recipes.subList(0, cond.getSize())
+                : recipes;
+
+        UUID nextCursor = hasNext
+                ? recipes.get(recipes.size() - 1).getRecipeUuid()
+                : null;
+
+        return new RecipeCursorResponse(limitedRecipes, nextCursor);
+    }
+
+    public Page<SimpleRecipeDto> testCountPer(Pageable pageable) {
+        Page<Recipe> recipes = recipeRepository.findRecipeVer5(pageable);
+
+        List<SimpleRecipeDto> result = recipes.stream()
+                .map(recipe -> {
+                    Long likeCount = likeRepository.countByRecipe(recipe);
+                    Long reviewCount = reviewRepository.countByRecipe(recipe);
+
+                    return SimpleRecipeDto.builder()
+                            .recipeUuid(recipe.getUuid())
+                            .title(recipe.getRecipeTitle())
+                            .recipeDescription(recipe.getRecipeDescription())
+                            .thumbnail(recipe.getThumbnailUrl())
+                            .writer(recipe.getCustomer().getNickName())
+                            .recipeServings(recipe.getRecipeServings())
+                            .recipeCookingTime(recipe.getRecipeCookingTime())
+                            .likeCnt(likeCount)
+                            .reviewCnt(reviewCount)
+                            .recipeView(0L)
+                            .build();
+                })
+                .toList();
+
+        return new PageImpl<>(result, pageable, recipes.getTotalElements());
+
+
+    }
+
+    public Page<SimpleRecipeDto> testCount(Pageable pageable) {
+        Page<Recipe> recipes = recipeRepository.findRecipeVer5(pageable);
+
+        List<Long> recipeIds = recipes.stream()
+                .map(Recipe::getId)
+                .toList();
+
+        Map<Long, Long> likeCountMap = likeRepository.getLikeCountByRecipeIds(recipeIds);
+        Map<Long, Long> reviewCountMap = reviewRepository.getReviewCountByRecipeIds(recipeIds);
+
+
+        List<SimpleRecipeDto> result = recipes.stream()
+                .map(recipe -> {
+                    Long likeCount = likeCountMap.getOrDefault(recipe.getId(), 0L);
+                    Long reviewCount = reviewCountMap.getOrDefault(recipe.getId(), 0L);
+                    return SimpleRecipeDto.builder()
+                            .recipeUuid(recipe.getUuid())
+                            .title(recipe.getRecipeTitle())
+                            .recipeDescription(recipe.getRecipeDescription())
+                            .thumbnail(recipe.getThumbnailUrl())
+                            .writer(recipe.getCustomer().getNickName())
+                            .recipeServings(recipe.getRecipeServings())
+                            .recipeCookingTime(recipe.getRecipeCookingTime())
+                            .likeCnt(likeCount)
+                            .reviewCnt(reviewCount)
+                            .recipeView(0L)
+                            .build();
+                })
+                .toList();
+
+        return new PageImpl<>(result, pageable, recipes.getTotalElements());
+
+    }
+
+
 }

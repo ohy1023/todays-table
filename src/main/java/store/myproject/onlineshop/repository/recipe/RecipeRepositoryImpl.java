@@ -4,6 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
+import store.myproject.onlineshop.domain.recipe.dto.RecipeCond;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeDto;
 import store.myproject.onlineshop.domain.recipe.dto.RecipeListCond;
 import store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto;
@@ -57,6 +58,15 @@ public class RecipeRepositoryImpl implements RecipeCustomRepository {
         PageInfo<SimpleRecipeDto> pageInfo = new PageInfo<>(content);
 
         return new PageImpl<>(content, pageable, pageInfo.getTotal());
+    }
+
+    @Override
+    public List<SimpleRecipeDto> findRecipeVer3(RecipeCond cond) {
+        int sizePlusOne = cond.getSize() + 1;
+
+        cond.setSizePlusOne(sizePlusOne);
+
+        return recipeMapper.findRecipeVer3(cond);
     }
 
     private String toOrderByClause(Pageable pageable) {
