@@ -58,9 +58,8 @@ class CustomerControllerTest {
                         .with(csrf())
                         .content(objectMapper.writeValueAsBytes(request))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value(SUCCESS))
-                .andExpect(jsonPath("$.result.message").value(response.getMessage()))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
                 .andDo(print());
 
     }
@@ -482,9 +481,7 @@ class CustomerControllerTest {
         // when & then
         mockMvc.perform(delete("/api/v1/customers")
                         .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value(SUCCESS))
-                .andExpect(jsonPath("$.result.message").value(response.getMessage()))
+                .andExpect(status().isNoContent())
                 .andDo(print());
 
     }

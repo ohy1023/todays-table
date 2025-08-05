@@ -62,8 +62,8 @@ class CartControllerTest {
                             .with(csrf())
                             .contentType(APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.result.message").value(response.getMessage()))
+                    .andExpect(status().isCreated())
+                    .andExpect(header().exists("Location"))
                     .andDo(print());
         }
 
@@ -128,8 +128,7 @@ class CartControllerTest {
 
         mockMvc.perform(delete("/api/v1/carts/{itemUuid}", itemUuid)
                         .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.message").value("삭제 완료"))
+                .andExpect(status().isNoContent())
                 .andDo(print());
     }
 
@@ -141,8 +140,7 @@ class CartControllerTest {
 
         mockMvc.perform(delete("/api/v1/carts")
                         .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.message").value("비우기 완료"))
+                .andExpect(status().isNoContent())
                 .andDo(print());
     }
 }

@@ -39,8 +39,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static store.myproject.onlineshop.fixture.ResultCode.SUCCESS;
 
 
@@ -68,7 +67,7 @@ class ItemControllerTest {
         ItemCreateRequest request = ItemFixture.createRequest();
         String json = objectMapper.writeValueAsString(request);
         List<MockMultipartFile> files = CommonFixture.mockMultipartFileList();
-        MessageResponse response = new MessageResponse("품목 추가 성공");
+        MessageResponse response = new MessageResponse(UUID.randomUUID(),"품목 추가 성공");
 
         given(itemService.createItem(any(), ArgumentMatchers.<List<MultipartFile>>any()))
                 .willReturn(response);
@@ -87,8 +86,8 @@ class ItemControllerTest {
 
         // when & then
         mockMvc.perform(builder)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.message").value(response.getMessage()))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
                 .andDo(print());
     }
 
@@ -174,9 +173,7 @@ class ItemControllerTest {
         // when & then
         mockMvc.perform(delete("/api/v1/items/{itemUuid}", itemUuid)
                         .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value(SUCCESS))
-                .andExpect(jsonPath("$.result.message").value(response.getMessage()))
+                .andExpect(status().isNoContent())
                 .andDo(print());
     }
 

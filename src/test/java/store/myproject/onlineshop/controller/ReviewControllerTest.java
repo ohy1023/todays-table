@@ -149,7 +149,7 @@ class ReviewControllerTest {
             UUID recipeUuid = UUID.randomUUID();
 
             ReviewWriteRequest request = ReviewFixture.createReviewWriteRequest();
-            MessageResponse response = new MessageResponse("작성 완료");
+            MessageResponse response = new MessageResponse(UUID.randomUUID(), "작성 완료");
 
             given(recipeService.createReview(anyString(), any(), any())).willReturn(response);
 
@@ -157,8 +157,8 @@ class ReviewControllerTest {
                             .with(csrf())
                             .contentType(APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.result.message").value("작성 완료"))
+                    .andExpect(status().isCreated())
+                    .andExpect(header().exists("Location"))
                     .andDo(print());
         }
 
@@ -321,8 +321,7 @@ class ReviewControllerTest {
 
             mockMvc.perform(delete("/api/v1/recipes/{recipeUuid}/reviews/{reviewUuid}", recipeUuid, reviewUuid)
                             .with(csrf()))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.result.message").value("삭제 완료"))
+                    .andExpect(status().isNoContent())
                     .andDo(print());
         }
 

@@ -32,8 +32,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 import static store.myproject.onlineshop.fixture.ResultCode.*;
 
@@ -107,7 +106,7 @@ class BrandControllerTest {
 
         MockMultipartFile multipartFile = setMockMultipartFile();
 
-        MessageResponse response = new MessageResponse("브랜드 등록 성공");
+        MessageResponse response = new MessageResponse(UUID.randomUUID(),"브랜드 등록 성공");
 
         given(brandService.createBrand(any(BrandCreateRequest.class), any(MockMultipartFile.class)))
                 .willReturn(response);
@@ -120,9 +119,9 @@ class BrandControllerTest {
                         .accept(APPLICATION_JSON)
                         .characterEncoding("UTF-8")
                         .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value(SUCCESS))
-                .andExpect(jsonPath("$.result.message").value(response.getMessage()))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
+                .andExpect(header().string("Location", "/api/v1/brands/" + response.getUuid()))
                 .andDo(print());
     }
 
@@ -207,9 +206,7 @@ class BrandControllerTest {
         // when & then
         mockMvc.perform(delete("/api/v1/brands/{brandUuid}", brandUuid)
                         .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resultCode").value(SUCCESS))
-                .andExpect(jsonPath("$.result.message").value(response.getMessage()))
+                .andExpect(status().isNoContent())
                 .andDo(print());
 
     }
@@ -257,7 +254,7 @@ class BrandControllerTest {
                 .willReturn(mockBrandPage);
 
         // when & then
-        mockMvc.perform(get("/api/v1/brands/search")
+        mockMvc.perform(get("/api/v1/brands")
                         .param("brandName", brandName)
                         .with(csrf()))
                 .andExpect(status().isOk())

@@ -107,15 +107,14 @@ class RecipeControllerTest {
             String request = objectMapper.writeValueAsString(recipeCreateRequest);
 
             given(recipeService.createRecipe(any(), anyString()))
-                    .willReturn(new MessageResponse("작성 성공"));
+                    .willReturn(new MessageResponse(UUID.randomUUID(), "작성 성공"));
 
             mockMvc.perform(post("/api/v1/recipes")
                             .contentType(APPLICATION_JSON)
                             .content(request)
                             .with(csrf()))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.resultCode").value(SUCCESS))
-                    .andExpect(jsonPath("$.result.message").value("작성 성공"))
+                    .andExpect(status().isCreated())
+                    .andExpect(header().exists("Location"))
                     .andDo(print());
         }
     }
@@ -183,9 +182,7 @@ class RecipeControllerTest {
                     .willReturn(new MessageResponse("삭제 성공"));
 
             mockMvc.perform(delete("/api/v1/recipes/{recipeUuid}", recipeUuid).with(csrf()))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.resultCode").value(SUCCESS))
-                    .andExpect(jsonPath("$.result.message").value("삭제 성공"))
+                    .andExpect(status().isNoContent())
                     .andDo(print());
         }
 
