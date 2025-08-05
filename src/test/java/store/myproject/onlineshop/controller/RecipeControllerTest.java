@@ -13,10 +13,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.recipe.dto.RecipeCreateRequest;
-import store.myproject.onlineshop.domain.recipe.dto.RecipeDto;
-import store.myproject.onlineshop.domain.recipe.dto.RecipeUpdateRequest;
-import store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto;
+import store.myproject.onlineshop.domain.recipe.dto.*;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.fixture.RecipeFixture;
 import store.myproject.onlineshop.service.RecipeService;
@@ -90,7 +87,7 @@ class RecipeControllerTest {
         @DisplayName("성공")
         void get_all_recipes_success() throws Exception {
             List<SimpleRecipeDto> response = List.of(RecipeFixture.createSimpleRecipeDto());
-            given(recipeService.getRecipes(any(), any())).willReturn(new PageImpl<>(response));
+            given(recipeService.getRecipes(any())).willReturn(new RecipeCursorResponse(response, null, null, null));
 
             mockMvc.perform(get("/api/v1/recipes"))
                     .andExpect(status().isOk())
