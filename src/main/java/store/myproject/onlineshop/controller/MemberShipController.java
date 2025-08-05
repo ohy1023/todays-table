@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import store.myproject.onlineshop.domain.MessageResponse;
 import store.myproject.onlineshop.domain.Response;
@@ -34,12 +35,11 @@ public class MemberShipController {
             @ApiResponse(responseCode = "404", description = "멤버쉽을 찾을 수 없음")
     })
     @GetMapping("/{membershipUuid}")
-    public Response<MemberShipDto> findOneMemberShip(
-            @Parameter(name = "membershipUuid", description = "삭제할 멤버쉽의 UUID", example = "a9dc96bf-2b1b-11f0-b1f0-5b9e0b864120", required = true)
+    public ResponseEntity<Response<MemberShipDto>> findOneMemberShip(
+            @Parameter(name = "membershipUuid", description = "조회할 멤버쉽의 UUID", example = "a9dc96bf-2b1b-11f0-b1f0-5b9e0b864120", required = true)
             @PathVariable UUID membershipUuid) {
-        MemberShipDto memberShipDto = memberShipService.getMemberShip(membershipUuid);
-
-        return Response.success(memberShipDto);
+        MemberShipDto dto = memberShipService.getMemberShip(membershipUuid);
+        return ResponseEntity.ok(Response.success(dto));
     }
 
     @Operation(
@@ -51,13 +51,10 @@ public class MemberShipController {
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @GetMapping
-    public Response<List<MemberShipDto>> findAllMemberShip() {
-
-        List<MemberShipDto> memberShipDtoList = memberShipService.getAllMemberShips();
-
-        return Response.success(memberShipDtoList);
+    public ResponseEntity<Response<List<MemberShipDto>>> findAllMemberShip() {
+        List<MemberShipDto> list = memberShipService.getAllMemberShips();
+        return ResponseEntity.ok(Response.success(list));
     }
-
 
     @Operation(
             summary = "멤버쉽 수정",
@@ -69,13 +66,14 @@ public class MemberShipController {
             @ApiResponse(responseCode = "404", description = "멤버쉽을 찾을 수 없음")
     })
     @PutMapping("/{membershipUuid}")
-    public Response<MessageResponse> changeMemberShip(
-            @Parameter(name = "membershipUuid", description = "조회할 멤버쉽의 UUID", example = "a9dc96bf-2b1b-11f0-b1f0-5b9e0b864120", required = true)
+    public ResponseEntity<Response<MessageResponse>> changeMemberShip(
+            @Parameter(name = "membershipUuid", description = "수정할 멤버쉽의 UUID", example = "a9dc96bf-2b1b-11f0-b1f0-5b9e0b864120", required = true)
             @PathVariable UUID membershipUuid,
             @Valid @RequestBody MemberShipUpdateRequest request) {
-        return Response.success(memberShipService.updateMemberShip(membershipUuid, request));
-    }
 
+        MessageResponse message = memberShipService.updateMemberShip(membershipUuid, request);
+        return ResponseEntity.ok(Response.success(message));
+    }
 
     @Operation(
             summary = "멤버쉽 삭제",
@@ -86,9 +84,11 @@ public class MemberShipController {
             @ApiResponse(responseCode = "404", description = "멤버쉽을 찾을 수 없음")
     })
     @DeleteMapping("/{membershipUuid}")
-    public Response<MessageResponse> removeMemberShip(
+    public ResponseEntity<Response<MessageResponse>> removeMemberShip(
             @Parameter(name = "membershipUuid", description = "삭제할 멤버쉽의 UUID", example = "a9dc96bf-2b1b-11f0-b1f0-5b9e0b864120", required = true)
             @PathVariable UUID membershipUuid) {
-        return Response.success(memberShipService.deleteMemberShip(membershipUuid));
+
+        MessageResponse message = memberShipService.deleteMemberShip(membershipUuid);
+        return ResponseEntity.ok(Response.success(message));
     }
 }

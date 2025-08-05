@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import store.myproject.onlineshop.domain.MessageResponse;
@@ -37,15 +38,14 @@ public class OrderController {
             @ApiResponse(responseCode = "404", description = "주문을 찾을 수 없습니다.")
     })
     @GetMapping("/{merchantUid}")
-    public Response<OrderInfo> findOneOrder(
+    public ResponseEntity<Response<OrderInfo>> findOneOrder(
             @Parameter(description = "주문을 조회할 고유 식별자", example = "91d7bee8-5880-11f0-8b90-718284fea868", required = true)
-            @PathVariable UUID merchantUid, Authentication authentication) {
+            @PathVariable UUID merchantUid,
+            Authentication authentication) {
 
         String email = authentication.getName();
-
         OrderInfo response = orderService.getOrderByUuid(merchantUid, email);
-
-        return Response.success(response);
+        return ResponseEntity.ok(Response.success(response));
     }
 
     @Operation(
@@ -60,9 +60,9 @@ public class OrderController {
                     """
     )
     @GetMapping
-    public Response<MyOrderSliceResponse> myOrder(@ModelAttribute OrderSearchCond orderSearchCond, Authentication authentication) {
+    public ResponseEntity<Response<MyOrderSliceResponse>> myOrder(@ModelAttribute OrderSearchCond orderSearchCond, Authentication authentication) {
         MyOrderSliceResponse response = orderService.getMyOrders(orderSearchCond, authentication.getName());
-        return Response.success(response);
+        return ResponseEntity.ok(Response.success(response));
     }
 
     @Operation(summary = "단건 주문", description = "사용자가 단일 주문을 생성합니다.")
@@ -71,9 +71,10 @@ public class OrderController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.")
     })
     @PostMapping
-    public Response<MessageResponse> order(@Valid @RequestBody OrderInfoRequest request, Authentication authentication) {
+    public ResponseEntity<Response<MessageResponse>> order(@Valid @RequestBody OrderInfoRequest request, Authentication authentication) {
         String email = authentication.getName();
-        return Response.success(orderService.placeSingleOrder(request, email));
+        MessageResponse msg = orderService.placeSingleOrder(request, email);
+        return ResponseEntity.ok(Response.success(msg));
     }
 
     @Operation(summary = "장바구니 내 품목 구매", description = "장바구니에 담긴 품목들을 구매합니다.")
@@ -82,19 +83,21 @@ public class OrderController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청")
     })
     @PostMapping("/cart")
-    public Response<MessageResponse> order(@Valid @RequestBody CartOrderRequest request, Authentication authentication) {
+    public ResponseEntity<Response<MessageResponse>> order(@Valid @RequestBody CartOrderRequest request, Authentication authentication) {
         String email = authentication.getName();
-        return Response.success(orderService.placeCartOrder(request, email));
+        MessageResponse msg = orderService.placeCartOrder(request, email);
+        return ResponseEntity.ok(Response.success(msg));
     }
 
-    @Operation(summary = "주문 정보 롤백 (oderstatus 변경 및 재고 정합성)", description = "아임포트 결제 창 닫기 등의 이유로 결제 실패시 주문 롤백")
+    @Operation(summary = "주문 정보 롤백 (orderstatus 변경 및 재고 정합성)", description = "아임포트 결제 창 닫기 등의 이유로 결제 실패시 주문 롤백")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "주문이 성공적으로 롤백되었습니다."),
             @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.")
     })
     @PostMapping("/rollback")
-    public Response<MessageResponse> order(@Valid @RequestBody OrderRollbackRequest request, Authentication authentication) {
-        return Response.success(orderService.rollbackOrder(authentication.getName(), request));
+    public ResponseEntity<Response<MessageResponse>> order(@Valid @RequestBody OrderRollbackRequest request, Authentication authentication) {
+        MessageResponse msg = orderService.rollbackOrder(authentication.getName(), request);
+        return ResponseEntity.ok(Response.success(msg));
     }
 
     @Operation(summary = "주문 취소", description = "특정 주문을 취소합니다.")
@@ -104,12 +107,13 @@ public class OrderController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청")
     })
     @DeleteMapping("/{merchantUid}")
-    public Response<MessageResponse> cancel(
+    public ResponseEntity<Response<MessageResponse>> cancel(
             @Parameter(description = "주문 고유 식별자", example = "9115f8f7-2b3f-11f0-82bf-3b1848bfb7af", required = true)
             @PathVariable UUID merchantUid,
             @RequestBody CancelItemRequest request
     ) throws IamportResponseException, IOException {
-        return Response.success(orderService.cancelOrder(merchantUid, request));
+        MessageResponse msg = orderService.cancelOrder(merchantUid, request);
+        return ResponseEntity.ok(Response.success(msg));
     }
 
     @Operation(summary = "사전 검증", description = "주문 결제를 위한 사전 검증을 수행합니다.")
@@ -118,8 +122,9 @@ public class OrderController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청")
     })
     @PostMapping("/preparation")
-    public Response<PreparationResponse> prepareValid(@Valid @RequestBody PreparationRequest preparationRequest) throws IamportResponseException, IOException {
-        return Response.success(orderService.validatePrePayment(preparationRequest));
+    public ResponseEntity<Response<PreparationResponse>> prepareValid(@Valid @RequestBody PreparationRequest preparationRequest) throws IamportResponseException, IOException {
+        PreparationResponse resp = orderService.validatePrePayment(preparationRequest);
+        return ResponseEntity.ok(Response.success(resp));
     }
 
     @Operation(summary = "사후 검증", description = "결제 후 검증을 수행합니다.")
@@ -128,9 +133,10 @@ public class OrderController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청")
     })
     @PostMapping("/verification")
-    public Response<MessageResponse> postVerification(@Valid @RequestBody PostVerificationRequest postVerificationRequest) throws IamportResponseException, IOException {
+    public ResponseEntity<Response<MessageResponse>> postVerification(@Valid @RequestBody PostVerificationRequest postVerificationRequest) throws IamportResponseException, IOException {
         log.info("imp_uid:{}", postVerificationRequest.getImpUid());
-        return Response.success(orderService.verifyPostPayment(postVerificationRequest));
+        MessageResponse msg = orderService.verifyPostPayment(postVerificationRequest);
+        return ResponseEntity.ok(Response.success(msg));
     }
 
     @Operation(summary = "해당 주문의 배송지 변경", description = "주문의 배송지 정보를 수정합니다.")
@@ -140,12 +146,12 @@ public class OrderController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청")
     })
     @PutMapping("/{merchantUid}")
-    public Response<MessageResponse> changeDeliveryInfo(
+    public ResponseEntity<Response<MessageResponse>> changeDeliveryInfo(
             @Parameter(description = "주문 고유 식별자", example = "9115f8f7-2b3f-11f0-82bf-3b1848bfb7af", required = true)
             @PathVariable UUID merchantUid,
             @RequestBody DeliveryUpdateRequest request
     ) {
-        return Response.success(orderService.updateDeliveryAddress(merchantUid, request));
+        MessageResponse msg = orderService.updateDeliveryAddress(merchantUid, request);
+        return ResponseEntity.ok(Response.success(msg));
     }
-
 }

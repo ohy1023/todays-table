@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import store.myproject.onlineshop.domain.MessageResponse;
@@ -32,9 +33,14 @@ public class LikeController {
             @ApiResponse(responseCode = "401", description = "인증 실패")
     })
     @PostMapping("/{recipeUuid}/likes")
-    public Response<MessageResponse> pushLike(@Parameter(name = "recipeUuid", description = "좋아요를 누를 레시피의 UUID", example = "6516f24e-2be4-11f0-bff7-453261748c60", required = true) @PathVariable UUID recipeUuid, Authentication authentication) {
-        String email = authentication.getName();
+    public ResponseEntity<Response<MessageResponse>> pushLike(
+            @Parameter(name = "recipeUuid", description = "좋아요를 누를 레시피의 UUID", example = "6516f24e-2be4-11f0-bff7-453261748c60", required = true)
+            @PathVariable UUID recipeUuid,
+            Authentication authentication) {
 
-        return Response.success(recipeService.toggleLike(recipeUuid, email));
+        String email = authentication.getName();
+        MessageResponse messageResponse = recipeService.toggleLike(recipeUuid, email);
+
+        return ResponseEntity.ok(Response.success(messageResponse));
     }
 }
