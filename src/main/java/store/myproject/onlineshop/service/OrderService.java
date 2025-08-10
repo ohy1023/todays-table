@@ -64,7 +64,7 @@ public class OrderService {
         Customer customer = getCustomerByEmail(email);
         Order order = orderRepository.findMyOrder(merchantUid, customer)
                 .orElseThrow(() -> new AppException(ORDER_NOT_FOUND));
-        return order.toOrderInfo();
+        return OrderInfo.from(order);
     }
 
     // 나의 주문 목록 조회
@@ -89,10 +89,7 @@ public class OrderService {
                 ? responseList.get(responseList.size() - 1).getMerchantUid()
                 : null;
 
-        return MyOrderSliceResponse.builder()
-                .content(responseList)
-                .nextCursor(nextCursor)
-                .build();
+        return MyOrderSliceResponse.of(responseList, nextCursor);
     }
 
     // 단건 주문
@@ -117,7 +114,7 @@ public class OrderService {
         log.info("Total Price : {}", orderItem.getTotalPrice());
 
         Order savedOrder = orderRepository.save(order);
-        return new MessageResponse(savedOrder.getMerchantUid(), messageUtil.get(MessageCode.ORDER_COMPLETE));
+        return MessageResponse.of(savedOrder.getMerchantUid(), messageUtil.get(MessageCode.ORDER_COMPLETE));
     }
 
     // 장바구니 주문
@@ -145,7 +142,7 @@ public class OrderService {
             cartItemRepository.deleteCartItem(cart, orderItem.getItem());
         });
 
-        return new MessageResponse(order.getMerchantUid(), messageUtil.get(MessageCode.ORDER_COMPLETE));
+        return MessageResponse.of(order.getMerchantUid(), messageUtil.get(MessageCode.ORDER_COMPLETE));
     }
 
     // 주문 롤백
@@ -172,7 +169,7 @@ public class OrderService {
 
         order.rollbackPayment();
 
-        return new MessageResponse(order.getMerchantUid(), messageUtil.get(MessageCode.ORDER_ROLLBACK));
+        return MessageResponse.of(order.getMerchantUid(), messageUtil.get(MessageCode.ORDER_ROLLBACK));
     }
 
     // 주문 취소
@@ -210,7 +207,7 @@ public class OrderService {
         order.cancelPayment();
         asyncCustomerService.subtractMonthlyPurchaseAmount(order.getCustomer().getId(), totalRefundAmount);
 
-        return new MessageResponse(order.getMerchantUid(), messageUtil.get(MessageCode.ORDER_CANCEL));
+        return MessageResponse.of(order.getMerchantUid(), messageUtil.get(MessageCode.ORDER_CANCEL));
     }
 
 
@@ -223,7 +220,7 @@ public class OrderService {
         if (response.getCode() != 0) {
             throw new AppException(FAILED_PREPARE_VALID, response.getMessage());
         }
-        return PreparationResponse.builder().merchantUid(merchantUid).build();
+        return PreparationResponse.of(merchantUid);
     }
 
     // 결제 사후 검증
@@ -259,7 +256,7 @@ public class OrderService {
         asyncCustomerService.addMonthlyPurchaseAmount(order.getCustomer().getId(), order.getTotalPrice());
 
         // 성공 메시지 응답
-        return new MessageResponse(messageUtil.get(ORDER_POST_VERIFICATION));
+        return MessageResponse.of(messageUtil.get(ORDER_POST_VERIFICATION));
     }
 
     // 배송지 수정
@@ -276,7 +273,7 @@ public class OrderService {
 
         order.getDelivery().setInfo(request);
 
-        return new MessageResponse(order.getMerchantUid(), messageUtil.get(MessageCode.ORDER_DELIVERY_MODIFIED));
+        return MessageResponse.of(order.getMerchantUid(), messageUtil.get(MessageCode.ORDER_DELIVERY_MODIFIED));
     }
 
     // === private utils ===

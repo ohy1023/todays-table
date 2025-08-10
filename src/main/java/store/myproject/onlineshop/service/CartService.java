@@ -54,7 +54,7 @@ public class CartService {
                         () -> addNewItemToCart(cart, item, request.getItemCnt())
                 );
 
-        return new MessageResponse(messageUtil.get(MessageCode.CART_ITEM_ADDED));
+        return MessageResponse.of(messageUtil.get(MessageCode.CART_ITEM_ADDED));
     }
 
     /**
@@ -65,7 +65,7 @@ public class CartService {
         Cart cart = findCartByCustomer(customer);
 
         cartItemRepository.deleteByCart(cart);
-        return new MessageResponse(messageUtil.get(MessageCode.CART_CLEARED));
+        return MessageResponse.of(messageUtil.get(MessageCode.CART_CLEARED));
     }
 
     /**
@@ -94,7 +94,7 @@ public class CartService {
 
         cartItemRepository.deleteCartItem(cart, item);
 
-        return new MessageResponse(messageUtil.get(MessageCode.CART_ITEM_DELETED));
+        return MessageResponse.of(messageUtil.get(MessageCode.CART_ITEM_DELETED));
     }
 
     public void insertInitialCartItems(String email) {

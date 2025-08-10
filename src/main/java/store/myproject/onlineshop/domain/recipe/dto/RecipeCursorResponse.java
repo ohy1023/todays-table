@@ -17,4 +17,13 @@ public class RecipeCursorResponse {
     private UUID nextUuid;
     private Long nextViewCount;
     private Long nextLikeCount;
+
+    public static RecipeCursorResponse of(List<SimpleRecipeDto> content, UUID nextUuid, Long nextViewCount, Long nextLikeCount) {
+        return RecipeCursorResponse.builder()
+                .content(content)
+                .nextUuid(nextUuid)
+                .nextViewCount(nextViewCount)
+                .nextLikeCount(nextLikeCount)
+                .build();
+    }
 }

@@ -48,14 +48,4 @@ public class MemberShip {
         return itemPrice.multiply(discountMultiplier);
     }
 
-    public MemberShipDto toDto() {
-        return MemberShipDto.builder()
-                .uuid(this.uuid)
-                .level(this.level)
-                .baseline(this.baseline)
-                .discountRate(this.discountRate)
-                .build();
-    }
-
-
 }

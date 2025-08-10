@@ -58,7 +58,7 @@ public class CustomerService {
         Customer customer = request.toEntity(encoder.encode(request.getPassword()), memberShips.get(0));
         customerRepository.save(customer);
 
-        return new MessageResponse(messageUtil.get(MessageCode.CUSTOMER_JOIN));
+        return MessageResponse.of(messageUtil.get(MessageCode.CUSTOMER_JOIN));
     }
 
     /**
@@ -82,7 +82,7 @@ public class CustomerService {
 
         redisService.setValues("RT:" + customer.getEmail(), refreshToken, refreshTokenMaxAge, TimeUnit.SECONDS);
 
-        return new LoginResponse(accessToken, refreshToken);
+        return LoginResponse.of(accessToken, refreshToken);
     }
 
     /**
@@ -106,7 +106,7 @@ public class CustomerService {
 
         redisService.setValues("RT:" + customer.getEmail(), newRefreshToken, refreshTokenMaxAge, TimeUnit.SECONDS);
 
-        return new LoginResponse(newAccessToken, newRefreshToken);
+        return LoginResponse.of(newAccessToken, newRefreshToken);
     }
 
     /**
@@ -123,7 +123,7 @@ public class CustomerService {
         int expiration = jwtUtils.getExpiration(request.getAccessToken()).intValue() / 1000;
         redisService.setValues(request.getAccessToken(), "logout", expiration, TimeUnit.SECONDS);
 
-        return new MessageResponse(messageUtil.get(MessageCode.CUSTOMER_LOGOUT));
+        return MessageResponse.of(messageUtil.get(MessageCode.CUSTOMER_LOGOUT));
     }
 
     /**
@@ -131,7 +131,7 @@ public class CustomerService {
      */
     public MessageResponse checkEmail(CustomerEmailCheckRequest request) {
         validateDuplicateEmail(request.getEmail());
-        return new MessageResponse(messageUtil.get(MessageCode.EMAIL_AVAILABLE));
+        return MessageResponse.of(messageUtil.get(MessageCode.EMAIL_AVAILABLE));
     }
 
     /**
@@ -139,7 +139,7 @@ public class CustomerService {
      */
     public MessageResponse checkNickName(CustomerNickNameCheckRequest request) {
         validateDuplicateNickName(request.getNickName());
-        return new MessageResponse(messageUtil.get(MessageCode.NICKNAME_AVAILABLE));
+        return MessageResponse.of(messageUtil.get(MessageCode.NICKNAME_AVAILABLE));
     }
 
     /**
@@ -148,7 +148,7 @@ public class CustomerService {
     public MessageResponse updateCustomerInfo(CustomerModifyRequest request, String email) {
         Customer customer = findCustomerByEmail(email);
         customer.updateInfo(request);
-        return new MessageResponse(messageUtil.get(MessageCode.CUSTOMER_MODIFIED));
+        return MessageResponse.of(messageUtil.get(MessageCode.CUSTOMER_MODIFIED));
     }
 
     /**
@@ -157,7 +157,7 @@ public class CustomerService {
     public MessageResponse deleteCustomer(String email) {
         Customer customer = findCustomerByEmail(email);
         customerRepository.delete(customer);
-        return new MessageResponse(messageUtil.get(MessageCode.CUSTOMER_DELETED));
+        return MessageResponse.of(messageUtil.get(MessageCode.CUSTOMER_DELETED));
     }
 
     /**
@@ -171,7 +171,7 @@ public class CustomerService {
         String tempPassword = "TODAY_TABLE " + UUID.randomUUID();
         customer.setTempPassword(encoder.encode(tempPassword));
 
-        return customer.toCustomerTempPasswordResponse(tempPassword);
+        return CustomerTempPasswordResponse.of(customer.getEmail(), customer.getPassword());
     }
 
     /**
@@ -186,7 +186,7 @@ public class CustomerService {
 
         customer.setPassword(encoder.encode(request.getNewPassword()));
 
-        return new MessageResponse(messageUtil.get(MessageCode.CUSTOMER_PASSWORD_MODIFIED));
+        return MessageResponse.of(messageUtil.get(MessageCode.CUSTOMER_PASSWORD_MODIFIED));
     }
 
 

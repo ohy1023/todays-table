@@ -34,11 +34,10 @@ public class MemberShipService {
     /**
      * 멤버십 단건 조회 (캐시 적용)
      */
-    @Cacheable(value = "memberships", key = "#uuid")
     @Transactional(readOnly = true)
     public MemberShipDto getMemberShip(UUID uuid) {
         MemberShip memberShip = findMemberShipByUuid(uuid);
-        return memberShip.toDto();
+        return MemberShipDto.from(memberShip);
     }
 
     /**
@@ -56,7 +55,7 @@ public class MemberShipService {
     public List<MemberShipDto> getAllMemberShips() {
         return memberShipRepository.findAll()
                 .stream()
-                .map(MemberShip::toDto)
+                .map(MemberShipDto::from)
                 .toList();
     }
 
@@ -70,7 +69,7 @@ public class MemberShipService {
                 });
 
         MemberShip memberShip = memberShipRepository.save(request.toEntity());
-        return new MessageResponse(memberShip.getUuid(), messageUtil.get(MessageCode.MEMBERSHIP_ADDED));
+        return MessageResponse.of(memberShip.getUuid(), messageUtil.get(MessageCode.MEMBERSHIP_ADDED));
     }
 
     /**
@@ -80,17 +79,16 @@ public class MemberShipService {
     public MessageResponse updateMemberShip(UUID uuid, MemberShipUpdateRequest request) {
         MemberShip memberShip = findMemberShipByUuid(uuid);
         memberShip.updateMemberShip(request);
-        return new MessageResponse(memberShip.getUuid(), messageUtil.get(MessageCode.MEMBERSHIP_MODIFIED));
+        return MessageResponse.of(memberShip.getUuid(), messageUtil.get(MessageCode.MEMBERSHIP_MODIFIED));
     }
 
     /**
      * 멤버십 삭제 (캐시 초기화)
      */
-    @CacheEvict(value = "memberships", allEntries = true)
     public MessageResponse deleteMemberShip(UUID uuid) {
         MemberShip memberShip = findMemberShipByUuid(uuid);
         memberShipRepository.deleteById(memberShip.getId());
-        return new MessageResponse(memberShip.getUuid(), messageUtil.get(MessageCode.MEMBERSHIP_DELETED));
+        return MessageResponse.of(memberShip.getUuid(), messageUtil.get(MessageCode.MEMBERSHIP_DELETED));
     }
 
     /**

@@ -135,6 +135,7 @@ public class RecipeService {
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            // todo 커스텀 예외 처리
             throw new RuntimeException("Thread interrupted during lock acquisition", e);
         }
 
@@ -177,7 +178,7 @@ public class RecipeService {
                 ? recipes.get(recipes.size() - 1).getLikeCnt()
                 : null;
 
-        return new RecipeCursorResponse(limitedRecipes, nextUuid, nextViewCount, nextLikeCount);
+        return RecipeCursorResponse.of(limitedRecipes, nextUuid, nextViewCount, nextLikeCount);
     }
 
     /**
@@ -190,7 +191,7 @@ public class RecipeService {
         recipe.addSteps(mapToRecipeSteps(request.getSteps()));
         applyThumbnail(recipe, request.getThumbnailUrl());
         recipeRepository.save(recipe);
-        return new MessageResponse(recipe.getUuid(), messageUtil.get(MessageCode.RECIPE_ADDED));
+        return MessageResponse.of(recipe.getUuid(), messageUtil.get(MessageCode.RECIPE_ADDED));
     }
 
     /**
@@ -211,7 +212,7 @@ public class RecipeService {
         String recipeCacheKey = RedisKeyHelper.getRecipeKey(recipeUuid);
         cacheRedisTemplate.delete(recipeCacheKey);
 
-        return new MessageResponse(recipe.getUuid(), messageUtil.get(MessageCode.RECIPE_MODIFIED));
+        return MessageResponse.of(recipe.getUuid(), messageUtil.get(MessageCode.RECIPE_MODIFIED));
     }
 
     /**
@@ -227,7 +228,7 @@ public class RecipeService {
         String recipeCacheKey = RedisKeyHelper.getRecipeKey(recipeUuid);
         cacheRedisTemplate.delete(recipeCacheKey);
 
-        return new MessageResponse(recipe.getUuid(), messageUtil.get(MessageCode.RECIPE_DELETED));
+        return MessageResponse.of(recipe.getUuid(), messageUtil.get(MessageCode.RECIPE_DELETED));
     }
 
     /**
@@ -273,7 +274,7 @@ public class RecipeService {
         Review review = request.toEntity(parentId, request.getReviewContent(), customer, recipe);
         review.addReviewToRecipe(recipe);
         reviewRepository.save(review);
-        return new MessageResponse(review.getUuid(), messageUtil.get(MessageCode.RECIPE_REVIEW_ADDED));
+        return MessageResponse.of(review.getUuid(), messageUtil.get(MessageCode.RECIPE_REVIEW_ADDED));
     }
 
     /**
@@ -285,7 +286,7 @@ public class RecipeService {
         Review review = getReviewByUuid(reviewUuid);
         validatePermission(customer, review.getCustomer());
         review.updateReview(request);
-        return new MessageResponse(review.getUuid(), messageUtil.get(MessageCode.RECIPE_REVIEW_MODIFIED));
+        return MessageResponse.of(review.getUuid(), messageUtil.get(MessageCode.RECIPE_REVIEW_MODIFIED));
     }
 
     /**
@@ -298,7 +299,7 @@ public class RecipeService {
         validatePermission(customer, review.getCustomer());
         review.removeReviewToRecipe();
         reviewRepository.delete(review);
-        return new MessageResponse(review.getUuid(), messageUtil.get(MessageCode.RECIPE_REVIEW_DELETED));
+        return MessageResponse.of(review.getUuid(), messageUtil.get(MessageCode.RECIPE_REVIEW_DELETED));
     }
 
     /**
@@ -313,20 +314,20 @@ public class RecipeService {
             likeRepository.delete(like.get());
             decreaseLikeCount(recipeMetaId);
             recipeMetaService.asyncDecreaseLikeCnt(recipeMetaId);
-            return new MessageResponse(messageUtil.get(MessageCode.UNDO_LIKE));
+            return MessageResponse.of(messageUtil.get(MessageCode.UNDO_LIKE));
         }
         likeRepository.save(Like.of(customer, recipe));
         increaseLikeCount(recipeMetaId);
         recipeMetaService.asyncIncreaseLikeCnt(recipeMetaId);
 
-        return new MessageResponse(messageUtil.get(MessageCode.DO_LIKE));
+        return MessageResponse.of(messageUtil.get(MessageCode.DO_LIKE));
     }
 
     /**
      * 레시피 단계 이미지 업로드
      */
     public MessageResponse uploadImage(MultipartFile file) {
-        return new MessageResponse(awsS3Service.uploadRecipeOriginImage(file));
+        return MessageResponse.of(awsS3Service.uploadRecipeOriginImage(file));
     }
 
     /**

@@ -2,15 +2,18 @@ package store.myproject.onlineshop.domain.item.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import store.myproject.onlineshop.domain.imagefile.ImageFile;
+import store.myproject.onlineshop.domain.item.Item;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Schema(description = "품목 정보 응답 DTO")
 public class ItemDto {
 
@@ -28,5 +31,22 @@ public class ItemDto {
 
     @Schema(description = "브랜드 이름", example = "풀무원", required = true)
     private String brandName;
+
+    public static ItemDto from(Item item) {
+
+        List<String> imageUrls = item.getImageFileList().stream()
+                .map(ImageFile::getImageUrl)
+                .toList();
+
+        String brandName = item.getBrand().getBrandName();
+
+        return ItemDto.builder()
+                .uuid(item.getUuid())
+                .itemName(item.getItemName())
+                .price(item.getItemPrice())
+                .imageList(imageUrls)
+                .brandName(brandName)
+                .build();
+    }
 
 }

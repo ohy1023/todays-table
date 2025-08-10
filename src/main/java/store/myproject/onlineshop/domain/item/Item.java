@@ -28,7 +28,7 @@ import static store.myproject.onlineshop.exception.ErrorCode.*;
 @Entity
 @Getter
 @Builder
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Where(clause = "deleted_date IS NULL")
 @SQLDelete(sql = "UPDATE Item SET deleted_date = CURRENT_TIMESTAMP WHERE item_id = ?")

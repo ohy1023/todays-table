@@ -62,7 +62,7 @@ public class BrandService {
         savedBrand.addImage(image);
         imageFileRepository.save(image);
 
-        return new MessageResponse(savedBrand.getUuid(), messageUtil.get(MessageCode.BRAND_ADDED));
+        return MessageResponse.of(savedBrand.getUuid(), messageUtil.get(MessageCode.BRAND_ADDED));
     }
 
     /**
@@ -87,7 +87,7 @@ public class BrandService {
 
         brand.update(request);
 
-        return new MessageResponse(brand.getUuid(), messageUtil.get(MessageCode.BRAND_MODIFIED));
+        return MessageResponse.of(brand.getUuid(), messageUtil.get(MessageCode.BRAND_MODIFIED));
     }
 
     /**
@@ -101,7 +101,7 @@ public class BrandService {
         awsS3Service.deleteBrandImage(fileName);
 
         brandRepository.deleteById(brand.getId());
-        return new MessageResponse(brand.getUuid(), messageUtil.get(MessageCode.BRAND_DELETED));
+        return MessageResponse.of(brand.getUuid(), messageUtil.get(MessageCode.BRAND_DELETED));
     }
 
     /**

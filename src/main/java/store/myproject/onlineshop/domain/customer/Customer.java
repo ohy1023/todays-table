@@ -95,13 +95,4 @@ public class Customer extends BaseEntity {
         this.password = tempPassword;
     }
 
-    public CustomerTempPasswordResponse toCustomerTempPasswordResponse(String tempPassword) {
-        return CustomerTempPasswordResponse
-                .builder()
-                .email(this.email)
-                .tempPassword(tempPassword)
-                .build();
-    }
-
-
 }

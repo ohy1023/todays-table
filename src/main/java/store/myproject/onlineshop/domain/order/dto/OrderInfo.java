@@ -2,9 +2,15 @@ package store.myproject.onlineshop.domain.order.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import store.myproject.onlineshop.domain.customer.Customer;
+import store.myproject.onlineshop.domain.delivery.Delivery;
+import store.myproject.onlineshop.domain.order.Order;
+import store.myproject.onlineshop.domain.orderitem.OrderItem;
 
 import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Data
@@ -48,4 +54,48 @@ public class OrderInfo {
 
     @Schema(description = "총 가격", example = "50000")
     private BigDecimal totalPrice;
+
+    public static OrderInfo from(Order order) {
+
+        Delivery delivery = order.getDelivery();
+
+        String address = delivery.getAddress().getCity() + " " + delivery.getAddress().getStreet() + " " + delivery.getAddress().getDetail();
+
+        List<OrderItem> orderItemList = order.getOrderItemList();
+
+        List<OrderItemResponse> orderItemResponses = orderItemList.stream().map(
+                        orderItem -> OrderItemResponse.builder()
+                                .itemUuid(orderItem.getItem().getUuid())
+                                .orderPrice(orderItem.getOrderPrice())
+                                .itemName(orderItem.getItem().getItemName())
+                                .thumbnail(orderItem.getItem().getThumbnail())
+                                .count(orderItem.getCount())
+                                .brandUuid(orderItem.getItem().getBrand().getUuid())
+                                .brandName(orderItem.getItem().getBrand().getBrandName())
+                                .build()
+                )
+                .toList();
+
+        Customer customer = order.getCustomer();
+
+        return OrderInfo.builder()
+                .merchantUid(order.getMerchantUid())
+                .orderItemList(orderItemResponses)
+                .totalPrice(order.getTotalPrice())
+                .orderDate(
+                        Optional.ofNullable(order.getCreatedDate())
+                                .map(d -> d.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분 ss초")))
+                                .orElse("날짜 없음")
+                )
+                .orderCustomerName(customer.getUserName())
+                .orderCustomerTel(customer.getTel())
+                .orderStatus(order.getOrderStatus().name())
+                .deliveryStatus(delivery.getStatus().name())
+                .recipientName(delivery.getRecipientName())
+                .recipientTel(delivery.getRecipientTel())
+                .recipientAddress(address)
+                .zipcode(delivery.getAddress().getZipcode())
+                .build();
+    }
+
 }

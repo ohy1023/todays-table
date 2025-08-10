@@ -28,6 +28,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static store.myproject.onlineshop.exception.ErrorCode.*;
 
@@ -69,7 +70,7 @@ public class ItemService {
 
                     Item item = getItemByUuid(uuid);
 
-                    ItemDto itemDto = item.toItemDto();
+                    ItemDto itemDto = ItemDto.from(item);
 
                     cacheRedisTemplate.opsForValue().set(itemCacheKey, itemDto, Duration.ofDays(1L));
 
@@ -89,6 +90,7 @@ public class ItemService {
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            // todo 커스텀 에러료 리팩토링
             throw new RuntimeException("Thread interrupted during lock acquisition", e);
         }
     }
@@ -124,7 +126,7 @@ public class ItemService {
             if (i == 0) savedItem.setThumbnail(originImageUrl);
         }
 
-        return new MessageResponse(savedItem.getUuid(), messageUtil.get(MessageCode.ITEM_ADDED));
+        return MessageResponse.of(savedItem.getUuid(), messageUtil.get(MessageCode.ITEM_ADDED));
     }
 
     public MessageResponse updateItem(UUID uuid, ItemUpdateRequest request, List<MultipartFile> multipartFileList) {
@@ -165,7 +167,7 @@ public class ItemService {
         String itemCacheKey = RedisKeyHelper.getItemCacheKey(uuid);
         cacheRedisTemplate.delete(itemCacheKey);
 
-        return new MessageResponse(findItem.getUuid(), messageUtil.get(MessageCode.ITEM_MODIFIED));
+        return MessageResponse.of(findItem.getUuid(), messageUtil.get(MessageCode.ITEM_MODIFIED));
 
     }
 
@@ -186,7 +188,7 @@ public class ItemService {
         String itemCacheKey = RedisKeyHelper.getItemCacheKey(uuid);
         cacheRedisTemplate.delete(itemCacheKey);
 
-        return new MessageResponse(findItem.getUuid(), messageUtil.get(MessageCode.ITEM_DELETED));
+        return MessageResponse.of(findItem.getUuid(), messageUtil.get(MessageCode.ITEM_DELETED));
     }
 
     private Item getItemByUuid(UUID uuid) {
