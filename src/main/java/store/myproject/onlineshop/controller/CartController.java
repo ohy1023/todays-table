@@ -102,6 +102,6 @@ public class CartController {
         cartService.insertInitialCartItems(email);
         return ResponseEntity
                 .status(201)
-                .body(Response.success(new MessageResponse("장바구니에 초기 아이템 3개가 삽입되었습니다.")));
+                .body(Response.success(MessageResponse.of("장바구니에 초기 아이템 3개가 삽입되었습니다.")));
     }
 }
