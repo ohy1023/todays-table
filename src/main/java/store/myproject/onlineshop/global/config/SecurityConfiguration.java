@@ -24,14 +24,22 @@ public class SecurityConfiguration {
     private final JwtUtils jwtUtils;
 
     private static final String[] SWAGGER_AUTH = {
-            "/api-docs/swagger-config/**",
             "/swagger-ui.html/**",
             "/swagger-ui/**",
             "/api-docs/**",
             "/swagger-resources/**",
-            "/v3/api-docs/**",
-            "/webjars/**",
+            "/v3/api-docs/**"
     };
+
+    private static final String[] STATIC_RESOURCES = {
+            "/",
+            "/favicon.ico",
+            "/css/**",
+            "/js/**",
+            "/images/**",
+            "/webjars/**"
+    };
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -43,8 +51,9 @@ public class SecurityConfiguration {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests(authorize -> authorize
-                        // Actuator 허용 추가
-                        .requestMatchers("/actuator/**").permitAll()
+
+                        // 정적 자원 허용
+                        .requestMatchers(STATIC_RESOURCES).permitAll()
 
                         // Swagger 허용
                         .requestMatchers(SWAGGER_AUTH).permitAll()
