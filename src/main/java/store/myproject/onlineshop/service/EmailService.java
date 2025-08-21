@@ -16,7 +16,6 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-
     @Async(value = "mailExecutor")
     public void sendEmailForTempPassword(String email, String tempPassword) throws MessagingException {
         String content = String.format("임시 비밀번호 : %s", tempPassword);

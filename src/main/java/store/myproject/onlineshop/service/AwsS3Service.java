@@ -17,7 +17,7 @@ import store.myproject.onlineshop.global.utils.FileUtils;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static store.myproject.onlineshop.domain.AwsConstants.*;
+import static store.myproject.onlineshop.domain.AwsFolder.*;
 
 
 @Slf4j
@@ -27,19 +27,18 @@ public class AwsS3Service {
 
     private final AmazonS3Client amazonS3Client;
 
-
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
     public String uploadItemOriginImage(MultipartFile file) {
-        return upload(file, bucket, ORIGIN_ITEM_FOLDER);
+        return upload(file, bucket, ITEM.getFolderName());
     }
 
     public String uploadBrandOriginImage(MultipartFile file) {
-        return upload(file, bucket, ORIGIN_BRAND_FOLDER);
+        return upload(file, bucket, BRAND.getFolderName());
     }
     public String uploadRecipeOriginImage(MultipartFile file) {
-        return upload(file, bucket, ORIGIN_RECIPE_FOLDER);
+        return upload(file, bucket, RECIPE.getFolderName());
     }
 
     public String upload(MultipartFile file, String bucket, String folder) {
@@ -66,11 +65,11 @@ public class AwsS3Service {
     }
 
     public void deleteItemImage(String originFileName) {
-        delete(ORIGIN_ITEM_FOLDER + "/" + originFileName, bucket);
+        delete(ITEM.getFolderName() + "/" + originFileName, bucket);
     }
 
     public void deleteBrandImage(String originFileName) {
-        delete(ORIGIN_BRAND_FOLDER + "/" + originFileName, bucket);
+        delete(BRAND.getFolderName() + "/" + originFileName, bucket);
     }
 
     public void delete(String filePath, String bucket) {

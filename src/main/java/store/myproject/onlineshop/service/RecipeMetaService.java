@@ -12,7 +12,6 @@ import store.myproject.onlineshop.domain.faillog.AsyncFailureLog;
 import store.myproject.onlineshop.domain.faillog.FailureStatus;
 import store.myproject.onlineshop.domain.faillog.JobType;
 import store.myproject.onlineshop.repository.asyncFailureLog.AsyncFailureLogRepository;
-import store.myproject.onlineshop.repository.recipe.RecipeRepository;
 import store.myproject.onlineshop.repository.recipemeta.RecipeMetaRepository;
 
 import java.io.PrintWriter;
@@ -24,7 +23,6 @@ import java.io.StringWriter;
 @RequiredArgsConstructor
 public class RecipeMetaService {
 
-    private final RecipeRepository recipeRepository;
     private final RecipeMetaRepository recipeMetaRepository;
     private final AsyncFailureLogRepository asyncFailureLogRepository;
 
