@@ -98,7 +98,7 @@ public class ExceptionManager {
 
     // 공통 에러 응답 생성 메서드
     private ResponseEntity<?> buildErrorResponse(String code, String message, HttpStatus status) {
-        ErrorResponse error = new ErrorResponse(code, message);
+        ErrorResponse error = ErrorResponse.of(code, message);
         return ResponseEntity.status(status).body(Response.error(error));
     }
 }

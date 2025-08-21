@@ -20,7 +20,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         ObjectMapper objectMapper = new ObjectMapper();
 
         ErrorCode errorCode = ErrorCode.FORBIDDEN_ACCESS;
-        ErrorResponse errorResponse = new ErrorResponse(errorCode.name(), errorCode.getMessage());
+        ErrorResponse errorResponse = ErrorResponse.of(errorCode.name(), errorCode.getMessage());
         Response<ErrorResponse> body = Response.error(errorResponse);
 
         response.setStatus(errorCode.getHttpStatus().value());

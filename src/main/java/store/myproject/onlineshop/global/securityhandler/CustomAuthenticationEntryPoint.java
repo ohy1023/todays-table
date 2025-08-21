@@ -27,7 +27,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        ErrorResponse errorResponse = new ErrorResponse(errorCode.name(), errorCode.getMessage());
+        ErrorResponse errorResponse = ErrorResponse.of(errorCode.name(), errorCode.getMessage());
         Response<ErrorResponse> body = Response.error(errorResponse);
 
         response.setStatus(errorCode.getHttpStatus().value());
