@@ -2,10 +2,9 @@ package store.myproject.onlineshop.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import store.myproject.onlineshop.domain.recipe.dto.RecipeCond;
-import store.myproject.onlineshop.domain.recipe.dto.RecipeDto;
-import store.myproject.onlineshop.domain.recipe.dto.RecipeListCond;
-import store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto;
+import store.myproject.onlineshop.dto.recipe.RecipeDto;
+import store.myproject.onlineshop.dto.recipe.RecipeListCond;
+import store.myproject.onlineshop.dto.recipe.SimpleRecipeDto;
 
 import java.util.List;
 import java.util.UUID;

@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
-import store.myproject.onlineshop.domain.MessageCode;
+import store.myproject.onlineshop.dto.common.MessageCode;
 
 import java.util.Locale;
 

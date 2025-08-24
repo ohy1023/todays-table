@@ -3,8 +3,8 @@ package store.myproject.onlineshop.fixture;
 
 import com.github.javafaker.Faker;
 
-import store.myproject.onlineshop.domain.cart.dto.CartOrderRequest;
-import store.myproject.onlineshop.domain.order.dto.*;
+import store.myproject.onlineshop.dto.cart.CartOrderRequest;
+import store.myproject.onlineshop.dto.order.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

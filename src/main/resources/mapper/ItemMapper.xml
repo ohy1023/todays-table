@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="store.myproject.onlineshop.mapper.ItemMapper">
-    <select id="searchItem" resultType="store.myproject.onlineshop.domain.item.dto.SimpleItemDto">
+    <select id="searchItem" resultType="store.myproject.onlineshop.dto.item.SimpleItemDto">
         SELECT
             i.item_uuid AS uuid,
             i.item_name,

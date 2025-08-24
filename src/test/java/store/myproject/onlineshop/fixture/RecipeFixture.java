@@ -3,9 +3,9 @@ package store.myproject.onlineshop.fixture;
 import com.github.javafaker.Faker;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.recipe.Recipe;
-import store.myproject.onlineshop.domain.recipe.dto.*;
 import store.myproject.onlineshop.domain.recipemeta.RecipeMeta;
-import store.myproject.onlineshop.domain.recipestep.dto.RecipeStepDto;
+import store.myproject.onlineshop.dto.recipe.*;
+import store.myproject.onlineshop.dto.recipestep.RecipeStepDto;
 
 import java.util.List;
 import java.util.Locale;

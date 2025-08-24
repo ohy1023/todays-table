@@ -5,7 +5,7 @@
 
 <mapper namespace="store.myproject.onlineshop.mapper.RecipeMapper">
 
-    <select id="findRecipeDtoByUuid" resultType="store.myproject.onlineshop.domain.recipe.dto.RecipeDto">
+    <select id="findRecipeDtoByUuid" resultType="store.myproject.onlineshop.dto.recipe.RecipeDto">
         SELECT
         r.recipe_uuid AS recipeUuid,
         r.recipe_title AS recipeTitle,
@@ -24,7 +24,7 @@
 
     </select>
 
-    <select id="findRecipeList" resultType="store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto">
+    <select id="findRecipeList" resultType="store.myproject.onlineshop.dto.recipe.SimpleRecipeDto">
         SELECT
         r.recipe_uuid,
         r.recipe_title AS title,
@@ -90,7 +90,7 @@
         LIMIT #{cond.sizePlusOne}
     </select>
 
-    <select id="findRecipeUseItem" resultType="store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto">
+    <select id="findRecipeUseItem" resultType="store.myproject.onlineshop.dto.recipe.SimpleRecipeDto">
         SELECT
         r.recipe_uuid,
         r.recipe_title AS title,

@@ -2,7 +2,6 @@ package store.myproject.onlineshop.domain.like;
 
 import jakarta.persistence.*;
 import lombok.*;
-import store.myproject.onlineshop.domain.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.recipe.Recipe;
 

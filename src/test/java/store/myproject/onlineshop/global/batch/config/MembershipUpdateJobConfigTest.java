@@ -15,8 +15,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import store.myproject.onlineshop.domain.customer.*;
 import store.myproject.onlineshop.domain.membership.MemberShip;
-import store.myproject.onlineshop.repository.customer.CustomerRepository;
-import store.myproject.onlineshop.repository.membership.MemberShipRepository;
+import store.myproject.onlineshop.domain.customer.CustomerRepository;
+import store.myproject.onlineshop.domain.membership.MemberShipRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

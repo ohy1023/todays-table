@@ -10,8 +10,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.AccessDeniedException;
-import store.myproject.onlineshop.domain.ErrorResponse;
-import store.myproject.onlineshop.domain.Response;
+import store.myproject.onlineshop.exception.ErrorResponse;
+import store.myproject.onlineshop.dto.common.Response;
 import store.myproject.onlineshop.exception.ErrorCode;
 import store.myproject.onlineshop.fixture.ResultCode;
 
@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import org.junit.jupiter.api.extension.ExtendWith;
+import store.myproject.onlineshop.global.config.security.securityhandler.CustomAccessDeniedHandler;
 
 @ExtendWith(MockitoExtension.class)
 class CustomAccessDeniedHandlerTest {

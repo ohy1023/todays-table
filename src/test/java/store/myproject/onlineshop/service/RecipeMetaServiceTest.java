@@ -6,8 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import store.myproject.onlineshop.repository.asyncFailureLog.AsyncFailureLogRepository;
-import store.myproject.onlineshop.repository.recipemeta.RecipeMetaRepository;
+import store.myproject.onlineshop.domain.faillog.AsyncFailureLogRepository;
+import store.myproject.onlineshop.domain.recipemeta.RecipeMetaRepository;
 
 import static org.mockito.BDDMockito.*;
 

@@ -20,8 +20,8 @@
 //import store.myproject.onlineshop.domain.order.dto.CustomerMembershipUpdateDto;
 //import store.myproject.onlineshop.global.batch.CustomerMembershipProcessor;
 //import store.myproject.onlineshop.global.batch.CustomerMembershipWriter;
-//import store.myproject.onlineshop.repository.customer.CustomerRepository;
-//import store.myproject.onlineshop.repository.membership.MemberShipRepository;
+//import store.myproject.onlineshop.domain.customer.CustomerRepository;
+//import store.myproject.onlineshop.domain.membership.MemberShipRepository;
 //
 //import java.time.LocalDate;
 //import java.util.List;

@@ -13,8 +13,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import store.myproject.onlineshop.domain.ErrorResponse;
-import store.myproject.onlineshop.domain.Response;
+import store.myproject.onlineshop.dto.common.Response;
 
 import javax.naming.AuthenticationException;
 import java.nio.file.AccessDeniedException;

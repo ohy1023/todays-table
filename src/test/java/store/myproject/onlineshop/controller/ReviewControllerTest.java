@@ -10,11 +10,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.review.dto.ChildReviewResponse;
-import store.myproject.onlineshop.domain.review.dto.ReviewResponse;
-import store.myproject.onlineshop.domain.review.dto.ReviewUpdateRequest;
-import store.myproject.onlineshop.domain.review.dto.ReviewWriteRequest;
+import store.myproject.onlineshop.dto.common.MessageResponse;
+import store.myproject.onlineshop.dto.review.ChildReviewResponse;
+import store.myproject.onlineshop.dto.review.ReviewResponse;
+import store.myproject.onlineshop.dto.review.ReviewUpdateRequest;
+import store.myproject.onlineshop.dto.review.ReviewWriteRequest;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.fixture.ReviewFixture;
 import store.myproject.onlineshop.service.RecipeService;
@@ -231,7 +231,7 @@ class ReviewControllerTest {
             UUID reviewUuid = UUID.randomUUID();
 
             ReviewUpdateRequest request = ReviewFixture.createReviewUpdateRequest();
-            MessageResponse response = new MessageResponse("수정 완료");
+            MessageResponse response = MessageResponse.of("수정 완료");
 
             given(recipeService.updateReview(anyString(), any(), any(), any())).willReturn(response);
 
@@ -315,7 +315,7 @@ class ReviewControllerTest {
         void delete_success() throws Exception {
             UUID recipeUuid = UUID.randomUUID();
             UUID reviewUuid = UUID.randomUUID();
-            MessageResponse response = new MessageResponse("삭제 완료");
+            MessageResponse response = MessageResponse.of("삭제 완료");
 
             given(recipeService.deleteReview(anyString(), any(), any())).willReturn(response);
 

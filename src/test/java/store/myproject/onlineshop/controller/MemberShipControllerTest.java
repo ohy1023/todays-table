@@ -3,9 +3,6 @@ package store.myproject.onlineshop.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -13,18 +10,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.membership.dto.MemberShipCreateRequest;
-import store.myproject.onlineshop.domain.membership.dto.MemberShipDto;
-import store.myproject.onlineshop.domain.membership.dto.MemberShipUpdateRequest;
+import store.myproject.onlineshop.dto.common.MessageResponse;
+import store.myproject.onlineshop.dto.membership.MemberShipDto;
+import store.myproject.onlineshop.dto.membership.MemberShipUpdateRequest;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.fixture.MemberShipFixture;
 import store.myproject.onlineshop.service.MemberShipService;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -123,7 +117,7 @@ class MemberShipControllerTest {
 
         MemberShipUpdateRequest request = MemberShipFixture.updateToBronzeRequest();
 
-        MessageResponse response = new MessageResponse("멤버쉽 삭제 성공");
+        MessageResponse response = MessageResponse.of("멤버쉽 삭제 성공");
 
         given(memberShipService.updateMemberShip(membershipUuid, request)).willReturn(response);
 
@@ -169,7 +163,7 @@ class MemberShipControllerTest {
     void removeMemberShip() throws Exception {
         UUID membershipUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
-        given(memberShipService.deleteMemberShip(membershipUuid)).willReturn(new MessageResponse("삭제 완료"));
+        given(memberShipService.deleteMemberShip(membershipUuid)).willReturn(MessageResponse.of("삭제 완료"));
 
         mockMvc.perform(delete("/api/v1/memberships/{membershipUuid}", membershipUuid)
                         .with(csrf()))

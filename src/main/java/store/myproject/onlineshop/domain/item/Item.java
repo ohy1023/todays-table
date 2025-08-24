@@ -5,13 +5,13 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-import store.myproject.onlineshop.domain.BaseEntity;
+import store.myproject.onlineshop.domain.common.BaseEntity;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.imagefile.ImageFile;
-import store.myproject.onlineshop.domain.item.dto.ItemDto;
-import store.myproject.onlineshop.domain.item.dto.ItemUpdateRequest;
-import store.myproject.onlineshop.domain.orderitem.OrderItem;
-import store.myproject.onlineshop.domain.recipeitem.RecipeItem;
+import store.myproject.onlineshop.dto.item.ItemDto;
+import store.myproject.onlineshop.dto.item.ItemUpdateRequest;
+import store.myproject.onlineshop.domain.order.OrderItem;
+import store.myproject.onlineshop.domain.recipe.RecipeItem;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.global.utils.UUIDBinaryConverter;
 

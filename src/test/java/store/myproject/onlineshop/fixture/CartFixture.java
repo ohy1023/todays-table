@@ -2,8 +2,8 @@ package store.myproject.onlineshop.fixture;
 
 import com.github.javafaker.Faker;
 import store.myproject.onlineshop.domain.cart.Cart;
-import store.myproject.onlineshop.domain.cart.dto.CartAddRequest;
-import store.myproject.onlineshop.domain.cartitem.dto.CartItemResponse;
+import store.myproject.onlineshop.dto.cart.CartAddRequest;
+import store.myproject.onlineshop.dto.cart.CartItemResponse;
 import store.myproject.onlineshop.domain.customer.Customer;
 
 import java.math.BigDecimal;

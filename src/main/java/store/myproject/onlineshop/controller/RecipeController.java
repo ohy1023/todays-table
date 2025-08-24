@@ -2,8 +2,6 @@ package store.myproject.onlineshop.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,10 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.Response;
-import store.myproject.onlineshop.domain.recipe.dto.*;
-import store.myproject.onlineshop.domain.recipemeta.dto.RecipeMetaDto;
+import store.myproject.onlineshop.dto.common.MessageResponse;
+import store.myproject.onlineshop.dto.common.Response;
+import store.myproject.onlineshop.dto.recipe.*;
+import store.myproject.onlineshop.dto.recipemeta.RecipeMetaDto;
 import store.myproject.onlineshop.service.RecipeService;
 
 import java.net.URI;

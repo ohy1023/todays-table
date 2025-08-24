@@ -3,7 +3,7 @@ package store.myproject.onlineshop.global.utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
-import store.myproject.onlineshop.domain.MessageCode;
+import store.myproject.onlineshop.dto.common.MessageCode;
 
 import java.util.Locale;
 

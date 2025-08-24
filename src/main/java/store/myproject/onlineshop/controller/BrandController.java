@@ -15,9 +15,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.Response;
-import store.myproject.onlineshop.domain.brand.dto.*;
+import store.myproject.onlineshop.dto.common.MessageResponse;
+import store.myproject.onlineshop.dto.common.Response;
+import store.myproject.onlineshop.dto.brand.BrandCreateRequest;
+import store.myproject.onlineshop.dto.brand.BrandInfo;
+import store.myproject.onlineshop.dto.brand.BrandUpdateRequest;
 import store.myproject.onlineshop.service.BrandService;
 
 import java.net.URI;

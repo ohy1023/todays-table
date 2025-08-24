@@ -3,9 +3,9 @@ package store.myproject.onlineshop.fixture;
 import com.github.javafaker.Faker;
 import store.myproject.onlineshop.domain.customer.Level;
 import store.myproject.onlineshop.domain.membership.MemberShip;
-import store.myproject.onlineshop.domain.membership.dto.MemberShipCreateRequest;
-import store.myproject.onlineshop.domain.membership.dto.MemberShipDto;
-import store.myproject.onlineshop.domain.membership.dto.MemberShipUpdateRequest;
+import store.myproject.onlineshop.dto.membership.MemberShipCreateRequest;
+import store.myproject.onlineshop.dto.membership.MemberShipDto;
+import store.myproject.onlineshop.dto.membership.MemberShipUpdateRequest;
 
 import java.math.BigDecimal;
 import java.util.Locale;

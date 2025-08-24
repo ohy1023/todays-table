@@ -17,10 +17,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.Response;
-import store.myproject.onlineshop.domain.item.dto.*;
-import store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto;
+import store.myproject.onlineshop.dto.common.MessageResponse;
+import store.myproject.onlineshop.dto.common.Response;
+import store.myproject.onlineshop.dto.item.*;
+import store.myproject.onlineshop.dto.recipe.SimpleRecipeDto;
 import store.myproject.onlineshop.service.ItemService;
 import store.myproject.onlineshop.service.RecipeService;
 

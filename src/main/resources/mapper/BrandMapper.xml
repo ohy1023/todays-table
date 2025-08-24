@@ -5,7 +5,7 @@
 
 <mapper namespace="store.myproject.onlineshop.mapper.BrandMapper">
 
-    <select id="searchBrand" resultType="store.myproject.onlineshop.domain.brand.dto.BrandInfo">
+    <select id="searchBrand" resultType="store.myproject.onlineshop.dto.brand.BrandInfo">
         SELECT
         b.brand_uuid AS uuid,
         b.brand_name,

@@ -11,8 +11,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.customer.dto.*;
+import store.myproject.onlineshop.dto.common.MessageResponse;
+import store.myproject.onlineshop.dto.cusotmer.*;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.fixture.CustomerFixture;
 import store.myproject.onlineshop.service.CustomerService;
@@ -48,7 +48,7 @@ class CustomerControllerTest {
         // given
         CustomerJoinRequest request = CustomerFixture.createJoinRequest();
 
-        MessageResponse response = new MessageResponse("회원 가입 성공");
+        MessageResponse response = MessageResponse.of("회원 가입 성공");
 
         given(customerService.registerCustomer(any(CustomerJoinRequest.class)))
                 .willReturn(response);
@@ -205,7 +205,7 @@ class CustomerControllerTest {
         // given
         TokenRequest request = CustomerFixture.createTokenRequest();
 
-        MessageResponse response = new MessageResponse("로그아웃 되셨습니다.");
+        MessageResponse response = MessageResponse.of("로그아웃 되셨습니다.");
 
         given(customerService.logout(any(TokenRequest.class), any(String.class)))
                 .willReturn(response);
@@ -428,7 +428,7 @@ class CustomerControllerTest {
         // given
         CustomerModifyRequest request = CustomerFixture.createModifyRequest();
 
-        MessageResponse response = new MessageResponse("회원 수정 성공");
+        MessageResponse response = MessageResponse.of("회원 수정 성공");
 
         given(customerService.updateCustomerInfo(any(CustomerModifyRequest.class), any(String.class)))
                 .willReturn(response);
@@ -473,7 +473,7 @@ class CustomerControllerTest {
     public void delete_customer_success() throws Exception {
 
         // given
-        MessageResponse response = new MessageResponse("회원 탈퇴 성공");
+        MessageResponse response = MessageResponse.of("회원 탈퇴 성공");
 
         given(customerService.deleteCustomer(any(String.class)))
                 .willReturn(response);
@@ -513,7 +513,7 @@ class CustomerControllerTest {
         // given
         CustomerEmailCheckRequest request = CustomerFixture.createEmailCheckRequest();
 
-        MessageResponse response = new MessageResponse("사용 가능한 이메일 입니다.");
+        MessageResponse response = MessageResponse.of("사용 가능한 이메일 입니다.");
 
         given(customerService.checkEmail(any(CustomerEmailCheckRequest.class)))
                 .willReturn(response);
@@ -561,7 +561,7 @@ class CustomerControllerTest {
         // given
         CustomerNickNameCheckRequest request = CustomerFixture.createNickNameCheckRequest();
 
-        MessageResponse response = new MessageResponse("사용 가능한 닉네임 입니다.");
+        MessageResponse response = MessageResponse.of("사용 가능한 닉네임 입니다.");
 
         given(customerService.checkNickName(any(CustomerNickNameCheckRequest.class)))
                 .willReturn(response);
@@ -657,7 +657,7 @@ class CustomerControllerTest {
         // given
         CustomerChangePasswordRequest request = CustomerFixture.createChangePasswordRequest("curPassword12!!");
 
-        MessageResponse response = new MessageResponse("비밀번호 변경 성공");
+        MessageResponse response = MessageResponse.of("비밀번호 변경 성공");
 
         given(customerService.updatePassword(any(CustomerChangePasswordRequest.class), any(String.class)))
                 .willReturn(response);

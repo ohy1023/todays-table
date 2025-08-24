@@ -15,8 +15,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.brand.dto.*;
+import store.myproject.onlineshop.dto.common.MessageResponse;
+import store.myproject.onlineshop.dto.brand.BrandCreateRequest;
+import store.myproject.onlineshop.dto.brand.BrandInfo;
+import store.myproject.onlineshop.dto.brand.BrandUpdateRequest;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.fixture.BrandFixture;
 import store.myproject.onlineshop.service.BrandService;
@@ -138,7 +140,7 @@ class BrandControllerTest {
 
         MockMultipartFile multipartFile = setMockMultipartFile();
 
-        MessageResponse response = new MessageResponse("브랜드 수정 성공");
+        MessageResponse response = MessageResponse.of("브랜드 수정 성공");
 
         given(brandService.updateBrand(any(UUID.class), any(BrandUpdateRequest.class), any(MockMultipartFile.class)))
                 .willReturn(response);
@@ -198,7 +200,7 @@ class BrandControllerTest {
         UUID brandUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
 
-        MessageResponse response = new MessageResponse("브랜드 삭제 성공");
+        MessageResponse response = MessageResponse.of("브랜드 삭제 성공");
 
         given(brandService.deleteBrand(any(UUID.class)))
                 .willReturn(response);

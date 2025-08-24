@@ -2,8 +2,8 @@ package store.myproject.onlineshop.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import store.myproject.onlineshop.domain.order.dto.MyOrderFlatDto;
-import store.myproject.onlineshop.domain.order.dto.OrderSearchCond;
+import store.myproject.onlineshop.dto.order.MyOrderFlatDto;
+import store.myproject.onlineshop.dto.order.OrderSearchCond;
 
 import java.util.List;
 

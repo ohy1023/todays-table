@@ -7,7 +7,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import store.myproject.onlineshop.domain.MessageResponse;
+import store.myproject.onlineshop.dto.common.MessageResponse;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.service.RecipeService;
 
@@ -38,7 +38,7 @@ class LikeControllerTest {
     void push_like_success() throws Exception {
         // given
         UUID recipeUuid = UUID.randomUUID();
-        MessageResponse response = new MessageResponse("좋아요 완료");
+        MessageResponse response = MessageResponse.of("좋아요 완료");
 
         given(recipeService.toggleLike(any(UUID.class), any(String.class)))
                 .willReturn(response);

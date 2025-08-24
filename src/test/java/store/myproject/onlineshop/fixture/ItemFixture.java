@@ -3,10 +3,10 @@ package store.myproject.onlineshop.fixture;
 import com.github.javafaker.Faker;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.item.Item;
-import store.myproject.onlineshop.domain.item.dto.ItemCreateRequest;
-import store.myproject.onlineshop.domain.item.dto.ItemDto;
-import store.myproject.onlineshop.domain.item.dto.ItemUpdateRequest;
-import store.myproject.onlineshop.domain.item.dto.SimpleItemDto;
+import store.myproject.onlineshop.dto.item.ItemCreateRequest;
+import store.myproject.onlineshop.dto.item.ItemDto;
+import store.myproject.onlineshop.dto.item.ItemUpdateRequest;
+import store.myproject.onlineshop.dto.item.SimpleItemDto;
 
 import java.math.BigDecimal;
 import java.util.List;

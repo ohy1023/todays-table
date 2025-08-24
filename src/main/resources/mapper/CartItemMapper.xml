@@ -5,7 +5,7 @@
 
 <mapper namespace="store.myproject.onlineshop.mapper.CartItemMapper">
 
-    <select id="findByCartPage" resultType="store.myproject.onlineshop.domain.cartitem.dto.CartItemResponse">
+    <select id="findByCartPage" resultType="store.myproject.onlineshop.dto.cart.CartItemResponse">
         SELECT
         i.item_uuid,
         i.item_name,

@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import store.myproject.onlineshop.domain.BaseEntity;
+import store.myproject.onlineshop.domain.common.BaseEntity;
 
 import java.math.BigDecimal;
 

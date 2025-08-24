@@ -11,9 +11,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.cart.dto.CartAddRequest;
-import store.myproject.onlineshop.domain.cartitem.dto.CartItemResponse;
+import store.myproject.onlineshop.dto.common.MessageResponse;
+import store.myproject.onlineshop.dto.cart.CartAddRequest;
+import store.myproject.onlineshop.dto.cart.CartItemResponse;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.exception.ErrorCode;
 import store.myproject.onlineshop.fixture.CartFixture;
@@ -53,7 +53,7 @@ class CartControllerTest {
             UUID itemUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
             CartAddRequest request = CartFixture.createAddRequest(itemUuid, 10L);
-            MessageResponse response = new MessageResponse("장바구니에 품목 추가 완료");
+            MessageResponse response = MessageResponse.of("장바구니에 품목 추가 완료");
 
             given(cartService.addItemToCart(any(CartAddRequest.class), anyString()))
                     .willReturn(response);
@@ -124,7 +124,7 @@ class CartControllerTest {
         UUID itemUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
         given(cartService.deleteItemFromCart(any(UUID.class), anyString()))
-                .willReturn(new MessageResponse("삭제 완료"));
+                .willReturn(MessageResponse.of("삭제 완료"));
 
         mockMvc.perform(delete("/api/v1/carts/{itemUuid}", itemUuid)
                         .with(csrf()))
@@ -136,7 +136,7 @@ class CartControllerTest {
     @DisplayName("장바구니 전체 비우기 성공")
     void clearCart_success() throws Exception {
         given(cartService.clearCart(anyString()))
-                .willReturn(new MessageResponse("비우기 완료"));
+                .willReturn(MessageResponse.of("비우기 완료"));
 
         mockMvc.perform(delete("/api/v1/carts")
                         .with(csrf()))

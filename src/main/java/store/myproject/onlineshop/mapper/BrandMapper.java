@@ -2,7 +2,7 @@ package store.myproject.onlineshop.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.data.repository.query.Param;
-import store.myproject.onlineshop.domain.brand.dto.BrandInfo;
+import store.myproject.onlineshop.dto.brand.BrandInfo;
 
 import java.util.List;
 

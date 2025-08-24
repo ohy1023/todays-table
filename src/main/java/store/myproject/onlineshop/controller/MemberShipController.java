@@ -9,10 +9,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.Response;
-import store.myproject.onlineshop.domain.membership.dto.MemberShipDto;
-import store.myproject.onlineshop.domain.membership.dto.MemberShipUpdateRequest;
+import store.myproject.onlineshop.dto.common.MessageResponse;
+import store.myproject.onlineshop.dto.common.Response;
+import store.myproject.onlineshop.dto.membership.MemberShipDto;
+import store.myproject.onlineshop.dto.membership.MemberShipUpdateRequest;
 import store.myproject.onlineshop.service.MemberShipService;
 
 import java.util.List;

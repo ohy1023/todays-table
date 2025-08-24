@@ -50,7 +50,7 @@
 
     </select>
 
-    <select id="findMyOrders" resultType="store.myproject.onlineshop.domain.order.dto.MyOrderFlatDto">
+    <select id="findMyOrders" resultType="store.myproject.onlineshop.dto.order.MyOrderFlatDto">
         SELECT
         o.merchant_uid,
         o.created_date,

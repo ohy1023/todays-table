@@ -2,7 +2,9 @@ package store.myproject.onlineshop.fixture;
 
 import com.github.javafaker.Faker;
 import store.myproject.onlineshop.domain.brand.Brand;
-import store.myproject.onlineshop.domain.brand.dto.*;
+import store.myproject.onlineshop.dto.brand.BrandCreateRequest;
+import store.myproject.onlineshop.dto.brand.BrandInfo;
+import store.myproject.onlineshop.dto.brand.BrandUpdateRequest;
 
 import java.util.Locale;
 import java.util.UUID;

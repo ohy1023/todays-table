@@ -4,9 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.batch.item.ItemProcessor;
 import store.myproject.onlineshop.domain.customer.Customer;
-import store.myproject.onlineshop.domain.customer.dto.CustomerOrderSumDto;
 import store.myproject.onlineshop.domain.membership.MemberShip;
-import store.myproject.onlineshop.domain.order.dto.CustomerMembershipUpdateDto;
+import store.myproject.onlineshop.dto.order.CustomerMembershipUpdateDto;
 
 import java.util.List;
 

@@ -4,11 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-import store.myproject.onlineshop.domain.BaseEntity;
-import store.myproject.onlineshop.domain.customer.dto.*;
+import store.myproject.onlineshop.domain.common.BaseEntity;
 import store.myproject.onlineshop.domain.like.Like;
 import store.myproject.onlineshop.domain.membership.MemberShip;
 import store.myproject.onlineshop.domain.order.Order;
+import store.myproject.onlineshop.dto.cusotmer.CustomerModifyRequest;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

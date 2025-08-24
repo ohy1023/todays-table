@@ -13,10 +13,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.Response;
-import store.myproject.onlineshop.domain.cart.dto.CartAddRequest;
-import store.myproject.onlineshop.domain.cartitem.dto.CartItemResponse;
+import store.myproject.onlineshop.dto.common.MessageResponse;
+import store.myproject.onlineshop.dto.common.Response;
+import store.myproject.onlineshop.dto.cart.CartAddRequest;
+import store.myproject.onlineshop.dto.cart.CartItemResponse;
 import store.myproject.onlineshop.service.CartService;
 
 import java.net.URI;

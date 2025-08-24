@@ -17,14 +17,14 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.web.multipart.MultipartFile;
-import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.item.dto.*;
+import store.myproject.onlineshop.dto.common.MessageResponse;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
-import store.myproject.onlineshop.domain.recipe.dto.SimpleRecipeDto;
+import store.myproject.onlineshop.dto.item.*;
+import store.myproject.onlineshop.dto.recipe.SimpleRecipeDto;
 import store.myproject.onlineshop.fixture.CommonFixture;
 import store.myproject.onlineshop.fixture.ItemFixture;
 import store.myproject.onlineshop.fixture.RecipeFixture;
@@ -138,7 +138,7 @@ class ItemControllerTest {
         String json = objectMapper.writeValueAsString(request);
         List<MockMultipartFile> files = CommonFixture.mockMultipartFileList();
 
-        MessageResponse response = new MessageResponse("수정 성공");
+        MessageResponse response = MessageResponse.of("수정 성공");
 
         given(itemService.updateItem(eq(itemUuid), any(ItemUpdateRequest.class), ArgumentMatchers.<List<MultipartFile>>any()))
                 .willReturn(response);
@@ -167,7 +167,7 @@ class ItemControllerTest {
     void remove_item_success() throws Exception {
         // given
         UUID itemUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-        MessageResponse response = new MessageResponse("삭제 완료");
+        MessageResponse response = MessageResponse.of("삭제 완료");
         given(itemService.deleteItem(itemUuid)).willReturn(response);
 
         // when & then

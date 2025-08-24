@@ -3,8 +3,8 @@ package store.myproject.onlineshop.fixture;
 import com.github.javafaker.Faker;
 import org.instancio.Instancio;
 import store.myproject.onlineshop.domain.customer.*;
-import store.myproject.onlineshop.domain.customer.dto.*;
 import store.myproject.onlineshop.domain.membership.MemberShip;
+import store.myproject.onlineshop.dto.cusotmer.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

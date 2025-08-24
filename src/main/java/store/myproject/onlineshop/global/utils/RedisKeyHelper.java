@@ -1,7 +1,7 @@
 package store.myproject.onlineshop.global.utils;
 
 import lombok.experimental.UtilityClass;
-import store.myproject.onlineshop.domain.KeyType;
+import store.myproject.onlineshop.dto.common.KeyType;
 
 import java.util.UUID;
 

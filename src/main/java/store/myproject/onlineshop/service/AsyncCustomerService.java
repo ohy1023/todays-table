@@ -8,8 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import store.myproject.onlineshop.domain.faillog.AsyncFailureLog;
 import store.myproject.onlineshop.domain.faillog.FailureStatus;
 import store.myproject.onlineshop.domain.faillog.JobType;
-import store.myproject.onlineshop.repository.asyncFailureLog.AsyncFailureLogRepository;
-import store.myproject.onlineshop.repository.customer.CustomerRepository;
+import store.myproject.onlineshop.domain.faillog.AsyncFailureLogRepository;
+import store.myproject.onlineshop.domain.customer.CustomerRepository;
 
 import java.math.BigDecimal;
 

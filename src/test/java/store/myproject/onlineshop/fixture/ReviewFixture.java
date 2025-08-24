@@ -4,8 +4,8 @@ import com.github.javafaker.Faker;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.recipe.Recipe;
 import store.myproject.onlineshop.domain.review.Review;
-import store.myproject.onlineshop.domain.review.dto.ReviewUpdateRequest;
-import store.myproject.onlineshop.domain.review.dto.ReviewWriteRequest;
+import store.myproject.onlineshop.dto.review.ReviewUpdateRequest;
+import store.myproject.onlineshop.dto.review.ReviewWriteRequest;
 
 import java.util.Locale;
 import java.util.UUID;

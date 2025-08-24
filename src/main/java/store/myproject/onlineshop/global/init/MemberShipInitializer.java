@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import store.myproject.onlineshop.domain.customer.Level;
-import store.myproject.onlineshop.domain.membership.dto.MemberShipCreateRequest;
+import store.myproject.onlineshop.dto.membership.MemberShipCreateRequest;
 import store.myproject.onlineshop.service.MemberShipService;
 
 import java.math.BigDecimal;

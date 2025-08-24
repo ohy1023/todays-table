@@ -2,7 +2,6 @@ package store.myproject.onlineshop.domain.cart;
 
 import jakarta.persistence.*;
 import lombok.*;
-import store.myproject.onlineshop.domain.cartitem.CartItem;
 import store.myproject.onlineshop.domain.customer.Customer;
 
 import java.util.ArrayList;

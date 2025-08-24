@@ -2,9 +2,10 @@ package store.myproject.onlineshop.domain.brand;
 
 import jakarta.persistence.*;
 import lombok.*;
-import store.myproject.onlineshop.domain.brand.dto.*;
 import store.myproject.onlineshop.domain.imagefile.ImageFile;
 import store.myproject.onlineshop.domain.item.Item;
+import store.myproject.onlineshop.dto.brand.BrandInfo;
+import store.myproject.onlineshop.dto.brand.BrandUpdateRequest;
 import store.myproject.onlineshop.global.utils.UUIDBinaryConverter;
 
 import java.util.ArrayList;

@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
-import store.myproject.onlineshop.domain.customer.dto.CustomerTempPasswordResponse;
+import store.myproject.onlineshop.dto.cusotmer.CustomerTempPasswordResponse;
 import store.myproject.onlineshop.service.EmailService;
 
 @Component

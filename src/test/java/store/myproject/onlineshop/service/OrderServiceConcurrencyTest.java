@@ -13,9 +13,9 @@
 //import store.myproject.onlineshop.domain.customer.Customer;
 //import store.myproject.onlineshop.fixture.BrandFixture;
 //import store.myproject.onlineshop.global.config.TestConfig;
-//import store.myproject.onlineshop.repository.customer.CustomerRepository;
+//import store.myproject.onlineshop.domain.customer.CustomerRepository;
 //import store.myproject.onlineshop.domain.item.Item;
-//import store.myproject.onlineshop.repository.item.ItemRepository;
+//import store.myproject.onlineshop.domain.item.ItemRepository;
 //import store.myproject.onlineshop.domain.order.dto.OrderInfoRequest;
 //import store.myproject.onlineshop.exception.AppException;
 //import store.myproject.onlineshop.fixture.CustomerFixture;

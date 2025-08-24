@@ -16,11 +16,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.transaction.PlatformTransactionManager;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.membership.MemberShip;
-import store.myproject.onlineshop.domain.order.dto.CustomerMembershipUpdateDto;
+import store.myproject.onlineshop.dto.order.CustomerMembershipUpdateDto;
 import store.myproject.onlineshop.global.batch.CustomerMembershipProcessor;
 import store.myproject.onlineshop.global.batch.CustomerMembershipWriter;
-import store.myproject.onlineshop.repository.customer.CustomerRepository;
-import store.myproject.onlineshop.repository.membership.MemberShipRepository;
+import store.myproject.onlineshop.domain.customer.CustomerRepository;
+import store.myproject.onlineshop.domain.membership.MemberShipRepository;
 
 import java.util.List;
 

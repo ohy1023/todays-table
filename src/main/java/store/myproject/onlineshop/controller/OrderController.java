@@ -12,11 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.Response;
-import store.myproject.onlineshop.domain.cart.dto.CartOrderRequest;
-import store.myproject.onlineshop.domain.delivery.dto.DeliveryUpdateRequest;
-import store.myproject.onlineshop.domain.order.dto.*;
+import store.myproject.onlineshop.dto.common.MessageResponse;
+import store.myproject.onlineshop.dto.common.Response;
+import store.myproject.onlineshop.dto.cart.CartOrderRequest;
+import store.myproject.onlineshop.dto.delivery.DeliveryUpdateRequest;
+import store.myproject.onlineshop.dto.order.*;
 import store.myproject.onlineshop.service.OrderService;
 
 import java.io.IOException;

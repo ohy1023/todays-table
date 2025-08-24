@@ -4,10 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-import store.myproject.onlineshop.domain.BaseEntity;
+import store.myproject.onlineshop.domain.common.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.recipe.Recipe;
-import store.myproject.onlineshop.domain.review.dto.ReviewUpdateRequest;
+import store.myproject.onlineshop.dto.review.ReviewUpdateRequest;
 import store.myproject.onlineshop.global.utils.UUIDBinaryConverter;
 
 import java.util.UUID;

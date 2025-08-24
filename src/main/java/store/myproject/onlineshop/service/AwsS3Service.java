@@ -17,7 +17,7 @@ import store.myproject.onlineshop.global.utils.FileUtils;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static store.myproject.onlineshop.domain.AwsFolder.*;
+import static store.myproject.onlineshop.dto.common.AwsFolder.*;
 
 
 @Slf4j

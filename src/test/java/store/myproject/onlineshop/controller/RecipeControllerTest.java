@@ -7,13 +7,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.recipe.dto.*;
+import store.myproject.onlineshop.dto.common.MessageResponse;
+import store.myproject.onlineshop.dto.recipe.*;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.fixture.RecipeFixture;
 import store.myproject.onlineshop.service.RecipeService;
@@ -132,7 +131,7 @@ class RecipeControllerTest {
             String request = objectMapper.writeValueAsString(recipeUpdateRequest);
 
             given(recipeService.updateRecipe(any(), any(), anyString()))
-                    .willReturn(new MessageResponse("수정 성공"));
+                    .willReturn(MessageResponse.of("수정 성공"));
 
             mockMvc.perform(put("/api/v1/recipes/{recipeUuid}", recipeUuid)
                             .contentType(APPLICATION_JSON)
@@ -179,7 +178,7 @@ class RecipeControllerTest {
             UUID recipeUuid = UUID.randomUUID();
 
             given(recipeService.deleteRecipe(any(), anyString()))
-                    .willReturn(new MessageResponse("삭제 성공"));
+                    .willReturn(MessageResponse.of("삭제 성공"));
 
             mockMvc.perform(delete("/api/v1/recipes/{recipeUuid}", recipeUuid).with(csrf()))
                     .andExpect(status().isNoContent())
@@ -209,7 +208,7 @@ class RecipeControllerTest {
         MockMultipartFile file = setMockMultipartFile("recipeStepImage");
 
         given(recipeService.uploadImage(any()))
-                .willReturn(new MessageResponse("이미지 업로드 완료"));
+                .willReturn(MessageResponse.of("이미지 업로드 완료"));
 
         // when & then
         mockMvc.perform(multipart("/api/v1/recipes/image")

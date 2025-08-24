@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.AuthenticationException;
-import store.myproject.onlineshop.domain.ErrorResponse;
-import store.myproject.onlineshop.domain.Response;
+import store.myproject.onlineshop.exception.ErrorResponse;
+import store.myproject.onlineshop.dto.common.Response;
 import store.myproject.onlineshop.exception.ErrorCode;
 
 import java.io.IOException;
@@ -20,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import store.myproject.onlineshop.fixture.ResultCode;
+import store.myproject.onlineshop.global.config.security.securityhandler.CustomAuthenticationEntryPoint;
 
 @ExtendWith(MockitoExtension.class)
 class CustomAuthenticationEntryPointTest {

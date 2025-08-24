@@ -3,8 +3,8 @@ package store.myproject.onlineshop.global.batch;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
-import store.myproject.onlineshop.domain.order.dto.CustomerMembershipUpdateDto;
-import store.myproject.onlineshop.repository.customer.CustomerRepository;
+import store.myproject.onlineshop.dto.order.CustomerMembershipUpdateDto;
+import store.myproject.onlineshop.domain.customer.CustomerRepository;
 
 import java.util.List;
 import java.util.Map;

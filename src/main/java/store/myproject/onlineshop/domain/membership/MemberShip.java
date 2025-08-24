@@ -3,8 +3,7 @@ package store.myproject.onlineshop.domain.membership;
 import jakarta.persistence.*;
 import lombok.*;
 import store.myproject.onlineshop.domain.customer.Level;
-import store.myproject.onlineshop.domain.membership.dto.MemberShipDto;
-import store.myproject.onlineshop.domain.membership.dto.MemberShipUpdateRequest;
+import store.myproject.onlineshop.dto.membership.MemberShipUpdateRequest;
 import store.myproject.onlineshop.global.utils.UUIDBinaryConverter;
 
 import java.math.BigDecimal;

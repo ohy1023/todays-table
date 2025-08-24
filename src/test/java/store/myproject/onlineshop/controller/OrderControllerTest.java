@@ -9,9 +9,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import store.myproject.onlineshop.domain.MessageResponse;
-import store.myproject.onlineshop.domain.cart.dto.CartOrderRequest;
-import store.myproject.onlineshop.domain.order.dto.*;
+import store.myproject.onlineshop.dto.common.MessageResponse;
+import store.myproject.onlineshop.dto.cart.CartOrderRequest;
+import store.myproject.onlineshop.dto.order.*;
 import store.myproject.onlineshop.exception.AppException;
 import store.myproject.onlineshop.fixture.OrderFixture;
 import store.myproject.onlineshop.service.OrderService;
@@ -50,7 +50,7 @@ class OrderControllerTest {
         @DisplayName("단건 주문 성공")
         void orderByOne_success() throws Exception {
             OrderInfoRequest request = OrderFixture.createOrderInfoRequest();
-            MessageResponse response = new MessageResponse("단건 주문 완료");
+            MessageResponse response = MessageResponse.of("단건 주문 완료");
 
             given(orderService.placeSingleOrder(any(), anyString())).willReturn(response);
 
@@ -149,7 +149,7 @@ class OrderControllerTest {
         @DisplayName("주문 롤백 성공")
         void rollback_success() throws Exception {
             OrderRollbackRequest request = new OrderRollbackRequest(UUID.randomUUID());
-            MessageResponse response = new MessageResponse("주문 롤백 완료");
+            MessageResponse response = MessageResponse.of("주문 롤백 완료");
 
             given(orderService.rollbackOrder(anyString(), any(OrderRollbackRequest.class)))
                     .willReturn(response);
@@ -193,7 +193,7 @@ class OrderControllerTest {
             UUID orderUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
             CancelItemRequest request = OrderFixture.createCancelItemRequest(impUid, orderUuid);
 
-            given(orderService.cancelOrder(any(UUID.class), any(CancelItemRequest.class))).willReturn(new MessageResponse("주문이 취소되었습니다."));
+            given(orderService.cancelOrder(any(UUID.class), any(CancelItemRequest.class))).willReturn(MessageResponse.of("주문이 취소되었습니다."));
 
             mockMvc.perform(delete("/api/v1/orders/{orderUuid}", orderUuid)
                             .with(csrf())
@@ -274,7 +274,7 @@ class OrderControllerTest {
         @DisplayName("장바구니 주문 성공")
         void orderByCart_success() throws Exception {
             CartOrderRequest request = OrderFixture.createCartOrderRequest();
-            MessageResponse response = new MessageResponse("장바구니 주문 완료");
+            MessageResponse response = MessageResponse.of("장바구니 주문 완료");
 
             given(orderService.placeCartOrder(any(), anyString())).willReturn(response);
 
@@ -353,7 +353,7 @@ class OrderControllerTest {
         @DisplayName("사후 검증 성공")
         void post_verification_success() throws Exception {
             PostVerificationRequest request = OrderFixture.createPostVerificationRequest();
-            MessageResponse response = new MessageResponse("검증 완료");
+            MessageResponse response = MessageResponse.of("검증 완료");
 
             given(orderService.verifyPostPayment(any())).willReturn(response);
 

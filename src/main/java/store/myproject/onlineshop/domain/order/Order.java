@@ -4,23 +4,15 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-import store.myproject.onlineshop.domain.BaseEntity;
+import store.myproject.onlineshop.domain.common.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.delivery.Delivery;
-import store.myproject.onlineshop.domain.order.dto.MyOrderResponse;
-import store.myproject.onlineshop.domain.order.dto.OrderInfo;
-import store.myproject.onlineshop.domain.order.dto.OrderItemResponse;
-import store.myproject.onlineshop.domain.orderitem.OrderItem;
 import store.myproject.onlineshop.global.utils.UUIDBinaryConverter;
-import store.myproject.onlineshop.global.utils.UUIDGenerator;
 
 import java.math.BigDecimal;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static store.myproject.onlineshop.domain.order.OrderStatus.*;
 

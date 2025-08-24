@@ -1,0 +1,23 @@
+package store.myproject.onlineshop.domain.cart;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import store.myproject.onlineshop.domain.item.Item;
+
+import java.util.Optional;
+
+
+public interface CartItemRepository extends JpaRepository<CartItem, Long>, CartItemCustomRepository {
+
+    @Modifying
+    @Query("delete from CartItem ci where ci.cart = :cart")
+    void deleteByCart(@Param("cart") Cart cart);
+
+    Optional<CartItem> findByCartAndItem(Cart cart, Item item);
+
+    @Modifying
+    @Query("delete from CartItem ci where ci.cart = :cart and ci.item =:item ")
+    void deleteCartItem(@Param("cart") Cart cart, @Param("item") Item item);
+}
