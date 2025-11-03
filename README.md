@@ -47,12 +47,6 @@
 ![erd.png](img/today_table_erd.png)
 ---
 
-## 📡 API 명세서
-
-- [Demo Swagger](https://port-0-todays-table-m7plej378a04f632.sel4.cloudtype.app/swagger-ui/index.html)
-
----
-
 ## 🚀 GitActions을 활용한 배포 자동화
 
 자동화된 배포 파이프라인을 구성하여, GitHub에 코드 푸시 시 Docker 이미지 빌드 및 EC2 서버에 배포가 자동으로 이루어집니다.
