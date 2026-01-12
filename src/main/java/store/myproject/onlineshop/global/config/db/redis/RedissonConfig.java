@@ -24,9 +24,14 @@ public class RedissonConfig {
     @Bean(destroyMethod = "shutdown")
     public RedissonClient redissonClient() {
         Config config = new Config();
-        config.useSingleServer()
-                .setAddress(REDISSON_HOST_PREFIX + redisHost + ":" + redisPort)
-                .setPassword(redisPassword);
+        var serverConfig = config.useSingleServer()
+                .setAddress(REDISSON_HOST_PREFIX + redisHost + ":" + redisPort);
+
+        // 패스워드가 비어있지 않은 경우에만 설정
+        if (redisPassword != null && !redisPassword.isBlank()) {
+            serverConfig.setPassword(redisPassword);
+        }
+
         return Redisson.create(config);
     }
 }

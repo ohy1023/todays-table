@@ -13,11 +13,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RecipeCond {
 
-    @Schema(description = "커서", example = "0196b547-d56b-72bf-977e-4c5865b1489c", required = false)
+    @Schema(description = "커서", example = "0196b547-d56b-72bf-977e-4c5865b1489c", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String nextCursor;
 
     @Builder.Default
-    @Schema(description = "페이지 사이즈 (기본값 10)", example = "10", required = false)
+    @Schema(description = "페이지 사이즈 (기본값 10)", example = "10", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private int size = 10;
 
     @JsonIgnore

@@ -1,6 +1,6 @@
 package store.myproject.onlineshop.fixture;
 
-import com.github.javafaker.Faker;
+import net.datafaker.Faker;
 import store.myproject.onlineshop.domain.customer.Level;
 import store.myproject.onlineshop.domain.membership.MemberShip;
 import store.myproject.onlineshop.dto.membership.MemberShipCreateRequest;

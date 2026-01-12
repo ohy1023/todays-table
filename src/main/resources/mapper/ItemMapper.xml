@@ -11,8 +11,8 @@
             i.item_price,
             i.thumbnail,
             b.brand_name
-        FROM Item i
-        JOIN Brand b ON i.brand_id = b.brand_id
+        FROM item i
+        JOIN brand b ON i.brand_id = b.brand_id
         <where>
             i.deleted_date IS NULL
             <choose>
@@ -28,7 +28,7 @@
 
     <select id="countItem" resultType="long" parameterType="map">
         SELECT COUNT(*)
-        FROM Item i
+        FROM item i
         <where>
             i.deleted_date IS NULL
             <choose>

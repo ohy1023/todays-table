@@ -14,6 +14,6 @@ import java.math.BigDecimal;
 public class PreparationRequest {
 
     @NotNull(message = "totalPrice는 필수입니다.")
-    @Schema(description = "결제 금액", example = "32000", required = true)
+    @Schema(description = "결제 금액", example = "32000", requiredMode = Schema.RequiredMode.REQUIRED)
     private BigDecimal totalPrice;
 }

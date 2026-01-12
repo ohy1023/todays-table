@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum ErrorCode {
 
+    FAIL_ROCK_ACQUIRE(HttpStatus.INTERNAL_SERVER_ERROR, "락 획득에 실패했습니다."),
+
     // Common (Authentication)
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "틀린 비밀번호입니다."),
     FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, "해당 접근은 금지되었습니다."),

@@ -2,6 +2,8 @@ package store.myproject.onlineshop.domain.delivery;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import store.myproject.onlineshop.domain.common.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Address;
 import store.myproject.onlineshop.dto.delivery.DeliveryInfoRequest;
@@ -13,6 +15,9 @@ import store.myproject.onlineshop.dto.delivery.DeliveryUpdateRequest;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE delivery SET deleted_date = CURRENT_TIMESTAMP WHERE delivery_id = ?")
+@SQLRestriction("deleted_date IS NULL")
+@Table(name = "delivery")
 public class Delivery extends BaseEntity {
 
     @Id

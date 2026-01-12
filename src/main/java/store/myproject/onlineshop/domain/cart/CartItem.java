@@ -2,6 +2,8 @@ package store.myproject.onlineshop.domain.cart;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import store.myproject.onlineshop.domain.item.Item;
 
 @Entity
@@ -9,6 +11,9 @@ import store.myproject.onlineshop.domain.item.Item;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE cart_item SET deleted_date = CURRENT_TIMESTAMP WHERE cart_item_id = ?")
+@SQLRestriction("deleted_date IS NULL")
+@Table(name = "cart_item")
 public class CartItem {
 
     @Id

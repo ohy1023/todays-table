@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.type.SqlTypes;
+import org.hibernate.annotations.JdbcTypeCode;
 import store.myproject.onlineshop.domain.common.BaseEntity;
 import store.myproject.onlineshop.domain.brand.Brand;
 import store.myproject.onlineshop.domain.imagefile.ImageFile;
@@ -13,7 +15,6 @@ import store.myproject.onlineshop.dto.item.ItemUpdateRequest;
 import store.myproject.onlineshop.domain.order.OrderItem;
 import store.myproject.onlineshop.domain.recipe.RecipeItem;
 import store.myproject.onlineshop.exception.AppException;
-import store.myproject.onlineshop.global.utils.UUIDBinaryConverter;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -30,52 +31,46 @@ import static store.myproject.onlineshop.exception.ErrorCode.*;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Where(clause = "deleted_date IS NULL")
-@SQLDelete(sql = "UPDATE Item SET deleted_date = CURRENT_TIMESTAMP WHERE item_id = ?")
+@SQLDelete(sql = "UPDATE item SET deleted_date = CURRENT_TIMESTAMP WHERE item_id = ?")
+@SQLRestriction("deleted_date IS NULL")
 @Table(
+        name = "item",
         indexes = {
-                @Index(name = "idx_deleted_date_brand_id", columnList = "deleted_date, brand_id")
+                @Index(name = "idx_brand_id", columnList = "brand_id")
         }
 )
 public class Item extends BaseEntity {
-    // Item 엔티티의 기본 키
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "item_id")
     private Long id;
 
-    @Column(name = "item_uuid", nullable = false, unique = true, columnDefinition = "BINARY(16)")
-    @Convert(converter = UUIDBinaryConverter.class)
+    @JdbcTypeCode(SqlTypes.BINARY)
+    @Column(name = "item_uuid", nullable = false, unique = true, updatable = false)
     private UUID uuid;
 
-    // 상품의 이름
-    @Column(name = "item_name")
+    @Column(name = "item_name", nullable = false)
     private String itemName;
 
-    // 상품의 가격
-    @Column(name = "item_price")
+    @Column(name = "item_price", nullable = false, precision = 12, scale = 2)
     private BigDecimal itemPrice;
 
-    // 상품의 재고 수량
-    @Column(name = "stock")
+    @Column(name = "stock", nullable = false)
     private Long stock;
 
-    // 썸네일
     @Setter
     @Column(name = "thumbnail")
     private String thumbnail;
 
-    // Brand 엔티티와의 다대일 관계
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "brand_id")
     private Brand brand;
 
-    // 상품 사진의 URL
     @Builder.Default
-    @OneToMany(mappedBy = "item")
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ImageFile> imageFileList = new ArrayList<>();
 
-    // OrderItem 엔티티들과의 일대다 관계
     @Builder.Default
     @OneToMany(mappedBy = "item")
     private List<OrderItem> orderItemList = new ArrayList<>();
@@ -84,46 +79,35 @@ public class Item extends BaseEntity {
     @OneToMany(mappedBy = "item")
     private List<RecipeItem> recipeItemList = new ArrayList<>();
 
-
-    // 상품의 재고를 감소시키는 메서드
+    // 비즈니스 로직: 재고 감소
     public void decrease(Long count) {
-        if (stock < count) {
-            // 재고가 부족하면 예외를 던집니다.
+        if (this.stock < count) {
             throw new AppException(NOT_ENOUGH_STOCK, NOT_ENOUGH_STOCK.getMessage());
         }
-
         this.stock -= count;
     }
 
-    // 상품의 재고를 증가시키는 메서드
+    // 비즈니스 로직: 재고 증가
     public void increase(Long count) {
         this.stock += count;
     }
 
-    // 상품을 업데이트하는 메서드 (요청과 브랜드를 기반으로)
+    // 상품 업데이트
     public void updateItem(ItemUpdateRequest updateRequest, Brand findBrand) {
-        if (updateRequest.getItemName() != null) {
-            this.itemName = updateRequest.getItemName();
-        }
-        if (updateRequest.getPrice() != null) {
-            this.itemPrice = updateRequest.getPrice();
-        }
-        if (findBrand != null) {
-            this.brand = findBrand;
-        }
-        if (updateRequest.getStock() != null) {
-            this.stock = updateRequest.getStock();
-        }
+        if (updateRequest.getItemName() != null) this.itemName = updateRequest.getItemName();
+        if (updateRequest.getPrice() != null) this.itemPrice = updateRequest.getPrice();
+        if (updateRequest.getStock() != null) this.stock = updateRequest.getStock();
+        if (findBrand != null) this.brand = findBrand;
     }
 
-    // 상품을 DTO로 변환하는 메서드
+    // DTO 변환
     public ItemDto toItemDto() {
         return ItemDto.builder()
                 .uuid(this.uuid)
                 .itemName(this.itemName)
                 .price(this.itemPrice)
-                .brandName(this.brand.getBrandName())
-                .imageList(this.getImageFileList().stream()
+                .brandName(this.brand != null ? this.brand.getBrandName() : null)
+                .imageList(this.imageFileList.stream()
                         .map(ImageFile::getImageUrl)
                         .collect(Collectors.toList()))
                 .build();

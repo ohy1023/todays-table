@@ -2,9 +2,13 @@ package store.myproject.onlineshop.domain.membership;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.type.SqlTypes;
+import store.myproject.onlineshop.domain.common.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Level;
 import store.myproject.onlineshop.dto.membership.MemberShipUpdateRequest;
-import store.myproject.onlineshop.global.utils.UUIDBinaryConverter;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -14,15 +18,18 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class MemberShip {
+@SQLDelete(sql = "UPDATE member_ship SET deleted_date = CURRENT_TIMESTAMP WHERE member_ship_id = ?")
+@SQLRestriction("deleted_date IS NULL")
+@Table(name = "member_ship")
+public class MemberShip extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_ship_id")
     private Long id;
 
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "member_ship_uuid", nullable = false, unique = true, columnDefinition = "BINARY(16)")
-    @Convert(converter = UUIDBinaryConverter.class)
     private UUID uuid;
 
     @Enumerated(EnumType.STRING)

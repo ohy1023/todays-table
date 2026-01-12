@@ -2,12 +2,13 @@ package store.myproject.onlineshop.domain.order;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.type.SqlTypes;
 import store.myproject.onlineshop.domain.common.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.delivery.Delivery;
-import store.myproject.onlineshop.global.utils.UUIDBinaryConverter;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -17,15 +18,14 @@ import java.util.UUID;
 import static store.myproject.onlineshop.domain.order.OrderStatus.*;
 
 @Entity
-@Table(
-        name = "Orders"
-)
+
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Where(clause = "deleted_date IS NULL")
-@SQLDelete(sql = "UPDATE Orders SET deleted_date = CURRENT_TIMESTAMP WHERE orders_id = ?")
+@SQLDelete(sql = "UPDATE orders SET deleted_date = CURRENT_TIMESTAMP WHERE orders_id = ?")
+@SQLRestriction("deleted_date IS NULL")
+@Table(name = "orders")
 public class Order extends BaseEntity {
 
     @Id
@@ -33,8 +33,8 @@ public class Order extends BaseEntity {
     @Column(name = "orders_id")
     private Long id;
 
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "merchant_uid", nullable = false, unique = true, columnDefinition = "BINARY(16)")
-    @Convert(converter = UUIDBinaryConverter.class)
     private UUID merchantUid;
 
     @Setter

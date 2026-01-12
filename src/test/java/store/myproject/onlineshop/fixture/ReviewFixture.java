@@ -1,6 +1,6 @@
 package store.myproject.onlineshop.fixture;
 
-import com.github.javafaker.Faker;
+import net.datafaker.Faker;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.recipe.Recipe;
 import store.myproject.onlineshop.domain.review.Review;

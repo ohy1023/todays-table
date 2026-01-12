@@ -1,6 +1,6 @@
 package store.myproject.onlineshop.fixture;
 
-import com.github.javafaker.Faker;
+import net.datafaker.Faker;
 import org.instancio.Instancio;
 import store.myproject.onlineshop.domain.customer.*;
 import store.myproject.onlineshop.domain.membership.MemberShip;

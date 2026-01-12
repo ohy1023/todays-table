@@ -14,10 +14,10 @@ import java.util.UUID;
 public class PostVerificationRequest {
 
     @NotNull(message = "merchantUid는 필수입니다.")
-    @Schema(description = "주문 고유 식별자", example = "13dd3e84-2b3a-11f0-9aef-59f7f88a8400", required = true)
+    @Schema(description = "주문 고유 식별자", example = "13dd3e84-2b3a-11f0-9aef-59f7f88a8400", requiredMode = Schema.RequiredMode.REQUIRED)
     private UUID merchantUid;
 
     @NotNull(message = "impUid는 필수입니다.")
-    @Schema(description = "포트원에서 제공한 결제 고유 번호", example = "imp_123456789012", required = true)
+    @Schema(description = "포트원에서 제공한 결제 고유 번호", example = "imp_123456789012", requiredMode = Schema.RequiredMode.REQUIRED)
     private String impUid;
 }

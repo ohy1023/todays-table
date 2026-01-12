@@ -2,13 +2,14 @@ package store.myproject.onlineshop.domain.review;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.type.SqlTypes;
 import store.myproject.onlineshop.domain.common.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.recipe.Recipe;
 import store.myproject.onlineshop.dto.review.ReviewUpdateRequest;
-import store.myproject.onlineshop.global.utils.UUIDBinaryConverter;
 
 import java.util.UUID;
 
@@ -20,9 +21,10 @@ import static jakarta.persistence.FetchType.*;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Where(clause = "deleted_date IS NULL")
-@SQLDelete(sql = "UPDATE Review SET deleted_date = CURRENT_TIMESTAMP WHERE review_id = ?")
+@SQLDelete(sql = "UPDATE review SET deleted_date = CURRENT_TIMESTAMP WHERE review_id = ?")
+@SQLRestriction("deleted_date IS NULL")
 @Table(
+        name = "review",
         indexes = {
                 @Index(name = "idx_review_uuid", columnList = "review_uuid"),
                 @Index(name = "idx_deleted_date", columnList = "deleted_date")
@@ -35,8 +37,8 @@ public class Review extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "review_uuid", nullable = false, unique = true, columnDefinition = "BINARY(16)")
-    @Convert(converter = UUIDBinaryConverter.class)
     private UUID uuid;
 
     @Column(name = "parent_id")

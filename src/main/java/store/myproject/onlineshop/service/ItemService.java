@@ -89,8 +89,7 @@ public class ItemService {
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            // todo 커스텀 에러료 리팩토링
-            throw new RuntimeException("Thread interrupted during lock acquisition", e);
+            throw new AppException(FAIL_ROCK_ACQUIRE);
         }
     }
 

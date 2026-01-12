@@ -12,8 +12,8 @@
         i.thumbnail,
         i.item_price,
         ci.cart_item_cnt AS item_cnt
-        FROM CartItem AS ci
-        JOIN Item i ON i.item_id = ci.item_id
+        FROM cart_item AS ci
+        JOIN item i ON i.item_id = ci.item_id
         <where>
             <if test="cartId != null">
                 AND ci.cart_id = #{cartId}

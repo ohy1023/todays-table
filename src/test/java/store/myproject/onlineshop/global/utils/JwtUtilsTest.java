@@ -19,10 +19,7 @@ class JwtUtilsTest {
 
     @BeforeEach
     void setUp() {
-        jwtUtils = new JwtUtils();
-        ReflectionTestUtils.setField(jwtUtils, "secretKey", secretKey);
-        ReflectionTestUtils.setField(jwtUtils, "accessTokenExpiration", accessTokenExpiration);
-        ReflectionTestUtils.setField(jwtUtils, "refreshTokenExpiration", refreshTokenExpiration);
+        jwtUtils = new JwtUtils(secretKey, accessTokenExpiration, refreshTokenExpiration);
     }
 
     @Test

@@ -2,6 +2,9 @@ package store.myproject.onlineshop.domain.cart;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+import store.myproject.onlineshop.domain.common.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Customer;
 
 import java.util.ArrayList;
@@ -12,7 +15,10 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Cart {
+@SQLDelete(sql = "UPDATE cart SET deleted_date = CURRENT_TIMESTAMP WHERE cart_id = ?")
+@SQLRestriction("deleted_date IS NULL")
+@Table(name = "cart")
+public class Cart extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -16,28 +16,28 @@ import lombok.NoArgsConstructor;
 @Schema(description = "배송지 수정 요청 DTO")
 public class DeliveryUpdateRequest {
 
-    @Schema(description = "수취인의 이름", example = "홍길동", required = true)
+    @Schema(description = "수취인의 이름", example = "홍길동", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "수취인 이름은 필수입니다.")
     private String recipientName;
 
-    @Schema(description = "수취인의 전화번호", example = "010-1234-5678", required = true)
+    @Schema(description = "수취인의 전화번호", example = "010-1234-5678", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "전화번호는 필수입니다.")
     @Pattern(regexp = "^010-\\d{4}-\\d{4}$", message = "전화번호 형식이 올바르지 않습니다. 예: 010-1234-5678")
     private String recipientTel;
 
-    @Schema(description = "도시", example = "서울시", required = true)
+    @Schema(description = "도시", example = "서울시", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "도시는 필수입니다.")
     private String city;
 
-    @Schema(description = "거리 주소", example = "강남구 테헤란로", required = true)
+    @Schema(description = "거리 주소", example = "강남구 테헤란로", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "거리 주소는 필수입니다.")
     private String street;
 
-    @Schema(description = "상세 주소", example = "6층 602호", required = true)
+    @Schema(description = "상세 주소", example = "6층 602호", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "상세 주소는 필수입니다.")
     private String detail;
 
-    @Schema(description = "우편번호", example = "12345", required = true)
+    @Schema(description = "우편번호", example = "12345", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "우편번호는 필수입니다.")
     @Size(min = 5, max = 5, message = "우편번호는 5자리여야 합니다.")
     private String zipcode;

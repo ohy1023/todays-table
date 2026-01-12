@@ -2,6 +2,9 @@ package store.myproject.onlineshop.domain.like;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+import store.myproject.onlineshop.domain.common.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.recipe.Recipe;
 
@@ -10,10 +13,12 @@ import static jakarta.persistence.FetchType.LAZY;
 @Entity
 @Getter
 @Builder
-@Table(name = "LikeCount")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Like {
+@SQLDelete(sql = "UPDATE like_count SET deleted_date = CURRENT_TIMESTAMP WHERE like_id = ?")
+@SQLRestriction("deleted_date IS NULL")
+@Table(name = "like_count")
+public class Like extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

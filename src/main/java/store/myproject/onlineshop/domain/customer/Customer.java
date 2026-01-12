@@ -3,7 +3,7 @@ package store.myproject.onlineshop.domain.customer;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 import store.myproject.onlineshop.domain.common.BaseEntity;
 import store.myproject.onlineshop.domain.like.Like;
 import store.myproject.onlineshop.domain.membership.MemberShip;
@@ -21,9 +21,10 @@ import static jakarta.persistence.FetchType.*;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Where(clause = "deleted_date IS NULL")
-@SQLDelete(sql = "UPDATE Customer SET deleted_date = CURRENT_TIMESTAMP WHERE customer_id = ?")
+@SQLDelete(sql = "UPDATE customer SET deleted_date = CURRENT_TIMESTAMP WHERE customer_id = ?")
+@SQLRestriction("deleted_date IS NULL")
 @Table(
+        name = "customer",
         uniqueConstraints = {
                 // email과 deleted_date 컬럼을 묶어서 복합 유니크 제약 조건 추가
                 @UniqueConstraint(

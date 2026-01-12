@@ -6,13 +6,19 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+import store.myproject.onlineshop.domain.common.BaseEntity;
 
 @Entity
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RecipeMeta {
+@SQLDelete(sql = "UPDATE recipe_meta SET deleted_date = CURRENT_TIMESTAMP WHERE recipe_meta_id = ?")
+@SQLRestriction("deleted_date IS NULL")
+@Table(name = "recipe_meta")
+public class RecipeMeta extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import store.myproject.onlineshop.domain.common.BaseEntity;
 
 import java.math.BigDecimal;
@@ -12,6 +14,9 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@SQLDelete(sql = "UPDATE async_failure_log SET deleted_date = CURRENT_TIMESTAMP WHERE async_failure_log_id = ?")
+@SQLRestriction("deleted_date IS NULL")
+@Table(name = "async_failure_log")
 public class AsyncFailureLog extends BaseEntity {
 
     @Id

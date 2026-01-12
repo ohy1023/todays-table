@@ -35,6 +35,8 @@ spring:
       initialize-schema: always
     job:
       enabled: false
+  jackson:
+    use-jackson2-defaults: false
 
 server:
   port: ${SERVER_PORT:8089}

@@ -1,8 +1,9 @@
 package store.myproject.onlineshop.global.batch;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.batch.item.Chunk;
-import org.springframework.batch.item.ItemWriter;
+
+import org.springframework.batch.infrastructure.item.Chunk;
+import org.springframework.batch.infrastructure.item.ItemWriter;
 import store.myproject.onlineshop.dto.order.CustomerMembershipUpdateDto;
 import store.myproject.onlineshop.domain.customer.CustomerRepository;
 
@@ -39,4 +40,5 @@ public class CustomerMembershipWriter implements ItemWriter<CustomerMembershipUp
 
         customerRepository.resetMonthlyPurchaseAmounts(customerIds);
     }
+
 }

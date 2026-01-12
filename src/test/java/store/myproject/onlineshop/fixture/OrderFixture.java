@@ -1,7 +1,7 @@
 package store.myproject.onlineshop.fixture;
 
 
-import com.github.javafaker.Faker;
+import net.datafaker.Faker;
 
 import store.myproject.onlineshop.dto.cart.CartOrderRequest;
 import store.myproject.onlineshop.dto.order.*;

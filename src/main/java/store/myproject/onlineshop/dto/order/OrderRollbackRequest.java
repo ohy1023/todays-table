@@ -14,7 +14,7 @@ import java.util.UUID;
 public class OrderRollbackRequest {
 
     @NotNull(message = "주문 UUID는 필수입니다.")
-    @Schema(description = "주문 UUID", example = "11dd3e84-2b3a-11f0-9aef-59f7f88a8400", required = true)
+    @Schema(description = "주문 UUID", example = "11dd3e84-2b3a-11f0-9aef-59f7f88a8400", requiredMode = Schema.RequiredMode.REQUIRED)
     private UUID merchantUid;
 
 }

@@ -2,8 +2,10 @@ package store.myproject.onlineshop.domain.recipe;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.type.SqlTypes;
 import store.myproject.onlineshop.domain.common.BaseEntity;
 import store.myproject.onlineshop.domain.customer.Customer;
 import store.myproject.onlineshop.domain.like.Like;
@@ -11,7 +13,6 @@ import store.myproject.onlineshop.dto.recipe.RecipeUpdateRequest;
 import store.myproject.onlineshop.domain.recipemeta.RecipeMeta;
 import store.myproject.onlineshop.domain.recipestep.RecipeStep;
 import store.myproject.onlineshop.domain.review.Review;
-import store.myproject.onlineshop.global.utils.UUIDBinaryConverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +24,9 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Where(clause = "deleted_date IS NULL")
-@SQLDelete(sql = "UPDATE Recipe SET deleted_date = CURRENT_TIMESTAMP WHERE recipe_id = ?")
+@SQLDelete(sql = "UPDATE recipe SET deleted_date = CURRENT_TIMESTAMP WHERE recipe_id = ?")
+@SQLRestriction("deleted_date IS NULL")
+@Table(name = "recipe")
 public class Recipe extends BaseEntity {
 
     @Id
@@ -32,8 +34,8 @@ public class Recipe extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "recipe_uuid", nullable = false, unique = true, columnDefinition = "BINARY(16)")
-    @Convert(converter = UUIDBinaryConverter.class)
     private UUID uuid;
 
     // 제목

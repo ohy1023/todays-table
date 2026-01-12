@@ -9,7 +9,7 @@
         SELECT
         o.orders_id
         FROM
-        Orders o
+        orders o
         <where>
             o.deleted_date IS NULL
             AND o.customer_id = #{customerId}
@@ -19,9 +19,9 @@
                 <when test="cond.brandName != null and cond.brandName != ''">
                     AND EXISTS (
                     SELECT 1
-                    FROM OrderItem oi
-                    JOIN Item i ON oi.item_id = i.item_id
-                    JOIN Brand b ON i.brand_id = b.brand_id
+                    FROM order_item oi
+                    JOIN item i ON oi.item_id = i.item_id
+                    JOIN brand b ON i.brand_id = b.brand_id
                     WHERE oi.orders_id = o.orders_id
                     AND MATCH(b.brand_name) AGAINST(#{cond.brandName} IN NATURAL LANGUAGE MODE) > 0
                     )
@@ -29,8 +29,8 @@
                 <when test="cond.itemName != null and cond.itemName != ''">
                     AND EXISTS (
                     SELECT 1
-                    FROM OrderItem oi
-                    JOIN Item i ON oi.item_id = i.item_id
+                    FROM order_item oi
+                    JOIN item i ON oi.item_id = i.item_id
                     WHERE oi.orders_id = o.orders_id
                     AND MATCH(i.item_name) AGAINST(#{cond.itemName} IN NATURAL LANGUAGE MODE) > 0
                     )
@@ -64,11 +64,11 @@
         i.thumbnail,
         b.brand_uuid,
         b.brand_name
-        FROM Orders o
-        JOIN Delivery d ON o.delivery_id = d.delivery_id
-        JOIN OrderItem oi ON o.orders_id = oi.orders_id
-        JOIN Item i ON oi.item_id = i.item_id
-        JOIN Brand b ON i.brand_id = b.brand_id
+        FROM orders o
+        JOIN delivery d ON o.delivery_id = d.delivery_id
+        JOIN order_item oi ON o.orders_id = oi.orders_id
+        JOIN item i ON oi.item_id = i.item_id
+        JOIN brand b ON i.brand_id = b.brand_id
         <where>
             <if test="orderIds != null and orderIds.size() > 0">
                 o.orders_id IN

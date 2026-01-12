@@ -3,13 +3,15 @@ package store.myproject.onlineshop.global.batch.config;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.database.JpaPagingItemReader;
+
+import org.springframework.batch.infrastructure.item.database.JpaPagingItemReader;
+import org.springframework.batch.infrastructure.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
@@ -45,21 +47,22 @@ public class MembershipUpdateJobConfig {
                                      EntityManagerFactory entityManagerFactory
     ) {
         return new StepBuilder("membershipUpdateStep", jobRepository)
-                .<Customer, CustomerMembershipUpdateDto>chunk(1000, transactionManager)
+                .<Customer, CustomerMembershipUpdateDto>chunk(1000)
                 .reader(customerItemReader(entityManagerFactory))
                 .processor(customerMembershipProcessor())
                 .writer(customerItemWriter())
+                .transactionManager(transactionManager)
                 .build();
     }
 
-
     @Bean
     public JpaPagingItemReader<Customer> customerItemReader(EntityManagerFactory entityManagerFactory) {
-        JpaPagingItemReader<Customer> reader = new JpaPagingItemReader<>();
-        reader.setEntityManagerFactory(entityManagerFactory);
-        reader.setQueryString("SELECT c FROM Customer c"); // WHERE c.deleted_date IS NULL 자동 적용됨
-        reader.setPageSize(1000);
-        return reader;
+        return new JpaPagingItemReaderBuilder<Customer>()
+                .name("customerItemReader")
+                .entityManagerFactory(entityManagerFactory)
+                .queryString("SELECT c FROM Customer c")
+                .pageSize(1000)
+                .build();
     }
 
     @Bean

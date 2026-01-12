@@ -29,7 +29,7 @@ public class RecipeMetaService {
     private static final int MAX_RETRY = 3;
 
     @Retryable(
-            value = Exception.class,
+            retryFor = Exception.class,
             maxAttempts = MAX_RETRY,
             backoff = @Backoff(delay = 200, multiplier = 2))
     @Async("recipeMetaExecutor")
@@ -45,7 +45,7 @@ public class RecipeMetaService {
     }
 
     @Retryable(
-            value = Exception.class,
+            retryFor = Exception.class,
             maxAttempts = MAX_RETRY,
             backoff = @Backoff(delay = 200, multiplier = 2))
     @Async("recipeMetaExecutor")
@@ -61,7 +61,7 @@ public class RecipeMetaService {
     }
 
     @Retryable(
-            value = Exception.class,
+            retryFor = Exception.class,
             maxAttempts = MAX_RETRY,
             backoff = @Backoff(delay = 200, multiplier = 2))
     @Async("recipeMetaExecutor")
@@ -77,7 +77,7 @@ public class RecipeMetaService {
     }
 
     @Retryable(
-            value = Exception.class,
+            retryFor = Exception.class,
             maxAttempts = MAX_RETRY,
             backoff = @Backoff(delay = 200, multiplier = 2))
     @Async("recipeMetaExecutor")
@@ -93,7 +93,7 @@ public class RecipeMetaService {
     }
 
     @Retryable(
-            value = Exception.class,
+            retryFor = Exception.class,
             maxAttempts = MAX_RETRY,
             backoff = @Backoff(delay = 200, multiplier = 2))
     @Async("recipeMetaExecutor")

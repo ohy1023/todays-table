@@ -2,6 +2,9 @@ package store.myproject.onlineshop.domain.order;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+import store.myproject.onlineshop.domain.common.BaseEntity;
 import store.myproject.onlineshop.domain.item.Item;
 
 import java.math.BigDecimal;
@@ -14,12 +17,15 @@ import static lombok.AccessLevel.PROTECTED;
 @Builder
 @NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor
+@SQLDelete(sql = "UPDATE order_item SET deleted_date = CURRENT_TIMESTAMP WHERE order_item_id = ?")
+@SQLRestriction("deleted_date IS NULL")
 @Table(
+        name = "order_item",
         indexes = {
                 @Index(name = "idx_order_item_order_item", columnList = "orders_id, item_id")
         }
 )
-public class OrderItem {
+public class OrderItem extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

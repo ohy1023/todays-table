@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -33,18 +34,31 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                .httpBasic().disable()
-                .csrf().disable()
+                // 1. httpBasic, csrf, formLogin disable 처리
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+
+                // 2. CORS 설정
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
+
+                // 3. 세션 설정 (STATELESS)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+
+                // 4. 인가 설정 (authorizeHttpRequests)
                 .authorizeHttpRequests(this::configureAuthorization)
+
+                // 5. 예외 처리
                 .exceptionHandling(exception -> exception
                         .accessDeniedHandler(new CustomAccessDeniedHandler())
                         .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                 )
+
+                // 6. JWT 필터 추가
                 .addFilterBefore(new JwtFilter(customerService, jwtUtils), UsernamePasswordAuthenticationFilter.class)
+
                 .build();
     }
 
@@ -67,14 +81,13 @@ public class SecurityConfiguration {
         authorize.anyRequest().denyAll();
     }
 
-    private void configureSwaggerAccess(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry authorize) {
+    private void configureSwaggerAccess(org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry authorize) {
         String[] swaggerPaths = {
                 "/swagger-ui.html/**", "/swagger-ui/**", "/api-docs/**",
                 "/swagger-resources/**", "/v3/api-docs/**"
         };
         authorize.requestMatchers(swaggerPaths).permitAll();
     }
-
     private void configureBrandAccess(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry authorize) {
         String[] brandGetPaths = {"/api/v1/brands", "/api/v1/brands/*"};
         String[] brandPostPaths = {"/api/v1/brands"};
@@ -191,24 +204,14 @@ public class SecurityConfiguration {
 
     private CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
         configuration.setAllowedOriginPatterns(List.of("*"));
-
-        // 허용할 HTTP 메서드
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-
-        // 허용할 헤더
         configuration.setAllowedHeaders(List.of("*"));
-
-        // 자격 증명 허용 (JWT 토큰 등)
         configuration.setAllowCredentials(true);
-
-        // Preflight 요청 캐시 시간 (초)
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-
         return source;
     }
 }

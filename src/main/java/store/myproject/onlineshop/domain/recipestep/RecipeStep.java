@@ -2,6 +2,9 @@ package store.myproject.onlineshop.domain.recipestep;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+import store.myproject.onlineshop.domain.common.BaseEntity;
 import store.myproject.onlineshop.domain.recipe.Recipe;
 
 @Entity
@@ -9,7 +12,10 @@ import store.myproject.onlineshop.domain.recipe.Recipe;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class RecipeStep {
+@SQLDelete(sql = "UPDATE recipe_step SET deleted_date = CURRENT_TIMESTAMP WHERE recipe_step_id = ?")
+@SQLRestriction("deleted_date IS NULL")
+@Table(name = "recipe_step")
+public class RecipeStep extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
