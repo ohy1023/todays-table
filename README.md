@@ -8,9 +8,9 @@
 
 **Backend**
 
-- Java 17
-- Gradle
-- Spring Boot 3.0.6
+- Java 21
+- Gradle 9.2.1
+- Spring Boot 4.0.1
 - Spring Data JPA
 - Spring Security
 - MyBatis
