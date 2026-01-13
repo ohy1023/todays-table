@@ -9,7 +9,7 @@ SET @index_exists := (
 
 SET @create_index_brand := IF(
         @index_exists = 0,
-        'ALTER TABLE brand ADD FULLTEXT INDEX idx_brand_name_fulltext (name) WITH PARSER ngram;',
+        'ALTER TABLE brand ADD FULLTEXT INDEX idx_brand_name_fulltext (brand_name) WITH PARSER ngram;',
         'SELECT "Index already exists for brand"'
                            );
 

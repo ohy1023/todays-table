@@ -3,6 +3,7 @@ package store.myproject.onlineshop.global.init;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import store.myproject.onlineshop.domain.customer.Level;
 import store.myproject.onlineshop.dto.membership.MemberShipCreateRequest;
 import store.myproject.onlineshop.service.MemberShipService;
@@ -16,6 +17,7 @@ public class MemberShipInitializer implements CommandLineRunner {
     private final MemberShipService memberShipService;
 
     @Override
+    @Transactional
     public void run(String... args) {
         createIfNotExists(Level.BRONZE, BigDecimal.ZERO, BigDecimal.ZERO);
         createIfNotExists(Level.SILVER, BigDecimal.valueOf(100_000), BigDecimal.valueOf(0.1));
